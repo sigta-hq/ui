@@ -21,7 +21,7 @@
     {
         "repositories": [{
             "type": "vcs",
-            "url": "git@github.com:sigta-dk/ui.git"
+            "url": "git@github.com:sigta-hq/ui.git"
         }]
     }
     JSON;
@@ -30,7 +30,7 @@
     {
         "repositories": [{
             "type": "vcs",
-            "url": "https://github.com/sigta-dk/ui.git"
+            "url": "https://github.com/sigta-hq/ui.git"
         }]
     }
     JSON;
@@ -44,7 +44,7 @@
         },
         "repositories": [{
             "type": "vcs",
-            "url": "git@github.com:sigta-dk/ui.git"
+            "url": "git@github.com:sigta-hq/ui.git"
         }]
     }
     JSON;

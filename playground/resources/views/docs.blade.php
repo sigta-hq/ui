@@ -321,7 +321,7 @@
     <footer class="border-t border-line py-8 mt-6 flex flex-wrap items-center justify-between gap-4 font-mono text-[0.72rem] text-graphite">
         <span class="inline-flex items-center gap-2"><x-sigta::badge variant="solid">internal</x-sigta::badge> Sigta UI docs</span>
         <span class="flex flex-wrap items-center gap-4">
-            <a href="https://github.com/sigta/ui#readme" class="text-ink no-underline hover:underline hover:underline-offset-[3px]">README</a>
+            <a href="https://github.com/sigta-hq/ui#readme" class="text-ink no-underline hover:underline hover:underline-offset-[3px]">README</a>
             <a href="/kit" class="text-ink no-underline hover:underline hover:underline-offset-[3px]">Component kit</a>
             <a href="/kit/theming" class="text-ink no-underline hover:underline hover:underline-offset-[3px]">Theme switch</a>
         </span>
