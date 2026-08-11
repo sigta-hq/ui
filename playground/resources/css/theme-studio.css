@@ -1,0 +1,37 @@
+/* ---------------------------------------------------------------------------
+   "Studio" — a second brand, proving Sigta UI re-skins with values alone.
+
+   Same token names, totally different feel: cool neutrals, an indigo accent,
+   a geometric sans instead of Fraunces/Newsreader, rounder corners. Scoped to
+   [data-sigta-theme="studio"] so it coexists with the default Sigta brand in
+   the same build — set the attribute on any subtree to switch brands there.
+
+   No component markup changes. This whole file is the "rebrand".
+--------------------------------------------------------------------------- */
+[data-sigta-theme="studio"] {
+    --sigta-surface: #ffffff;
+    --sigta-surface-raised: #f6f7f9;
+    --sigta-fg: #111827;
+    --sigta-fg-muted: #6b7280;
+    --sigta-line: #e5e7eb;
+
+    --sigta-accent: #6366f1;
+    --sigta-accent-line: #4f46e5;
+    --sigta-success: #16a34a;
+    --sigta-danger: #dc2626;
+
+    --sigta-inverse: #111827;
+    --sigta-inverse-fg: #ffffff;
+    --sigta-inverse-fg-muted: #9ca3af;
+    --sigta-inverse-line: #374151;
+
+    --sigta-font-head: ui-sans-serif, system-ui, sans-serif;
+    --sigta-font-body: ui-sans-serif, system-ui, sans-serif;
+    --sigta-font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sigta-font-hand: ui-sans-serif, system-ui, sans-serif;
+
+    --sigta-radius: 8px;
+    --sigta-radius-lg: 12px;
+    --sigta-radius-xl: 20px;
+    --sigta-shadow: 0 1px 2px rgba(17, 24, 39, .04), 0 12px 32px -16px rgba(17, 24, 39, .25);
+}

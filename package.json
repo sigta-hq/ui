@@ -1,0 +1,16 @@
+{
+    "name": "@sigta/ui-assets",
+    "private": true,
+    "description": "Asset pipeline for sigta/ui — bundles the editor (TipTap) into dist/. The core runtime (dist/sigta.js) stays a verbatim copy of resources/js/sigta.js.",
+    "type": "module",
+    "scripts": {
+        "build": "npm run build:core && npm run build:editor",
+        "build:core": "cp resources/js/sigta.js dist/sigta.js",
+        "build:editor": "esbuild resources/js/editor.js --bundle --minify --format=iife --outfile=dist/sigta-editor.js"
+    },
+    "devDependencies": {
+        "@tiptap/core": "^2.14.0",
+        "@tiptap/starter-kit": "^2.14.0",
+        "esbuild": "^0.25.0"
+    }
+}

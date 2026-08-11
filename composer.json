@@ -1,0 +1,52 @@
+{
+    "name": "sigta/ui",
+    "description": "Sigta UI — Livewire/Blade component library carrying the Sigta brand. Paper, ink, and hand-drawn accents as a foundation for landing pages and SaaS platforms.",
+    "type": "library",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Søren Risbøll Frisk",
+            "email": "sf@sigta.dk"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^12.0|^13.0",
+        "illuminate/view": "^12.0|^13.0",
+        "livewire/livewire": "^3.5",
+        "mallardduck/blade-lucide-icons": "^1.26"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.0|^11.0",
+        "pestphp/pest": "^3.7",
+        "pestphp/pest-plugin-laravel": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Sigta\\Ui\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Sigta\\Ui\\SigtaServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "pest"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

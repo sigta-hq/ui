@@ -1,0 +1,50 @@
+{{-- Brand header.nav: sticky translucent paper bar with hairline. Slots: brand / default (links) / actions. --}}
+@php
+$panelId = 'sigta-navbar-panel-'.\Illuminate\Support\Str::random(8);
+@endphp
+
+<header
+    data-sigta="navbar"
+    x-data="{ open: false }"
+    {{ $attributes->merge(['class' => 'sticky top-0 z-50 bg-surface/85 backdrop-blur-md border-b border-line']) }}
+>
+    <div class="max-w-(--sigta-maxw) mx-auto px-(--sigta-gutter) flex items-center justify-between gap-4 h-[68px]">
+        @isset ($brand)
+            <div {{ $brand->attributes->merge(['class' => 'flex items-center shrink-0']) }}>{{ $brand }}</div>
+        @endisset
+
+        <nav class="hidden md:flex items-center gap-8" aria-label="Primary">
+            {{ $slot }}
+        </nav>
+
+        <div class="flex items-center gap-3">
+            @isset ($actions)
+                <div {{ $actions->attributes->merge(['class' => 'flex items-center gap-3']) }}>{{ $actions }}</div>
+            @endisset
+
+            <button
+                type="button"
+                class="md:hidden inline-flex items-center justify-center p-2 -mr-2 text-ink rounded-base cursor-pointer hover:bg-ink/5 transition duration-150 ease-out"
+                aria-expanded="false"
+                :aria-expanded="open ? 'true' : 'false'"
+                aria-controls="{{ $panelId }}"
+                aria-label="Menu"
+                @click="open = !open"
+            >
+                <span x-show="!open"><x-sigta::icon name="menu" /></span>
+                <span x-show="open" x-cloak><x-sigta::icon name="x" /></span>
+            </button>
+        </div>
+    </div>
+
+    <nav
+        id="{{ $panelId }}"
+        x-show="open"
+        x-cloak
+        @keydown.escape.window="open = false"
+        class="md:hidden border-t border-line px-(--sigta-gutter) py-4 flex flex-col gap-3"
+        aria-label="Primary"
+    >
+        {{ $slot }}
+    </nav>
+</header>

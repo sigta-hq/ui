@@ -1,0 +1,2 @@
+{{-- Highlighter swipe behind a word or two. Use sparingly — one per view. --}}
+<span {{ $attributes->merge(['class' => "relative isolate whitespace-nowrap after:content-[''] after:absolute after:-inset-x-[0.12em] after:bottom-[0.08em] after:h-[0.52em] after:-z-10 after:rounded-[2px] after:bg-accent after:[transform:skewX(-4deg)_rotate(-0.6deg)]"]) }} data-sigta="mark">{{ $slot }}</span>

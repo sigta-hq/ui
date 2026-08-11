@@ -1,0 +1,15 @@
+/* ---------------------------------------------------------------------------
+   Sigta UI — default drop-in stylesheet
+
+   Core (brand-agnostic structure) + the Sigta brand theme. This is what you
+   want for a Sigta-branded app:
+
+       @import "tailwindcss";
+       @import "../../vendor/sigta/ui/resources/css/sigta.css";
+       @source "../../vendor/sigta/ui/resources/views";
+
+   To carry a DIFFERENT brand, don't import this file — import `core.css` plus
+   your own theme instead (see core.css / theme.example.css).
+--------------------------------------------------------------------------- */
+@import "./core.css";
+@import "./theme.css";

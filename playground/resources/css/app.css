@@ -1,0 +1,7 @@
+@import 'tailwindcss';
+@import '../../vendor/sigta/ui/resources/css/sigta.css';
+@import './theme-studio.css';
+
+@source '../../vendor/sigta/ui/resources/views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';

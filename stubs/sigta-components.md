@@ -1,0 +1,535 @@
+# Sigta UI — Component Reference
+
+> Published into your project by `php artisan sigta:install`. Overwritten on
+> every run — never hand-edit it here. This is the exhaustive API surface an LLM
+> agent scans to pick the right component. Read the rules in `sigta-ui.md` first.
+
+Every component is an anonymous Blade component. Either tag form works:
+
+```blade
+<sigta:button variant="cta">Save</sigta:button>      {{-- preferred terse form --}}
+<x-sigta::button variant="cta">Save</x-sigta::button>  {{-- canonical form --}}
+```
+
+Subcomponents use a dot: `<sigta:dropdown.item>`, `<sigta:tabs.panel>`.
+Unknown attributes (`wire:model`, `x-*`, `id`, `aria-*`, `name`) always forward
+to the native element. Props with no default are **required**.
+
+---
+
+## Elements (indivisible blocks)
+
+### typography family
+
+A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
+
+#### `heading`
+- **Props:** `level` (int, default `2`), `size` (default derived from level: 1→xl, 2→lg, 3→base, else sm)
+- **Sizes:** `display`, `xl`, `lg`, `base`, `sm`
+- Renders `<h1>`–`<h6>`. Semantic level drives default size; override with `size`.
+```blade
+<sigta:heading level="1" size="display">Page title</sigta:heading>
+```
+
+#### `text`
+- **Props:** `variant` (default `body`)
+- **Variants:** `lede`, `muted`, `caption`, `hand`, `body`
+- Body paragraph with tonal/typographic variants. `lede` = large intro; `muted` = graphite secondary; `caption` = small mono; `hand` = Caveat handwriting.
+```blade
+<sigta:text variant="muted">Secondary detail.</sigta:text>
+```
+
+#### `eyebrow`
+- **Props:** none
+- Mono uppercase kicker with a leading dash rule. Sits above section headings.
+```blade
+<sigta:eyebrow>01 · Install</sigta:eyebrow>
+```
+
+#### `mark`
+- **Props:** none
+- Highlighter swipe behind a word or two. Use **sparingly** — one per view.
+```blade
+<sigta:heading level="2">One brand, <sigta:mark>every surface</sigta:mark>.</sigta:heading>
+```
+
+#### `annot`
+- **Props:** `rotate` (default `-6`), `tone` (default `ink`), `muted` (bool, default `false`), `decorative` (bool, default `true`)
+- **Tones:** `muted`, `accent`, `ink`
+- Handwritten margin annotation (Caveat). `decorative=true` → `aria-hidden`.
+```blade
+<sigta:annot tone="accent">lad os tegne det op ↘</sigta:annot>
+```
+
+#### `rule`
+- **Props:** `variant` (int, default `1`)
+- **Variants:** `1`, `2`, `3` (three hand-drawn squiggle paths)
+- Decorative divider, `aria-hidden`.
+```blade
+<sigta:rule variant="2" />
+```
+
+#### `separator`
+- **Props:** `variant` (default `solid`)
+- **Variants:** `solid`, `dashed`
+- Plain `<hr>`. Use inside content; use `<sigta:rule>` for decorative dividers.
+
+#### `brand`
+- **Props:** `name` (default `SIGTA`), `glyphOnly` (bool, default `false`), `size` (default `base`)
+- **Sizes:** `sm`, `base`, `lg`
+- Wordmark + glyph lockup. `currentColor` throughout.
+```blade
+<sigta:brand size="lg" />
+```
+
+### `button`
+- **Props:** `variant` (default `secondary`), `size` (default `base`), `icon` (default null), `href` (default null), plus any native `<button>`/`<a>` attributes
+- **Variants:** `primary`, `cta`, `ghost`, `danger`, `inverse`, `ghost-inverse`, `secondary`
+- **Sizes:** `sm`, `base`
+- Renders `<a>` when `href` is set, else `<button>`. Lifts on hover. `cta` = accent-filled emphasis.
+```blade
+<sigta:button variant="cta" href="/book">Book a project <sigta:icon name="arrow-right" size="sm" /></sigta:button>
+<sigta:button>Preview</sigta:button>
+<sigta:button variant="ghost">Cancel</sigta:button>
+```
+
+### `badge`
+- **Props:** `variant` (default `outline`)
+- **Variants:** `solid`, `accent`, `outline`
+- Small mono pill with 1.5px border.
+```blade
+<sigta:badge>Draft</sigta:badge>
+<sigta:badge variant="solid">Live</sigta:badge>
+```
+
+### `pill`
+- **Props:** `variant` (default `neutral`)
+- **Variants:** `success`, `danger`, `neutral`
+- Status pill with leading dot and tinted background.
+
+### `avatar`
+- **Props:** `src` (default null), `name` (default null), `alt` (default null), `shape` (default `circle`), `size` (default `base`), `tone` (default `ink`)
+- **Sizes:** `xs`, `sm`, `base`, `lg` · **Shapes:** `circle`, `square` · **Tones:** `ink`, `line`
+- Shows initials fallback when no `src`.
+
+### `profile`
+- **Props:** `name`, `meta`, `src`, `reverse` (bool, default `false`)
+- Avatar + name + optional meta line. `reverse` mirrors layout.
+
+### `icon`
+- **Props:** `name` (**required**), `size` (default `base`)
+- **Sizes:** `xs`, `sm`, `base`, `lg`
+- Lucide renderer. `aria-hidden` by default; pass `aria-label` for meaningful icons.
+```blade
+<sigta:icon name="arrow-right" size="sm" />
+```
+
+### `input`
+- **Props:** `label`, `description`, `error`, `icon`, `type` (default `text`), plus native `<input>` attrs (`wire:model`, `name`, etc.)
+- Text input with optional leading icon, wrapped in `<sigta:field>`.
+```blade
+<sigta:input label="Email" type="email" icon="mail" wire:model="email" placeholder="you@studio.co" description="We only use this for the invoice." />
+```
+
+### `textarea`
+- **Props:** `label`, `description`, `error`, `rows` (default `4`), plus native attrs
+
+### `select`
+- **Props:** `label`, `description`, `error`, plus native `<select>` attrs
+- Native select with chevron overlay, wrapped in `<sigta:field>`.
+
+### `checkbox`
+- **Props:** `label`, plus native attrs. Renders `<label>` wrapper when `label` set, bare input otherwise.
+
+### `radio`
+- **Props:** `label`, plus native attrs. Same wrapper behavior as checkbox.
+
+### `switch`
+- **Props:** `label`, plus native attrs. `role="switch"` toggle with sliding thumb.
+
+### `slider`
+- **Props:** `label`, `description`, `error`, `showValue` (bool, default `false`), plus native range attrs
+- Brand-styled range input; optional live value readout.
+
+### `skeleton`
+- **Props:** `variant` (default `line`)
+- **Variants:** `heading`, `block`, `circle`, `line`
+- Loading placeholder, `aria-hidden`.
+
+### `progress`
+- **Props:** `value` (default `0`), `max` (default `100`), `label`, `indeterminate` (bool, default `false`)
+- Determinate or indeterminate progress bar.
+
+### `field`
+- **Props:** `label`, `description`, `error`, `for` (default auto-generated id)
+- Field wrapper: label + slot (the control) + description/error. Transparent if no label/description/error. Use when wrapping a custom control.
+
+### `label`
+- **Props:** none. Mono uppercase form label.
+
+---
+
+## Components (functional units with internal parts)
+
+### `stat`
+- **Props:** `label`, `value`, `delta`, `trend`, `variant` (default `panel`)
+- **Variants (`variant`):** `inline`, `panel` · **Variants (`trend`):** `up`, `down`
+- Numeric figure with optional delta + trend arrow.
+
+### `callout`
+- **Props:** `variant` (default `info`), `icon`, `heading`
+- **Variants:** `success`, `danger`, `info`
+- Inline alert with left accent border; icon + ARIA role auto-selected.
+```blade
+<sigta:callout variant="success" heading="Deploy complete.">Plumb 2.4 is live.</sigta:callout>
+```
+
+### `card`
+- **Props:** `hover` (bool, default `true`)
+- Raised surface with optional thumb slot (`<x-slot:thumb>`). Lifts on hover when `hover=true`.
+
+### `panel`
+- **Props:** none (slot + attributes only)
+- Bordered surface **without** `overflow-hidden` — so overhanging annotations/badges show. Static (no hover lift). Use where Card would clip.
+
+### `tooltip`
+- **Props:** `text` (**required**), `position` (default `top`)
+- **Positions:** `top`, `bottom`, `left`, `right`
+- Ink bubble on hover/focus, 150ms open delay. Escape dismisses.
+```blade
+<sigta:tooltip text="Delete permanently"><sigta:button variant="ghost"><sigta:icon name="trash-2" /></sigta:button></sigta:tooltip>
+```
+
+### `dropdown` family
+
+Menu container + items. `sigtaDropdown` Alpine handles open/escape/click-outside/roving focus.
+
+#### `dropdown`
+- **Props:** `position` (default `bottom-start`)
+- **Positions:** `bottom-start`, `bottom-end`, `top-start`, `top-end`
+- Trigger goes in the default slot; items in `<x-slot:menu>` or directly.
+
+#### `dropdown.item`
+- **Props:** `icon`, `variant` (default `default`), `kbd`, plus `href`
+- **Variants:** `danger`, `default`
+- Renders `<a>` when `href` given, else `<button role="menuitem">`. Closes menu on click.
+
+#### `dropdown.separator`
+- **Props:** none. `<hr role="separator">` between items.
+
+```blade
+<sigta:dropdown>
+    <x-slot:trigger><sigta:button>Open</sigta:button></x-slot:trigger>
+    <sigta:dropdown.item href="/profile" icon="user">Profile</sigta:dropdown.item>
+    <sigta:dropdown.separator />
+    <sigta:dropdown.item variant="danger" icon="log-out">Sign out</sigta:dropdown.item>
+</sigta:dropdown>
+```
+
+### `popover`
+- **Props:** `position` (default `bottom-start`)
+- **Positions:** `bottom-start`, `bottom-end`, `top-start`, `top-end`
+- Generic popover with dropdown positioning but free-form content (no menu semantics).
+
+### `context-menu`
+- **Props:** none (default slot = surface, named `menu` slot = items)
+- Right-click surface that opens a dropdown-styled menu at the pointer. Reuses `dropdown.item`.
+
+### `modal` family
+
+#### `modal`
+- **Props:** `name`, `size` (default `base`), `heading`, `dismissible` (bool, default `true`)
+- **Sizes:** `sm`, `base`, `lg`, `xl`
+- Dialog driven by `sigtaModal` Alpine. Open via `<sigta:modal.trigger>` or `sigta-modal-show {name}` window event.
+
+#### `modal.trigger`
+- **Props:** `name`. Wraps content; click dispatches `sigta-modal-show {name}`.
+
+#### `modal.close`
+- **Props:** `name`. Wraps content; click dispatches `sigta-modal-hide {name}`.
+
+```blade
+<sigta:modal.trigger name="settings"><sigta:button>Settings</sigta:button></sigta:modal.trigger>
+<sigta:modal name="settings" heading="Settings">…</sigta:modal>
+```
+
+### `toast`
+- **Props:** `position` (default `bottom-end`)
+- **Positions:** `bottom-end`, `bottom-start`, `top-end`, `top-start`
+- Toast region — **include once per layout**. Trigger via `sigta-toast` window event:
+```blade
+<script>window.dispatchEvent(new CustomEvent('sigta-toast', {detail: {heading: 'Saved', text: 'Settings updated', variant: 'success'}}))</script>
+```
+
+### `tabs` family
+
+#### `tabs`
+- **Props:** `default` (the active tab name on load)
+
+#### `tabs.list`
+- **Props:** `label` (default `Tabs`). `role="tablist"`; arrow-key roving.
+
+#### `tabs.tab`
+- **Props:** `name` (**required**). `role="tab"`.
+
+#### `tabs.panel`
+- **Props:** `name` (**required**). `role="tabpanel"`; shown when its tab is active.
+
+```blade
+<sigta:tabs default="overview">
+    <sigta:tabs.list>
+        <sigta:tabs.tab name="overview">Overview</sigta:tabs.tab>
+        <sigta:tabs.tab name="billing">Billing</sigta:tabs.tab>
+    </sigta:tabs.list>
+    <sigta:tabs.panel name="overview">…</sigta:tabs.panel>
+    <sigta:tabs.panel name="billing">…</sigta:tabs.panel>
+</sigta:tabs>
+```
+
+### `accordion` family
+
+#### `accordion`
+- **Props:** `name` (forwards to items for native exclusive-open via `<details name>`).
+
+#### `accordion.item`
+- **Props:** `heading` (**required**), `name`
+- Native `<details>`/`<summary>`. "+" rotates when open. No JS.
+
+```blade
+<sigta:accordion name="faq">
+    <sigta:accordion.item heading="How does billing work?">Monthly, cancel anytime.</sigta:accordion.item>
+</sigta:accordion>
+```
+
+### `breadcrumbs` family
+
+#### `breadcrumbs`
+- **Props:** none. Container (`<nav><ol>`).
+
+#### `breadcrumbs.item`
+- **Props:** `href`, `current` (bool, default `false`). Renders link, or current-page span with `aria-current="page"`.
+
+### `navbar`
+- **Props:** none. Slots: brand (default), links, actions. Sticky translucent header; mobile menu via Alpine.
+
+### `navlink`
+- **Props:** `current` (bool, default `false`). Underline grows on hover; `aria-current` when current.
+
+### `pagination`
+- **Props:** `paginator` (Laravel paginator), `pages`, `current` (default `1`), `url`
+- Accepts a Laravel paginator or manual pages/current/url.
+
+### `command` family
+
+Command palette (⌘K / Ctrl-K).
+
+#### `command`
+- **Props:** `name` (default `command`), `placeholder` (default `Type a command…`), `shortcut` (bool, default `true`)
+
+#### `command.item`
+- **Props:** `icon`, `kbd`, `value`, plus `href`. Renders `<a>` or `<button>`; auto-closes palette on click.
+
+### `autocomplete` family
+
+#### `autocomplete`
+- **Props:** `label`, `description`, `error`, `placeholder`, `name`. Filtering combobox over slotted options; hidden input carries `name`/`wire:model`.
+
+#### `autocomplete.option`
+- **Props:** `value`, `label`. Option row shared by autocomplete/listbox/pillbox.
+
+### `listbox`
+- **Props:** `label`, `description`, `error`, `placeholder` (default `Select…`), `name`, `value`
+- Rich single-select (button trigger + combobox over `autocomplete.option`).
+
+### `pillbox`
+- **Props:** `label`, `description`, `error`, `placeholder` (default `Add…`), `name`
+- Multi-select combobox with removable chips; hidden input carries a JSON array of selected values.
+
+### `segmented`
+- **Props:** `name` (**required**), `options` (array, default `[]`), `label`, `checked`. Radio-group semantics, zero JS.
+
+### `otp`
+- **Props:** `length` (default `6`), `label`, `description`, `error`, `autofocus` (bool, default `false`)
+- One-time-code input: row of single-char boxes backed by one hidden input. Supports paste/arrow keys.
+
+### `file-upload`
+- **Props:** `label`, `description`, `error`, `multiple` (bool, default `false`), `helper`
+- Dropzone file input; label wraps an sr-only native input so all attrs forward.
+
+### `composer`
+- **Props:** `placeholder` (default `Write a message…`), `name`
+- Chat composer: auto-growing textarea, leading (`<x-slot:leading>`) attach slot, send button. Dispatches `sigta-composer-submit {text}`.
+
+### `editor`
+- **Props:** `label`, `description`, `error`, `name`, `value` (default `''`)
+- Rich text editor (TipTap). **Requires `@sigtaEditorScripts` in layout head.** Toolbar: bold/italic/strike/heading/lists/quote/code.
+
+### `calendar`
+- **Props:** `name`, `value` (Y-m-d), `min` (Y-m-d), `max` (Y-m-d)
+- Standalone Mon-first month grid. Reactive Alpine nav, full keyboard support. Emits `calendar-change`.
+
+### `date-picker`
+- **Props:** `label`, `description`, `error`, `name`, `value` (Y-m-d), `min`, `max`, `placeholder` (default `Select a date`)
+- Text input + calendar-icon button opening a calendar popover.
+
+### `time-picker`
+- **Props:** `label`, `description`, `error`, `name`, `value` (HH:MM), `min`, `max`, `step` (default `30`), `format` (default `24`), `placeholder` (default `Select a time`)
+- **Formats:** `24`, `12`. Model stays 24h HH:MM regardless of display format.
+
+---
+
+## Layout (structural scaffolds)
+
+### `section-header`
+- **Props:** `heading`, `eyebrow`, `lede`
+- Heading left + graphite lede right, baseline-aligned.
+
+### `tile-grid` family
+
+#### `tile-grid`
+- **Props:** `cols` (default `3`)
+- **Values:** `2`, `3`, `4`
+- Hairline-gap grid (1px gap over `bg-line` ground reads as thin dividers).
+
+#### `tile-grid.tile`
+- **Props:** `num`. One cell; optional mono number on top.
+
+### `shell` family
+
+App shell grid: sidebar + main.
+
+#### `shell`
+- **Props:** `full` (bool, default `false`). `full=true` → full-viewport app; default → embeddable rounded frame.
+
+#### `shell.sidebar`
+- **Props:** none. Brand slot; collapses to a wrapping top bar on mobile.
+
+#### `shell.bar`
+- **Props:** `heading`, `sub`. Top bar: heading + mono sub left, actions slot right.
+
+#### `shell.link`
+- **Props:** `icon`, `current` (bool, default `false`). Mono graphite; inverts to ink when current.
+
+#### `shell.main`
+- **Props:** none. Padded main content column.
+
+### `paper`
+- **Props:** `dots` (bool, default `true`), `grain` (bool, default `true`)
+- Page-ground overlay (dot grid + paper grain). **Place once, directly inside `<body>`.**
+```blade
+<body><x-sigta::paper /> … </body>
+```
+
+---
+
+## Data display
+
+### `table` family
+
+#### `table`
+- **Props:** `caption`. Brand data table; mono uppercase caption + headers, hairline rows, tabular numerals.
+
+#### `table.columns` / `table.column`
+- Columns wrapper (`<thead>`) and `<th scope="col">` header cell.
+
+#### `table.rows` / `table.row` / `table.cell`
+- `<tbody>` (removes last-row bottom border), `<tr>`, `<td>` (tabular numerals).
+
+```blade
+<sigta:table caption="Q3 revenue">
+    <sigta:table.columns>
+        <sigta:table.column>Month</sigta:table.column>
+        <sigta:table.column>Revenue</sigta:table.column>
+    </sigta:table.columns>
+    <sigta:table.rows>
+        <sigta:table.row>
+            <sigta:table.cell>July</sigta:table.cell>
+            <sigta:table.cell>$12,400</sigta:table.cell>
+        </sigta:table.row>
+    </sigta:table.rows>
+</sigta:table>
+```
+
+### `timeline` family
+
+#### `timeline`
+- **Props:** none. Vertical container (`<ol>`); rail + ink dot per entry.
+
+#### `timeline.item`
+- **Props:** `heading`, `meta`, `variant` (default `default`)
+- **Variants:** `accent`, `default`. `accent` = accent-filled dot.
+
+### `kanban` family
+
+Native HTML5 drag-and-drop board.
+
+#### `kanban`
+- **Props:** none (x-data root owns drag state). On drop dispatches `sigta-kanban-move {card, from, to, position}`.
+
+#### `kanban.column`
+- **Props:** `label`, `id` (auto if null), `count` (counted from slot if null)
+
+#### `kanban.card`
+- **Props:** `id` (auto if null). `draggable="true"`.
+
+### `chart` family
+
+Hand-drawn-feel charts; `currentColor`-driven.
+
+#### `chart.bars`
+- **Props:** `values` (array, default `[]`), `labels`, `highlight`, `trend` (bool, default `false`), `height` (default `160`), `label`
+- Bar chart with optional highlighter swipe behind one bar and optional dashed trend line.
+
+#### `chart.line`
+- **Props:** `values`, `labels`, `height` (default `200`), `label`
+- Smooth ink line/area chart; latest point highlighted with accent halo + dashed drop line.
+
+#### `chart.sparkline`
+- **Props:** `values`, `label`. Tiny smooth sparkline (200×40); inherits `currentColor`. Decorative unless `label` given.
+
+### `carousel` family
+
+#### `carousel`
+- **Props:** `label`. Scroll-snap track with prev/next chevrons and clickable dots; active slide derived from scroll position.
+
+#### `carousel.slide`
+- **Props:** `basis` (default `w-full`). Pass a width utility for multi-per-view layouts.
+
+---
+
+## Sections (content-shaped page regions)
+
+Marketing sections with brand-default Danish copy. **Every prop is overridable.**
+All render complete with defaults; override what you need. Tag form:
+`<sigta:section.hero />`, `<sigta:section.features heading="…" />`, etc.
+
+| Section | Key props (all optional) |
+|---|---|
+| `section.hero` | `eyebrow`, `heading`, `lede`, `primaryLabel`, `primaryHref`, `secondaryLabel`, `secondaryHref`, `stats`, visual slot |
+| `section.proof` | `yearsValue`, `yearsLabel`, `logos` |
+| `section.recognition` | `heading`, `lede`, `items`, `closingText`, `ctaLabel`, `ctaHref` |
+| `section.features` | `eyebrow`, `heading`, `lede`, `cols` (2/3/4), `items` |
+| `section.about` | `eyebrow`, `heading`, `paragraphs`, portrait slot |
+| `section.quote` | `quote`, `cite` |
+| `section.pricing` | `heading`, `lede`, `tiers` |
+| `section.faq` | `heading`, `lede`, `name`, `items` |
+| `section.cta` | `heading`, `lede`, `primaryLabel`, `primaryHref`, `secondaryLabel`, `secondaryHref`, `annotation` |
+| `section.footer` | `tagline`, `signoff`, `columns` |
+
+```blade
+<sigta:section.hero heading="We build software that ships." />
+<sigta:section.faq :items="$faqs" />
+```
+
+---
+
+## Cross-component events (cheat sheet)
+
+| Event | Detail | Fired by | Listen in |
+|---|---|---|---|
+| `sigta-toast` | `{heading, text, variant}` | your code | toast region |
+| `sigta-modal-show` | `{name}` | `modal.trigger` / your code | `modal` |
+| `sigta-modal-hide` | `{name}` | `modal.close` / your code | `modal` |
+| `sigta-composer-submit` | `{text}` | `composer` | your chat handler |
+| `sigta-kanban-move` | `{card, from, to, position}` | `kanban` | your persistence layer |
+| `calendar-change` | date | `calendar` | `date-picker` (internal) |

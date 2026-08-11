@@ -1,0 +1,135 @@
+/* ---------------------------------------------------------------------------
+   Sigta UI — core (brand-agnostic)
+
+   The Tailwind bridge + base layer + content styles. References `--sigta-*`
+   tokens by name only; carries NO brand values of its own. Pair it with a
+   theme file that defines those tokens.
+
+   Default Sigta look (drop-in):
+       @import "tailwindcss";
+       @import "../../vendor/sigta/ui/resources/css/sigta.css";   // core + Sigta theme
+       @source "../../vendor/sigta/ui/resources/views";
+
+   Your own brand:
+       @import "tailwindcss";
+       @import "../../vendor/sigta/ui/resources/css/core.css";     // structure only
+       @import "./my-brand.css";                                   // your :root{--sigta-*} + @font-face
+       @source "../../vendor/sigta/ui/resources/views";
+--------------------------------------------------------------------------- */
+
+/* -------- Tailwind bridge --------------------------------------------------
+   @theme inline means utilities compile to var(--sigta-*) references, so they
+   resolve through whichever theme is loaded at runtime — that's what makes the
+   whole system re-skinnable without recompiling components.
+--------------------------------------------------------------------------- */
+@theme inline {
+    /* colors → bg-surface, text-ink, text-graphite, border-line, bg-accent … */
+    --color-surface: var(--sigta-surface);
+    --color-surface-raised: var(--sigta-surface-raised);
+    --color-ink: var(--sigta-fg);
+    --color-graphite: var(--sigta-fg-muted);
+    --color-line: var(--sigta-line);
+    --color-accent: var(--sigta-accent);
+    --color-accent-line: var(--sigta-accent-line);
+    --color-success: var(--sigta-success);
+    --color-danger: var(--sigta-danger);
+    --color-inverse: var(--sigta-inverse);
+    --color-inverse-fg: var(--sigta-inverse-fg);
+    --color-inverse-fg-muted: var(--sigta-inverse-fg-muted);
+    --color-inverse-line: var(--sigta-inverse-line);
+
+    /* type → font-head, font-body, font-mono, font-hand */
+    --font-head: var(--sigta-font-head);
+    --font-body: var(--sigta-font-body);
+    --font-mono: var(--sigta-font-mono);
+    --font-hand: var(--sigta-font-hand);
+
+    /* shape → rounded-base, rounded-panel, rounded-frame; shadow-paper */
+    --radius-base: var(--sigta-radius);
+    --radius-panel: var(--sigta-radius-lg);
+    --radius-frame: var(--sigta-radius-xl);
+    --shadow-paper: var(--sigta-shadow);
+}
+
+/* -------- base -------------------------------------------------------------
+   Opinionated on purpose: Sigta UI is a branded system, not a neutral kit.
+   Every value is a token, so a new theme re-skins these too.
+--------------------------------------------------------------------------- */
+@layer base {
+    [x-cloak] {
+        display: none !important;
+    }
+
+    body {
+        background-color: var(--sigta-surface);
+        color: var(--sigta-fg);
+        font-family: var(--sigta-font-body);
+        font-size: clamp(16px, 1.05vw, 18px);
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
+
+    h1, h2, h3, h4 {
+        font-family: var(--sigta-font-head);
+        font-weight: 500;
+        line-height: 1.04;
+        letter-spacing: -0.012em;
+        text-wrap: balance;
+    }
+
+    :focus-visible {
+        outline: var(--sigta-focus-width) solid var(--sigta-fg);
+        outline-offset: var(--sigta-focus-offset);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation: none !important;
+            transition: none !important;
+        }
+    }
+}
+
+/* -------- editor content (TipTap / .sigta-prose) -------------------------- */
+.sigta-prose {
+    font-family: var(--sigta-font-body);
+    line-height: 1.65;
+    color: var(--sigta-fg);
+}
+.sigta-prose > * + * { margin-top: 0.75em; }
+.sigta-prose h1, .sigta-prose h2, .sigta-prose h3 {
+    font-family: var(--sigta-font-head);
+    font-weight: 500;
+    line-height: 1.1;
+}
+.sigta-prose h1 { font-size: 1.7em; }
+.sigta-prose h2 { font-size: 1.35em; }
+.sigta-prose h3 { font-size: 1.15em; }
+.sigta-prose ul { list-style: disc; padding-inline-start: 1.5em; }
+.sigta-prose ol { list-style: decimal; padding-inline-start: 1.5em; }
+.sigta-prose li + li { margin-top: 0.25em; }
+.sigta-prose blockquote {
+    border-inline-start: 3px solid var(--sigta-line);
+    padding-inline-start: 1em;
+    font-style: italic;
+    color: var(--sigta-fg-muted);
+}
+.sigta-prose code {
+    font-family: var(--sigta-font-mono);
+    font-size: 0.85em;
+    background: color-mix(in srgb, var(--sigta-fg) 6%, transparent);
+    padding: 0.15em 0.4em;
+    border-radius: var(--sigta-radius);
+}
+.sigta-prose pre {
+    font-family: var(--sigta-font-mono);
+    font-size: 0.85em;
+    background: var(--sigta-fg);
+    color: var(--sigta-surface);
+    padding: 1em 1.2em;
+    border-radius: var(--sigta-radius-lg);
+    overflow-x: auto;
+}
+.sigta-prose pre code { background: none; padding: 0; }
+.sigta-prose hr { border: 0; border-top: 1px solid var(--sigta-line); }
