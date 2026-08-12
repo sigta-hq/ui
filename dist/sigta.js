@@ -211,7 +211,7 @@ document.addEventListener('alpine:init', () => {
     }));
 
     /* Toast stack — driven by `sigta-toast` window events. From Livewire:
-       $this->dispatch('sigta-toast', heading: '…', text: '…', variant: 'success'); */
+       Sigta::toast('…') or $this->dispatch('sigta-toast', heading: '…', variant: 'success'); */
     Alpine.data('sigtaToasts', () => ({
         toasts: [],
         counter: 0,
@@ -222,6 +222,7 @@ document.addEventListener('alpine:init', () => {
                 heading: detail.heading ?? null,
                 text: detail.text ?? '',
                 variant: detail.variant ?? 'info',
+                link: detail.link ?? null,
             });
             const duration = detail.duration ?? 5000;
             if (duration > 0) setTimeout(() => this.remove(id), duration);
@@ -229,5 +230,26 @@ document.addEventListener('alpine:init', () => {
         remove(id) {
             this.toasts = this.toasts.filter((t) => t.id !== id);
         },
+    }));
+
+    /* Toast trigger helpers — window.Sigta.toast() and Alpine $sigta.toast(). */
+    const sigtaToast = (messageOrOptions, options) => {
+        let detail = {};
+        if (typeof messageOrOptions === 'string') {
+            detail.text = messageOrOptions;
+            if (options && typeof options === 'object') {
+                detail = { ...detail, ...options };
+            }
+        } else if (messageOrOptions && typeof messageOrOptions === 'object') {
+            detail = messageOrOptions;
+        }
+        window.dispatchEvent(new CustomEvent('sigta-toast', { detail }));
+    };
+
+    window.Sigta = window.Sigta || {};
+    window.Sigta.toast = sigtaToast;
+
+    Alpine.magic('sigta', () => ({
+        toast: sigtaToast,
     }));
 });

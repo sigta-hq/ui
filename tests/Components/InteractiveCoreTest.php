@@ -71,7 +71,11 @@ it('renders the toast region listening for sigta-toast', function () {
     expect($html)
         ->toContain('data-sigta="toast"')
         ->toContain('sigta-toast.window')
-        ->toContain('x-for="toast in toasts"');
+        ->toContain('x-for="toast in toasts"')
+        ->toContain('border-warning')
+        ->toContain('text-warning')
+        ->toContain("toast.variant === 'warning'")
+        ->toContain('toast.link.href');
 });
 
 it('renders segmented control as a radio group', function () {

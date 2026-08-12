@@ -24,6 +24,7 @@
     --sigta-accent: #FCE96A;          /* highlighter: sparing emphasis only */
     --sigta-accent-line: #D9C43E;     /* border on accent-filled elements */
     --sigta-success: #3F6B4E;
+    --sigta-warning: #9A6B1E;
     --sigta-danger: #B23A2E;
 
     /* color — inverse (ink-filled sections: CTA bands, spotlights) */

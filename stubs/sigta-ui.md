@@ -132,7 +132,7 @@ swallow them. Don't add `wire:ignore` unless truly necessary.
 Some components communicate via window/Livewire events. Listen for / dispatch
 these rather than building custom wiring:
 
-- `sigta-toast` `{heading, text, variant}` → shows a toast (region included once)
+- `sigta-toast` `{heading, text, variant, duration, link}` → shows a toast (region included once). Prefer `Sigta::toast()` from Livewire, `$sigta.toast()` from Alpine, or `window.Sigta.toast()` from JS.
 - `sigta-modal-show` / `sigta-modal-hide` `{name}` → open/close a modal
 - `sigta-composer-submit` `{text}` → composer sent a message
 - `sigta-kanban-move` `{card, from, to, position}` → card dragged on the board
@@ -143,6 +143,20 @@ Components are Blade + Alpine, never Livewire class components. They survive
 Livewire DOM morphs: keep state in Alpine (`x-data`), avoid imperative DOM
 mutations. Event-driven components (toast) listen for Livewire dispatches or
 window events.
+
+### Toast API (Flux migration)
+
+| Flux | Sigta |
+|---|---|
+| `use Flux\Flux;` | `use Sigta\Ui\Facades\Sigta;` |
+| `Flux::toast('msg')` | `Sigta::toast('msg')` |
+| `$flux.toast('msg')` | `$sigta.toast('msg')` |
+| `window.Flux.toast(...)` | `window.Sigta.toast(...)` |
+| `<flux:toast />` | `<sigta:toast />` |
+| variant `warning` | variant `warning` |
+| variant N/A | variant `info` (Sigta-only) |
+
+Include `<sigta:toast />` once in your layout. With `wire:navigate`, wrap it in `@persist('toast')`.
 
 ## When to extend vs. when to ask
 
