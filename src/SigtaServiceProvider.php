@@ -18,6 +18,8 @@ class SigtaServiceProvider extends ServiceProvider
 
     public function register(): void
     {
+        $this->app->singleton(Sigta::class);
+
         // sigta:install — idempotent fonts + LLM agent context sync. Safe to
         // re-run and to wire into a composer post-autoload-dump hook.
         $this->commands([

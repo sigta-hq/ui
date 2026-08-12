@@ -35,7 +35,10 @@
         "laravel": {
             "providers": [
                 "Sigta\\Ui\\SigtaServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "Sigta": "Sigta\\Ui\\Facades\\Sigta"
+            }
         }
     },
     "scripts": {

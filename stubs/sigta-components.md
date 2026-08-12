@@ -256,9 +256,29 @@ Menu container + items. `sigtaDropdown` Alpine handles open/escape/click-outside
 ### `toast`
 - **Props:** `position` (default `bottom-end`)
 - **Positions:** `bottom-end`, `bottom-start`, `top-end`, `top-start`
-- Toast region — **include once per layout**. Trigger via `sigta-toast` window event:
+- Toast region — **include once per layout**. With `wire:navigate`, wrap in `@persist('toast')` so toasts survive page transitions.
+- **Variants:** `success`, `warning`, `danger`, `info` (Sigta-only)
+- **Trigger from Livewire (preferred):**
+```php
+use Sigta\Ui\Facades\Sigta;
+
+Sigta::toast('Your changes have been saved.');
+
+Sigta::toast(
+    heading: 'Changes saved.',
+    text: 'You can always update this in your settings.',
+    variant: 'success',
+    duration: 5000,
+    link: ['text' => 'View settings', 'href' => '/settings', 'navigate' => true],
+);
+```
+- **Trigger from Alpine:** `$sigta.toast('Saved')` or `$sigta.toast({ heading: '…', variant: 'warning' })`
+- **Trigger from JS:** `window.Sigta.toast('Saved')` or `window.Sigta.toast({ text: '…', variant: 'danger' })`
+- **Low-level event** (still supported): `$this->dispatch('sigta-toast', heading: 'Saved', variant: 'success')`
 ```blade
-<script>window.dispatchEvent(new CustomEvent('sigta-toast', {detail: {heading: 'Saved', text: 'Settings updated', variant: 'success'}}))</script>
+@persist('toast')
+    <sigta:toast />
+@endpersist
 ```
 
 ### `tabs` family
@@ -527,7 +547,7 @@ All render complete with defaults; override what you need. Tag form:
 
 | Event | Detail | Fired by | Listen in |
 |---|---|---|---|
-| `sigta-toast` | `{heading, text, variant}` | your code | toast region |
+| `sigta-toast` | `{heading, text, variant, duration, link}` | `Sigta::toast()` / your code | toast region |
 | `sigta-modal-show` | `{name}` | `modal.trigger` / your code | `modal` |
 | `sigta-modal-hide` | `{name}` | `modal.close` / your code | `modal` |
 | `sigta-composer-submit` | `{text}` | `composer` | your chat handler |
