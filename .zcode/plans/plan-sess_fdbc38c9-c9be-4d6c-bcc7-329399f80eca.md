@@ -1,102 +1,62 @@
-## Goal
+## Summary
 
-Make Sigta UI self-enforcing across LLM-built consumer apps. Three pieces, designed to travel *into every consumer project* and stay in sync automatically:
+Upgrade the package from Livewire 3.5 → 4.x (latest is v4.4.0). The blast radius is **small** because this package is an anonymous-Blade + Alpine library, not a Livewire-component library — it has zero `extends Component`, zero `Livewire::` facade calls, zero `Wireable`, zero lifecycle hooks. Its coupling to Livewire is narrow and architectural: Livewire ships Alpine, and the runtime JS hooks `alpine:init`.
 
-1. **Consumer-facing `AGENTS.md`** (via a side file `sigta-ui.md` it references) — the imperative rules an LLM coding agent reads
-2. **A component reference doc** (`sigta-components.md`) — the exhaustive, scannable API list so LLMs don't traverse code
-3. **A unified, idempotent `sigta:install` Artisan command** — one command publishes *and* updates everything (fonts + LLM context), runnable manually and via a composer hook on every update
+## What the research confirmed (why this is low-risk)
 
-## The design decisions (from clarification)
+From the [Livewire 4 upgrade guide](https://livewire.laravel.com/docs/4.x/upgrading) and [installation docs](https://livewire.laravel.com/docs/4.x/installation):
 
-- **Side-file model:** the command owns `sigta-ui.md` (rules) + `sigta-components.md` (reference) at the consumer's project root, always overwriting both. It surgically injects **one** reference line into the consumer's `AGENTS.md` (only if absent) — it never clobbers existing `AGENTS.md` content. Works in projects that already have an `AGENTS.md` from other tools.
-- **Unified command:** a single `sigta:install` does fonts + LLM context + prints next-steps. One composer hook = full sync on every update.
-- **Custom Artisan command, not `vendor:publish`:** Laravel's `vendor:publish` can't do true idempotent updates (skips existing without `--force`, never prunes stale files with `--force`). A custom command gives overwrite-always for the context files + true mirror for fonts, with no `--force` footgun.
+- **`@livewireStyles` and `@livewireScripts` still exist in v4** — not deprecated, not renamed. The 5 playground layouts using them need **no changes**.
+- **Alpine still ships with Livewire** and `alpine:init` still fires. The `resources/js/sigta.js` and `editor.js` boot pattern (`document.addEventListener('alpine:init', …)`) **works unchanged**.
+- **`Livewire\LivewireServiceProvider` still exists** at that FQN — `tests/TestCase.php` registration works unchanged.
+- **PHP `^8.1`, Laravel `^10|^11|^12|^13`** — the package already requires PHP `^8.2` and illuminate `^12|^13`, so v4.4.0 satisfies cleanly.
+- **Asset serving** — the package's route-based `AssetController` is fully decoupled from Livewire's asset pipeline. Unaffected.
+- **`wire:model` modifier change** — v4 changed `.blur`/`.change` to require `.live`. But this package only **forwards** `wire:model` through the attribute bag; it never authors `wire:model` directives. The package is unaffected; host apps adapt. Worth a doc note only.
 
----
+The two genuine unknowns to verify empirically (can't be confirmed from docs alone):
+1. Does `LivewireServiceProvider` boot cleanly under Orchestra Testbench in v4? (Highly likely — same class name, same boot contract.)
+2. Does `playground/config/livewire.php`'s `navigate.progress_bar_color` key still apply in v4? (Likely — navigate config shape isn't called out as a breaking change, but the two playground feature tests assert zero raw hex, so they'll catch a regression.)
 
-## Files to create
+## The plan
 
-### 1. `stubs/sigta-ui.md` (new)
-The consumer-facing LLM rules. Imperative voice, the prohibitions that matter:
-- **Always** use `<sigta:button>`, `<sigta:input>`, `<sigta:select>`, `<sigta:textarea>`, `<sigta:field>`, etc. — **never** raw HTML form controls when a Sigta equivalent exists (explicit list)
-- **Never** raw hex colors or Tailwind palette classes (`text-gray-500`, `bg-blue-600`) — use the token utilities only (`text-ink`, `text-graphite`, `bg-surface`, `bg-surface-raised`, `border-line`, `bg-accent`, etc.) — full utility list copied from CONVENTIONS.md
-- **Never** import another icon library — use `<sigta:icon name="...">`
-- **Always** import the Sigta stylesheet + `@source` in CSS; **always** add `@sigtaScripts` to layout head
-- Fonts, shape utilities (`rounded-base/panel/frame`, `shadow-paper`), font families (`font-head/body/mono/hand`)
-- Pointer to `sigta-components.md` for the full component API
-- Short list of cross-component events (sigta-toast, sigta-modal-show, etc.)
+### 1. Bump the constraint — `composer.json` (package)
+Change `"livewire/livewire": "^3.5"` → `"^4.0"`. This is the only version string that drives both the package and the playground (playground has no separate pin; it inherits via the `sigta/ui: @dev` path repo).
 
-This is the highest-leverage file. ~80 lines, dense and imperative.
+### 2. Resolve & install
+- `composer update livewire/livewire --with-all-dependencies` in the **package root** (updates `composer.lock`)
+- `composer update livewire/livewire --with-all-dependencies` in **playground/** (gets the propagated v4 via the symlink)
 
-### 2. `stubs/sigta-components.md` (new)
-The exhaustive component reference — generated content from the exploration agent's findings. Every component: name, props with defaults, variants, one-line description. Grouped (typography, actions, forms, overlays, data, navigation, sections, etc.) using the existing `catalog.php` tier structure. This is the file LLMs scan to find the right component.
+If dependency resolution fails (e.g. another package holds it to v3), surface that — don't force.
 
-### 3. `src/Console/InstallCommand.php` (new)
-The `sigta:install` Artisan command. Namespace `Sigta\Ui\Console` (PSR-4 from `src/`). Logic:
-- **Fonts:** mirror `resources/fonts/` → `public_path('vendor/sigta/fonts')` — copy all, delete stale target files not in source (true idempotent update)
-- **LLM context:** force-write `stubs/sigta-ui.md` → consumer root `sigta-ui.md`, same for `sigta-components.md` (always overwrite — these are package-owned, version-synced)
-- **AGENTS.md reference line:** if consumer's `AGENTS.md` doesn't contain the marker line, append it (idempotent — only adds once). If `AGENTS.md` doesn't exist, create it with the reference line. Never modify any other content of `AGENTS.md`.
-- **Output:** clear summary of what was published/updated, with next-steps (CSS @import reminder) for first-time installs
-- Signature: `sigta:install` with optional `--only=fonts|agents` flag for granular runs (used internally by the composer hook if needed)
+### 3. Verify nothing broke — the real test
+- **Package tests:** `./vendor/bin/pest` — 243 tests, all the ones asserting `wire:model` forwarding, Alpine `x-data` presence, etc. Must stay green. The `TestCase.php` Livewire provider registration is the one thing that could fail if v4 renamed the class; expect it to pass.
+- **Token guard:** `./scripts/check-tokens.sh` — if `navigate.progress_bar_color` regressed in v4, raw `#2299dd` hex would re-appear in rendered pages. This catches that.
+- **Playground smoke:** `php artisan view:clear && php artisan test` — the `DocsPageTest` and `DashboardPageTest` assert zero raw hex, which transitively checks the navigate override still works under v4.
 
-### 4. `src/SigtaServiceProvider.php` (edit)
-Add a `register()` method calling `$this->commands([InstallCommand::class])`. Keeps the existing `boot()` untouched. This is the only change to the provider.
+### 4. Update version references in docs
+The `/kit/installation` page and README reference version requirements. Update:
+- `playground/resources/views/kit/installation.blade.php` — the requirements block currently lists `Livewire ^3.5`; bump to `^4.0`
+- `README.md` — only references Tailwind, not Livewire version (verified — no change needed there)
+- `stubs/sigta-components.md` / `stubs/sigta-ui.md` — check for any Livewire version mention (likely none; verified during exploration)
+- `CONVENTIONS.md` — "Livewire integration" section references patterns, not versions (verified — no change needed)
 
----
+### 5. Conditionally fix the navigate config (only if token guard / playground tests fail)
+If step 3 reveals that v4 renamed/dropped `progress_bar_color`, update `playground/config/livewire.php` to the new key (or document that the override is no longer needed if v4 removed the raw hex). I'll only touch this if the tests demand it — not speculatively.
 
-## Files to update (docs / sync notes)
-
-### 5. `CONVENTIONS.md` (edit)
-Add a new section **"LLM context files (keep in sync)"** near the top, after the existing structure. Imperative: whenever a component is added/removed or its `@props` change, regenerate `stubs/sigta-components.md`. Whenever a usage rule changes, update `stubs/sigta-ui.md`. Both ship with the package and are the single source of truth for LLM agents in consumer apps. Note that `sigta:install` overwrites them on the consumer side, so they must be accurate before release.
-
-### 6. `README.md` (edit)
-Add a new section **"LLM agent support"** documenting:
-- Run `php artisan sigta:install` — publishes fonts + LLM context, idempotent (re-run to update)
-- What it writes: `sigta-ui.md`, `sigta-components.md`, and a reference line in `AGENTS.md`
-- How to auto-sync: add the composer hook (see #7)
-- Why: consumer LLMs read these files instead of guessing
-
-### 7. `playground/resources/views/kit/installation.blade.php` (edit)
-Add a new section **"09 · LLM agent context"** covering:
-- What `sigta:install` writes and why
-- The command itself
-- **The composer auto-run hook:** add `"post-autoload-dump": ["@php artisan sigta:install --ansi"]` (or extend existing) to consumer's `composer.json` so every `composer update` re-syncs the context. Show the snippet. Explain that because the command is idempotent, this is safe to run unconditionally.
-- Caveat: the hook only runs in apps that have the package installed; first run still requires the VCS repo + auth from section 01–03
-
-### 8. `playground/composer.json` (edit — demonstrate the hook in the playground itself)
-Extend `post-autoload-dump` to also run `@php artisan sigta:install --ansi`. The playground is the living example, so it should dogfood the hook. (This also means the playground will pick up stub changes immediately during development — useful.)
-
----
-
-## What the consumer experience looks like (end to end)
-
-```bash
-# One-time: wire the private repo + auth (existing install flow)
-composer require sigta/ui:dev-main
-
-# Then one command does everything:
-php artisan sigta:install
-# → fonts mirrored to public/vendor/sigta/fonts
-# → sigta-ui.md + sigta-components.md written to project root
-# → AGENTS.md gets a one-line pointer (created if absent)
-
-# Optionally, set-and-forget — add to composer.json:
-#   "post-autoload-dump": ["@php artisan sigta:install --ansi"]
-# Now every composer install/update re-syncs the LLM context automatically.
-```
-
-An LLM then dropped into that consumer project reads `AGENTS.md` → finds the pointer to `sigta-ui.md` → reads the rules → reads `sigta-components.md` for the API → writes `<sigta:button>` instead of `<button class="bg-blue-600">`.
-
----
-
-## Verification after implementation
-- `cd playground && php artisan view:clear && php artisan sigta:install` — runs clean, prints summary
-- Inspect: `playground/sigta-ui.md`, `playground/sigta-components.md`, `playground/AGENTS.md` (if created) all written
-- Re-run `php artisan sigta:install` — idempotent, no errors, fonts truly mirrored
-- `./vendor/bin/pest` — package tests still green
-- `./scripts/check-tokens.sh` — clean (no hex introduced)
-- Visit `/kit/installation` — new "09 · LLM agent context" section renders
+### 6. Add a one-line doc note on the wire:model.live change
+In the `stubs/sigta-components.md` form-components section or `CONVENTIONS.md`'s Livewire integration section, add a brief note: under Livewire 4, host apps adding `.blur`/`.change` to `wire:model` on Sigta inputs must use `wire:model.live.blur` to get v3 behavior. This helps consumer apps without changing package code.
 
 ## Not doing
-- Generating the reference doc from code at build time (too brittle for now — hand-authored stub, with a CONVENTIONS.md note to update on component changes). A generator script is a clean future enhancement.
-- A standalone lint script for consumer CI (mentioned earlier as a future layer; not part of this batch)
+- No changes to `resources/js/sigta.js` or `editor.js` — the Alpine boot pattern is unchanged in v4.
+- No changes to `@livewireStyles`/`@livewireScripts` in the 5 layouts — the directives still exist.
+- No changes to `tests/TestCase.php` — the provider FQN is the same in v4.
+- No `wire:model` directive changes — the package forwards attributes; it doesn't author directives.
+
+## Rollback
+If anything in step 3 fails unexpectedly, revert the constraint to `^3.5` and report what broke. The change is one line + lockfiles; rollback is trivial.
+
+## Verification gate (must all pass before done)
+- `./vendor/bin/pest` → 243 passed
+- `./scripts/check-tokens.sh` → clean
+- `cd playground && php artisan view:clear && php artisan test` → green
+- `composer show livewire/livewire` shows `4.x` in both package and playground

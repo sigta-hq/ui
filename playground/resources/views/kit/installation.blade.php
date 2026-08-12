@@ -13,7 +13,7 @@
     $codeRequirements = <<<'TEXT'
     PHP ^8.2
     Laravel ^12.0 | ^13.0
-    Livewire ^3.5
+    Livewire ^4.0
     Tailwind CSS v4  (your app's build, via @tailwindcss/vite)
     TEXT;
 

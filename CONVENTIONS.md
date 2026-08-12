@@ -82,6 +82,7 @@ Tailwind utilities mapped to tokens (use these):
 - Components are Blade + Alpine, never Livewire class components.
 - Must survive Livewire DOM morphs: keep state in Alpine (`x-data`), avoid imperative DOM mutations, use `wire:ignore` only as last resort.
 - Event-driven components (Toast) listen for Livewire dispatches via `Livewire.on(...)` or window events.
+- Livewire 4 note: this package targets `livewire/livewire:^4.0`. It forwards `wire:model` (and any `wire:*` attribute) onto native inputs verbatim — it never authors `wire:model` directives, so the package is unaffected by v4's modifier changes. Host apps should know that under v4, `wire:model.blur` / `wire:model.change` must be written `wire:model.live.blur` / `wire:model.live.change` to get the v3 "sync on blur/change" behavior.
 
 ## Definition of done (per component)
 

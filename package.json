@@ -9,8 +9,8 @@
         "build:editor": "esbuild resources/js/editor.js --bundle --minify --format=iife --outfile=dist/sigta-editor.js"
     },
     "devDependencies": {
-        "@tiptap/core": "^2.14.0",
-        "@tiptap/starter-kit": "^2.14.0",
-        "esbuild": "^0.25.0"
+        "@tiptap/core": "~3.29.0",
+        "@tiptap/starter-kit": "~3.29.0",
+        "esbuild": "^0.28.0"
     }
 }
