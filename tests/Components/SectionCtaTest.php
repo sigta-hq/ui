@@ -39,6 +39,22 @@ it('lets the heading and label/href props win', function () {
         ->not->toContain('Skal vi tage en snak');
 });
 
+it('forwards target onto the primary button like a normal button', function () {
+    $html = Blade::render('<x-sigta::section.cta target="_blank" secondary-target="_blank" />');
+
+    expect($html)
+        ->toContain('target="_blank"')
+        ->toContain('rel="noopener"');
+
+    expect(substr_count($html, 'target="_blank"'))->toBe(2);
+});
+
+it('does not force a target when the prop is omitted', function () {
+    $html = Blade::render('<x-sigta::section.cta />');
+
+    expect($html)->not->toContain('target=');
+});
+
 it('forwards arbitrary attributes', function () {
     $html = Blade::render('<x-sigta::section.cta data-test="cta" />');
 

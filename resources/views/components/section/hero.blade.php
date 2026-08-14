@@ -7,8 +7,10 @@
     'lede' => 'Sigta er den tech-partner, du kan få: hjælp, rådgivning og udvikling til virksomheder, der ikke har deres egen tekniske ledelse. Vi taler begge sprog, forretning og teknik.',
     'primaryLabel' => 'Book en intro-samtale',
     'primaryHref' => 'https://calendly.com/sf-sigta/30min',
+    'target' => '_blank',
     'secondaryLabel' => 'Se hvordan vi arbejder',
     'secondaryHref' => '#hjaelp',
+    'secondaryTarget' => null,
     'stats' => null,
 ])
 
@@ -39,12 +41,12 @@ $stats ??= [
 
             <div class="flex flex-wrap items-center gap-[0.9rem]">
                 @if ($primaryLabel)
-                    <x-sigta::button variant="cta" :href="$primaryHref" target="_blank" rel="noopener" class="group">
+                    <x-sigta::button variant="cta" :href="$primaryHref" :target="$target" class="group">
                         {{ $primaryLabel }} <span class="transition-transform duration-[180ms] ease-out group-hover:translate-x-[3px]" aria-hidden="true">→</span>
                     </x-sigta::button>
                 @endif
                 @if ($secondaryLabel)
-                    <x-sigta::button :href="$secondaryHref">{{ $secondaryLabel }}</x-sigta::button>
+                    <x-sigta::button :href="$secondaryHref" :target="$secondaryTarget">{{ $secondaryLabel }}</x-sigta::button>
                 @endif
             </div>
 

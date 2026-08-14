@@ -1,4 +1,12 @@
-{{-- Brand header.nav: sticky translucent paper bar with hairline. Slots: brand / default (links) / actions. --}}
+{{-- Brand header.nav: sticky translucent paper bar with hairline. Slots: brand / default (links) / actions.
+     Optional CTA props render a button in the actions area when the actions slot is empty —
+     `target` forwards onto that button like a normal <sigta:button>. --}}
+@props([
+    'ctaLabel' => null,
+    'ctaHref' => null,
+    'target' => null,
+])
+
 @php
 $panelId = 'sigta-navbar-panel-'.\Illuminate\Support\Str::random(8);
 @endphp
@@ -20,6 +28,8 @@ $panelId = 'sigta-navbar-panel-'.\Illuminate\Support\Str::random(8);
         <div class="flex items-center gap-3">
             @isset ($actions)
                 <div {{ $actions->attributes->merge(['class' => 'flex items-center gap-3']) }}>{{ $actions }}</div>
+            @elseif ($ctaLabel)
+                <x-sigta::button variant="cta" size="sm" :href="$ctaHref" :target="$target">{{ $ctaLabel }}</x-sigta::button>
             @endisset
 
             <button

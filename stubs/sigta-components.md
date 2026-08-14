@@ -86,9 +86,10 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 - **Props:** `variant` (default `secondary`), `size` (default `base`), `icon` (default null), `href` (default null), plus any native `<button>`/`<a>` attributes
 - **Variants:** `primary`, `cta`, `ghost`, `danger`, `inverse`, `ghost-inverse`, `secondary`
 - **Sizes:** `sm`, `base`
-- Renders `<a>` when `href` is set, else `<button>`. Lifts on hover. `cta` = accent-filled emphasis.
+- Renders `<a>` when `href` is set, else `<button>`. Lifts on hover. `cta` = accent-filled emphasis. Pass `target="_blank"` on a link button (adds `rel="noopener"` unless `rel` is set).
 ```blade
 <sigta:button variant="cta" href="/book">Book a project <sigta:icon name="arrow-right" size="sm" /></sigta:button>
+<sigta:button href="https://calendly.com/sf-sigta/30min" target="_blank">Book a call</sigta:button>
 <sigta:button>Preview</sigta:button>
 <sigta:button variant="ghost">Cancel</sigta:button>
 ```
@@ -330,7 +331,7 @@ Sigta::toast(
 - **Props:** `href`, `current` (bool, default `false`). Renders link, or current-page span with `aria-current="page"`.
 
 ### `navbar`
-- **Props:** none. Slots: brand (default), links, actions. Sticky translucent header; mobile menu via Alpine.
+- **Props:** `ctaLabel`, `ctaHref`, `target`. Slots: brand, default (links), actions. Sticky translucent header; mobile menu via Alpine. When `ctaLabel` is set and the actions slot is empty, renders a CTA button; `target` forwards onto it like `<sigta:button>`.
 
 ### `navlink`
 - **Props:** `current` (bool, default `false`). Underline grows on hover; `aria-current` when current.
@@ -525,19 +526,23 @@ All render complete with defaults; override what you need. Tag form:
 
 | Section | Key props (all optional) |
 |---|---|
-| `section.hero` | `eyebrow`, `heading`, `lede`, `primaryLabel`, `primaryHref`, `secondaryLabel`, `secondaryHref`, `stats`, visual slot |
+| `section.hero` | `eyebrow`, `heading`, `lede`, `primaryLabel`, `primaryHref`, `target`, `secondaryLabel`, `secondaryHref`, `secondaryTarget`, `stats`, visual slot |
 | `section.proof` | `yearsValue`, `yearsLabel`, `logos` |
-| `section.recognition` | `heading`, `lede`, `items`, `closingText`, `ctaLabel`, `ctaHref` |
+| `section.recognition` | `heading`, `lede`, `items`, `closingText`, `ctaLabel`, `ctaHref`, `target` |
 | `section.features` | `eyebrow`, `heading`, `lede`, `cols` (2/3/4), `items` |
 | `section.about` | `eyebrow`, `heading`, `paragraphs`, portrait slot |
 | `section.quote` | `quote`, `cite` |
 | `section.pricing` | `heading`, `lede`, `tiers` |
 | `section.faq` | `heading`, `lede`, `name`, `items` |
-| `section.cta` | `heading`, `lede`, `primaryLabel`, `primaryHref`, `secondaryLabel`, `secondaryHref`, `annotation` |
+| `section.cta` | `heading`, `lede`, `primaryLabel`, `primaryHref`, `target`, `secondaryLabel`, `secondaryHref`, `secondaryTarget`, `annotation` |
 | `section.footer` | `tagline`, `signoff`, `columns` |
 
 ```blade
 <sigta:section.hero heading="We build software that ships." />
+<sigta:section.cta target="_blank" />
+<sigta:navbar cta-label="Book a call" cta-href="https://calendly.com/sf-sigta/30min" target="_blank">
+    <sigta:navlink href="#work">Work</sigta:navlink>
+</sigta:navbar>
 <sigta:section.faq :items="$faqs" />
 ```
 

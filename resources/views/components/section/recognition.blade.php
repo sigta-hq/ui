@@ -9,6 +9,7 @@
     'closingText' => 'Hvis bare ét af dem rammer, så lad os tage en kop kaffe.',
     'ctaLabel' => 'Book en intro-samtale',
     'ctaHref' => 'https://calendly.com/sf-sigta/30min',
+    'target' => '_blank',
 ])
 
 @php
@@ -58,7 +59,7 @@ $items ??= [
                 <p class="text-[1.1rem]">{{ $closingText }}</p>
             @endif
             @if ($ctaLabel)
-                <x-sigta::button :href="$ctaHref" target="_blank" rel="noopener" class="group">
+                <x-sigta::button :href="$ctaHref" :target="$target" class="group">
                     {{ $ctaLabel }} <span class="transition-transform duration-[180ms] ease-out group-hover:translate-x-[3px]" aria-hidden="true">→</span>
                 </x-sigta::button>
             @endif

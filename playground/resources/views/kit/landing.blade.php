@@ -31,7 +31,7 @@
         <x-sigta::navlink href="#kontakt">Kontakt</x-sigta::navlink>
 
         <x-slot:actions>
-            <x-sigta::button variant="cta" href="https://calendly.com/sf-sigta/30min" target="_blank" rel="noopener" class="group">
+            <x-sigta::button variant="cta" href="https://calendly.com/sf-sigta/30min" target="_blank" class="group">
                 Book en intro-samtale <span class="transition-transform duration-[180ms] ease-out group-hover:translate-x-[3px]" aria-hidden="true">→</span>
             </x-sigta::button>
         </x-slot:actions>
@@ -62,7 +62,7 @@
 
         <x-sigta::section.faq id="faq" />
 
-        <x-sigta::section.cta id="kontakt" />
+        <x-sigta::section.cta id="kontakt" target="_blank" />
     </main>
 
     <x-sigta::section.footer />

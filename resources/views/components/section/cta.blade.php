@@ -6,8 +6,10 @@
     'lede' => 'En intro-samtale koster ingenting og forpligter ikke. Medbring gerne det tilbud, du er i tvivl om.',
     'primaryLabel' => 'Book en intro-samtale',
     'primaryHref' => 'https://calendly.com/sf-sigta/30min',
+    'target' => null,
     'secondaryLabel' => 'Skriv en mail',
     'secondaryHref' => 'mailto:sf@sigta.dk',
+    'secondaryTarget' => null,
     'annotation' => 'lad os tegne det op ↘',
 ])
 
@@ -22,8 +24,8 @@
                 <p class="mx-auto mt-[1.2rem] mb-[2.2rem] max-w-[46ch] text-inverse-fg-muted">{{ $lede }}</p>
             @endif
             <div class="flex flex-wrap justify-center gap-[0.9rem]">
-                <x-sigta::button variant="inverse" :href="$primaryHref" class="group">{{ $primaryLabel }} <span class="transition-transform duration-[180ms] ease-out group-hover:translate-x-[3px]" aria-hidden="true">→</span></x-sigta::button>
-                <x-sigta::button variant="ghost-inverse" :href="$secondaryHref">{{ $secondaryLabel }}</x-sigta::button>
+                <x-sigta::button variant="inverse" :href="$primaryHref" :target="$target" class="group">{{ $primaryLabel }} <span class="transition-transform duration-[180ms] ease-out group-hover:translate-x-[3px]" aria-hidden="true">→</span></x-sigta::button>
+                <x-sigta::button variant="ghost-inverse" :href="$secondaryHref" :target="$secondaryTarget">{{ $secondaryLabel }}</x-sigta::button>
             </div>
         </div>
     </div>

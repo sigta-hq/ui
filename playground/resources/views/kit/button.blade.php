@@ -10,6 +10,7 @@
     <x-kit-example label="States & sizes">
     «sigta:button variant="primary" disabled>Disabled«/sigta:button>
     «sigta:button href="#top" variant="secondary">As link«/sigta:button>
+    «sigta:button href="https://example.com" target="_blank" variant="cta">Opens in a new tab«/sigta:button>
     «sigta:button variant="primary" size="sm">Small«/sigta:button>
     </x-kit-example>
 

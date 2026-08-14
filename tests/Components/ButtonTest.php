@@ -29,6 +29,25 @@ it('forwards arbitrary attributes', function () {
         ->toContain('data-test="cta"');
 });
 
+it('forwards target on link buttons and adds rel=noopener for _blank', function () {
+    $blank = Blade::render('<x-sigta::button href="https://example.com" target="_blank">Open</x-sigta::button>');
+    $self = Blade::render('<x-sigta::button href="/contact" target="_self">Stay</x-sigta::button>');
+    $customRel = Blade::render('<x-sigta::button href="https://example.com" target="_blank" rel="noreferrer">Open</x-sigta::button>');
+
+    expect($blank)
+        ->toContain('target="_blank"')
+        ->toContain('rel="noopener"')
+        ->toContain('href="https://example.com"');
+
+    expect($self)
+        ->toContain('target="_self"')
+        ->not->toContain('rel=');
+
+    expect($customRel)
+        ->toContain('rel="noreferrer"')
+        ->not->toContain('rel="noopener"');
+});
+
 it('renders the inverse variant as a paper fill for dark bands', function () {
     $html = Blade::render('<x-sigta::button variant="inverse">Book</x-sigta::button>');
 

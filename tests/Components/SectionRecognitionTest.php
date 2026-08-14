@@ -62,3 +62,16 @@ it('forwards arbitrary attributes onto the section root', function () {
         ->toContain('id="genkend"')
         ->toContain('data-test="recog"');
 });
+
+it('opens the CTA in a new tab by default and lets target be overridden', function () {
+    $default = Blade::render('<x-sigta::section.recognition />');
+    $overridden = Blade::render('<x-sigta::section.recognition target="_self" />');
+
+    expect($default)
+        ->toContain('target="_blank"')
+        ->toContain('rel="noopener"');
+
+    expect($overridden)
+        ->toContain('target="_self"')
+        ->not->toContain('target="_blank"');
+});

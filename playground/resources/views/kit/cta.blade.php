@@ -9,6 +9,7 @@
         lede="Vi svarer inden for en arbejdsdag."
         primary-label="Book et møde"
         primary-href="https://calendly.com/sf-sigta/30min"
+        target="_blank"
         secondary-label="Skriv en mail"
         secondary-href="mailto:sf@sigta.dk"
         annotation="lige her ↘" />

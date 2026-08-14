@@ -41,6 +41,18 @@ it('forwards attributes onto the header root', function () {
         ->toContain('wire:key="topnav"');
 });
 
+it('renders a CTA button from props and forwards target like a normal button', function () {
+    $html = Blade::render('<x-sigta::navbar cta-label="Book" cta-href="https://calendly.com/sf-sigta/30min" target="_blank" />');
+
+    expect($html)
+        ->toContain('Book')
+        ->toContain('href="https://calendly.com/sf-sigta/30min"')
+        ->toContain('target="_blank"')
+        ->toContain('rel="noopener"');
+
+    expect($html)->not->toMatch('/<header[^>]*target=/');
+});
+
 it('renders navlinks with the animated underline and current state', function () {
     $plain = Blade::render('<x-sigta::navlink href="/work">Work</x-sigta::navlink>');
     $current = Blade::render('<x-sigta::navlink href="/work" current>Work</x-sigta::navlink>');

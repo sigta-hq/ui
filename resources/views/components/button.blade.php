@@ -21,10 +21,15 @@ $classes .= ' '.match ($variant) {
     'ghost-inverse' => 'bg-transparent text-inverse-fg border-inverse-line hover:bg-inverse-fg/10 hover:-translate-y-[2px]',
     default => 'bg-transparent text-ink border-ink hover:bg-ink/5 hover:-translate-y-[2px]',
 };
+
+$linkAttributes = ['class' => $classes];
+if ($attributes->get('target') === '_blank' && ! $attributes->has('rel')) {
+    $linkAttributes['rel'] = 'noopener';
+}
 @endphp
 
 @if ($attributes->has('href'))
-    <a data-sigta="button" {{ $attributes->merge(['class' => $classes]) }}>{{ $slot }}</a>
+    <a data-sigta="button" {{ $attributes->merge($linkAttributes) }}>{{ $slot }}</a>
 @else
     <button data-sigta="button" {{ $attributes->merge(['type' => 'button', 'class' => $classes]) }}>{{ $slot }}</button>
 @endif

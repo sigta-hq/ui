@@ -12,8 +12,22 @@
             «sigta:navlink href="#contact">Contact«/sigta:navlink>
 
             «x-slot:actions>
-                «sigta:button variant="cta" size="sm" href="#book">Book a project«/sigta:button>
+                «sigta:button variant="cta" size="sm" href="https://calendly.com/sf-sigta/30min" target="_blank">Book a project«/sigta:button>
             «/x-slot:actions>
+        «/sigta:navbar>
+        «div class="h-24 bg-surface">«/div>
+    «/div>
+    </x-kit-example>
+
+    <x-kit-example label="CTA via props — target like a button">
+    «div class="-m-6 overflow-hidden rounded-panel">
+        «sigta:navbar cta-label="Book a project" cta-href="https://calendly.com/sf-sigta/30min" target="_blank">
+            «x-slot:brand>
+                «a href="#top" class="no-underline">«sigta:brand size="sm" />«/a>
+            «/x-slot:brand>
+
+            «sigta:navlink href="#work">Work«/sigta:navlink>
+            «sigta:navlink href="#studio">Studio«/sigta:navlink>
         «/sigta:navbar>
         «div class="h-24 bg-surface">«/div>
     «/div>
