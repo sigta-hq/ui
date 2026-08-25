@@ -94,3 +94,34 @@ it('renders the inline value above the label', function () {
 
     expect(strpos($html, '14 år'))->toBeLessThan(strpos($html, 'bag tastaturet'));
 });
+
+it('renders an inverse-tone boxed stat on a dark surface', function () {
+    $html = Blade::render('<x-sigta::stat tone="inverse" label="Logged this week" value="12h 30m" />');
+
+    expect($html)
+        ->toContain('data-tone="inverse"')
+        ->toContain('bg-inverse')
+        ->toContain('border border-inverse-line')
+        ->toContain('text-inverse-fg')          // value ink
+        ->toContain('text-inverse-fg-muted')    // label ink
+        ->not->toContain('text-graphite');
+});
+
+it('inverts an inline stat without drawing its own surface', function () {
+    $html = Blade::render('<x-sigta::stat variant="inline" tone="inverse" label="Billable" value="kr. 4.200" />');
+
+    expect($html)
+        ->toContain('data-tone="inverse"')
+        ->toContain('text-inverse-fg')
+        ->toContain('text-inverse-fg-muted')
+        ->not->toContain('border')
+        ->not->toContain('bg-inverse');
+});
+
+it('keeps trend colors semantic under the inverse tone', function () {
+    $html = Blade::render('<x-sigta::stat tone="inverse" label="Net" value="112%" delta="1.4 pts" trend="up" />');
+
+    expect($html)
+        ->toContain('text-success')
+        ->toContain('▲');
+});

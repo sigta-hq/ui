@@ -32,4 +32,29 @@
         «sigta:kanban.column id="review" label="In review" />
     «/sigta:kanban>
     </x-kit-example>
+
+    <x-kit-example label="Column header actions (menu beside the count)">
+    «p class="mb-5 max-w-[60ch] text-graphite">
+        Pass an «code class="font-mono text-[0.85em]">actions«/code> slot for a column menu next to the count.
+        The body's accessible name comes from the string «code class="font-mono text-[0.85em]">label«/code>
+        (or «code class="font-mono text-[0.85em]">aria«/code>), so slotted markup never leaks into it.
+    «/p>
+
+    «sigta:kanban>
+        «sigta:kanban.column id="sprint" label="Sprint">
+            «x-slot:actions>
+                «sigta:dropdown position="bottom-end">
+                    «x-slot:trigger>
+                        «sigta:button variant="ghost" size="sm" aria-label="Column menu">
+                            «sigta:icon name="ellipsis-vertical" size="sm" />
+                        «/sigta:button>
+                    «/x-slot:trigger>
+                    «sigta:dropdown.item icon="pencil">Rename column«/sigta:dropdown.item>
+                    «sigta:dropdown.item icon="trash-2" variant="danger">Delete column«/sigta:dropdown.item>
+                «/sigta:dropdown>
+            «/x-slot:actions>
+            «sigta:kanban.card id="s1">Ship the actions slot«/sigta:kanban.card>
+        «/sigta:kanban.column>
+    «/sigta:kanban>
+    </x-kit-example>
 </x-kit-shell>

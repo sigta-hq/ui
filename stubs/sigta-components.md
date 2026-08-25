@@ -117,6 +117,13 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 - **Props:** `name`, `meta`, `src`, `reverse` (bool, default `false`)
 - Avatar + name + optional meta line. `reverse` mirrors layout.
 
+### `assignee-picker`
+- **Props:** `user` (current assignee object/array with id+name, or null), `members` (iterable of id+name), `method` (Livewire method), `args` (leading args), `size` (default `xs`), `showName` (bool, default `false`), `label`, `inline` (bool, default `false`)
+- Avatar (or dashed "unassigned" affordance) opening a client-side searchable people list. On select it calls `method(...args, userId)` on the nearest Livewire component (so one component serves board cards, subtasks, the task modal). Default teleports the panel to `<body>`; `:inline` renders it absolutely for a native `<dialog>`. Pass a value-keyed `wire:key`. Re-check membership server-side in the called method.
+```blade
+<sigta:assignee-picker :user="$task->assignee" :members="$members" method="assignTask" :args="[$task->id]" wire:key="assignee-{{ $task->assignee?->id }}" />
+```
+
 ### `icon`
 - **Props:** `name` (**required**), `size` (default `base`)
 - **Sizes:** `xs`, `sm`, `base`, `lg`
@@ -166,16 +173,44 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 - Field wrapper: label + slot (the control) + description/error. Transparent if no label/description/error. Use when wrapping a custom control.
 
 ### `label`
-- **Props:** none. Mono uppercase form label.
+- **Props:** `variant` (default `default`)
+- **Variants:** `default`, `inverse`
+- Mono uppercase form label. `inverse` re-colors it for a dark surface (inside `<sigta:panel variant="inverse">`).
+
+### `elapsed-clock`
+- **Props:** `since` (ISO-8601 string or Carbon/DateTimeInterface; default = now)
+- Live-ticking `HH:MM:SS` value counting up from `:since`. Presentational — the timer's persistence stays in your app; it cleans up its interval on teardown.
+```blade
+<sigta:elapsed-clock :since="$entry->started_at" class="text-lg" />
+```
+
+### `duration`
+- **Props:** `minutes` (int|null), `format` (default `compact`)
+- **Formats:** `compact` (`1h 15m`), `clock` (`01:30`)
+- Static duration display in tabular numerals. Exact hours drop the minutes (`2h`); zero → `0m`. For a value that counts up live use `elapsed-clock`.
 
 ---
 
 ## Components (functional units with internal parts)
 
 ### `stat`
-- **Props:** `label`, `value`, `delta`, `trend`, `variant` (default `panel`)
-- **Variants (`variant`):** `inline`, `panel` · **Variants (`trend`):** `up`, `down`
-- Numeric figure with optional delta + trend arrow.
+- **Props:** `label`, `value`, `delta`, `trend`, `variant` (default `panel`), `tone` (default `default`)
+- **Variants (`variant`):** `inline`, `panel` · **Variants (`trend`):** `up`, `down` · **Tones (`tone`):** `default`, `inverse`
+- Numeric figure with optional delta + trend arrow. `tone="inverse"` darkens it for a dark surface (boxed variant gets a dark background; inline stays bare to sit on a `<sigta:panel variant="inverse">`); trend colors stay semantic.
+
+### `money`
+- **Props:** `minor` (int|null, MINOR units), `currency` (default `DKK`), `decimals` (default `2`), `symbol`, `position` (`before`/`after`), `thousands`, `decimal`, `suffix`
+- Formats a minor-unit amount (øre/cents) in tabular numerals. Known codes (DKK/EUR/USD/GBP/SEK/NOK) carry symbol, position and separators; override any piece, or pass an unknown code (trailing symbol). `suffix` renders a muted per-unit tail (e.g. `/ hour`). The amount and currency stay app data.
+```blade
+<sigta:money :minor="$rate->amount_minor" :currency="$rate->currency->value" suffix="/ hour" />
+```
+
+### `money-input`
+- **Props:** `label`, `value` (initial MINOR units), `placeholder`, `currency` (default `DKK`), `currencies` (code⇒label map), `currencyName`, `currencyModel`, plus native attrs
+- Amount field (entered in major units) + a currency `<sigta:segmented>` toggle. Emits MINOR units onto the forwarded `wire:model` via a hidden input; bind the toggle with `currencyModel`. App logic (the currency enum) stays in your app.
+```blade
+<sigta:money-input label="Hourly rate" :value="$rate->amount_minor" wire:model="amountMinor" :currency="$currency" currency-model="currency" />
+```
 
 ### `callout`
 - **Props:** `variant` (default `info`), `icon`, `heading`
@@ -190,8 +225,9 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 - Raised surface with optional thumb slot (`<x-slot:thumb>`). Lifts on hover when `hover=true`.
 
 ### `panel`
-- **Props:** none (slot + attributes only)
-- Bordered surface **without** `overflow-hidden` — so overhanging annotations/badges show. Static (no hover lift). Use where Card would clip.
+- **Props:** `variant` (default `default`)
+- **Variants:** `default`, `inverse`
+- Bordered surface **without** `overflow-hidden` — so overhanging annotations/badges show. Static (no hover lift). Use where Card would clip. `variant="inverse"` is a dark ink band; pair with `<sigta:label variant="inverse">` and `<sigta:stat tone="inverse">`.
 
 ### `tooltip`
 - **Props:** `text` (**required**), `position` (default `top`)
@@ -381,6 +417,16 @@ Command palette (⌘K / Ctrl-K).
 - **Props:** `placeholder` (default `Write a message…`), `name`
 - Chat composer: auto-growing textarea, leading (`<x-slot:leading>`) attach slot, send button. Dispatches `sigta-composer-submit {text}`.
 
+### `timer-bar`
+- **Props:** `title`, `project`, `since` (ISO/Carbon for the clock), `stopLabel`
+- **Slots:** `stop` — replace the default stop control (e.g. a `wire:click` button)
+- Dark running-timer bar: pulsing dot, running task (+ project), a live `elapsed-clock`, and a Stop control. Presentational — your app owns the running entry and stop action. The default Stop button dispatches a bubbling `sigta-timer-stop`; catch it on a wrapper (`x-on:sigta-timer-stop="$wire.stop()"`) or pass a `stop` slot.
+```blade
+<div x-on:sigta-timer-stop="$wire.stop()">
+    <sigta:timer-bar :title="$entry->task->title" :project="$entry->task->project?->name" :since="$entry->started_at" />
+</div>
+```
+
 ### `editor`
 - **Props:** `label`, `description`, `error`, `name`, `value` (default `''`)
 - Rich text editor (TipTap). **Requires `@sigtaEditorScripts` in layout head.** Toolbar: bold/italic/strike/heading/lists/quote/code.
@@ -396,6 +442,13 @@ Command palette (⌘K / Ctrl-K).
 ### `time-picker`
 - **Props:** `label`, `description`, `error`, `name`, `value` (HH:MM), `min`, `max`, `step` (default `30`), `format` (default `24`), `placeholder` (default `Select a time`)
 - **Formats:** `24`, `12`. Model stays 24h HH:MM regardless of display format.
+
+### `duration-input`
+- **Props:** `label`, `value` (initial whole minutes), `placeholder`, plus native attrs
+- Compact `1h59m` field that swaps to an editable `HH:MM` on click; on blur/Enter it parses (forgiving: `H:MM`, `HH:MM`, or bare minutes) to whole minutes and emits them on the forwarded `wire:model` via a hidden input. Escape cancels. Pass a value-keyed `wire:key` so a reset gives fresh Alpine state.
+```blade
+<sigta:duration-input label="Estimate" :value="$task->estimate_minutes" wire:model="estimate" wire:key="est-{{ $task->estimate_minutes }}" />
+```
 
 ---
 
@@ -480,6 +533,19 @@ App shell grid: sidebar + main.
 - **Props:** `heading`, `meta`, `variant` (default `default`)
 - **Variants:** `accent`, `default`. `accent` = accent-filled dot.
 
+### `comment`
+- **Props:** `author`, `meta` (timestamp line), `avatar` (name/initials; null = no avatar), `src` (avatar image), `editing` (bool, default `false`)
+- **Slots:** default = body; `actions` = owner controls (edit/delete); `edit` = inline editor shown when `:editing`
+- One authored comment in a feed. Presentational — persistence, validation, and who-may-edit auth stay in your Livewire component. Loop it for a feed; pair with `<sigta:composer>` or a `<sigta:textarea>` form.
+```blade
+<x-sigta::comment :author="$c->author?->name" :meta="$c->created_at?->diffForHumans()" :editing="$editingId === $c->id" wire:key="comment-{{ $c->id }}">
+    {{ $c->body }}
+    @if ($c->user_id === auth()->id())
+        <x-slot:actions><sigta:button variant="ghost" size="sm" wire:click="edit({{ $c->id }})"><sigta:icon name="pencil" size="sm" /></sigta:button></x-slot:actions>
+    @endif
+</x-sigta::comment>
+```
+
 ### `kanban` family
 
 Native HTML5 drag-and-drop board.
@@ -488,7 +554,8 @@ Native HTML5 drag-and-drop board.
 - **Props:** none (x-data root owns drag state). On drop dispatches `sigta-kanban-move {card, from, to, position}`.
 
 #### `kanban.column`
-- **Props:** `label`, `id` (auto if null), `count` (counted from slot if null)
+- **Props:** `label`, `id` (auto if null), `count` (counted from slot if null), `aria` (body accessible name; defaults to `label`)
+- **Slots:** `actions` — header controls (a menu / rename) beside the count. The body's `aria-label` comes from the string `label`/`aria`, so slotted header markup never leaks into it.
 
 #### `kanban.card`
 - **Props:** `id` (auto if null). `draggable="true"`.

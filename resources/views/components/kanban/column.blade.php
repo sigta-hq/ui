@@ -1,16 +1,23 @@
 {{-- Kanban column: mono header + count badge, and a droppable body (role="list").
      The board (x-data root) drives dragover/drop; `overColumn` highlights the
      active drop target. `id` identifies the column in the sigta-kanban-move
-     event; `count` defaults to the number of cards in the slot. --}}
+     event; `count` defaults to the number of cards in the slot.
+
+     Header composition: pass an `actions` slot (a menu, a rename trigger) to sit
+     beside the count. The body's aria-label comes from the dedicated string
+     `aria` prop (falling back to `label`), so slotted header markup never leaks
+     into the accessible name. --}}
 @props([
     'label' => null,
     'id' => null,
     'count' => null,
+    'aria' => null,
 ])
 
 @php
 $id ??= 'col-'.\Illuminate\Support\Str::random(6);
 $count ??= substr_count((string) $slot, 'data-sigta="kanban.card"');
+$aria ??= $label;
 @endphp
 
 <div
@@ -20,12 +27,17 @@ $count ??= substr_count((string) $slot, 'data-sigta="kanban.card"');
 >
     <div class="flex items-center justify-between gap-2 px-3.5 py-3 border-b border-line">
         <span class="font-mono text-[0.7rem] tracking-[0.14em] uppercase text-graphite">{{ $label }}</span>
-        <x-sigta::badge>{{ $count }}</x-sigta::badge>
+        <div class="flex shrink-0 items-center gap-1.5">
+            <x-sigta::badge>{{ $count }}</x-sigta::badge>
+            @isset($actions)
+                {{ $actions }}
+            @endisset
+        </div>
     </div>
 
     <div
         role="list"
-        aria-label="{{ $label }}"
+        aria-label="{{ $aria }}"
         data-kanban-body
         data-column-id="{{ $id }}"
         x-on:dragover.prevent="over($event, '{{ $id }}')"
