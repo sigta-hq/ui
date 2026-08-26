@@ -9,7 +9,7 @@
     renders as "0m". For a value that counts up live use <sigta:elapsed-clock>.
 
         <sigta:duration :minutes="$task->estimate_minutes" />
-        <sigta:duration :minutes="90" format="clock" />   {{-- 01:30 --}}
+        <sigta:duration :minutes="90" format="clock" />   (renders 01:30)
 --}}
 @php
 $total = max(0, (int) ($minutes ?? 0));

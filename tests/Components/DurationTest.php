@@ -38,3 +38,14 @@ it('forwards attributes and merges the base class', function () {
         ->toContain('text-graphite')
         ->toContain('tabular-nums');
 });
+
+it('leaks no blade comment markers before the value', function () {
+    // Regression: a nested {{-- --}} in the docblock closed the outer comment
+    // early and leaked its trailing --}} in front of every rendered duration.
+    $html = Blade::render('<x-sigta::duration :minutes="60" />');
+
+    expect($html)
+        ->not->toContain('}}')
+        ->not->toContain('--}}')
+        ->toContain('>1h</span>'); // value sits flush inside the span, nothing before it
+});
