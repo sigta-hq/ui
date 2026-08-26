@@ -73,3 +73,26 @@ it('forwards attributes onto the card root', function () {
         ->toContain('data-testid="card"')
         ->toContain('ring');
 });
+
+it('renders a header actions slot beside the count', function () {
+    $html = Blade::render(<<<'BLADE'
+        <x-sigta::kanban.column id="todo" label="To do">
+            <x-slot:actions>
+                <button type="button" aria-label="Column menu">…</button>
+            </x-slot:actions>
+        </x-sigta::kanban.column>
+    BLADE);
+
+    expect($html)
+        ->toContain('aria-label="Column menu"')   // actions slot lands in the header
+        ->toContain('aria-label="To do"')         // body accessible name intact
+        ->toContain('data-sigta="badge"');        // count badge still present
+});
+
+it('derives the body aria-label from the aria prop, keeping the visible label short', function () {
+    $html = Blade::render('<x-sigta::kanban.column id="wip" label="WIP" aria="Work in progress" />');
+
+    expect($html)
+        ->toContain('aria-label="Work in progress"')
+        ->toContain('>WIP<');   // visible header still shows the label string
+});

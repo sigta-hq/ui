@@ -19,6 +19,12 @@ class KitDisplayPagesTest extends TestCase
             'avatar' => ['avatar', 'data-sigta="avatar"'],
             'skeleton' => ['skeleton', 'data-sigta="skeleton"'],
             'stat' => ['stat', 'data-sigta="stat"'],
+            'panel' => ['panel', 'data-variant="inverse"'],
+            'elapsed-clock' => ['elapsed-clock', 'data-sigta="elapsed-clock"'],
+            'duration-input' => ['duration-input', 'data-sigta="duration-input"'],
+            'money' => ['money', 'data-sigta="money"'],
+            'assignee-picker' => ['assignee-picker', 'data-sigta="assignee-picker"'],
+            'comment' => ['comment', 'data-sigta="comment"'],
         ];
     }
 

@@ -31,4 +31,18 @@
         «sigta:stat variant="inline" value="2" label="måder at samarbejde på" />
     «/div>
     </x-kit-example>
+
+    <x-kit-example label="Inverse tone — standalone boxed">
+    «div class="grid gap-3 sm:grid-cols-2 max-w-md">
+        «sigta:stat tone="inverse" label="Logged this week" value="12h 30m" />
+        «sigta:stat tone="inverse" label="Billable value" value="8.750 kr." />
+    «/div>
+    </x-kit-example>
+
+    <x-kit-example label="Inverse tone — inline, composed on a dark panel">
+    «sigta:panel variant="inverse" class="max-w-sm gap-4">
+        «sigta:stat variant="inline" tone="inverse" value="42h 10m" label="Logged this customer" />
+        «sigta:stat variant="inline" tone="inverse" value="29.750 kr." label="Billable value" />
+    «/sigta:panel>
+    </x-kit-example>
 </x-kit-shell>

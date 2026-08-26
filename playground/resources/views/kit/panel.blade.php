@@ -15,4 +15,19 @@
         «/sigta:panel>
     «/div>
     </x-kit-example>
+
+    <x-kit-example label="Inverse (dark) surface">
+    «div class="max-w-sm">
+        «sigta:panel variant="inverse" class="gap-4">
+            «div>
+                «sigta:label variant="inverse" class="block">Logged this customer«/sigta:label>
+                «p class="mt-1 font-head text-2xl tabular-nums">42h 10m«/p>
+            «/div>
+            «div>
+                «sigta:label variant="inverse" class="block">Billable value«/sigta:label>
+                «p class="mt-1 font-head text-2xl tabular-nums">29.750 kr.«/p>
+            «/div>
+        «/sigta:panel>
+    «/div>
+    </x-kit-example>
 </x-kit-shell>

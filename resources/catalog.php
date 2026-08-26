@@ -43,6 +43,7 @@ return [
             'progress',
             'slider',
             'skeleton',
+            'elapsed-clock', // + duration display
         ],
     ],
 
@@ -61,7 +62,9 @@ return [
             'card',
             'callout',
             'stat',
+            'money',          // + money-input
             'profile',
+            'assignee-picker',
             'tooltip',
             'dropdown',
             'popover',
@@ -75,11 +78,13 @@ return [
             'pagination',
             'table',
             'timeline',
+            'comment',
             'chart',
             'command',
             'calendar',
             'date-picker',
             'time-picker',
+            'duration-input',
             'carousel',
             'kanban',
             'composer',
