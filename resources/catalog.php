@@ -88,7 +88,6 @@ return [
             'carousel',
             'kanban',
             'composer',
-            'timer-bar',
             'editor',
         ],
     ],

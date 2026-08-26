@@ -417,16 +417,6 @@ Command palette (⌘K / Ctrl-K).
 - **Props:** `placeholder` (default `Write a message…`), `name`
 - Chat composer: auto-growing textarea, leading (`<x-slot:leading>`) attach slot, send button. Dispatches `sigta-composer-submit {text}`.
 
-### `timer-bar`
-- **Props:** `title`, `project`, `since` (ISO/Carbon for the clock), `stopLabel`
-- **Slots:** `stop` — replace the default stop control (e.g. a `wire:click` button)
-- Dark running-timer bar: pulsing dot, running task (+ project), a live `elapsed-clock`, and a Stop control. Presentational — your app owns the running entry and stop action. The default Stop button dispatches a bubbling `sigta-timer-stop`; catch it on a wrapper (`x-on:sigta-timer-stop="$wire.stop()"`) or pass a `stop` slot.
-```blade
-<div x-on:sigta-timer-stop="$wire.stop()">
-    <sigta:timer-bar :title="$entry->task->title" :project="$entry->task->project?->name" :since="$entry->started_at" />
-</div>
-```
-
 ### `editor`
 - **Props:** `label`, `description`, `error`, `name`, `value` (default `''`)
 - Rich text editor (TipTap). **Requires `@sigtaEditorScripts` in layout head.** Toolbar: bold/italic/strike/heading/lists/quote/code.

@@ -25,7 +25,6 @@ class KitDisplayPagesTest extends TestCase
             'money' => ['money', 'data-sigta="money"'],
             'assignee-picker' => ['assignee-picker', 'data-sigta="assignee-picker"'],
             'comment' => ['comment', 'data-sigta="comment"'],
-            'timer-bar' => ['timer-bar', 'data-sigta="timer-bar"'],
         ];
     }
 
