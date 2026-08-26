@@ -207,7 +207,7 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 
 ### `money-input`
 - **Props:** `label`, `value` (initial MINOR units), `placeholder`, `currency` (default `DKK`), `currencies` (code⇒label map), `currencyName`, `currencyModel`, plus native attrs
-- Amount field (entered in major units) + a currency `<sigta:segmented>` toggle. Emits MINOR units onto the forwarded `wire:model` via a hidden input; bind the toggle with `currencyModel`. App logic (the currency enum) stays in your app.
+- Amount field (entered in major units) with an inline currency switcher: a small dropdown button (code + chevron) sits inside the same field, not a separate toggle. Emits MINOR units onto the forwarded `wire:model` via a hidden input; the currency binds separately via `currencyModel` through a hidden input. App logic (the currency enum) stays in your app.
 ```blade
 <sigta:money-input label="Hourly rate" :value="$rate->amount_minor" wire:model="amountMinor" :currency="$currency" currency-model="currency" />
 ```
