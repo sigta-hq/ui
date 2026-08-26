@@ -3,7 +3,7 @@
 ])
 
 @php
-$classes = 'inline-flex items-center gap-[0.45em] font-mono text-[0.68rem] px-[0.7em] py-[0.32em] rounded-full';
+$classes = 'inline-flex items-center gap-[0.45em] leading-none font-mono text-[0.68rem] px-[0.7em] py-[0.32em] rounded-full';
 
 $classes .= ' '.match ($variant) {
     'success' => 'bg-success/10 text-success',

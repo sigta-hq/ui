@@ -10,6 +10,7 @@ it('renders a neutral pill with a leading dot by default', function () {
         ->toContain('data-sigta="pill"')
         ->toContain('bg-graphite/10')
         ->toContain('text-graphite')
+        ->toContain('leading-none') // tight line-height keeps the label vertically centered
         ->toContain('bg-current')
         ->toContain('aria-hidden="true"');
 });

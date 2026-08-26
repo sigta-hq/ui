@@ -3,7 +3,7 @@
 ])
 
 @php
-$classes = 'inline-flex items-center font-mono text-[0.68rem] tracking-[0.05em] px-[0.7em] py-[0.32em] rounded-full border-[1.5px]';
+$classes = 'inline-flex items-center leading-none font-mono text-[0.68rem] tracking-[0.05em] px-[0.7em] py-[0.32em] rounded-full border-[1.5px]';
 
 $classes .= ' '.match ($variant) {
     'solid' => 'bg-ink text-surface border-ink',

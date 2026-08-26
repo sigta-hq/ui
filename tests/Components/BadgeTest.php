@@ -10,6 +10,7 @@ it('renders an outline badge by default', function () {
         ->toContain('data-sigta="badge"')
         ->toContain('border-ink')
         ->toContain('font-mono')
+        ->toContain('leading-none') // tight line-height keeps the label vertically centered
         ->toContain('rounded-full')
         ->not->toContain('bg-ink');
 });
