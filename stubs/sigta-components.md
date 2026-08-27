@@ -466,7 +466,7 @@ App shell grid: sidebar + main.
 - **Props:** `full` (bool, default `false`). `full=true` → full-viewport app; default → embeddable rounded frame.
 
 #### `shell.sidebar`
-- **Props:** none. Brand slot; collapses to a wrapping top bar on mobile.
+- **Props:** none. Brand slot; on mobile the nav collapses behind a burger toggle (brand stays visible, tap to expand), full rail on desktop. Alpine-driven, no wiring needed.
 
 #### `shell.bar`
 - **Props:** `heading`, `sub`. Top bar: heading + mono sub left, actions slot right.
