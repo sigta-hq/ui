@@ -35,6 +35,10 @@ it('renders a modal built on native dialog', function () {
         ->toContain("sigtaModal('confirm')")
         ->toContain('sigta-modal-show.window')
         ->toContain('aria-label="Close"')
+        // Caps at the viewport and scrolls its own body so long modals do not
+        // clip on small screens.
+        ->toContain('max-h-[calc(100dvh-2.5rem)]')
+        ->toContain('overflow-y-auto')
         ->toContain('Body');
 });
 
