@@ -21,7 +21,7 @@ $width = match ($size) {
     <dialog
         x-ref="dialog"
         @if ($dismissible) x-on:click="backdropClick($event)" @endif
-        {{ $attributes->merge(['class' => 'w-[calc(100vw-2.5rem)] '.$width.' bg-surface-raised text-ink border border-line rounded-frame shadow-paper p-0 backdrop:bg-ink/45 backdrop:backdrop-blur-[2px] m-auto']) }}
+        {{ $attributes->merge(['class' => 'w-[calc(100vw-2.5rem)] '.$width.' max-h-[calc(100dvh-2.5rem)] overflow-y-auto overscroll-contain bg-surface-raised text-ink border border-line rounded-frame shadow-paper p-0 backdrop:bg-ink/45 backdrop:backdrop-blur-[2px] m-auto']) }}
     >
         <div class="p-6 md:p-8">
             @if ($heading || $dismissible)
