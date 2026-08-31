@@ -96,3 +96,20 @@ it('derives the body aria-label from the aria prop, keeping the visible label sh
         ->toContain('aria-label="Work in progress"')
         ->toContain('>WIP<');   // visible header still shows the label string
 });
+
+it('replaces the visible label with a heading slot while keeping the count and body label', function () {
+    $html = Blade::render(<<<'BLADE'
+        <x-sigta::kanban.column id="backlog" label="Backlog">
+            <x-slot:heading>
+                <input type="text" value="Backlog" aria-label="Rename column" data-testid="rename" />
+            </x-slot:heading>
+            <x-sigta::kanban.card id="c1">Card</x-sigta::kanban.card>
+        </x-sigta::kanban.column>
+    BLADE);
+
+    expect($html)
+        ->toContain('data-testid="rename"')   // custom heading control renders in place of the label
+        ->not->toContain('>Backlog</span>')   // the default label span is not also rendered
+        ->toContain('aria-label="Backlog"')   // body accessible name still derives from label
+        ->toContain('data-sigta="badge"');    // count badge still present beside the heading
+});
