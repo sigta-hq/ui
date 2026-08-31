@@ -74,7 +74,7 @@ it('forwards attributes onto the card root', function () {
         ->toContain('ring');
 });
 
-it('renders a header actions slot beside the count', function () {
+it('renders a header actions slot to the left of the count, which stays pinned right', function () {
     $html = Blade::render(<<<'BLADE'
         <x-sigta::kanban.column id="todo" label="To do">
             <x-slot:actions>
@@ -87,6 +87,10 @@ it('renders a header actions slot beside the count', function () {
         ->toContain('aria-label="Column menu"')   // actions slot lands in the header
         ->toContain('aria-label="To do"')         // body accessible name intact
         ->toContain('data-sigta="badge"');        // count badge still present
+
+    // Count is pinned rightmost: the actions markup renders before the badge.
+    expect(strpos($html, 'aria-label="Column menu"'))
+        ->toBeLessThan(strpos($html, 'data-sigta="badge"'));
 });
 
 it('derives the body aria-label from the aria prop, keeping the visible label short', function () {

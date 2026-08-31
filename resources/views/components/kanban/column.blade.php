@@ -5,8 +5,9 @@
 
      Header composition: pass a `heading` slot to replace the visible label with
      your own control (e.g. an inline-rename input) while the count and `actions`
-     stay put; pass an `actions` slot (a menu, a delete button) to sit beside the
-     count. The body's aria-label comes from the dedicated string `aria` prop
+     stay put; pass an `actions` slot (a menu, a delete button) that sits to the
+     left of the count, which stays pinned to the right. The body's aria-label
+     comes from the dedicated string `aria` prop
      (falling back to `label`), so slotted header markup never leaks into the
      accessible name. --}}
 @props([
@@ -34,10 +35,10 @@ $aria ??= $label;
             <span class="font-mono text-[0.7rem] tracking-[0.14em] uppercase text-graphite">{{ $label }}</span>
         @endisset
         <div class="flex shrink-0 items-center gap-1.5">
-            <x-sigta::badge>{{ $count }}</x-sigta::badge>
             @isset($actions)
                 {{ $actions }}
             @endisset
+            <x-sigta::badge>{{ $count }}</x-sigta::badge>
         </div>
     </div>
 
