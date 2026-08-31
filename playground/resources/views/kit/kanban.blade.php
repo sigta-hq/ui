@@ -57,4 +57,27 @@
         «/sigta:kanban.column>
     «/sigta:kanban>
     </x-kit-example>
+
+    <x-kit-example label="Editable column name (heading slot)">
+    «p class="mb-5 max-w-[60ch] text-graphite">
+        Pass a «code class="font-mono text-[0.85em]">heading«/code> slot to replace the visible label with your
+        own control, e.g. an inline-rename input. The count and «code class="font-mono text-[0.85em]">actions«/code>
+        stay put, and the body's accessible name still comes from «code class="font-mono text-[0.85em]">label«/code>
+        (or «code class="font-mono text-[0.85em]">aria«/code>).
+    «/p>
+
+    «sigta:kanban>
+        «sigta:kanban.column id="rename" label="Backlog">
+            «x-slot:heading>
+                «input
+                    type="text"
+                    value="Backlog"
+                    aria-label="Rename column"
+                    class="w-full min-w-0 rounded-base border border-line bg-surface px-2 py-1 font-mono text-[0.7rem] uppercase tracking-[0.14em] text-ink outline-none focus:border-ink"
+                />
+            «/x-slot:heading>
+            «sigta:kanban.card id="rename-card">Edit the name above, then blur«/sigta:kanban.card>
+        «/sigta:kanban.column>
+    «/sigta:kanban>
+    </x-kit-example>
 </x-kit-shell>
