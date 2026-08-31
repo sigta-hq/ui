@@ -545,7 +545,7 @@ Native HTML5 drag-and-drop board.
 
 #### `kanban.column`
 - **Props:** `label`, `id` (auto if null), `count` (counted from slot if null), `aria` (body accessible name; defaults to `label`)
-- **Slots:** `heading` replaces the visible label with your own control (e.g. an inline-rename input) while the count and `actions` stay put; `actions` adds header controls (a menu, a delete button) beside the count. The body's `aria-label` comes from the string `label`/`aria`, so slotted header markup never leaks into it.
+- **Slots:** `heading` replaces the visible label with your own control (e.g. an inline-rename input) while the count and `actions` stay put; `actions` adds header controls (a menu, a delete button) to the left of the count, which stays pinned to the right. The body's `aria-label` comes from the string `label`/`aria`, so slotted header markup never leaks into it.
 
 #### `kanban.card`
 - **Props:** `id` (auto if null). `draggable="true"`.
