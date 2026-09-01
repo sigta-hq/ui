@@ -9,12 +9,19 @@
      left of the count, which stays pinned to the right. The body's aria-label
      comes from the dedicated string `aria` prop
      (falling back to `label`), so slotted header markup never leaks into the
-     accessible name. --}}
+     accessible name.
+
+     Set `sortable` to let the column be dragged into a new position on the board.
+     It grows a grip handle at the start of the header; dragging the handle
+     dispatches `sigta-kanban-column-move` { column, position } from the board.
+     Only the handle starts a column drag, so it never competes with dragging a
+     card or clicking the header controls. --}}
 @props([
     'label' => null,
     'id' => null,
     'count' => null,
     'aria' => null,
+    'sortable' => false,
 ])
 
 @php
@@ -26,13 +33,26 @@ $aria ??= $label;
 <div
     data-sigta="kanban.column"
     data-column="{{ $id }}"
-    {{ $attributes->merge(['class' => 'flex w-72 shrink-0 flex-col rounded-panel border border-line bg-surface']) }}
+    @if ($sortable) x-bind:data-col-dragging="draggedColumn === '{{ $id }}' ? '' : null" @endif
+    {{ $attributes->merge(['class' => 'flex w-72 shrink-0 flex-col rounded-panel border border-line bg-surface'.($sortable ? ' data-[col-dragging]:opacity-40' : '')]) }}
 >
     <div class="flex items-center justify-between gap-2 px-3.5 py-3 border-b border-line">
+        @if ($sortable)
+            <button
+                type="button"
+                draggable="true"
+                x-on:dragstart="columnStart('{{ $id }}', $event)"
+                class="shrink-0 cursor-grab text-graphite transition-colors hover:text-ink active:cursor-grabbing"
+                aria-label="{{ $aria ? 'Reorder '.$aria : 'Reorder column' }}"
+                data-sigta="kanban.column-handle"
+            >
+                <x-sigta::icon name="grip-vertical" size="xs" />
+            </button>
+        @endif
         @isset($heading)
             <div class="min-w-0 flex-1">{{ $heading }}</div>
         @else
-            <span class="font-mono text-[0.7rem] tracking-[0.14em] uppercase text-graphite">{{ $label }}</span>
+            <span class="min-w-0 flex-1 font-mono text-[0.7rem] tracking-[0.14em] uppercase text-graphite">{{ $label }}</span>
         @endisset
         <div class="flex shrink-0 items-center gap-1.5">
             @isset($actions)
