@@ -117,3 +117,32 @@ it('replaces the visible label with a heading slot while keeping the count and b
         ->toContain('aria-label="Backlog"')   // body accessible name still derives from label
         ->toContain('data-sigta="badge"');    // count badge still present beside the heading
 });
+
+it('does not make columns draggable by default', function () {
+    $html = Blade::render('<x-sigta::kanban.column id="todo" label="To do" />');
+
+    expect($html)
+        ->not->toContain('data-sigta="kanban.column-handle"')
+        ->not->toContain('data-col-dragging');
+});
+
+it('grows a drag handle and a dragging visual when a column is sortable', function () {
+    $html = Blade::render('<x-sigta::kanban.column id="todo" label="To do" sortable />');
+
+    expect($html)
+        ->toContain('data-sigta="kanban.column-handle"')                // the grip handle
+        ->toContain('draggable="true"')                                 // it starts a native drag
+        ->toContain('x-on:dragstart="columnStart(\'todo\', $event)"')   // wired to the board
+        ->toContain('aria-label="Reorder To do"')                       // handle names the column
+        ->toContain("draggedColumn === 'todo'")                         // fades while dragging
+        ->toContain('data-[col-dragging]:opacity-40');
+});
+
+it('wires the board to reorder columns and dispatch the persistence event', function () {
+    $html = Blade::render('<x-sigta::kanban><x-sigta::kanban.column id="todo" label="To do" sortable /></x-sigta::kanban>');
+
+    expect($html)
+        ->toContain('sigta-kanban-column-move')   // event name present for Livewire
+        ->toContain('columnOver($event)')         // board handles column dragover
+        ->toContain('columnDrop($event)');        // …and drop
+});
