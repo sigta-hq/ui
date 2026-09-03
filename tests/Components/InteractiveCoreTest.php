@@ -42,6 +42,29 @@ it('renders a modal built on native dialog', function () {
         ->toContain('Body');
 });
 
+it('floats the close button with no header band when a modal has no heading', function () {
+    $withHeading = Blade::render('<x-sigta::modal name="a" heading="Sure?">Body</x-sigta::modal>');
+    $noHeading = Blade::render('<x-sigta::modal name="b">Body</x-sigta::modal>');
+
+    // A headed modal keeps the close button in a header row (spaced with mb-4).
+    expect($withHeading)->toContain('aria-label="Close"')->toContain('mb-4');
+
+    // A heading-less modal still offers a close button, but floats it in the
+    // corner (absolute + z-10) with no reserved header row, so the content sits
+    // at the top of the panel with no wasted band.
+    expect($noHeading)
+        ->toContain('aria-label="Close"')
+        ->toContain('absolute')
+        ->toContain('z-10')
+        ->not->toContain('mb-4');
+});
+
+it('renders no close button when a heading-less modal is not dismissible', function () {
+    $html = Blade::render('<x-sigta::modal name="c" :dismissible="false">Body</x-sigta::modal>');
+
+    expect($html)->not->toContain('aria-label="Close"');
+});
+
 it('renders modal trigger dispatching the named event', function () {
     $html = Blade::render('<x-sigta::modal.trigger name="confirm"><button>Open</button></x-sigta::modal.trigger>');
 
