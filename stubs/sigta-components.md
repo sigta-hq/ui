@@ -278,6 +278,7 @@ Menu container + items. `sigtaDropdown` Alpine handles open/escape/click-outside
 - **Props:** `name`, `size` (default `base`), `heading`, `dismissible` (bool, default `true`)
 - **Sizes:** `sm`, `base`, `lg`, `xl`
 - Dialog driven by `sigtaModal` Alpine. Open via `<sigta:modal.trigger>` or `sigta-modal-show {name}` window event.
+- With a `heading` the close button sits in the header row; with no heading it floats in the top-right corner and no header band is reserved, so keep the top-right of your content clear for it.
 
 #### `modal.trigger`
 - **Props:** `name`. Wraps content; click dispatches `sigta-modal-show {name}`.

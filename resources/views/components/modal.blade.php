@@ -23,12 +23,11 @@ $width = match ($size) {
         @if ($dismissible) x-on:click="backdropClick($event)" @endif
         {{ $attributes->merge(['class' => 'w-[calc(100vw-2.5rem)] '.$width.' max-h-[calc(100dvh-2.5rem)] overflow-y-auto overscroll-contain bg-surface-raised text-ink border border-line rounded-frame shadow-paper p-0 backdrop:bg-ink/45 backdrop:backdrop-blur-[2px] m-auto']) }}
     >
-        <div class="p-6 md:p-8">
-            @if ($heading || $dismissible)
+        <div class="relative p-6 md:p-8">
+            @if ($heading)
+                {{-- With a heading the close button shares the header row beside it. --}}
                 <div class="flex items-start justify-between gap-4 mb-4">
-                    @if ($heading)
-                        <x-sigta::heading level="2" size="lg">{{ $heading }}</x-sigta::heading>
-                    @endif
+                    <x-sigta::heading level="2" size="lg">{{ $heading }}</x-sigta::heading>
                     @if ($dismissible)
                         <button type="button" x-on:click="hide()" aria-label="Close"
                                 class="ml-auto -mr-1 -mt-1 p-1.5 rounded-base text-graphite hover:text-ink hover:bg-ink/5 cursor-pointer">
@@ -36,6 +35,15 @@ $width = match ($size) {
                         </button>
                     @endif
                 </div>
+            @elseif ($dismissible)
+                {{-- With no heading the close button floats in the corner instead of
+                     reserving an empty header row, so the content starts at the top of
+                     the panel with no wasted band. z-10 keeps it clickable above the
+                     content; leave the top-right of the content clear for it. --}}
+                <button type="button" x-on:click="hide()" aria-label="Close"
+                        class="absolute right-5 top-5 z-10 p-1.5 rounded-base text-graphite hover:text-ink hover:bg-ink/5 cursor-pointer">
+                    <x-sigta::icon name="x" size="sm" />
+                </button>
             @endif
 
             {{ $slot }}

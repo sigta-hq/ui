@@ -13,6 +13,17 @@
     «/sigta:modal>
     </x-kit-example>
 
+    <x-kit-example label="No heading (close button floats, no header band)">
+    «sigta:modal.trigger name="headless">
+        «sigta:button variant="secondary">Open headless«/sigta:button>
+    «/sigta:modal.trigger>
+
+    «sigta:modal name="headless">
+        «sigta:heading level="3">Content starts at the top«/sigta:heading>
+        «sigta:text variant="muted" class="mt-2">With no heading the close button floats in the corner instead of reserving an empty header row, so nothing is wasted above the content.«/sigta:text>
+    «/sigta:modal>
+    </x-kit-example>
+
     <x-kit-example label="Sizes">
     «div class="flex gap-3">
         «sigta:modal.trigger name="small">«sigta:button size="sm">Small«/sigta:button>«/sigta:modal.trigger>
