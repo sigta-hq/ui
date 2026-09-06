@@ -134,3 +134,19 @@
 }
 .sigta-prose pre code { background: none; padding: 0; }
 .sigta-prose hr { border: 0; border-top: 1px solid var(--sigta-line); }
+.sigta-prose a {
+    color: var(--sigta-fg);
+    text-decoration: underline;
+    text-decoration-color: var(--sigta-line);
+    text-underline-offset: 0.15em;
+    transition: text-decoration-color var(--sigta-ease-fast);
+}
+.sigta-prose a:hover { text-decoration-color: var(--sigta-fg); }
+/* Placeholder is a TipTap decoration on the empty first paragraph. */
+.sigta-prose p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    color: var(--sigta-fg-muted);
+    pointer-events: none;
+}

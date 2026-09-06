@@ -82,6 +82,9 @@ Tailwind utilities mapped to tokens (use these):
 - Components are Blade + Alpine, never Livewire class components.
 - Must survive Livewire DOM morphs: keep state in Alpine (`x-data`), avoid imperative DOM mutations, use `wire:ignore` only as last resort.
 - Event-driven components (Toast) listen for Livewire dispatches via `Livewire.on(...)` or window events.
+- Never interpolate state into `x-data` (`x-data="thing(@js($value))"`). A Livewire morph that changes the attribute string makes Alpine re-run `x-data`, rebuilding the component mid-interaction. Read initial values from the DOM instead (a `data-*` attribute, the hidden input's value) with a constant `x-data="thing()"`.
+- Keep third-party instances (TipTap, charts) out of Alpine data. Anything read back through the reactive proxy comes wrapped, and proxied ProseMirror objects fail their own identity checks ("Applying a mismatched transaction"). Keep them in a module-level `WeakMap` keyed by `$root` behind a method (`instance()`), which the proxy cannot wrap.
+- A DOM subtree a library owns needs `wire:ignore` and a stable id. Livewire keys its morph on `wire:key` and `id`, so the usual random per-render id makes the morph swap the element for an empty one on the first re-render; derive the id from the binding (`name`, `wire:model`) when none is given.
 - Livewire 4 note: this package targets `livewire/livewire:^4.0`. It forwards `wire:model` (and any `wire:*` attribute) onto native inputs verbatim — it never authors `wire:model` directives, so the package is unaffected by v4's modifier changes. Host apps should know that under v4, `wire:model.blur` / `wire:model.change` must be written `wire:model.live.blur` / `wire:model.live.change` to get the v3 "sync on blur/change" behavior.
 
 ## Definition of done (per component)
