@@ -58,7 +58,10 @@ $toolbarFrame = $inline
     ? 'order-last border-t border-line px-1.5 py-1'
     : 'border-b border-line px-1.5 py-1';
 
-$content = $inline
+// The padding goes on the editable element itself (the runtime applies these
+// classes to it), so the whole box is editable surface: a click anywhere in it
+// places the caret, instead of only the line the text happens to occupy.
+$contentClass = $inline
     ? 'px-[0.8em] py-[0.62em] max-w-none'
     : 'px-4 py-3 max-w-none';
 
@@ -135,7 +138,7 @@ $minHeight = 'min-height: calc('.$rows.' * 1.65em + '.($inline ? '1.24em' : '1.5
         </div>
 
         {{-- TipTap mounts here and owns this subtree, so Livewire must never morph it. --}}
-        <div id="{{ $id }}" x-ref="element" wire:ignore class="{{ $content }}" style="{{ $minHeight }}"></div>
+        <div id="{{ $id }}" x-ref="element" wire:ignore class="flex cursor-text flex-col" data-content-class="{{ $contentClass }}" style="{{ $minHeight }}"></div>
 
         <input type="hidden" x-ref="value" @if ($name) name="{{ $name }}" @endif value="{{ $value }}" {{ $attributes->except(['class', 'id']) }}>
     </div>
