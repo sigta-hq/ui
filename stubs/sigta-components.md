@@ -419,11 +419,11 @@ Command palette (⌘K / Ctrl-K).
 - Chat composer: auto-growing textarea, leading (`<x-slot:leading>`) attach slot, send button. Dispatches `sigta-composer-submit {text}`.
 
 ### `editor`
-- **Props:** `label`, `description`, `error`, `name`, `value` (default `''`), `format` (default `html`), `variant` (default `default`), `placeholder` (default `''`)
+- **Props:** `label`, `description`, `error`, `name`, `value` (default `''`), `format` (default `html`), `variant` (default `default`), `placeholder` (default `''`), `rows` (min height in lines; default `6`, or `3` for `inline`)
 - **Formats:** `html`, `markdown`. **Variants:** `default`, `inline`
 - Rich text editor (TipTap). **Requires `@sigtaEditorScripts` in layout head.** Toolbar: bold/italic/strike/link/heading/lists/quote/code. Links: Cmd/Ctrl+K or the toolbar edits (with Open and Remove), Cmd/Ctrl+click follows; a plain click only places the caret. `format="markdown"` parses `value` as markdown and writes markdown to the hidden input (single newlines are line breaks). `variant="inline"` is the always-editable form for detail views: borderless until hover, toolbar only while editing. The editor never reads its hidden input back, so Livewire re-renders cannot disturb typing; replace content on purpose by dispatching `sigta-editor-set` on the root with the new value as detail.
 ```blade
-<sigta:editor format="markdown" variant="inline" placeholder="Add a description" wire:model.live.debounce.500ms="description" :value="$description" />
+<sigta:editor format="markdown" variant="inline" placeholder="Add a description" rows="3" wire:model="description" :value="$description" />
 ```
 
 ### `calendar`
