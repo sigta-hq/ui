@@ -12,7 +12,7 @@
      Usage:
        <x-sigta::editor name="body" wire:model="body" :value="$post->body" label="Body" />
        <x-sigta::editor format="markdown" variant="inline" placeholder="Add a description"
-           wire:model.live.debounce.500ms="description" :value="$description" /> --}}
+           rows="3" wire:model="description" :value="$description" /> --}}
 @props([
     'label' => null,
     'description' => null,
@@ -22,6 +22,7 @@
     'format' => 'html',
     'variant' => 'default',
     'placeholder' => '',
+    'rows' => null,
 ])
 
 @php
@@ -58,8 +59,14 @@ $toolbarFrame = $inline
     : 'border-b border-line px-1.5 py-1';
 
 $content = $inline
-    ? 'px-[0.8em] py-[0.62em] min-h-12 max-w-none'
-    : 'px-4 py-3 min-h-40 max-w-none';
+    ? 'px-[0.8em] py-[0.62em] max-w-none'
+    : 'px-4 py-3 max-w-none';
+
+// Like a textarea's rows: the empty editor is an inviting area, not a single
+// line. Inline fields default to three lines, the form variant to six. Expressed
+// in em of the prose line height plus the vertical padding, so it tracks the font.
+$rows = (int) ($rows ?? ($inline ? 3 : 6));
+$minHeight = 'min-height: calc('.$rows.' * 1.65em + '.($inline ? '1.24em' : '1.5em').');';
 @endphp
 
 <x-sigta::field :label="$label" :description="$description" :error="$error" :for="$id">
@@ -128,7 +135,7 @@ $content = $inline
         </div>
 
         {{-- TipTap mounts here and owns this subtree, so Livewire must never morph it. --}}
-        <div id="{{ $id }}" x-ref="element" wire:ignore class="{{ $content }}"></div>
+        <div id="{{ $id }}" x-ref="element" wire:ignore class="{{ $content }}" style="{{ $minHeight }}"></div>
 
         <input type="hidden" x-ref="value" @if ($name) name="{{ $name }}" @endif value="{{ $value }}" {{ $attributes->except(['class', 'id']) }}>
     </div>

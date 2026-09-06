@@ -59,8 +59,18 @@ it('renders the inline variant borderless with a toolbar that shows only while e
     expect($html)
         ->toContain('data-variant="inline"')
         ->toContain('border-transparent')
-        ->toContain('x-show="focused || linkOpen"')
-        ->not->toContain('min-h-40');
+        ->toContain('x-show="focused || linkOpen"');
+});
+
+it('sizes the empty editor by rows, like a textarea', function () {
+    expect(Blade::render('<x-sigta::editor />'))
+        ->toContain('style="min-height: calc(6 * 1.65em + 1.5em);"');
+
+    expect(Blade::render('<x-sigta::editor variant="inline" />'))
+        ->toContain('style="min-height: calc(3 * 1.65em + 1.24em);"');
+
+    expect(Blade::render('<x-sigta::editor variant="inline" rows="8" />'))
+        ->toContain('style="min-height: calc(8 * 1.65em + 1.24em);"');
 });
 
 it('keeps the editable region out of Livewire morphs and accepts deliberate content replacement', function () {

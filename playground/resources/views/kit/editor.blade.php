@@ -29,6 +29,7 @@
         variant="inline"
         label="Description"
         placeholder="Add a description"
+        rows="3"
     />
     </x-kit-example>
 
