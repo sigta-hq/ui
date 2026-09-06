@@ -142,6 +142,13 @@
     transition: text-decoration-color var(--sigta-ease-fast);
 }
 .sigta-prose a:hover { text-decoration-color: var(--sigta-fg); }
+/* The editable element fills the editor's box (its min-height comes from the
+   rows prop on the mount), so a click anywhere in the box lands in the editor. */
+[data-sigta="editor"] .sigta-prose {
+    flex: 1 1 auto;
+    min-height: inherit;
+    box-sizing: border-box;
+}
 /* Placeholder is a TipTap decoration on the empty first paragraph. */
 .sigta-prose p.is-editor-empty:first-child::before {
     content: attr(data-placeholder);

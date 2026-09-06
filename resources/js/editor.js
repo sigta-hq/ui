@@ -60,7 +60,9 @@ function register() {
                 content: initial,
                 contentType: markdown ? 'markdown' : 'html',
                 editorProps: {
-                    attributes: { class: 'sigta-prose focus:outline-none' },
+                    // The mount's padding classes land on the editable element so it fills
+                    // the box (see core.css), making every part of the box a place to click.
+                    attributes: { class: `sigta-prose focus:outline-none ${this.$refs.element?.dataset.contentClass ?? ''}`.trim() },
                 },
                 onTransaction: () => { this.state++; },
                 onFocus: () => { this.focused = true; },

@@ -62,6 +62,16 @@ it('renders the inline variant borderless with a toolbar that shows only while e
         ->toContain('x-show="focused || linkOpen"');
 });
 
+it('hands its padding to the editable element so the whole box is clickable', function () {
+    $html = Blade::render('<x-sigta::editor variant="inline" />');
+
+    expect($html)
+        ->toMatch('/<div[^>]*x-ref="element"[^>]*class="flex cursor-text flex-col"[^>]*data-content-class="px-\[0\.8em\] py-\[0\.62em\] max-w-none"/');
+
+    expect(Blade::render('<x-sigta::editor />'))
+        ->toContain('data-content-class="px-4 py-3 max-w-none"');
+});
+
 it('sizes the empty editor by rows, like a textarea', function () {
     expect(Blade::render('<x-sigta::editor />'))
         ->toContain('style="min-height: calc(6 * 1.65em + 1.5em);"');
