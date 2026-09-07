@@ -2,7 +2,7 @@
 
 Livewire/Blade component library carrying the Sigta brand — paper, ink, and
 hand-drawn accents — as the shared foundation for Sigta landing pages and SaaS
-platforms. Flux-level component coverage, fully owned. See [PLAN.md](PLAN.md)
+platforms. Comprehensive component coverage, fully owned. See [PLAN.md](PLAN.md)
 for architecture decisions and the component roadmap.
 
 ## Repo layout

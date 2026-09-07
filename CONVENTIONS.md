@@ -2,6 +2,14 @@
 
 Contract for every component in this package. Read fully before building.
 
+## Never name another component library
+
+Sigta UI is a self-owned, native library. Do not reference Flux (or any other
+component library) in docs, stubs, comments, component APIs, or commit messages
+— not as a comparison, a migration table, or a lineage note. Describe everything
+in Sigta's own terms. Naming another library in the published stubs confuses the
+consumers (often LLM agents) about what this package is and how to use it.
+
 ## LLM context files (keep in sync — non-negotiable)
 
 Consumer apps — many of them built by LLM coding agents — discover Sigta UI's
@@ -62,12 +70,12 @@ Tailwind utilities mapped to tokens (use these):
 ## Component API
 
 - Consumers may write either `<sigta:button>` (compiled prefix) or `<x-sigta::button>`. Author component *views* and *tests* in the canonical `<x-sigta::…>` form; the prefix is a global rewrite, not something each component opts into.
-- `@props` with defaults; prop names mirror Flux: `variant`, `size`, `icon`, `label`, `description`, `error`, `placeholder`.
+- `@props` with defaults; prop names follow the conventional Livewire/Blade vocabulary: `variant`, `size`, `icon`, `label`, `description`, `error`, `placeholder`.
 - Root element carries `data-sigta="<name>"`.
 - Always forward attributes: `{{ $attributes->merge(['class' => $classes]) }}`. Never swallow `wire:*`, `x-*`, `id`, `name`, `aria-*`.
 - Form controls: attributes (incl. `wire:model`) forward onto the **native element** (`input`, `select`, `textarea`, `button`). Native elements first, always, unless impossible.
 - Variants via `match` expressions in `@php` blocks — see `button.blade.php` for the house style.
-- Slots for composition; named slots where Flux has them.
+- Slots for composition; named slots where a component has distinct regions.
 
 ## Accessibility (non-negotiable)
 

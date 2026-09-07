@@ -50,7 +50,7 @@ class SigtaServiceProvider extends ServiceProvider
 
     protected function bootAssets(): void
     {
-        // Route-served JS (Flux/Livewire style): no publish step, always in
+        // Route-served JS (Livewire style): no publish step, always in
         // sync with the installed package version.
         Route::get('/sigta/sigta.js', AssetController::class)
             ->name('sigta.assets.js');

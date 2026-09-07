@@ -2,15 +2,15 @@
 
 ## Goal
 
-A self-owned Livewire/Blade component library with Flux-level component coverage, expressing the Sigta brand (paper/ink, serif type, hand-drawn accents) in every component — so multiple landing pages and SaaS platforms can be built on one foundation and stay visually identical.
+A self-owned Livewire/Blade component library with comprehensive component coverage, expressing the Sigta brand (paper/ink, serif type, hand-drawn accents) in every component — so multiple landing pages and SaaS platforms can be built on one foundation and stay visually identical.
 
 ## Approach
 
-One monorepo. The Composer package `sigta/ui` lives at the repo root; a playground Laravel app in `/playground` consumes it via a path repository and doubles as living docs, kit page, and visual regression surface. Components are Blade components with Alpine.js behavior (the Flux architecture) — not Livewire class components — with `wire:model` and Livewire event integration where it matters. Styling flows from a semantic CSS-variable token layer, mapped into Tailwind v4 via `@theme`, so consuming apps get brand-consistent utilities for their bespoke UI. Signature brand elements (hand-drawn rules, highlighter marks, annotations, paper grain) ship as first-class components, not CSS tricks. Delivery is tiered: a landing page can ship after Tier 1, a SaaS app after Tier 2, heavy widgets arrive in Tier 3.
+One monorepo. The Composer package `sigta/ui` lives at the repo root; a playground Laravel app in `/playground` consumes it via a path repository and doubles as living docs, kit page, and visual regression surface. Components are Blade components with Alpine.js behavior — not Livewire class components — with `wire:model` and Livewire event integration where it matters. Styling flows from a semantic CSS-variable token layer, mapped into Tailwind v4 via `@theme`, so consuming apps get brand-consistent utilities for their bespoke UI. Signature brand elements (hand-drawn rules, highlighter marks, annotations, paper grain) ship as first-class components, not CSS tricks. Delivery is tiered: a landing page can ship after Tier 1, a SaaS app after Tier 2, heavy widgets arrive in Tier 3.
 
 ## Key decisions made
 
-- **Build strategy:** Scratch build (no Flux dependency). Rationale: full ownership of markup, brand, and API for a long-horizon foundational asset.
+- **Build strategy:** Scratch build (no third-party UI-kit dependency). Rationale: full ownership of markup, brand, and API for a long-horizon foundational asset.
 - **Dependency line:** Alpine.js as the behavior layer (ships with Livewire anyway); headless engines allowed only for editor-class problems (TipTap); styled component libraries never. Rationale: don't rebuild industries, don't inherit someone else's look.
 - **Styling engine:** Tokens-first — CSS variables as source of truth, Tailwind v4 `@theme` mapped onto them. Rationale: brand DNA lives in tokens/components; apps still get Tailwind ergonomics for bespoke UI.
 - **Dark mode:** Semantic-light. Token names are role-based (`surface`, `fg`, `line`), only light values ship, components never use raw hex. Rationale: keeps a future dark palette a values-file exercise instead of a refactor, at near-zero cost now.
@@ -65,8 +65,8 @@ sigta-ui/                      (monorepo, package at root)
 
 ### 2. API conventions
 
-- Tag syntax: plain Blade namespace — `<x-sigta::button variant="cta" icon:trailing="arrow-right">`. A Flux-style compiled `<sigta:button>` prefix is a possible later ergonomics layer, not v1.
-- Prop vocabulary mirrors Flux where sensible (`variant`, `size`, `icon`, `icon:trailing`, `label`, `description`, `error`) to keep the learning curve near zero for Livewire devs.
+- Tag syntax: plain Blade namespace — `<x-sigta::button variant="cta" icon:trailing="arrow-right">`. A compiled `<sigta:button>` prefix is a possible later ergonomics layer, not v1.
+- Prop vocabulary follows conventional Livewire/Blade naming (`variant`, `size`, `icon`, `icon:trailing`, `label`, `description`, `error`) to keep the learning curve near zero for Livewire devs.
 - Composition via slots; escape hatch via `$attributes` merge — but variants should cover 95% of use.
 - Icons: wrapped Lucide set, normalized to brand stroke weight (~1.75px) and sizes; `<x-sigta::icon name="…">`. A hand-drawn custom icon set is a deferred luxury.
 
@@ -87,7 +87,7 @@ Semantic roles, light values from the brand files:
 
 Plus: type tokens (`--font-head` Fraunces, `--font-body` Newsreader, `--font-mono` JetBrains Mono, `--font-hand` Caveat), radius `3px`, the brand shadow, gutter/max-width, focus ring spec (2.5px solid fg, 3px offset), motion (hover `translateY(-2px)`, 140–220ms eases, `prefers-reduced-motion` kill switch). Components reference tokens only — **no raw hex in any component**. Enforce with a CI grep.
 
-### 4. Component inventory (Flux parity + Sigta signatures)
+### 4. Component inventory (broad coverage + Sigta signatures)
 
 **Tier 0 — Foundation & primitives**
 | Component | Notes |
@@ -95,7 +95,7 @@ Plus: type tokens (`--font-head` Fraunces, `--font-body` Newsreader, `--font-mon
 | Heading, Text | Fraunces/Newsreader scale from the brand type ramp |
 | Icon | Lucide wrap, brand stroke |
 | Separator | plain hairline |
-| **Rule** ✎ | hand-drawn squiggle divider (signature, not in Flux) |
+| **Rule** ✎ | hand-drawn squiggle divider (a Sigta signature) |
 | **Mark** ✎ | highlighter swipe behind words |
 | **Annot** ✎ | Caveat handwritten annotation with rotation |
 | **Eyebrow** ✎ | mono kicker with leading dash |

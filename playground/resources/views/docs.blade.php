@@ -214,7 +214,7 @@
     <section id="usage" class="scroll-mt-8 py-[clamp(40px,6vw,80px)]">
         <x-sigta::eyebrow class="mb-4">02 · Usage</x-sigta::eyebrow>
         <x-sigta::heading level="2" size="xl">Write a tag, get a component</x-sigta::heading>
-        <x-sigta::text variant="muted" class="mt-3 max-w-[56ch]">Every example below is <b class="text-ink">live on the left</b> and its <b class="text-ink">source on the right</b>. Props mirror Flux: <code class="font-mono text-ink">variant</code>, <code class="font-mono text-ink">size</code>, <code class="font-mono text-ink">icon</code>, <code class="font-mono text-ink">label</code>, <code class="font-mono text-ink">description</code>, <code class="font-mono text-ink">error</code>.</x-sigta::text>
+        <x-sigta::text variant="muted" class="mt-3 max-w-[56ch]">Every example below is <b class="text-ink">live on the left</b> and its <b class="text-ink">source on the right</b>. Props follow conventional naming: <code class="font-mono text-ink">variant</code>, <code class="font-mono text-ink">size</code>, <code class="font-mono text-ink">icon</code>, <code class="font-mono text-ink">label</code>, <code class="font-mono text-ink">description</code>, <code class="font-mono text-ink">error</code>.</x-sigta::text>
 
         <div class="mt-8 flex flex-col gap-6">
             <x-doc-example label="Button — variants, icons, sizes">
