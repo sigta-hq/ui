@@ -121,7 +121,7 @@ foundation.
 
 ## Component prop conventions
 
-Props mirror Flux/Livewire naming. Common ones across many components:
+Props follow conventional Livewire naming. Common ones across many components:
 `variant`, `size`, `icon`, `label`, `description`, `error`, `placeholder`,
 `heading`, `name`, `href`. Attributes you don't recognize (e.g. `wire:model`,
 `x-*`, `id`, `aria-*`) **always forward onto the native element** — never
@@ -144,17 +144,9 @@ Livewire DOM morphs: keep state in Alpine (`x-data`), avoid imperative DOM
 mutations. Event-driven components (toast) listen for Livewire dispatches or
 window events.
 
-### Toast API (Flux migration)
+### Toast API
 
-| Flux | Sigta |
-|---|---|
-| `use Flux\Flux;` | `use Sigta\Ui\Facades\Sigta;` |
-| `Flux::toast('msg')` | `Sigta::toast('msg')` |
-| `$flux.toast('msg')` | `$sigta.toast('msg')` |
-| `window.Flux.toast(...)` | `window.Sigta.toast(...)` |
-| `<flux:toast />` | `<sigta:toast />` |
-| variant `warning` | variant `warning` |
-| variant N/A | variant `info` (Sigta-only) |
+Trigger a toast with `Sigta::toast('msg')` (Livewire), `$sigta.toast('msg')` (Alpine), or `window.Sigta.toast(...)` (JS). Variants include `warning` and `info` (`info` is Sigta-specific).
 
 Include `<sigta:toast />` once in your layout. With `wire:navigate`, wrap it in `@persist('toast')`.
 
