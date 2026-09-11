@@ -279,6 +279,7 @@ Menu container + items. `sigtaDropdown` Alpine handles open/escape/click-outside
 - **Sizes:** `sm`, `base`, `lg`, `xl`
 - Dialog driven by `sigtaModal` Alpine. Open via `<sigta:modal.trigger>` or `sigta-modal-show {name}` window event.
 - With a `heading` the close button sits in the header row; with no heading it floats in the top-right corner and no header band is reserved, so keep the top-right of your content clear for it.
+- Keeps its open state across a host Livewire re-render (it renders `wire:ignore.self`), so a modal that stays open while its contents autosave or run New/Delete actions does not close on the morph. You do not add `wire:ignore.self` yourself.
 
 #### `modal.trigger`
 - **Props:** `name`. Wraps content; click dispatches `sigta-modal-show {name}`.

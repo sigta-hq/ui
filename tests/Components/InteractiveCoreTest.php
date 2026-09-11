@@ -42,6 +42,15 @@ it('renders a modal built on native dialog', function () {
         ->toContain('Body');
 });
 
+it('keeps the dialog open across a host Livewire morph', function () {
+    // showModal() sets the open state as a runtime attribute the server never
+    // renders, so without wire:ignore.self a host component's morph strips it and
+    // the modal closes on the first in-modal action (an autosave, a New button).
+    $html = Blade::render('<x-sigta::modal name="notes">Body</x-sigta::modal>');
+
+    expect($html)->toContain('wire:ignore.self');
+});
+
 it('floats the close button with no header band when a modal has no heading', function () {
     $withHeading = Blade::render('<x-sigta::modal name="a" heading="Sure?">Body</x-sigta::modal>');
     $noHeading = Blade::render('<x-sigta::modal name="b">Body</x-sigta::modal>');

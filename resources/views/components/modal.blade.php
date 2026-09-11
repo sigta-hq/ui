@@ -18,8 +18,14 @@ $width = match ($size) {
      x-on:sigta-modal-show.window="onShow($event.detail)"
      x-on:sigta-modal-hide.window="onHide($event.detail)"
      data-sigta="modal">
+    {{-- wire:ignore.self by default: the open state is a runtime attribute set by
+         showModal() that the server never renders, so a host Livewire morph on any
+         in-modal action would otherwise strip it and close the modal on the first
+         edit. It leaves only the dialog's own attributes alone; children still morph,
+         and it is inert outside Livewire. --}}
     <dialog
         x-ref="dialog"
+        wire:ignore.self
         @if ($dismissible) x-on:click="backdropClick($event)" @endif
         {{ $attributes->merge(['class' => 'w-[calc(100vw-2.5rem)] '.$width.' max-h-[calc(100dvh-2.5rem)] overflow-y-auto overscroll-contain bg-surface-raised text-ink border border-line rounded-frame shadow-paper p-0 backdrop:bg-ink/45 backdrop:backdrop-blur-[2px] m-auto']) }}
     >
