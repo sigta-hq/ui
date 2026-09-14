@@ -24,6 +24,43 @@
     «/sigta:modal>
     </x-kit-example>
 
+    <x-kit-example label="Full screen on a phone (lg and xl by default)">
+    «div class="flex gap-3">
+        «sigta:modal.trigger name="workspace">«sigta:button size="sm">Workspace (lg)«/sigta:button>«/sigta:modal.trigger>
+        «sigta:modal.trigger name="confirm-small">«sigta:button size="sm">Confirmation (base)«/sigta:button>«/sigta:modal.trigger>
+        «sigta:modal.trigger name="forced">«sigta:button size="sm">Small, forced«/sigta:button>«/sigta:modal.trigger>
+        «sigta:modal.trigger name="kept">«sigta:button size="sm">Large, kept centred«/sigta:button>«/sigta:modal.trigger>
+    «/div>
+
+    «sigta:modal name="workspace" size="lg" heading="Workspace">
+        «sigta:text variant="muted">Narrow the window under 768px: this one goes edge to edge, because a modal carrying real work wants the screen a phone has.«/sigta:text>
+    «/sigta:modal>
+
+    «sigta:modal name="confirm-small" heading="Delete this?">
+        «sigta:text variant="muted">A confirmation stays a centred card at every width. Taking the whole screen would make a light act feel heavy.«/sigta:text>
+    «/sigta:modal>
+
+    «sigta:modal name="forced" size="sm" fullscreen heading="Small, full screen">
+        «sigta:text variant="muted">fullscreen overrides the size, for a small modal that still needs the room (a step by step flow).«/sigta:text>
+    «/sigta:modal>
+
+    «sigta:modal name="kept" size="lg" :fullscreen="false" heading="Large, centred">
+        «sigta:text variant="muted">:fullscreen="false" keeps a large modal a sheet on a phone, for content that reads better framed.«/sigta:text>
+    «/sigta:modal>
+    </x-kit-example>
+
+    <x-kit-example label="Full screen body that fills the screen">
+    «sigta:modal.trigger name="filling">
+        «sigta:button variant="secondary">Open filling modal«/sigta:button>
+    «/sigta:modal.trigger>
+
+    «sigta:modal name="filling" size="xl" heading="Fills the screen">
+        «div class="flex-1 mt-4 rounded-panel border border-line grid place-items-center">
+            «sigta:text variant="muted">A panel marked flex-1 fills a full screen modal exactly; anything taller just scrolls.«/sigta:text>
+        «/div>
+    «/sigta:modal>
+    </x-kit-example>
+
     <x-kit-example label="Sizes">
     «div class="flex gap-3">
         «sigta:modal.trigger name="small">«sigta:button size="sm">Small«/sigta:button>«/sigta:modal.trigger>
