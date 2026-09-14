@@ -1,5 +1,5 @@
 <x-kit-shell title="Shell">
-    <x-kit-example label="Embedded app frame — sidebar, bar, main (narrow the viewport: the sidebar nav collapses behind a burger)">
+    <x-kit-example label="Embedded app frame — sidebar, bar, main (narrow the viewport: the burger slides the nav in as a drawer)">
     «sigta:shell>
         «x-slot:sidebar>
             «sigta:shell.sidebar>
@@ -52,7 +52,7 @@
         «/x-slot:sidebar>
 
         «sigta:shell.main>
-            «sigta:text variant="muted">Narrow the viewport: the nav collapses behind the burger, and the action stays beside it.«/sigta:text>
+            «sigta:text variant="muted">Narrow the viewport: the nav slides in as a drawer over this content, and the action stays beside the burger rather than going with it.«/sigta:text>
         «/sigta:shell.main>
     «/sigta:shell>
     </x-kit-example>

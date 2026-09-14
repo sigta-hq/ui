@@ -38,11 +38,11 @@ it('collapses the sidebar nav behind a burger toggle on mobile', function () {
         BLADE);
 
     expect($html)
-        ->toContain('x-data="{ open: false }"')
+        ->toContain('x-data="sigtaShellSidebar"')
         ->toContain('aria-expanded="false"')
-        ->toContain('md:hidden')            // burger button is hidden on desktop
-        ->toContain('@click="open = ! open"') // burger toggles the nav
-        ->toContain('md:!flex')             // panel is forced visible on desktop
+        ->toContain('md:hidden')             // burger button is hidden on desktop
+        ->toContain('x-on:click="toggle()"') // burger toggles the nav
+        ->toContain('md:!flex')              // panel is forced visible on desktop
         ->toContain('aria-controls="');
 
     // The burger's aria-controls points at the id of the collapsible nav panel.
@@ -51,7 +51,18 @@ it('collapses the sidebar nav behind a burger toggle on mobile', function () {
     expect($html)->toContain('id="'.$m[1].'"');
 });
 
-it('keeps the brand visible while collapsed and swaps the toggle icon', function () {
+it('keeps the brand visible while the nav is closed', function () {
+    $html = Blade::render(<<<'BLADE'
+        <x-sigta::shell.sidebar>
+            <x-slot:brand>Acme</x-slot:brand>
+            <x-sigta::shell.link href="#">Body</x-sigta::shell.link>
+        </x-sigta::shell.sidebar>
+        BLADE);
+
+    expect($html)->toContain('Acme');
+});
+
+it('slides the nav in as a drawer over the page on mobile', function () {
     $html = Blade::render(<<<'BLADE'
         <x-sigta::shell.sidebar>
             <x-slot:brand>Acme</x-slot:brand>
@@ -60,9 +71,68 @@ it('keeps the brand visible while collapsed and swaps the toggle icon', function
         BLADE);
 
     expect($html)
-        ->toContain('Acme')            // brand stays in the bar even when collapsed
-        ->toContain('x-show="! open"') // menu (burger) glyph when closed
-        ->toContain('x-show="open"');  // close (x) glyph when open
+        // Off the flow and over the page, from the rail's own edge, full height.
+        ->toContain('max-md:fixed')
+        ->toContain('max-md:inset-y-0')
+        ->toContain('max-md:start-0')
+        ->toContain('max-md:z-50')
+        // It slides rather than appearing, and from the correct edge either way.
+        ->toContain('max-md:ltr:-translate-x-full')
+        ->toContain('max-md:rtl:translate-x-full');
+});
+
+it('dims the page behind the drawer and closes when the scrim is tapped', function () {
+    $html = Blade::render(<<<'BLADE'
+        <x-sigta::shell.sidebar>
+            <x-slot:brand>Acme</x-slot:brand>
+            <x-sigta::shell.link href="#">Body</x-sigta::shell.link>
+        </x-sigta::shell.sidebar>
+        BLADE);
+
+    expect($html)
+        ->toContain('bg-ink/45')
+        ->toContain('x-on:click="close()"')
+        // The scrim sits under the drawer and over the page.
+        ->toContain('z-40')
+        ->toContain('aria-hidden="true"');
+});
+
+it('treats the open drawer as a modal dialog but never the rail', function () {
+    $html = Blade::render(<<<'BLADE'
+        <x-sigta::shell.sidebar>
+            <x-slot:brand>Acme</x-slot:brand>
+            <x-sigta::shell.link href="#">Body</x-sigta::shell.link>
+        </x-sigta::shell.sidebar>
+        BLADE);
+
+    expect($html)
+        // Both are bound to `drawer`, so a desktop rail is never trapped, never
+        // scroll-locked, and never announced as a dialog.
+        ->toContain('x-trap.noscroll="open && drawer"')
+        ->toContain('x-bind:role="drawer ? \'dialog\' : null"')
+        ->toContain('x-bind:aria-modal="drawer && open ? \'true\' : null"')
+        ->toContain('aria-label="App navigation"');
+});
+
+it('gives the drawer its own way out, since the burger sits under the scrim', function () {
+    $html = Blade::render(<<<'BLADE'
+        <x-sigta::shell.sidebar>
+            <x-slot:brand>Acme</x-slot:brand>
+            <x-sigta::shell.link href="#">Body</x-sigta::shell.link>
+        </x-sigta::shell.sidebar>
+        BLADE);
+
+    expect($html)->toContain('aria-label="Close navigation"');
+
+    // Inside the panel, not the header row, so it rides above the scrim with it.
+    preg_match('/id="(sigta-shell-sidebar-[^"]+)"/', $html, $m);
+    expect(strpos($html, 'Close navigation'))->toBeGreaterThan(strpos($html, 'id="'.$m[1].'"'));
+});
+
+it('names the drawer with a consumer aria-label when one is given', function () {
+    $html = Blade::render('<x-sigta::shell.sidebar aria-label="Main menu">Nav</x-sigta::shell.sidebar>');
+
+    expect(substr_count($html, 'aria-label="Main menu"'))->toBe(2);
 });
 
 it('forwards attributes onto the sidebar root', function () {
