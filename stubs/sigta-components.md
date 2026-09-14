@@ -474,7 +474,8 @@ App shell grid: sidebar + main.
 - **Props:** `full` (bool, default `false`). `full=true` → full-viewport app; default → embeddable rounded frame.
 
 #### `shell.sidebar`
-- **Props:** none. Brand slot; on mobile the nav collapses behind a burger toggle (brand stays visible, tap to expand), full rail on desktop. Alpine-driven, no wiring needed.
+- **Props:** none. **Slots:** `brand`, `actions`, default (the nav). On mobile the nav collapses behind a burger toggle (brand stays visible, tap to expand), full rail on desktop. Alpine-driven, no wiring needed.
+- `actions` sits at the far end of the header row, hard against the burger, and stays visible when the nav is collapsed. Use it for the one or two controls that must be reachable without opening the nav (a search or quick-action trigger); everything else belongs in the nav. Keep it to icon-sized controls: the row is as narrow as the rail on desktop.
 
 #### `shell.bar`
 - **Props:** `heading`, `sub`. Top bar: heading + mono sub left, actions slot right.

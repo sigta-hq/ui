@@ -88,3 +88,48 @@ it('marks the current shell link and forwards attributes', function () {
         ->toContain('bg-ink')
         ->toContain('wire:navigate');
 });
+
+it('renders an actions slot beside the burger', function () {
+    $html = Blade::render(<<<'BLADE'
+        <x-sigta::shell.sidebar>
+            <x-slot:brand>Plumb</x-slot:brand>
+            <x-slot:actions><button type="button" data-test="quick">Quick</button></x-slot:actions>
+            <x-sigta::shell.link href="#">Overview</x-sigta::shell.link>
+        </x-sigta::shell.sidebar>
+        BLADE);
+
+    expect($html)->toContain('data-test="quick"');
+
+    // Actions sit in the header row, before the burger, so the pair reads as one
+    // cluster at the far end rather than the action drifting toward the brand.
+    expect(strpos($html, 'data-test="quick"'))
+        ->toBeGreaterThan(strpos($html, 'Plumb'))
+        ->toBeLessThan(strpos($html, 'Toggle navigation'));
+});
+
+it('keeps actions out of the collapsing nav panel', function () {
+    $html = Blade::render(<<<'BLADE'
+        <x-sigta::shell.sidebar>
+            <x-slot:brand>Plumb</x-slot:brand>
+            <x-slot:actions><button type="button" data-test="quick">Quick</button></x-slot:actions>
+            <x-sigta::shell.link href="#">Overview</x-sigta::shell.link>
+        </x-sigta::shell.sidebar>
+        BLADE);
+
+    // The panel is what x-show hides; an action placed after it would disappear
+    // with the nav, which is the whole point of having this slot.
+    expect(strpos($html, 'data-test="quick"'))->toBeLessThan(strpos($html, 'sigta-shell-sidebar-', 10));
+});
+
+it('renders the header row without an actions slot', function () {
+    $html = Blade::render(<<<'BLADE'
+        <x-sigta::shell.sidebar>
+            <x-slot:brand>Plumb</x-slot:brand>
+            <x-sigta::shell.link href="#">Overview</x-sigta::shell.link>
+        </x-sigta::shell.sidebar>
+        BLADE);
+
+    expect($html)
+        ->toContain('Plumb')
+        ->toContain('Toggle navigation');
+});

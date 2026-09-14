@@ -1,6 +1,8 @@
 {{-- Shell sidebar (brand .app-side): nav column on paper. On desktop it is a
      vertical rail; on mobile it collapses under a burger toggle that reveals
-     the nav. `brand` slot renders the lockup up top. --}}
+     the nav. `brand` slot renders the lockup up top; `actions` sits at the far
+     end of that row, beside the burger, for the one or two controls that must
+     stay reachable without opening the nav. --}}
 @php
 $panelId = 'sigta-shell-sidebar-'.\Illuminate\Support\Str::random(8);
 @endphp
@@ -14,25 +16,33 @@ $panelId = 'sigta-shell-sidebar-'.\Illuminate\Support\Str::random(8);
         'aria-label' => 'App navigation',
     ]) }}
 >
-    {{-- Header row: brand + burger. The burger only shows on mobile; on desktop
-         the row is just the brand lockup. --}}
-    <div class="flex items-center justify-between gap-2 w-full md:mb-4">
+    {{-- Header row: brand, then the actions + burger cluster. The burger only shows
+         on mobile; on desktop the row is the brand lockup and any actions. One
+         auto margin on the cluster keeps actions hard against the burger, rather
+         than the free space being split between them. --}}
+    <div class="flex items-center gap-2 w-full md:mb-4">
         @isset($brand)
             <span class="flex items-center gap-2 min-w-0 font-head font-semibold text-[1.05rem] text-ink">{{ $brand }}</span>
         @endisset
 
-        <button
-            type="button"
-            class="md:hidden inline-flex shrink-0 items-center justify-center ms-auto -me-1 p-2 rounded-base text-ink cursor-pointer hover:bg-ink/5 transition duration-150 ease-out"
-            aria-expanded="false"
-            :aria-expanded="open ? 'true' : 'false'"
-            aria-controls="{{ $panelId }}"
-            aria-label="{{ __('Toggle navigation') }}"
-            @click="open = ! open"
-        >
-            <span x-show="! open"><x-sigta::icon name="menu" /></span>
-            <span x-show="open" x-cloak><x-sigta::icon name="x" /></span>
-        </button>
+        <div class="flex shrink-0 items-center gap-1 ms-auto -me-1">
+            @isset($actions)
+                {{ $actions }}
+            @endisset
+
+            <button
+                type="button"
+                class="md:hidden inline-flex shrink-0 items-center justify-center p-2 rounded-base text-ink cursor-pointer hover:bg-ink/5 transition duration-150 ease-out"
+                aria-expanded="false"
+                :aria-expanded="open ? 'true' : 'false'"
+                aria-controls="{{ $panelId }}"
+                aria-label="{{ __('Toggle navigation') }}"
+                @click="open = ! open"
+            >
+                <span x-show="! open"><x-sigta::icon name="menu" /></span>
+                <span x-show="open" x-cloak><x-sigta::icon name="x" /></span>
+            </button>
+        </div>
     </div>
 
     {{-- Nav body: always visible on desktop (md:!flex overrides the collapse);
