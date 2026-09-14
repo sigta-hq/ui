@@ -3,6 +3,7 @@
     'size' => 'base',
     'heading' => null,
     'dismissible' => true,
+    'fullscreen' => null,
 ])
 
 @php
@@ -12,6 +13,19 @@ $width = match ($size) {
     'xl' => 'max-w-4xl',
     default => 'max-w-lg',
 };
+
+// On a phone the gutter and centring spend screen a working modal needs, so a
+// large one takes the whole screen below the tablet breakpoint; a small one stays
+// a centred card, since a confirmation is a lighter act than a workspace.
+$fullscreen ??= in_array($size, ['lg', 'xl'], true);
+
+$frame = $fullscreen
+    ? 'max-md:w-full max-md:max-w-none max-md:h-dvh max-md:max-h-none max-md:m-0 max-md:rounded-none max-md:border-0 '
+    : '';
+
+// min-h-full over a column lets content choose: a flex-1 panel fills the screen
+// exactly, and anything taller grows and scrolls the dialog as usual.
+$body = $fullscreen ? ' max-md:flex max-md:min-h-full max-md:flex-col' : '';
 @endphp
 
 <div x-data="sigtaModal(@js($name))"
@@ -27,9 +41,9 @@ $width = match ($size) {
         x-ref="dialog"
         wire:ignore.self
         @if ($dismissible) x-on:click="backdropClick($event)" @endif
-        {{ $attributes->merge(['class' => 'w-[calc(100vw-2.5rem)] '.$width.' max-h-[calc(100dvh-2.5rem)] overflow-y-auto overscroll-contain bg-surface-raised text-ink border border-line rounded-frame shadow-paper p-0 backdrop:bg-ink/45 backdrop:backdrop-blur-[2px] m-auto']) }}
+        {{ $attributes->merge(['class' => 'w-[calc(100vw-2.5rem)] '.$width.' max-h-[calc(100dvh-2.5rem)] '.$frame.'overflow-y-auto overscroll-contain bg-surface-raised text-ink border border-line rounded-frame shadow-paper p-0 backdrop:bg-ink/45 backdrop:backdrop-blur-[2px] m-auto']) }}
     >
-        <div class="relative p-6 md:p-8">
+        <div class="relative p-6 md:p-8{{ $body }}">
             @if ($heading)
                 {{-- With a heading the close button shares the header row beside it. --}}
                 <div class="flex items-start justify-between gap-4 mb-4">

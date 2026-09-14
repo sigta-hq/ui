@@ -275,8 +275,10 @@ Menu container + items. `sigtaDropdown` Alpine handles open/escape/click-outside
 ### `modal` family
 
 #### `modal`
-- **Props:** `name`, `size` (default `base`), `heading`, `dismissible` (bool, default `true`)
+- **Props:** `name`, `size` (default `base`), `heading`, `dismissible` (bool, default `true`), `fullscreen` (bool, default derived from `size`)
 - **Sizes:** `sm`, `base`, `lg`, `xl`
+- **Full screen on a phone:** below the tablet breakpoint a `lg` or `xl` modal fills the screen edge to edge (no gutter, border, or rounding) while `sm` and `base` stay centred cards, because a workspace needs the room and a confirmation does not. Pass `fullscreen` to force it on a small modal, or `:fullscreen="false"` to keep a large one centred. Above the breakpoint every size is unchanged.
+- A full screen modal lays its body out as a column with a full-height minimum, so a child marked `flex-1` fills the screen exactly and taller content scrolls the dialog as usual.
 - Dialog driven by `sigtaModal` Alpine. Open via `<sigta:modal.trigger>` or `sigta-modal-show {name}` window event.
 - With a `heading` the close button sits in the header row; with no heading it floats in the top-right corner and no header band is reserved, so keep the top-right of your content clear for it.
 - Keeps its open state across a host Livewire re-render (it renders `wire:ignore.self`), so a modal that stays open while its contents autosave or run New/Delete actions does not close on the morph. You do not add `wire:ignore.self` yourself.
