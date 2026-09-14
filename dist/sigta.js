@@ -41,6 +41,27 @@ document.addEventListener('alpine:init', () => {
         },
     }));
 
+    /* Shell sidebar — a rail on desktop, a slide-in drawer below the tablet
+       breakpoint. `drawer` says which one it currently is, so the overlay
+       behaviour (focus trap, scroll lock, dialog semantics) applies only while
+       it is actually a drawer. */
+    Alpine.data('sigtaShellSidebar', () => ({
+        open: false,
+        drawer: false,
+        init() {
+            const narrow = window.matchMedia('(width < 48rem)');
+            this.drawer = narrow.matches;
+            // Growing past the breakpoint turns the drawer back into the rail, so a
+            // drawer left open has to be released rather than stranding its trap.
+            narrow.addEventListener('change', (event) => {
+                this.drawer = event.matches;
+                if (!event.matches) this.open = false;
+            });
+        },
+        toggle() { this.open = !this.open; },
+        close() { this.open = false; },
+    }));
+
     /* Modal — thin wrapper over native <dialog> (focus trap + Esc for free). */
     Alpine.data('sigtaModal', (name = null) => ({
         name,

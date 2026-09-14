@@ -474,7 +474,9 @@ App shell grid: sidebar + main.
 - **Props:** `full` (bool, default `false`). `full=true` → full-viewport app; default → embeddable rounded frame.
 
 #### `shell.sidebar`
-- **Props:** none. Brand slot; on mobile the nav collapses behind a burger toggle (brand stays visible, tap to expand), full rail on desktop. Alpine-driven, no wiring needed.
+- **Props:** none. **Slots:** `brand`, `actions`, default (the nav). A full rail on desktop; below the tablet breakpoint it becomes a top bar whose burger slides the nav in as a **drawer** over the page, with a scrim behind it. Alpine-driven, no wiring needed.
+- The open drawer is a modal dialog: focus is trapped in it, the page behind stops scrolling, and it closes on the scrim, on Escape, on its own close button, and after a `wire:navigate` visit. None of that applies to the desktop rail. Give the sidebar an `aria-label` to name both the landmark and the drawer (defaults to "App navigation").
+- `actions` sits at the far end of the header row, hard against the burger, and stays visible when the nav is collapsed. Use it for the one or two controls that must be reachable without opening the nav (a search or quick-action trigger); everything else belongs in the nav. Keep it to icon-sized controls: the row is as narrow as the rail on desktop.
 
 #### `shell.bar`
 - **Props:** `heading`, `sub`. Top bar: heading + mono sub left, actions slot right.

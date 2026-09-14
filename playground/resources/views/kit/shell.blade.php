@@ -1,5 +1,5 @@
 <x-kit-shell title="Shell">
-    <x-kit-example label="Embedded app frame — sidebar, bar, main (narrow the viewport: the sidebar nav collapses behind a burger)">
+    <x-kit-example label="Embedded app frame — sidebar, bar, main (narrow the viewport: the burger slides the nav in as a drawer)">
     «sigta:shell>
         «x-slot:sidebar>
             «sigta:shell.sidebar>
@@ -31,6 +31,28 @@
             «div class="bg-surface border border-line rounded-panel p-4">
                 «sigta:chart.line :values="[22, 26, 25, 30, 33, 31, 38, 36, 42, 45]" :height="140" />
             «/div>
+        «/sigta:shell.main>
+    «/sigta:shell>
+    </x-kit-example>
+
+    <x-kit-example label="Sidebar actions (stay reachable while the nav is collapsed)">
+    «sigta:shell>
+        «x-slot:sidebar>
+            «sigta:shell.sidebar>
+                «x-slot:brand>
+                    «sigta:brand size="sm" glyph-only />
+                    Plumb
+                «/x-slot:brand>
+                «x-slot:actions>
+                    «sigta:button variant="ghost" size="sm" aria-label="Quick actions">«sigta:icon name="zap" size="sm" /»«/sigta:button>
+                «/x-slot:actions>
+                «sigta:shell.link href="#" icon="layout-grid" current>Overview«/sigta:shell.link>
+                «sigta:shell.link href="#" icon="clock">Reports«/sigta:shell.link>
+            «/sigta:shell.sidebar>
+        «/x-slot:sidebar>
+
+        «sigta:shell.main>
+            «sigta:text variant="muted">Narrow the viewport: the nav slides in as a drawer over this content, and the action stays beside the burger rather than going with it.«/sigta:text>
         «/sigta:shell.main>
     «/sigta:shell>
     </x-kit-example>
