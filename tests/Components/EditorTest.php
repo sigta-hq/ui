@@ -114,3 +114,30 @@ it('derives a stable id from its binding so Livewire re-renders keep the mounted
 
     expect(Blade::render('<x-sigta::editor id="custom" name="body" />'))->toContain('id="custom"');
 });
+
+it('offers a picture tool and carries the upload endpoint only when one is given', function () {
+    $html = Blade::render('<x-sigta::editor upload-url="/images" />');
+
+    expect($html)
+        ->toContain('data-upload-url="/images"')
+        ->toContain('data-upload-token="')
+        ->toContain('aria-label="Picture"')
+        ->toContain('x-ref="imageInput"')
+        ->toContain('accept="image/*"')
+        ->toContain('aria-label="Uploading"');
+
+    $plain = Blade::render('<x-sigta::editor />');
+
+    expect($plain)
+        ->not->toContain('data-upload-url')
+        ->not->toContain('aria-label="Picture"')
+        ->not->toContain('x-ref="imageInput"');
+});
+
+it('carries the link resolver endpoint only when one is given', function () {
+    expect(Blade::render('<x-sigta::editor resolve-url="/links/resolve" />'))
+        ->toContain('data-resolve-url="/links/resolve"');
+
+    expect(Blade::render('<x-sigta::editor />'))
+        ->not->toContain('data-resolve-url');
+});

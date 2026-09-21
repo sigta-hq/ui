@@ -9,10 +9,20 @@
      variant="inline" is the always-editable, borderless-until-hover form for
      fields that live in a detail view rather than a form; its toolbar shows
      only while editing.
+     Pictures: pass upload-url and a dropped, pasted or picked image is posted
+     there as multipart `file` with the session's CSRF token; the endpoint answers
+     JSON {url, name?} and the picture lands in the text as an image node (markdown
+     `![name](url)`). Without upload-url the toolbar offers no picture tool and
+     drops fall through. Links: pass resolve-url and a pasted address on the page's
+     own origin is linked at once, then the resolver is asked GET resolve-url?url=…
+     for JSON {title, url?}; the link's text becomes the title when it answers,
+     and stays the address when it does not.
      Usage:
        <x-sigta::editor name="body" wire:model="body" :value="$post->body" label="Body" />
        <x-sigta::editor format="markdown" variant="inline" placeholder="Add a description"
-           rows="3" wire:model="description" :value="$description" /> --}}
+           rows="3" wire:model="description" :value="$description" />
+       <x-sigta::editor format="markdown" wire:model="body" :value="$body"
+           :upload-url="route('images.store')" :resolve-url="route('links.resolve')" /> --}}
 @props([
     'label' => null,
     'description' => null,
@@ -23,6 +33,8 @@
     'variant' => 'default',
     'placeholder' => '',
     'rows' => null,
+    'uploadUrl' => null,
+    'resolveUrl' => null,
 ])
 
 @php
@@ -46,6 +58,10 @@ $tools = [
     ['blockquote', 'quote', 'Quote'],
     ['codeBlock', 'code', 'Code block'],
 ];
+
+if ($uploadUrl) {
+    $tools[] = ['image', 'image', 'Picture'];
+}
 
 $btn = 'flex size-8 items-center justify-center rounded-base text-ink cursor-pointer transition-colors duration-150 hover:bg-ink/5';
 
@@ -78,6 +94,8 @@ $minHeight = 'min-height: calc('.$rows.' * 1.65em + '.($inline ? '1.24em' : '1.5
         data-format="{{ $format }}"
         data-variant="{{ $variant }}"
         data-placeholder="{{ $placeholder }}"
+        @if ($uploadUrl) data-upload-url="{{ $uploadUrl }}" data-upload-token="{{ csrf_token() }}" @endif
+        @if ($resolveUrl) data-resolve-url="{{ $resolveUrl }}" @endif
         {{-- The runtime reads its initial content and options from the DOM. Interpolating
              them into x-data would change that attribute on every Livewire morph, and
              Alpine re-runs x-data when it changes, which would rebuild the editor mid-typing. --}}
@@ -115,6 +133,9 @@ $minHeight = 'min-height: calc('.$rows.' * 1.65em + '.($inline ? '1.24em' : '1.5
             @endforeach
 
             <span class="ml-auto flex items-center gap-0.5">
+                @if ($uploadUrl)
+                    <span x-show="uploading > 0" x-cloak class="flex size-8 items-center justify-center text-graphite" role="status" aria-label="Uploading"><x-sigta::icon name="loader-circle" size="sm" class="animate-spin" /></span>
+                @endif
                 <button type="button" class="{{ $btn }}" aria-label="Undo" x-on:mousedown.prevent x-on:click="run('undo')"><x-sigta::icon name="undo-2" size="sm" /></button>
                 <button type="button" class="{{ $btn }}" aria-label="Redo" x-on:mousedown.prevent x-on:click="run('redo')"><x-sigta::icon name="redo-2" size="sm" /></button>
             </span>
@@ -139,6 +160,11 @@ $minHeight = 'min-height: calc('.$rows.' * 1.65em + '.($inline ? '1.24em' : '1.5
 
         {{-- TipTap mounts here and owns this subtree, so Livewire must never morph it. --}}
         <div id="{{ $id }}" x-ref="element" wire:ignore class="flex cursor-text flex-col" data-content-class="{{ $contentClass }}" style="{{ $minHeight }}"></div>
+
+        @if ($uploadUrl)
+            {{-- The picker behind the toolbar's picture tool; drop and paste reach the runtime directly. --}}
+            <input type="file" x-ref="imageInput" accept="image/*" multiple class="hidden" tabindex="-1" aria-hidden="true" x-on:change="pickedImages($event)">
+        @endif
 
         <input type="hidden" x-ref="value" @if ($name) name="{{ $name }}" @endif value="{{ $value }}" {{ $attributes->except(['class', 'id']) }}>
     </div>

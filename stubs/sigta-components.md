@@ -422,11 +422,14 @@ Command palette (⌘K / Ctrl-K).
 - Chat composer: auto-growing textarea, leading (`<x-slot:leading>`) attach slot, send button. Dispatches `sigta-composer-submit {text}`.
 
 ### `editor`
-- **Props:** `label`, `description`, `error`, `name`, `value` (default `''`), `format` (default `html`), `variant` (default `default`), `placeholder` (default `''`), `rows` (min height in lines; default `6`, or `3` for `inline`)
+- **Props:** `label`, `description`, `error`, `name`, `value` (default `''`), `format` (default `html`), `variant` (default `default`), `placeholder` (default `''`), `rows` (min height in lines; default `6`, or `3` for `inline`), `upload-url` (default `null`), `resolve-url` (default `null`)
 - **Formats:** `html`, `markdown`. **Variants:** `default`, `inline`
-- Rich text editor (TipTap). **Requires `@sigtaEditorScripts` in layout head.** Toolbar: bold/italic/strike/link/heading/lists/quote/code. Links: Cmd/Ctrl+K or the toolbar edits (with Open and Remove), Cmd/Ctrl+click follows; a plain click only places the caret. `format="markdown"` parses `value` as markdown and writes markdown to the hidden input (single newlines are line breaks). `variant="inline"` is the always-editable form for detail views: borderless until hover, toolbar only while editing. The editor never reads its hidden input back, so Livewire re-renders cannot disturb typing; replace content on purpose by dispatching `sigta-editor-set` on the root with the new value as detail.
+- Rich text editor (TipTap). **Requires `@sigtaEditorScripts` in layout head.** Toolbar: bold/italic/strike/link/heading/lists/quote/code, plus a picture tool when `upload-url` is set. Links: Cmd/Ctrl+K or the toolbar edits (with Open and Remove), Cmd/Ctrl+click follows; a plain click only places the caret. `format="markdown"` parses `value` as markdown and writes markdown to the hidden input (single newlines are line breaks). `variant="inline"` is the always-editable form for detail views: borderless until hover, toolbar only while editing. The editor never reads its hidden input back, so Livewire re-renders cannot disturb typing; replace content on purpose by dispatching `sigta-editor-set` on the root with the new value as detail.
+- **Pictures:** with `upload-url`, a dropped, pasted or picked image is posted there as multipart `file` with the session CSRF token in `X-CSRF-TOKEN`; the endpoint answers JSON `{url, name?}` and the picture is inserted as an image node (`![name](url)` in markdown). A failed upload raises a warning toast and inserts nothing. Data URLs are refused.
+- **Titled links:** with `resolve-url`, a pasted address on the page's own origin is linked at once, then `GET resolve-url?url=…` is asked for JSON `{title, url?}`; the link text becomes the title (and the href the returned `url`) when it answers, and stays the address when it does not. With text selected, a pasted address links the selection as before.
 ```blade
 <sigta:editor format="markdown" variant="inline" placeholder="Add a description" rows="3" wire:model="description" :value="$description" />
+<sigta:editor format="markdown" wire:model="body" :value="$body" :upload-url="route('images.store')" :resolve-url="route('links.resolve')" />
 ```
 
 ### `calendar`
