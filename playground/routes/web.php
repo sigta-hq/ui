@@ -16,3 +16,21 @@ Route::get('/kit/{page?}', function (?string $page = null) {
 
     return view($view);
 })->where('page', '[a-z0-9\-]+');
+
+// Stand-ins for the endpoints a host app gives the editor, so the kit page can
+// show pictures and titled links working end to end without a real store.
+Route::get('/kit-api/sample-image', function () {
+    return response()->file(dirname(__DIR__, 2).'/resources/images/sigta-mark.svg', ['Content-Type' => 'image/svg+xml']);
+});
+
+Route::post('/kit-api/upload', function () {
+    request()->validate(['file' => ['required', 'file', 'image', 'max:10240']]);
+
+    return response()->json(['url' => '/kit-api/sample-image', 'name' => request()->file('file')->getClientOriginalName()]);
+});
+
+Route::get('/kit-api/resolve', function () {
+    $path = parse_url((string) request()->query('url'), PHP_URL_PATH) ?: '/';
+
+    return response()->json(['title' => 'Kit: '.ucfirst(trim(basename($path), '/') ?: 'home'), 'url' => request()->query('url')]);
+});

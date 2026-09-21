@@ -134,6 +134,17 @@
 }
 .sigta-prose pre code { background: none; padding: 0; }
 .sigta-prose hr { border: 0; border-top: 1px solid var(--sigta-line); }
+.sigta-prose img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--sigta-radius-lg);
+}
+/* A picture is a block the caret can sit on; the outline is the only sign it is selected. */
+.sigta-prose img.ProseMirror-selectednode {
+    outline: 2px solid var(--sigta-fg);
+    outline-offset: 2px;
+}
 .sigta-prose a {
     color: var(--sigta-fg);
     text-decoration: underline;

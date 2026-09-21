@@ -10,6 +10,7 @@
     },
     "devDependencies": {
         "@tiptap/core": "~3.29.0",
+        "@tiptap/extension-image": "~3.29.0",
         "@tiptap/extensions": "~3.29.0",
         "@tiptap/markdown": "~3.29.0",
         "@tiptap/starter-kit": "~3.29.0",

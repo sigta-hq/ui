@@ -33,6 +33,18 @@
     />
     </x-kit-example>
 
+    <x-kit-example label="Pictures and titled links (host endpoints)">
+    «sigta:editor
+        name="article"
+        format="markdown"
+        label="Article"
+        description="Drop or paste a picture, or use the picture tool: it is posted to upload-url and inserted as an image. Paste an address from this site and the resolver at resolve-url gives the link its title."
+        upload-url="/kit-api/upload"
+        resolve-url="/kit-api/resolve"
+        :value="'Paste a link to any kit page, for example this one, and drop a picture below.' . PHP_EOL . PHP_EOL . '![Sigta](/kit-api/sample-image)'"
+    />
+    </x-kit-example>
+
     <x-kit-example label="Empty + error state">
     «sigta:editor name="empty" label="Notes" error="Notes can't be empty." />
     </x-kit-example>

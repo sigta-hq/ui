@@ -7,6 +7,7 @@
 --------------------------------------------------------------------------- */
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
+import Image from '@tiptap/extension-image';
 import { Markdown } from '@tiptap/markdown';
 import { Placeholder } from '@tiptap/extensions';
 
@@ -15,6 +16,22 @@ import { Placeholder } from '@tiptap/extensions';
 // objects fail their own identity checks ("Applying a mismatched transaction").
 // A method call is the one access the reactive proxy cannot wrap.
 const instances = new WeakMap();
+
+// The pasted text when it is exactly one absolute http(s) address on the page's
+// own origin, or null. Only the host app's own addresses can be given a title.
+const sameOriginUrl = (text) => {
+    const trimmed = (text ?? '').trim();
+    if (trimmed === '' || /\s/.test(trimmed)) return null;
+    try {
+        const url = new URL(trimmed, window.location.href);
+        if (!/^https?:$/.test(url.protocol) || url.origin !== window.location.origin) return null;
+        return url.href;
+    } catch (error) {
+        return null;
+    }
+};
+
+const imageFiles = (dataTransfer) => Array.from(dataTransfer?.files ?? []).filter((file) => file.type.startsWith('image/'));
 
 function register() {
     const Alpine = window.Alpine;
@@ -30,6 +47,7 @@ function register() {
         linkOpen: false,
         linkUrl: '',
         format: 'html',
+        uploading: 0,
 
         instance() {
             return instances.get(this.$root) ?? null;
@@ -39,12 +57,17 @@ function register() {
             this.format = this.$el.dataset.format === 'markdown' ? 'markdown' : 'html';
             const initial = this.$refs.value?.value ?? '';
             const markdown = this.format === 'markdown';
+            const uploadUrl = this.$el.dataset.uploadUrl || null;
+            const resolveUrl = this.$el.dataset.resolveUrl || null;
             const extensions = [
                 StarterKit.configure({
                     // A plain click places the caret; Cmd/Ctrl+click or the link tool
                     // opens, so following a link never interrupts editing.
                     link: { openOnClick: false, autolink: true, linkOnPaste: true, defaultProtocol: 'https' },
                 }),
+                // Pictures are block nodes with a real address: data URLs are refused so
+                // a paste can never inline megabytes of base64 into the stored value.
+                Image.configure({ inline: false, allowBase64: false }),
                 Placeholder.configure({ placeholder: this.$el.dataset.placeholder ?? '' }),
             ];
 
@@ -63,6 +86,33 @@ function register() {
                     // The mount's padding classes land on the editable element so it fills
                     // the box (see core.css), making every part of the box a place to click.
                     attributes: { class: `sigta-prose focus:outline-none ${this.$refs.element?.dataset.contentClass ?? ''}`.trim() },
+                    // A picture dropped into the text is uploaded through the host's endpoint
+                    // and lands where it was dropped; anything else drops as usual.
+                    handleDrop: (view, event, slice, moved) => {
+                        if (moved || !uploadUrl) return false;
+                        const files = imageFiles(event.dataTransfer);
+                        if (files.length === 0) return false;
+                        event.preventDefault();
+                        this.uploadImages(files, view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos);
+                        return true;
+                    },
+                    // Pasted pictures upload the same way. A pasted address on the page's own
+                    // origin is linked at once and then asks the host's resolver for its
+                    // title; with text selected the link tool wraps the selection as before.
+                    handlePaste: (view, event) => {
+                        const files = imageFiles(event.clipboardData);
+                        if (files.length > 0 && uploadUrl) {
+                            event.preventDefault();
+                            this.uploadImages(files);
+                            return true;
+                        }
+                        if (!resolveUrl || !view.state.selection.empty) return false;
+                        const url = sameOriginUrl(event.clipboardData?.getData('text/plain'));
+                        if (!url) return false;
+                        event.preventDefault();
+                        this.pasteInternalLink(url);
+                        return true;
+                    },
                 },
                 onTransaction: () => { this.state++; },
                 onFocus: () => { this.focused = true; },
@@ -100,6 +150,7 @@ function register() {
         },
         run(command, attrs = undefined) {
             if (command === 'link') return this.openLink();
+            if (command === 'image') return this.pickImage();
             const chain = this.instance()?.chain().focus();
             if (!chain) return;
             switch (command) {
@@ -114,6 +165,111 @@ function register() {
                 case 'undo': chain.undo().run(); break;
                 case 'redo': chain.redo().run(); break;
             }
+        },
+
+        // Pictures: the toolbar button opens the native picker; drop and paste come
+        // through the editor props above. Each file is posted to the host's upload
+        // endpoint with the session's CSRF token and inserted as an image once the
+        // endpoint answers with its address. A failure tells the member and inserts
+        // nothing, so the text never carries a broken picture.
+        pickImage() {
+            this.$refs.imageInput?.click();
+        },
+        pickedImages(event) {
+            const files = Array.from(event.target.files ?? []).filter((file) => file.type.startsWith('image/'));
+            event.target.value = '';
+            if (files.length > 0) this.uploadImages(files);
+        },
+        async uploadImages(files, position = undefined) {
+            const editor = this.instance();
+            const uploadUrl = this.$el.dataset.uploadUrl;
+            if (!editor || !uploadUrl) return;
+
+            for (const file of files) {
+                this.uploading++;
+                try {
+                    const body = new FormData();
+                    body.append('file', file, file.name);
+                    const response = await fetch(uploadUrl, {
+                        method: 'POST',
+                        body,
+                        credentials: 'same-origin',
+                        headers: {
+                            'X-CSRF-TOKEN': this.$el.dataset.uploadToken ?? '',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            Accept: 'application/json',
+                        },
+                    });
+                    if (!response.ok) throw new Error(`Upload failed with status ${response.status}`);
+                    const { url, name } = await response.json();
+                    if (!url) throw new Error('Upload returned no address');
+                    const content = { type: 'image', attrs: { src: url, alt: name ?? file.name } };
+                    const chain = editor.chain().focus();
+                    (position === undefined ? chain.insertContent(content) : chain.insertContentAt(position, content)).run();
+                    position = undefined;
+                } catch (error) {
+                    this.notify(this.$el.dataset.uploadError || 'The picture could not be uploaded.');
+                } finally {
+                    this.uploading--;
+                }
+            }
+        },
+        notify(text) {
+            if (window.Sigta?.toast) {
+                window.Sigta.toast(text, { variant: 'warning' });
+            } else {
+                window.dispatchEvent(new CustomEvent('sigta-toast', { detail: { text, variant: 'warning' } }));
+            }
+        },
+
+        // An internal address is linked the moment it is pasted, then the host's
+        // resolver is asked what it points at. When it answers, every link in the
+        // text that still shows that address as its own text is given the title
+        // (and the current address, in case the resolver knows a newer one); an
+        // address the resolver does not know stays as typed.
+        async pasteInternalLink(url) {
+            const editor = this.instance();
+            const resolveUrl = this.$el.dataset.resolveUrl;
+            if (!editor || !resolveUrl) return;
+
+            editor.chain().focus().insertContent({ type: 'text', text: url, marks: [{ type: 'link', attrs: { href: url } }] }).run();
+
+            try {
+                const separator = resolveUrl.includes('?') ? '&' : '?';
+                const response = await fetch(`${resolveUrl}${separator}url=${encodeURIComponent(url)}`, {
+                    credentials: 'same-origin',
+                    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                if (!response.ok) return;
+                const { title, url: current } = await response.json();
+                if (typeof title !== 'string' || title.trim() === '') return;
+                this.retitleLinks(url, title.trim(), typeof current === 'string' && current !== '' ? current : url);
+            } catch (error) {
+                // The address stays as typed; nothing to recover.
+            }
+        },
+        retitleLinks(href, title, currentHref) {
+            const editor = this.instance();
+            if (!editor) return;
+            const linkType = editor.schema.marks.link;
+            const found = [];
+
+            editor.state.doc.descendants((node, pos) => {
+                if (!node.isText) return;
+                const mark = node.marks.find((candidate) => candidate.type === linkType && candidate.attrs.href === href);
+                if (mark && node.text === href) found.push({ from: pos, to: pos + node.nodeSize, marks: node.marks, mark });
+            });
+
+            if (found.length === 0) return;
+
+            // Later matches first, so earlier positions stay valid while replacing.
+            let transaction = editor.state.tr;
+            found.reverse().forEach(({ from, to, marks, mark }) => {
+                const retitled = linkType.create({ ...mark.attrs, href: currentHref });
+                const others = marks.filter((candidate) => candidate !== mark);
+                transaction = transaction.replaceWith(from, to, editor.schema.text(title, [retitled, ...others]));
+            });
+            editor.view.dispatch(transaction);
         },
 
         // Cmd/Ctrl+click on a link inside the editable area follows it in a new tab.
