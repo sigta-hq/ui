@@ -1,17 +1,18 @@
 {{-- Toast region. Include ONCE per layout, near </body>.
      Trigger from Livewire: Sigta::toast('Saved') or $this->dispatch('sigta-toast', variant: 'success')
      Trigger from Alpine/JS: $sigta.toast('Saved') or window.Sigta.toast({ text: '…', variant: 'danger' })
-     With wire:navigate, wrap in @persist('toast') so toasts survive page transitions. --}}
+     With wire:navigate, wrap in @persist('toast') so toasts survive page transitions.
+     Bottom placements rise above a visible floating bar rather than covering it. --}}
 @props([
     'position' => 'bottom-end',
 ])
 
 @php
 $placement = match ($position) {
-    'bottom-start' => 'bottom-0 left-0 items-start',
+    'bottom-start' => 'bottom-0 left-0 items-start mb-[var(--sigta-floating-space,0px)]',
     'top-end' => 'top-0 right-0 items-end',
     'top-start' => 'top-0 left-0 items-start',
-    default => 'bottom-0 right-0 items-end',
+    default => 'bottom-0 right-0 items-end mb-[var(--sigta-floating-space,0px)]',
 };
 @endphp
 

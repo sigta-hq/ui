@@ -203,3 +203,70 @@ it('renders the header row without an actions slot', function () {
         ->toContain('Plumb')
         ->toContain('Toggle navigation');
 });
+
+it('renders an optional header row across both columns', function () {
+    $html = Blade::render(<<<'BLADE'
+        <x-sigta::shell>
+            <x-slot:header>
+                <x-sigta::shell.header data-test="top">
+                    <x-slot:brand>Plumb</x-slot:brand>
+                    <x-slot:actions><button type="button">Account</button></x-slot:actions>
+                </x-sigta::shell.header>
+            </x-slot:header>
+            <x-slot:sidebar>
+                <x-sigta::shell.sidebar>
+                    <x-sigta::shell.link href="#">Overview</x-sigta::shell.link>
+                </x-sigta::shell.sidebar>
+            </x-slot:sidebar>
+            <x-sigta::shell.main>Body</x-sigta::shell.main>
+        </x-sigta::shell>
+        BLADE);
+
+    expect($html)
+        ->toContain('data-header')
+        ->toContain('grid-rows-[auto_auto_1fr]')
+        ->toContain('md:grid-rows-[auto_1fr]')
+        ->toContain('data-sigta="shell.header"')
+        ->toContain('md:col-span-2')
+        ->toContain('data-test="top"')
+        ->toContain('Plumb')
+        ->toContain('Account');
+
+    // The header comes first, so it sits above both columns.
+    expect(strpos($html, 'shell.header'))->toBeLessThan(strpos($html, 'shell.sidebar'));
+});
+
+it('leaves a shell without a header exactly as before', function () {
+    $html = Blade::render('<x-sigta::shell><x-sigta::shell.main>Body</x-sigta::shell.main></x-sigta::shell>');
+
+    expect($html)
+        ->not->toContain('data-header')
+        ->not->toContain('grid-rows-[auto_auto_1fr]');
+});
+
+it('drops the sidebar brand row when the shell has a header', function () {
+    $html = Blade::render('<x-sigta::shell.sidebar>Nav</x-sigta::shell.sidebar>');
+
+    expect($html)
+        ->toContain('group-data-[header]/shell:hidden')
+        ->toContain('max-md:group-data-[header]/shell:p-0')
+        // The header's burger opens this drawer through a window event.
+        ->toContain('x-on:sigta-shell-toggle.window="toggle()"');
+});
+
+it('puts the drawer burger in the header on a phone', function () {
+    $html = Blade::render('<x-sigta::shell.header><x-slot:brand>Plumb</x-slot:brand></x-sigta::shell.header>');
+
+    expect($html)
+        ->toContain('aria-label="Toggle navigation"')
+        ->toContain('md:hidden')
+        ->toContain('$dispatch(\'sigta-shell-toggle\')')
+        ->toContain('x-on:sigta-shell-nav.window="navOpen = $event.detail.open"')
+        ->toContain('aria-expanded="false"');
+});
+
+it('keeps the main column clear of a visible floating bar', function () {
+    $html = Blade::render('<x-sigta::shell.main>Body</x-sigta::shell.main>');
+
+    expect($html)->toContain('pb-[calc(1.5rem+var(--sigta-floating-space,0px))]');
+});

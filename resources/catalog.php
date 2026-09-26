@@ -71,6 +71,7 @@ return [
             'context-menu',
             'modal',
             'toast',
+            'floating-bar',
             'tabs',
             'accordion',
             'breadcrumbs',

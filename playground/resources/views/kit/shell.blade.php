@@ -57,6 +57,33 @@
     «/sigta:shell>
     </x-kit-example>
 
+    <x-kit-example label="Header row (brand and account across the top; the sidebar is navigation alone, and on a phone the burger lives in the header)">
+    «sigta:shell>
+        «x-slot:header>
+            «sigta:shell.header>
+                «x-slot:brand>
+                    «sigta:brand size="sm" glyph-only />
+                    Plumb
+                «/x-slot:brand>
+                «x-slot:actions>
+                    «sigta:button variant="ghost" size="sm" aria-label="Quick actions">«sigta:icon name="zap" size="sm" /»«/sigta:button>
+                    «sigta:avatar name="Ada Lovelace" size="sm" />
+                «/x-slot:actions>
+            «/sigta:shell.header>
+        «/x-slot:header>
+        «x-slot:sidebar>
+            «sigta:shell.sidebar>
+                «sigta:shell.link href="#" icon="layout-grid" current>Overview«/sigta:shell.link>
+                «sigta:shell.link href="#" icon="clock">Reports«/sigta:shell.link>
+            «/sigta:shell.sidebar>
+        «/x-slot:sidebar>
+
+        «sigta:shell.main>
+            «sigta:text variant="muted">The page starts straight with its content.«/sigta:text>
+        «/sigta:shell.main>
+    «/sigta:shell>
+    </x-kit-example>
+
     <x-kit-example label="Bar — heading only, actions only">
     «div class="flex flex-col gap-5">
         «sigta:shell.bar heading="Reports" />

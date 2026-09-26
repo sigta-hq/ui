@@ -57,9 +57,41 @@ document.addEventListener('alpine:init', () => {
                 this.drawer = event.matches;
                 if (!event.matches) this.open = false;
             });
+            // A shell header's burger lives outside this component, so it is told
+            // the state rather than reading it.
+            this.$watch('open', (open) => {
+                window.dispatchEvent(new CustomEvent('sigta-shell-nav', { detail: { open } }));
+            });
         },
         toggle() { this.open = !this.open; },
         close() { this.open = false; },
+    }));
+
+    /* Floating bar — follows its data-show attribute (a Livewire morph updates it
+       in place) and publishes its footprint so the page and toasts keep clear. */
+    Alpine.data('sigtaFloatingBar', () => ({
+        visible: false,
+        init() {
+            this.visible = this.$root.dataset.show === 'true';
+            this.showObserver = new MutationObserver(() => {
+                this.visible = this.$root.dataset.show === 'true';
+            });
+            this.showObserver.observe(this.$root, { attributes: true, attributeFilter: ['data-show'] });
+            this.sizeObserver = new ResizeObserver(() => this.publish());
+            this.sizeObserver.observe(this.$refs.bar);
+            this.$watch('visible', () => this.$nextTick(() => this.publish()));
+            this.publish();
+        },
+        destroy() {
+            this.showObserver?.disconnect();
+            this.sizeObserver?.disconnect();
+            document.documentElement.style.removeProperty('--sigta-floating-space');
+        },
+        publish() {
+            const bottom = parseFloat(getComputedStyle(this.$root).paddingBottom) || 0;
+            const space = this.visible ? this.$refs.bar.offsetHeight + bottom * 2 : 0;
+            document.documentElement.style.setProperty('--sigta-floating-space', `${space}px`);
+        },
     }));
 
     /* Modal — thin wrapper over native <dialog> (focus trap + Esc for free). */
