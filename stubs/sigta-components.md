@@ -223,11 +223,13 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 ### `card`
 - **Props:** `hover` (bool, default `true`)
 - Raised surface with optional thumb slot (`<x-slot:thumb>`). Lifts on hover when `hover=true`.
+- Its body has fluid padding. Pass any padding class on the card (`p-5`, `sm:p-4`) and it replaces the body padding instead of adding to it.
 
 ### `panel`
 - **Props:** `variant` (default `default`)
 - **Variants:** `default`, `inverse`
 - Bordered surface **without** `overflow-hidden` — so overhanging annotations/badges show. Static (no hover lift). Use where Card would clip. `variant="inverse"` is a dark ink band; pair with `<sigta:label variant="inverse">` and `<sigta:stat tone="inverse">`.
+- Default padding is fluid (24 to 40px). Pass any padding class (`p-4`, `px-6`, `sm:p-5`, `!p-2`) and it replaces the default entirely; without one, the default applies.
 
 ### `tooltip`
 - **Props:** `text` (**required**), `position` (default `top`)
@@ -320,6 +322,13 @@ Sigta::toast(
 @persist('toast')
     <sigta:toast />
 @endpersist
+```
+
+### `floating-bar`
+- **Props:** `show` (bool, default `false`), `label` (default null; names the bar as a region)
+- Dark pill pinned to the bottom centre that slides up when `show` turns true and away when it turns false, for state that lasts while the member works (a running timer, a bulk selection). A first render that is already shown appears without animating. Drive `show` from Livewire; the morph updates it in place. Content is your slot. While up it sets `--sigta-floating-space` on `<html>`, which `shell.main` and bottom toasts add to their bottom edge. Wrap it in `@persist` when it lives in a `wire:navigate` layout, so it does not replay on every page.
+```blade
+<sigta:floating-bar :show="$entry !== null" label="Running timer">…</sigta:floating-bar>
 ```
 
 ### `tabs` family
@@ -474,12 +483,27 @@ Command palette (⌘K / Ctrl-K).
 App shell grid: sidebar + main.
 
 #### `shell`
-- **Props:** `full` (bool, default `false`). `full=true` → full-viewport app; default → embeddable rounded frame.
+- **Props:** `full` (bool, default `false`). `full=true` → full-viewport app; default → embeddable rounded frame. **Slots:** `header` (optional, a `shell.header`), `sidebar`, default (the main).
 
 #### `shell.sidebar`
 - **Props:** none. **Slots:** `brand`, `actions`, default (the nav). A full rail on desktop; below the tablet breakpoint it becomes a top bar whose burger slides the nav in as a **drawer** over the page, with a scrim behind it. Alpine-driven, no wiring needed.
 - The open drawer is a modal dialog: focus is trapped in it, the page behind stops scrolling, and it closes on the scrim, on Escape, on its own close button, and after a `wire:navigate` visit. None of that applies to the desktop rail. Give the sidebar an `aria-label` to name both the landmark and the drawer (defaults to "App navigation").
 - `actions` sits at the far end of the header row, hard against the burger, and stays visible when the nav is collapsed. Use it for the one or two controls that must be reachable without opening the nav (a search or quick-action trigger); everything else belongs in the nav. Keep it to icon-sized controls: the row is as narrow as the rail on desktop.
+
+#### `shell.header`
+- **Props:** none. **Slots:** `brand`, `actions`. Pass it in the shell's optional `header` slot: a full-width row above the sidebar and main, brand on the left, actions on the right. Below the tablet breakpoint it is the phone's top bar and carries the burger that opens the sidebar drawer (the sidebar then drops its own brand row, actions and burger, and is navigation alone). A shell without `header` is unchanged.
+```blade
+<sigta:shell full>
+    <x-slot:header>
+        <sigta:shell.header>
+            <x-slot:brand><sigta:brand /></x-slot:brand>
+            <x-slot:actions><sigta:avatar name="Ada Lovelace" size="sm" /></x-slot:actions>
+        </sigta:shell.header>
+    </x-slot:header>
+    <x-slot:sidebar><sigta:shell.sidebar>…nav…</sigta:shell.sidebar></x-slot:sidebar>
+    <sigta:shell.main>…</sigta:shell.main>
+</sigta:shell>
+```
 
 #### `shell.bar`
 - **Props:** `heading`, `sub`. Top bar: heading + mono sub left, actions slot right.
@@ -488,7 +512,7 @@ App shell grid: sidebar + main.
 - **Props:** `icon`, `current` (bool, default `false`). Mono graphite; inverts to ink when current.
 
 #### `shell.main`
-- **Props:** none. Padded main content column.
+- **Props:** none. Padded main content column. Its bottom padding grows by a visible `floating-bar`'s footprint; if your app scrolls a different element, add `pb-[var(--sigta-floating-space,0px)]` to it.
 
 ### `paper`
 - **Props:** `dots` (bool, default `true`), `grain` (bool, default `true`)

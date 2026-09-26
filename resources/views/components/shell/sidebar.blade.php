@@ -2,7 +2,9 @@
      vertical rail; below the tablet breakpoint it becomes a top bar whose burger
      slides the nav in as a drawer over the page. `brand` slot renders the lockup
      up top; `actions` sits at the far end of that row, beside the burger, for the
-     one or two controls that must stay reachable without opening the nav. --}}
+     one or two controls that must stay reachable without opening the nav.
+     Inside a shell with a `header`, the header carries the brand, actions and
+     burger instead, so this row is dropped and the sidebar is nav alone. --}}
 @php
 $panelId = 'sigta-shell-sidebar-'.\Illuminate\Support\Str::random(8);
 $navLabel = $attributes->get('aria-label') ?? 'App navigation';
@@ -13,8 +15,9 @@ $navLabel = $attributes->get('aria-label') ?? 'App navigation';
     x-data="sigtaShellSidebar"
     x-on:keydown.escape.window="close()"
     x-on:livewire:navigated.window="close()"
+    x-on:sigta-shell-toggle.window="toggle()"
     {{ $attributes->merge([
-        'class' => 'bg-surface border-line px-3.5 py-[18px] flex flex-col border-b md:border-b-0 md:border-r',
+        'class' => 'bg-surface border-line px-3.5 py-[18px] flex flex-col border-b md:border-b-0 md:border-r max-md:group-data-[header]/shell:p-0 max-md:group-data-[header]/shell:border-b-0 md:group-data-[header]/shell:min-h-0 md:group-data-[header]/shell:overflow-y-auto',
         'aria-label' => 'App navigation',
     ]) }}
 >
@@ -22,7 +25,7 @@ $navLabel = $attributes->get('aria-label') ?? 'App navigation';
          on mobile; on desktop the row is the brand lockup and any actions. One
          auto margin on the cluster keeps actions hard against the burger, rather
          than the free space being split between them. --}}
-    <div class="flex items-center gap-2 w-full md:mb-4">
+    <div class="flex items-center gap-2 w-full md:mb-4 group-data-[header]/shell:hidden">
         @isset($brand)
             <span class="flex items-center gap-2 min-w-0 font-head font-semibold text-[1.05rem] text-ink">{{ $brand }}</span>
         @endisset
