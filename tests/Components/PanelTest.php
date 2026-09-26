@@ -48,3 +48,16 @@ it('renders an inverse (dark) surface', function () {
         ->toContain('Dark band')
         ->not->toContain('bg-surface-raised');
 });
+
+it('lets a consumer padding class replace the default padding', function () {
+    $default = Blade::render('<x-sigta::panel>Body</x-sigta::panel>');
+    $own = Blade::render('<x-sigta::panel class="p-4">Body</x-sigta::panel>');
+    $responsive = Blade::render('<x-sigta::panel class="mt-6 sm:!p-5">Body</x-sigta::panel>');
+    $unrelated = Blade::render('<x-sigta::panel class="pointer-events-none place-items-center">Body</x-sigta::panel>');
+
+    expect($default)->toContain('p-[clamp(24px,3vw,40px)]')
+        ->and($own)->not->toContain('p-[clamp(24px,3vw,40px)]')
+        ->and($own)->toContain('p-4')
+        ->and($responsive)->not->toContain('p-[clamp(24px,3vw,40px)]')
+        ->and($unrelated)->toContain('p-[clamp(24px,3vw,40px)]');
+});

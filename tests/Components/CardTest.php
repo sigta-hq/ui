@@ -53,3 +53,12 @@ it('forwards arbitrary attributes', function () {
         ->toContain('wire:key="card-1"')
         ->toContain('data-test="card"');
 });
+
+it('drops the body padding when the card is given its own', function () {
+    $default = Blade::render('<x-sigta::card>Body</x-sigta::card>');
+    $own = Blade::render('<x-sigta::card class="h-full p-5">Body</x-sigta::card>');
+
+    expect($default)->toContain('p-[clamp(18px,2vw,26px)]')
+        ->and($own)->not->toContain('p-[clamp(18px,2vw,26px)]')
+        ->and($own)->toContain('p-5');
+});

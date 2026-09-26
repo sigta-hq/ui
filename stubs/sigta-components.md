@@ -223,11 +223,13 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 ### `card`
 - **Props:** `hover` (bool, default `true`)
 - Raised surface with optional thumb slot (`<x-slot:thumb>`). Lifts on hover when `hover=true`.
+- Its body has fluid padding. Pass any padding class on the card (`p-5`, `sm:p-4`) and it replaces the body padding instead of adding to it.
 
 ### `panel`
 - **Props:** `variant` (default `default`)
 - **Variants:** `default`, `inverse`
 - Bordered surface **without** `overflow-hidden` — so overhanging annotations/badges show. Static (no hover lift). Use where Card would clip. `variant="inverse"` is a dark ink band; pair with `<sigta:label variant="inverse">` and `<sigta:stat tone="inverse">`.
+- Default padding is fluid (24 to 40px). Pass any padding class (`p-4`, `px-6`, `sm:p-5`, `!p-2`) and it replaces the default entirely; without one, the default applies.
 
 ### `tooltip`
 - **Props:** `text` (**required**), `position` (default `top`)
