@@ -65,6 +65,7 @@ Tailwind utilities mapped to tokens (use these):
 - Press: a lifted thing settles back onto the paper while pressed (`active:translate-y-0 active:scale-[0.97] active:duration-[var(--sigta-dur-press,90ms)]`) and springs back (`ease-sigta-spring`).
 - Motion language — ink on paper: waits draw (the `<sigta:loader>` compass, never a generic spinner or "Loading…" text), a finished thing is ticked, crossed out and folds away, a milestone gets a flourish (`$sigta.celebrate`). Keyframes live in the motion section of `core.css` and read the `--sigta-curve-*` / `--sigta-dur-*` tokens with the Sigta values as fallbacks.
 - Motion decorates state, it never carries it: animate from the `data-state`, ARIA or text the markup already has, so a morph can drive it and reduced motion loses nothing.
+- A loader never moves, and nothing moves around it. A component that pairs the compass with words or numbers keeps both rendered through every state: it changes `data-state`, stacks each alternative label in one grid cell and switches them with `visibility` (never `display`, `x-show` or `@if`), fixes the width of changing numbers, and offers `align="end"` when it can sit at a right edge. Test it by stepping through every state and checking the compass keeps its position.
 - Accent (highlighter yellow) is scarce: one mark per view, status highlights only. Never large fills.
 - Hand-drawn elements (rules, sparklines, chart lines) are inline SVG with `currentColor`, slight curve wobble, `stroke-linecap="round"`.
 - Numbers in data contexts: `tabular-nums`.

@@ -177,6 +177,7 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 - **Variants:** `compass` (the mark in use: the handle turns, the legs swing round each other and the pencil draws a circle on the paper, then lifts it), `sketch` (the whole mark draws itself on a loop, for longer waits)
 - **States:** `queued` (the compass standing, no arc yet, graphite), `working`, `done` (the mark complete with its arc, and a small stamp), `failed` (shakes, danger), `idle` (the complete mark, graphite)
 - The Sigta loader, drawn from the brand mark. **Use it wherever you would write "Loading…" or reach for a spinner.** With `value` (0–100) the circle on the paper is drawn as far round as the work has come. When a working loader turns `done`, the Sigta script lets it finish its turn, close the circle and raise it into the mark's arc before the stamp (without the script, or with reduced motion, it lands at once). State lives in `data-state`, so a Livewire morph or `x-bind:data-state` drives it. `role="progressbar"` with an accessible name; `decorative` hides it when a parent already announces the work. `currentColor` throughout.
+- **It never moves.** Keep it rendered and change `state` rather than mounting it per request (`@if`, `x-if`, `x-show`, bare `wire:loading`); if it must be hidden at rest, `invisible` keeps its box (`class="invisible" wire:loading.class.remove="invisible"`). Put it on the side of its text that stays put (after right-aligned text at a right edge), and reserve the text's room so a new word never pushes it (see `sigta-ui.md`, MUST 5). Prefer `save-state`, a busy `button` or `job`, which hold their space already.
 ```blade
 <sigta:loader />
 <sigta:loader size="lg" :value="$import->progress" :state="$import->done ? 'done' : 'working'" />
@@ -342,14 +343,20 @@ Sigta::toast(
 ```
 
 ### `save-state`
-- **Props:** `target` (default null), `name` (default null), `state` (default `idle`), `idle` (default null), `dirty` (default `Unsaved changes`), `saving` (default `Saving…`), `saved` (default `Saved`), `failed` (default `Not saved`)
+- **Props:** `target` (default null), `name` (default null), `state` (default `idle`), `align` (default `start`), `idle` (default null), `dirty` (default `Unsaved changes`), `saving` (default `Saving…`), `saved` (default `Saved`), `failed` (default `Not saved`)
 - **States:** `idle`, `dirty`, `saving`, `saved`, `failed`
 - The compass stands in for "Saving…": it draws while a save is in flight (the words stay for assistive tech, and show under reduced motion), lands with a handwritten "Saved" as the mark completes, then settles back to `idle` (showing the `idle` text, if any); a failed save — validation errors included — shakes it red. **Use it instead of any hand-written "Saving…" / "Saved" text.**
+- **Never moves:** all its labels share one cell, so it is as wide as its longest label whatever it is saying and the compass stays put. `align="end"` puts the compass on the right and right-aligns the words — use it at the right end of a bar (a `justify-between` header, the end of a toolbar); the default `start` suits a left edge. The room is reserved for the longest label, so keep your own words close in length.
 - **Livewire:** `target` names actions and/or properties (comma-separated, dot paths match children) on the closest component; it follows their requests by itself, and typing into a watched `wire:model` shows `dirty` until it syncs.
 - **Anywhere else:** give it a `name` and drive it with `$sigta.save(promise, name)` (saving → saved/failed) or `$sigta.saveState('dirty', name)`.
 ```blade
 <sigta:save-state target="title, body" idle="All changes saved" />
 <sigta:input wire:model.live.debounce.500ms="title" />
+
+<header class="flex items-center justify-between">
+    <sigta:heading>Draft</sigta:heading>
+    <sigta:save-state target="save" align="end" />   {{-- flush right, words grow leftward --}}
+</header>
 
 <sigta:save-state name="profile" />
 {{-- any promise: resolve = saved, reject = failed (fetch only rejects on network errors, so throw on !response.ok) --}}
@@ -359,7 +366,7 @@ Sigta::toast(
 ### `job`
 - **Props:** `heading`, `description` (default null), `stage` (default null), `value` (default null), `state` (default `working`), `since` (default null); `actions` named slot; default slot for extra content
 - **States:** `queued`, `working`, `done`, `failed`
-- One piece of long-running work (an import, an export, a queue run). A large compass that draws its circle as far round as `value`, a mono status line (`Running · <stage> · <elapsed>`), and — the moment it turns `done` — the circle rises into the mark's arc with a burst. `value` null keeps the compass turning without progress. Its state is plain markup: drive it with `wire:poll` and let the morph move it along; in a `[data-sigta-motion]` list a finished job the server drops folds away.
+- One piece of long-running work (an import, an export, a queue run). A large compass that draws its circle as far round as `value`, a mono status line (`Running · <stage> · <elapsed>`), and — the moment it turns `done` — the circle rises into the mark's arc with a burst. `value` null keeps the compass turning without progress; the percentage has a fixed width, so the heading beside it never shifts. Its state is plain markup: drive it with `wire:poll` and let the morph move it along; in a `[data-sigta-motion]` list a finished job the server drops folds away.
 ```blade
 <div wire:poll.2s data-sigta-motion class="space-y-2.5">
     @foreach ($imports as $import)

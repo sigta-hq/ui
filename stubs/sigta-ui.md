@@ -97,6 +97,65 @@ If either is missing, components render unstyled or broken. Do not try to
 "fix" missing styles by adding utility classes to components — fix the
 foundation.
 
+### 5. A loader never moves
+
+Whatever state the work is in, the compass stays exactly where it is and
+nothing around it shifts. Words popping in beside it, a percentage gaining a
+digit, a loader that exists only while busy: each one makes the mark jump and
+the UI feel unfinished. Work out every state before you place one:
+
+- **Keep it rendered; change its state.** Never mount or unmount a loader, or
+  the words beside it, per request: no `@if`, `x-if`, `x-show`, `hidden` or
+  bare `wire:loading` around them. Drive `state` (`idle` → `working` →
+  `done`) instead. If it must not show at rest, keep its box and hide it with
+  `invisible`: `class="invisible" wire:loading.class.remove="invisible"`.
+- **Let the kit hold the space.** `<sigta:save-state>` keeps the width of its
+  longest label, `<sigta:button>` lays the compass over its own label and
+  keeps its size, `<sigta:job>` gives its percentage a fixed width. Reach for
+  them before pairing a loader with text by hand, and never swap a button's
+  label for "Saving…".
+- **Pin the compass to the side that stays put; the words grow away from
+  it.** Against a right edge (the end of a toolbar, a `justify-between`
+  header, the last table cell) use `<sigta:save-state align="end">`, or put a
+  hand-built loader after its text and right-align the text. Anything between
+  the loader and the edge it hangs from will push it. In a centred group both
+  ends move, so reserve the words' room (next rule).
+- **Reserve room for words and numbers that change.** Stack the alternatives
+  in one grid cell (`grid` on the wrapper, `[grid-area:1/1]` on each label,
+  `invisible` on all but the current one), or give the text a fixed width.
+  Numbers get `tabular-nums` and a width that fits their longest value
+  (`w-[4ch] text-right` for a percentage). Reserve the height too when a
+  label changes font (`min-h-*`).
+- **Hold the place of what is loading.** A loader standing in for content sits
+  in a slot as tall as that content will be (`min-h-*`), so the content
+  arriving doesn't shove the page.
+
+```blade
+{{-- Never: right-aligned, so "Saved" appearing after the compass pushes it left --}}
+<header class="flex items-center justify-between">
+    <sigta:heading>Draft</sigta:heading>
+    <span class="flex items-center gap-2">
+        <sigta:loader size="sm" wire:loading wire:target="save" />
+        <span x-show="saved">Saved</span>
+    </span>
+</header>
+
+{{-- Instead: the compass sits flush right and never moves; its words grow leftward --}}
+<header class="flex items-center justify-between">
+    <sigta:heading>Draft</sigta:heading>
+    <sigta:save-state target="save" idle="All changes saved" align="end" />
+</header>
+
+{{-- By hand: the loader keeps its box and both labels share one cell --}}
+<span class="inline-flex items-center gap-2">
+    <sigta:loader size="sm" decorative class="invisible" wire:loading.class.remove="invisible" wire:target="sync" />
+    <span role="status" class="grid">
+        <span class="[grid-area:1/1]" wire:loading.class="invisible" wire:target="sync">Synced</span>
+        <span class="[grid-area:1/1] invisible" wire:loading.class.remove="invisible" wire:target="sync">Syncing with the bank</span>
+    </span>
+</span>
+```
+
 ## SHOULD — strong defaults
 
 ### Fonts and type roles
@@ -129,7 +188,7 @@ foundation.
   `<sigta:loader>` (the Sigta compass), `<sigta:save-state target="…">` for
   saves, `<sigta:job>` for long-running work. A `<sigta:button wire:click="…">`
   already shows the compass while its action runs — don't add
-  `wire:loading` text to it.
+  `wire:loading` text to it. Wherever a loader goes, it holds still (MUST 5).
 - **Completing an item must not just make it vanish.** Put list rows in a
   `data-sigta-motion` container with `wire:key` on each row, mark the title
   `data-sigta-strike`, and complete through

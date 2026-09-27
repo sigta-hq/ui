@@ -55,6 +55,19 @@
     «/div>
     </x-kit-example>
 
+    <x-kit-example label="Beside your own words — the compass holds still while they change">
+    «div class="flex max-w-lg items-center justify-between gap-4" x-data="{ state: 'idle', sync() { this.state = 'working'; setTimeout(() => this.state = 'done', 2600) } }">
+        «sigta:button size="sm" x-on:click="sync()" x-bind:disabled="state === 'working'">Sync now«/sigta:button>
+        «span class="inline-flex items-center gap-2 font-mono text-[0.72rem] text-graphite">
+            «span role="status" class="grid justify-items-end text-right">
+                «span class="[grid-area:1/1]" x-bind:class="{ invisible: state === 'working' }">Up to date«/span>
+                «span class="[grid-area:1/1] invisible" x-bind:class="{ invisible: state !== 'working' }">Syncing with the bank«/span>
+            «/span>
+            «sigta:loader size="sm" decorative state="idle" x-bind:data-state="state" />
+        «/span>
+    «/div>
+    </x-kit-example>
+
     <x-kit-example label="On an ink band">
     «div class="flex items-center gap-6 rounded-frame bg-inverse p-6 text-inverse-fg">
         «sigta:loader size="lg" />

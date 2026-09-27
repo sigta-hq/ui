@@ -1,7 +1,7 @@
 <div class="flex max-w-lg flex-col gap-4">
     <div class="flex items-center justify-between gap-4">
         <x-sigta::eyebrow>Autosaving note</x-sigta::eyebrow>
-        <x-sigta::save-state target="title, body" idle="All changes saved" />
+        <x-sigta::save-state target="title, body" idle="All changes saved" align="end" />
     </div>
 
     <x-sigta::input wire:model.live.debounce.500ms="title" aria-label="Title" />

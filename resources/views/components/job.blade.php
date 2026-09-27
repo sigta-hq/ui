@@ -51,7 +51,8 @@ $percent = $value === null ? null : ($state === 'done' ? 100 : min(100, max(0, (
                 <p class="font-head text-[1.02rem] leading-snug text-ink truncate">{{ $heading }}</p>
             @endif
             @if ($percent !== null)
-                <span class="shrink-0 font-mono text-[0.74rem] tabular-nums text-ink">{{ round($percent) }}%</span>
+                {{-- A fixed width, so a growing percentage never nudges the heading. --}}
+                <span class="w-[4ch] shrink-0 text-right font-mono text-[0.74rem] tabular-nums text-ink">{{ round($percent) }}%</span>
             @endif
         </div>
 
