@@ -16,6 +16,15 @@
     «/div>
     </x-kit-example>
 
+    <x-kit-example label="Own layout (a display class replaces the stack)">
+    «div class="max-w-md">
+        «sigta:panel class="flex items-center justify-between gap-3 p-4">
+            «sigta:profile name="Søren Frisk" meta="Studio lead · Copenhagen" />
+            «sigta:badge>Owner«/sigta:badge>
+        «/sigta:panel>
+    «/div>
+    </x-kit-example>
+
     <x-kit-example label="Inverse (dark) surface">
     «div class="max-w-sm">
         «sigta:panel variant="inverse" class="gap-4">
