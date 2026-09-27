@@ -67,3 +67,41 @@ it('renders the ghost-inverse variant as a hairline outline for dark bands', fun
         ->toContain('border-inverse-line')
         ->toContain('hover:bg-inverse-fg/10');
 });
+
+it('settles on press and springs back', function () {
+    $html = Blade::render('<x-sigta::button variant="primary">Save</x-sigta::button>');
+
+    expect($html)
+        ->toContain('active:scale-[0.97]')
+        ->toContain('active:translate-y-0')
+        ->toContain('ease-sigta-spring');
+});
+
+it('carries the compass for a Livewire action, hidden until Livewire marks it loading', function () {
+    $html = Blade::render('<x-sigta::button wire:click="save">Save</x-sigta::button>');
+
+    expect($html)
+        ->toContain('<span class="sigta-button-label contents">Save</span>')
+        ->toContain('sigta-button-busy')
+        ->toContain('data-sigta="loader"')
+        ->not->toContain('data-loading');
+
+    expect(Blade::render('<x-sigta::button type="submit">Send</x-sigta::button>'))->toContain('sigta-button-busy');
+    expect(Blade::render('<x-sigta::button x-bind:data-loading="busy">Send</x-sigta::button>'))->toContain('sigta-button-busy');
+});
+
+it('adds no loader markup to a plain button', function () {
+    expect(Blade::render('<x-sigta::button>Cancel</x-sigta::button>'))
+        ->not->toContain('sigta-button-busy')
+        ->not->toContain('data-sigta="loader"');
+});
+
+it('shows the busy state now with loading, and never with loading false', function () {
+    expect(Blade::render('<x-sigta::button loading>Exporting</x-sigta::button>'))
+        ->toContain('data-loading="true"')
+        ->toContain('aria-busy="true"')
+        ->toContain('sigta-button-busy');
+
+    expect(Blade::render('<x-sigta::button wire:click="save" :loading="false">Save</x-sigta::button>'))
+        ->not->toContain('sigta-button-busy');
+});

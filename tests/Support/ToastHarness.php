@@ -13,8 +13,15 @@ class ToastHarness extends Component
         ?string $variant = null,
         ?int $duration = null,
         ?array $link = null,
+        ?array $action = null,
+        ?string $key = null,
     ): void {
-        Sigta::toast($text, $heading, $variant, $duration, $link);
+        Sigta::toast($text, $heading, $variant, $duration, $link, $action, $key);
+    }
+
+    public function triggerCelebrate(string $level = 'small', ?string $text = null, ?string $target = null): void
+    {
+        Sigta::celebrate($level, $text, $target);
     }
 
     public function render(): string

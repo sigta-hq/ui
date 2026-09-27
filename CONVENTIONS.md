@@ -62,6 +62,9 @@ Tailwind utilities mapped to tokens (use these):
 - UI chrome (labels, buttons, table headers, badges, nav) = `font-mono`, small sizes (0.62–0.82rem), letter-spacing 0.04–0.22em, often uppercase. Content = serif.
 - Borders: strong outline = `border-[1.5px] border-ink`; hairline = `border border-line`.
 - Hover on actionable things: `hover:-translate-y-[2px]` + subtle shadow/bg. Transitions 140–220ms ease.
+- Press: a lifted thing settles back onto the paper while pressed (`active:translate-y-0 active:scale-[0.97] active:duration-[var(--sigta-dur-press,90ms)]`) and springs back (`ease-sigta-spring`).
+- Motion language — ink on paper: waits draw (the `<sigta:loader>` compass, never a generic spinner or "Loading…" text), a finished thing is ticked, crossed out and folds away, a milestone gets a flourish (`$sigta.celebrate`). Keyframes live in the motion section of `core.css` and read the `--sigta-curve-*` / `--sigta-dur-*` tokens with the Sigta values as fallbacks.
+- Motion decorates state, it never carries it: animate from the `data-state`, ARIA or text the markup already has, so a morph can drive it and reduced motion loses nothing.
 - Accent (highlighter yellow) is scarce: one mark per view, status highlights only. Never large fills.
 - Hand-drawn elements (rules, sparklines, chart lines) are inline SVG with `currentColor`, slight curve wobble, `stroke-linecap="round"`.
 - Numbers in data contexts: `tabular-nums`.
@@ -83,7 +86,7 @@ Tailwind utilities mapped to tokens (use these):
 - Focus ring comes from the global `:focus-visible` style — do not suppress outlines; add `focus-visible:` utilities only when the global ring can't apply.
 - Labels: form controls get real `<label for>` wiring (generate ids with `$id = $attributes->get('id') ?? 'sigta-'.Str::random(8);`).
 - Decorative SVGs: `aria-hidden="true"`. Meaningful icons need `aria-label` passthrough.
-- Respect `prefers-reduced-motion` (global CSS already kills transitions — don't rely on animation for meaning).
+- Respect `prefers-reduced-motion` (global CSS already kills transitions — don't rely on animation for meaning). Script-driven animations (`el.animate()`, canvas) are not stopped by that rule: check `prefers-reduced-motion` in the script and skip the flourish, never the work.
 
 ## Livewire integration
 

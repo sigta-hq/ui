@@ -70,3 +70,21 @@ it('forwards wire:model and disabled to the native switch input', function () {
         ->toMatch('/<input[^>]*disabled/')
         ->toContain('has-[:disabled]:opacity-40');
 });
+
+it('draws the checkbox tick as pen strokes and gives on press', function () {
+    $html = Blade::render('<x-sigta::checkbox />');
+
+    expect($html)
+        ->toContain('sigta-check')
+        ->toContain('active:scale-90')
+        ->not->toContain('after:rotate-45');
+});
+
+it('squashes the switch knob while pressed', function () {
+    $html = Blade::render('<x-sigta::switch label="Grain" />');
+
+    expect($html)
+        ->toContain('group/switch')
+        ->toContain('group-active/switch:after:w-[22px]')
+        ->toContain('peer-checked:group-active/switch:after:translate-x-[16px]');
+});

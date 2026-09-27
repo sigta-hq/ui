@@ -78,4 +78,19 @@
     --sigta-ease-fast: 140ms ease;
     --sigta-ease: 180ms ease;
     --sigta-ease-slow: 220ms ease;
+
+    /* --- motion: loaders, completions, celebrations ------------------------
+       curve-out    = things arriving and settling
+       curve-pen    = drawn strokes and the loader's swing
+       curve-spring = press release, stamps, pops (overshoots a little)
+       dur-press / dur-draw / dur-leave / dur-loop = a press landing, one
+       drawn stroke, a list row folding away, one loader swing.
+       Optional: core.css falls back to the Sigta values when these are unset. */
+    --sigta-curve-out: cubic-bezier(.2, .8, .2, 1);
+    --sigta-curve-pen: cubic-bezier(.65, 0, .35, 1);
+    --sigta-curve-spring: cubic-bezier(.34, 1.56, .64, 1);
+    --sigta-dur-press: 90ms;
+    --sigta-dur-draw: 420ms;
+    --sigta-dur-leave: 360ms;
+    --sigta-dur-loop: 1500ms;
 }

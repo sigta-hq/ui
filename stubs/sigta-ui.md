@@ -46,6 +46,10 @@ raw HTML tag with Tailwind utility classes.
 | Heading | `<sigta:heading>` | `<h1 class="font-… text-…">` |
 | Body text variant | `<sigta:text>` | `<p class="text-…">` |
 | Avatar | `<sigta:avatar>` | `<img class="rounded-full …">` |
+| Loading indicator / spinner | `<sigta:loader>` | a spinner SVG, `animate-spin`, "Loading…" text |
+| "Saving…" / "Saved" indicator | `<sigta:save-state>` | hand-written status text, `wire:loading` spans |
+| Background job / queue progress | `<sigta:job>` | a progress bar + text assembled by hand |
+| A count that changes (unread, open) | `<sigta:count>` | a bare `{{ $n }}` in a badge |
 
 For the complete list with props and variants, read **`sigta-components.md`**.
 
@@ -119,6 +123,27 @@ foundation.
 - Hand-drawn flourishes (rules, sparklines): `<sigta:rule>`, `<sigta:annot>`,
   `<sigta:chart.sparkline>` — inline SVG with `currentColor`.
 
+### Motion — finishing things should feel finished
+
+- **Never show "Loading…" / "Saving…" text or a generic spinner.** Use
+  `<sigta:loader>` (the Sigta compass), `<sigta:save-state target="…">` for
+  saves, `<sigta:job>` for long-running work. A `<sigta:button wire:click="…">`
+  already shows the compass while its action runs — don't add
+  `wire:loading` text to it.
+- **Completing an item must not just make it vanish.** Put list rows in a
+  `data-sigta-motion` container with `wire:key` on each row, mark the title
+  `data-sigta-strike`, and complete through
+  `$sigta.complete($el, () => $wire.complete(id))`: it ticks, crosses out and
+  folds the row away, and restores it if the commit fails. Offer Undo with
+  `Sigta::toast(..., action: [...], key: '…')`.
+- **Celebrate sparingly.** `$sigta.celebrate(el, 'small')` for a satisfying
+  tick; `'big'` (confetti) only for milestones like inbox zero or a finished
+  import — `Sigta::celebrate('big', text: '…')` from Livewire.
+- **Don't hand-roll keyframes or easing.** Use `animate-sigta-settle`,
+  `ease-sigta-out` / `ease-sigta-pen` / `ease-sigta-spring` and the
+  `--sigta-dur-*` tokens. Reduced motion is handled by the kit; never make an
+  animation the only carrier of meaning.
+
 ## Component prop conventions
 
 Props follow conventional Livewire naming. Common ones across many components:
@@ -132,7 +157,9 @@ swallow them. Don't add `wire:ignore` unless truly necessary.
 Some components communicate via window/Livewire events. Listen for / dispatch
 these rather than building custom wiring:
 
-- `sigta-toast` `{heading, text, variant, duration, link}` → shows a toast (region included once). Prefer `Sigta::toast()` from Livewire, `$sigta.toast()` from Alpine, or `window.Sigta.toast()` from JS.
+- `sigta-toast` `{heading, text, variant, duration, link, action, key}` → shows a toast (region included once). Prefer `Sigta::toast()` from Livewire, `$sigta.toast()` from Alpine, or `window.Sigta.toast()` from JS.
+- `sigta-celebrate` `{level, text, target}` → a burst / ring + note / paper confetti. Prefer `Sigta::celebrate()` from Livewire, `$sigta.celebrate(el, level)` from Alpine.
+- `sigta-save-state` `{name, state}` → drives the `<sigta:save-state name="…">` with that name. Prefer `$sigta.save(promise, name)`.
 - `sigta-modal-show` / `sigta-modal-hide` `{name}` → open/close a modal
 - `sigta-composer-submit` `{text}` → composer sent a message
 - `sigta-kanban-move` `{card, from, to, position}` → card dragged on the board

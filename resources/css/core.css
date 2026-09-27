@@ -50,6 +50,12 @@
     --radius-panel: var(--sigta-radius-lg);
     --radius-frame: var(--sigta-radius-xl);
     --shadow-paper: var(--sigta-shadow);
+
+    /* motion → ease-sigta-out, ease-sigta-pen, ease-sigta-spring; animate-sigta-settle */
+    --ease-sigta-out: var(--sigta-curve-out, cubic-bezier(.2, .8, .2, 1));
+    --ease-sigta-pen: var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1));
+    --ease-sigta-spring: var(--sigta-curve-spring, cubic-bezier(.34, 1.56, .64, 1));
+    --animate-sigta-settle: sigta-settle var(--sigta-dur-draw, 420ms) var(--sigta-curve-out, cubic-bezier(.2, .8, .2, 1)) both;
 }
 
 /* -------- base -------------------------------------------------------------
@@ -167,4 +173,236 @@
     height: 0;
     color: var(--sigta-fg-muted);
     pointer-events: none;
+}
+
+/* -------- motion ------------------------------------------------------------
+   Ink on paper: strokes draw (loaders, ticks, strikes), paper settles under a
+   press, a finished row is crossed out and folds away. Everything here
+   decorates state the markup already carries (text, ARIA, data-state), so the
+   reduced-motion rule in base can stop all of it and nothing is lost. Timings
+   read the --sigta-curve-* / --sigta-dur-* theme tokens, falling back to the
+   Sigta values for themes that predate them.
+--------------------------------------------------------------------------- */
+@layer components {
+    /* Loader — the Sigta compass (<sigta:loader>). Working: the pencil leg
+       swings and the arc follows its tip, never quite closing; done: the mark
+       completes and stamps; failed: it shakes. Each state's pose is a pair of
+       custom properties, so its still frame (reduced motion) reads right too. */
+    [data-sigta="loader"] {
+        --sigta-loader-open: 0deg; /* pencil leg: 0 = the mark, 55.8deg = shut on the needle leg */
+        --sigta-loader-ink: 0;     /* arc dash offset: 0 = drawn, 101 = not yet */
+    }
+    [data-sigta="loader"] svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+    }
+    [data-sigta="loader"] .sigta-loader-pencil {
+        transform-box: view-box;
+        transform-origin: 20px 12px;
+        transform: rotate(var(--sigta-loader-open));
+    }
+    /* Dashes run 100 on, 200 off over a pathLength of 100, and hide at ±101:
+       a zero-length dash left at either end would still paint its round cap. */
+    [data-sigta="loader"] .sigta-loader-arc {
+        stroke-dasharray: 100 200;
+        stroke-dashoffset: var(--sigta-loader-ink);
+    }
+    [data-sigta="loader"] .sigta-loader-pivot {
+        transform-box: fill-box;
+        transform-origin: center;
+    }
+    [data-sigta="loader"] .sigta-loader-track {
+        stroke: var(--sigta-line);
+    }
+    [data-sigta="loader"] .sigta-loader-progress {
+        stroke-dasharray: 100 200;
+        stroke-dashoffset: calc(101 - var(--sigta-progress, 100) * 1.01);
+        transition: stroke-dashoffset 480ms var(--sigta-curve-out, cubic-bezier(.2, .8, .2, 1));
+    }
+
+    [data-sigta="loader"][data-state="idle"] { color: var(--sigta-fg-muted); }
+    [data-sigta="loader"][data-state="queued"] {
+        --sigta-loader-open: 55.8deg;
+        --sigta-loader-ink: 101;
+        color: var(--sigta-fg-muted);
+    }
+    [data-sigta="loader"]:is([data-state="working"], [data-state="failed"]) {
+        --sigta-loader-open: 24deg;
+        --sigta-loader-ink: 43;
+    }
+    [data-sigta="loader"][data-state="failed"] { color: var(--sigta-danger); }
+
+    [data-sigta="loader"][data-state="working"] .sigta-loader-pencil {
+        animation: sigta-loader-swing var(--sigta-dur-loop, 1500ms) var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1)) infinite alternate;
+    }
+    [data-sigta="loader"][data-state="working"] .sigta-loader-arc {
+        animation: sigta-loader-ink var(--sigta-dur-loop, 1500ms) var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1)) infinite alternate;
+    }
+    [data-sigta="loader"][data-state="done"] svg {
+        animation: sigta-loader-pop 480ms var(--sigta-curve-spring, cubic-bezier(.34, 1.56, .64, 1)) both;
+    }
+    [data-sigta="loader"][data-state="done"] .sigta-loader-pivot {
+        animation: sigta-loader-pivot 480ms ease-out both;
+    }
+    [data-sigta="loader"][data-state="failed"] svg {
+        animation: sigta-loader-shake 420ms ease-in-out both;
+    }
+
+    /* The sketch variant draws the whole mark on a loop, for longer waits. */
+    [data-sigta="loader"][data-variant="sketch"] :is(.sigta-loader-frame, .sigta-loader-leg) {
+        stroke-dasharray: 100 200;
+    }
+    [data-sigta="loader"][data-variant="sketch"][data-state="working"] {
+        --sigta-loader-open: 0deg;
+        --sigta-loader-ink: 101;
+    }
+    [data-sigta="loader"][data-variant="sketch"][data-state="working"] .sigta-loader-frame {
+        animation: sigta-sketch-frame 2600ms var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1)) infinite;
+    }
+    [data-sigta="loader"][data-variant="sketch"][data-state="working"] .sigta-loader-leg {
+        animation: sigta-sketch-leg 2600ms var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1)) infinite;
+    }
+    [data-sigta="loader"][data-variant="sketch"][data-state="working"] .sigta-loader-arc {
+        animation: sigta-sketch-arc 2600ms var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1)) infinite;
+    }
+    [data-sigta="loader"][data-variant="sketch"][data-state="working"] .sigta-loader-pivot {
+        animation: sigta-sketch-pivot 2600ms ease-out infinite;
+    }
+
+    /* Button busy — while Livewire runs a button's action it sets
+       data-loading on it (on the form, for a submit); the label steps aside
+       for the compass and the button keeps its size. */
+    [data-sigta="button"] > .sigta-button-busy { display: none; }
+    :is([data-sigta="button"][data-loading], form[data-loading] [data-sigta="button"][type="submit"]) {
+        pointer-events: none;
+    }
+    :is([data-sigta="button"][data-loading], form[data-loading] [data-sigta="button"][type="submit"]) > .sigta-button-label {
+        visibility: hidden;
+    }
+    :is([data-sigta="button"][data-loading], form[data-loading] [data-sigta="button"][type="submit"]) > .sigta-button-busy {
+        display: grid;
+    }
+
+    /* Checkbox — the tick is drawn as two pen strokes, short then long, as
+       it is checked, and lifts off in one go when unchecked. Transitions, not
+       animations, so a box rendered checked does not replay its tick. */
+    .sigta-check::before,
+    .sigta-check::after {
+        content: "";
+        position: absolute;
+        height: 2px;
+        border-radius: 1px;
+        background: var(--sigta-surface);
+        transform-origin: 1px 1px;
+        scale: 0 1;
+        transition: scale 80ms ease-in;
+    }
+    .sigta-check::before { left: 2.2px; top: 6.6px; width: 6.1px; rotate: 45deg; }
+    .sigta-check::after { left: 5.1px; top: 9.5px; width: 10.35px; rotate: -46.9deg; }
+    .sigta-check:checked::before { scale: 1 1; transition: scale 100ms ease-in; }
+    .sigta-check:checked::after {
+        scale: 1 1;
+        transition: scale 170ms var(--sigta-curve-out, cubic-bezier(.2, .8, .2, 1)) 90ms;
+    }
+
+    /* Completed rows — Sigta.complete() sets data-sigta-done on the row (a
+       server can render it too); each [data-sigta-strike] inside is crossed
+       out with a hand-drawn line and greys to graphite. */
+    [data-sigta-strike] {
+        position: relative;
+        transition: color var(--sigta-ease-slow, 220ms ease);
+    }
+    [data-sigta-done] [data-sigta-strike] { color: var(--sigta-fg-muted); }
+    [data-sigta-done] [data-sigta-strike]::after {
+        content: "";
+        position: absolute;
+        left: -0.1em;
+        right: -0.1em;
+        top: 52%;
+        height: 0.5em;
+        translate: 0 -50%;
+        background: var(--sigta-fg);
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 10' preserveAspectRatio='none'%3E%3Cpath d='M2 6.4C22 4.2 38 7.6 60 5.6S98 4.1 118 5.2' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+        pointer-events: none;
+        animation: sigta-strike var(--sigta-dur-draw, 420ms) var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1)) 80ms both;
+    }
+
+    /* Stamp — Sigta.complete(el, commit, { stamp: 'Done' }) presses one onto the row. */
+    .sigta-stamp {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        padding: 0.3em 0.7em;
+        font-family: var(--sigta-font-mono);
+        font-size: 0.66rem;
+        line-height: 1;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--sigta-success);
+        border: 1.5px solid currentColor;
+        border-radius: var(--sigta-radius);
+        background: color-mix(in srgb, var(--sigta-surface-raised) 85%, transparent);
+        translate: 0 -50%;
+        rotate: -8deg;
+        pointer-events: none;
+        animation: sigta-stamp 440ms var(--sigta-curve-spring, cubic-bezier(.34, 1.56, .64, 1)) both;
+    }
+
+    /* Handwritten confirmations (the save state's "Saved", margin notes) are
+       revealed left to right, as if written. */
+    .sigta-write {
+        animation: sigta-write var(--sigta-dur-draw, 420ms) var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1)) both;
+    }
+}
+
+@keyframes sigta-loader-swing { from { transform: rotate(48deg); } to { transform: rotate(8deg); } }
+@keyframes sigta-loader-ink { from { stroke-dashoffset: 86; } to { stroke-dashoffset: 14; } }
+@keyframes sigta-loader-pop { 0% { transform: scale(.88); } 55% { transform: scale(1.08); } 100% { transform: scale(1); } }
+@keyframes sigta-loader-pivot { 0%, 35% { transform: scale(1); } 70% { transform: scale(1.6); } 100% { transform: scale(1); } }
+@keyframes sigta-loader-shake {
+    0%, 100% { translate: 0 0; }
+    20% { translate: -9% 0; }
+    40% { translate: 8% 0; }
+    60% { translate: -5% 0; }
+    80% { translate: 3% 0; }
+}
+@keyframes sigta-sketch-frame {
+    0% { stroke-dashoffset: 101; opacity: 1; }
+    28% { stroke-dashoffset: 0; }
+    78% { stroke-dashoffset: 0; opacity: 1; }
+    94%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes sigta-sketch-leg {
+    0%, 16% { stroke-dashoffset: 101; opacity: 1; }
+    40% { stroke-dashoffset: 0; }
+    78% { stroke-dashoffset: 0; opacity: 1; }
+    94%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes sigta-sketch-arc {
+    0%, 36% { stroke-dashoffset: 101; opacity: 1; }
+    56% { stroke-dashoffset: 0; }
+    78% { stroke-dashoffset: 0; opacity: 1; }
+    94%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes sigta-sketch-pivot {
+    0%, 52% { transform: scale(0); opacity: 1; }
+    60% { transform: scale(1.4); }
+    66%, 78% { transform: scale(1); opacity: 1; }
+    94%, 100% { transform: scale(1); opacity: 0; }
+}
+@keyframes sigta-strike { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes sigta-stamp {
+    from { opacity: 0; scale: 1.9; rotate: -16deg; }
+    60% { opacity: 1; }
+    to { opacity: 1; scale: 1; rotate: -8deg; }
+}
+@keyframes sigta-write {
+    from { clip-path: inset(-25% 100% -25% -10%); }
+    to { clip-path: inset(-25% -10% -25% -10%); }
+}
+@keyframes sigta-settle {
+    from { opacity: 0; translate: 0 4px; filter: blur(2px); }
+    to { opacity: 1; translate: 0 0; filter: none; }
 }

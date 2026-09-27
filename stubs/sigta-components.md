@@ -83,15 +83,17 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 ```
 
 ### `button`
-- **Props:** `variant` (default `secondary`), `size` (default `base`), `icon` (default null), `href` (default null), plus any native `<button>`/`<a>` attributes
+- **Props:** `variant` (default `secondary`), `size` (default `base`), `icon` (default null), `href` (default null), `loading` (default `null` = auto), plus any native `<button>`/`<a>` attributes
 - **Variants:** `primary`, `cta`, `ghost`, `danger`, `inverse`, `ghost-inverse`, `secondary`
 - **Sizes:** `sm`, `base`
-- Renders `<a>` when `href` is set, else `<button>`. Lifts on hover. `cta` = accent-filled emphasis. Pass `target="_blank"` on a link button (adds `rel="noopener"` unless `rel` is set).
+- Renders `<a>` when `href` is set, else `<button>`. Lifts on hover, settles back onto the paper while pressed, springs back on release. `cta` = accent-filled emphasis. Pass `target="_blank"` on a link button (adds `rel="noopener"` unless `rel` is set).
+- **Busy:** a button with `wire:click`/`wire:submit` (or `type="submit"`) carries the Sigta compass; while Livewire runs its action (Livewire sets `data-loading`, on the form for a submit) the label steps aside for the loader and the button keeps its size. `loading` = `true` shows the busy state now (you drive it), `false` never adds the loader. Never write "Saving…" into a button label yourself.
 ```blade
 <sigta:button variant="cta" href="/book">Book a project <sigta:icon name="arrow-right" size="sm" /></sigta:button>
 <sigta:button href="https://calendly.com/sf-sigta/30min" target="_blank">Book a call</sigta:button>
 <sigta:button>Preview</sigta:button>
 <sigta:button variant="ghost">Cancel</sigta:button>
+<sigta:button variant="primary" wire:click="save">Save</sigta:button>   {{-- compass while it saves --}}
 ```
 
 ### `badge`
@@ -148,12 +150,13 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 
 ### `checkbox`
 - **Props:** `label`, plus native attrs. Renders `<label>` wrapper when `label` set, bare input otherwise.
+- The tick is drawn as two pen strokes when checked; the box gives a little under a press. In a list, pair it with `$sigta.complete()` (see Motion) so finishing an item feels finished.
 
 ### `radio`
 - **Props:** `label`, plus native attrs. Same wrapper behavior as checkbox.
 
 ### `switch`
-- **Props:** `label`, plus native attrs. `role="switch"` toggle with sliding thumb.
+- **Props:** `label`, plus native attrs. `role="switch"` toggle with sliding thumb; the thumb squashes toward its travel while pressed.
 
 ### `slider`
 - **Props:** `label`, `description`, `error`, `showValue` (bool, default `false`), plus native range attrs
@@ -167,6 +170,18 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 ### `progress`
 - **Props:** `value` (default `0`), `max` (default `100`), `label`, `indeterminate` (bool, default `false`)
 - Determinate or indeterminate progress bar.
+
+### `loader`
+- **Props:** `size` (default `base`), `variant` (default `compass`), `state` (default `working`), `value` (default null), `label` (default per state), `decorative` (bool, default `false`)
+- **Sizes:** `xs` (16px), `sm` (20px), `base` (28px), `lg` (44px), `xl` (72px)
+- **Variants:** `compass` (the pencil leg swings, the arc follows it), `sketch` (the whole mark draws itself on a loop, for longer waits)
+- **States:** `queued` (compass shut, graphite), `working`, `done` (the mark completes with a small stamp), `failed` (shakes, danger), `idle` (the complete mark, graphite)
+- The Sigta loader, drawn from the brand mark. **Use it wherever you would write "Loading…" or reach for a spinner.** `value` (0–100) turns the frame into the progress. State lives in `data-state`, so a Livewire morph or `x-bind:data-state` drives it. `role="progressbar"` with an accessible name; `decorative` hides it when a parent already announces the work. `currentColor` throughout.
+```blade
+<sigta:loader />
+<sigta:loader size="lg" :value="$import->progress" :state="$import->done ? 'done' : 'working'" />
+<sigta:loader variant="sketch" size="xl" label="Preparing your workspace" />
+```
 
 ### `field`
 - **Props:** `label`, `description`, `error`, `for` (default auto-generated id)
@@ -315,6 +330,8 @@ Sigta::toast(
     link: ['text' => 'View settings', 'href' => '/settings', 'navigate' => true],
 );
 ```
+- **Action** (e.g. Undo after a completion): `action: ['text' => 'Undo', 'event' => 'task-reopen', 'detail' => ['id' => $id]]` adds a button that fires `event` — through Livewire when present, so an `#[On('task-reopen')]` method receives `$id` — and closes the toast. From JS, `action: { text, onClick }` works too.
+- **Key:** `key: 'tasks'` replaces the showing toast with the same key instead of stacking another (ticking off five items leaves one toast).
 - **Trigger from Alpine:** `$sigta.toast('Saved')` or `$sigta.toast({ heading: '…', variant: 'warning' })`
 - **Trigger from JS:** `window.Sigta.toast('Saved')` or `window.Sigta.toast({ text: '…', variant: 'danger' })`
 - **Low-level event** (still supported): `$this->dispatch('sigta-toast', heading: 'Saved', variant: 'success')`
@@ -322,6 +339,42 @@ Sigta::toast(
 @persist('toast')
     <sigta:toast />
 @endpersist
+```
+
+### `save-state`
+- **Props:** `target` (default null), `name` (default null), `state` (default `idle`), `idle` (default null), `dirty` (default `Unsaved changes`), `saving` (default `Saving…`), `saved` (default `Saved`), `failed` (default `Not saved`)
+- **States:** `idle`, `dirty`, `saving`, `saved`, `failed`
+- The compass stands in for "Saving…": it draws while a save is in flight (the words stay for assistive tech, and show under reduced motion), lands with a handwritten "Saved" as the mark completes, then settles back to `idle` (showing the `idle` text, if any); a failed save — validation errors included — shakes it red. **Use it instead of any hand-written "Saving…" / "Saved" text.**
+- **Livewire:** `target` names actions and/or properties (comma-separated, dot paths match children) on the closest component; it follows their requests by itself, and typing into a watched `wire:model` shows `dirty` until it syncs.
+- **Anywhere else:** give it a `name` and drive it with `$sigta.save(promise, name)` (saving → saved/failed) or `$sigta.saveState('dirty', name)`.
+```blade
+<sigta:save-state target="title, body" idle="All changes saved" />
+<sigta:input wire:model.live.debounce.500ms="title" />
+
+<sigta:save-state name="profile" />
+{{-- any promise: resolve = saved, reject = failed (fetch only rejects on network errors, so throw on !response.ok) --}}
+<sigta:textarea x-on:input.debounce.700ms="$sigta.save(saveProfile(), 'profile')" />
+```
+
+### `job`
+- **Props:** `heading`, `description` (default null), `stage` (default null), `value` (default null), `state` (default `working`), `since` (default null); `actions` named slot; default slot for extra content
+- **States:** `queued`, `working`, `done`, `failed`
+- One piece of long-running work (an import, an export, a queue run). A large compass whose frame fills with `value`, a mono status line (`Running · <stage> · <elapsed>`), and — the moment it turns `done` — the mark completes with a burst. `value` null keeps the compass swinging with no frame progress. Its state is plain markup: drive it with `wire:poll` and let the morph move it along; in a `[data-sigta-motion]` list a finished job the server drops folds away.
+```blade
+<div wire:poll.2s data-sigta-motion class="space-y-2.5">
+    @foreach ($imports as $import)
+        <sigta:job wire:key="import-{{ $import->id }}" :heading="$import->name" :state="$import->state"
+                   :value="$import->progress" :stage="$import->stage" :since="$import->started_at" />
+    @endforeach
+</div>
+```
+
+### `count`
+- **Props:** `value` (default null; falls back to the slot)
+- A number that bumps when it changes — rising as it grows, dropping as it shrinks — whether a morph, an `x-text` or a plain write changes it. For unread badges and "12 open" headings. `tabular-nums`.
+```blade
+<sigta:count :value="$openCount" /> open
+<sigta:count x-text="items.length">{{ count($items) }}</sigta:count>
 ```
 
 ### `floating-bar`
@@ -642,11 +695,46 @@ All render complete with defaults; override what you need. Tag form:
 
 ---
 
+## Motion (behaviours, not components)
+
+Ink on paper: strokes draw, paper settles under a press, a finished thing is crossed out and folds away. Every motion decorates state the markup already carries (text, ARIA, data attributes) and stops under `prefers-reduced-motion` with nothing lost — the work (a commit, a removal) still happens.
+
+- **`data-sigta-motion`** on a list (rows keyed with `wire:key`): a row the server drops folds away (slides aside, then the gap closes) instead of vanishing; a row that arrives unfolds with a brief highlighter wash. Works for Livewire morphs, Alpine `x-for` and plain DOM inserts. Keep the list element rendered when it empties (render the empty state beside it, not inside it) so its last row can fold away.
+- **`$sigta.complete(el, commit, options)`** — the moment an item is done: its checkbox ticks, a burst flicks out, every `[data-sigta-strike]` in the row is crossed out with a hand-drawn line, then the row folds away. `commit` does the real work (`() => $wire.complete(id)`, an array filter, a fetch); if it throws or rejects the row is restored and shakes. Inside Livewire the commit goes out at once and the row leaves only if the server drops it (a restored row, e.g. after Undo, stays); elsewhere the row folds first, then `commit` runs. Options: `stamp: 'Done'` presses a stamp onto the row; `leave: false` keeps it in place, crossed out; `defer: true` folds first and commits after even inside Livewire (for an Alpine `x-for` list within a component). The row is the closest `[data-sigta-row]`, `[data-sigta-motion] > *` or `[wire:key]`.
+- **`data-sigta-done`** on a row (set by `complete`, or rendered by your server for finished items) crosses out its `[data-sigta-strike]` text and greys it.
+- **`$sigta.leave(el)`** folds any element away and removes it (`{ remove: false }` leaves removal to your framework).
+- **`$sigta.celebrate(el, level, { text })`** — `small`: a burst of ink strokes; `medium`: a hand-drawn pen ring and a handwritten note (default "nice!"); `big`: paper confetti and a note (default "well done!"). Pass `text: false` for no note. Also `$sigta.burst(el)`, `$sigta.ring(el)`, `$sigta.note(el, 'saved!')`, `$sigta.confetti(el?)`. From Livewire: `Sigta::celebrate('big', text: 'Inbox zero!', target: '#inbox')`. Big is for milestones (inbox zero, a finished import), never every click.
+- **`animate-sigta-settle`** — content lands like ink soaking into paper (fade, rise, unblur). Put it on content that replaces a skeleton; stagger siblings with `[animation-delay:70ms]`.
+- **Easing utilities:** `ease-sigta-out` (arriving), `ease-sigta-pen` (drawn strokes), `ease-sigta-spring` (press release, stamps). Tokens: `--sigta-curve-out`, `--sigta-curve-pen`, `--sigta-curve-spring`, `--sigta-dur-press`, `--sigta-dur-draw`, `--sigta-dur-leave`, `--sigta-dur-loop`.
+```blade
+<ul data-sigta-motion id="inbox">
+    @foreach ($tasks as $task)
+        <li wire:key="task-{{ $task->id }}" class="flex items-center gap-3">
+            <sigta:checkbox x-on:change="$sigta.complete($el, () => $wire.complete({{ $task->id }}))" />
+            <span data-sigta-strike>{{ $task->title }}</span>
+        </li>
+    @endforeach
+</ul>
+```
+```php
+public function complete(int $id): void
+{
+    Task::find($id)->markDone();
+    Sigta::toast('Marked done', variant: 'success', key: 'tasks',
+        action: ['text' => 'Undo', 'event' => 'task-reopen', 'detail' => ['id' => $id]]);
+    if ($this->tasks->isEmpty()) Sigta::celebrate('big', text: 'Inbox zero!', target: '#inbox');
+}
+```
+
+---
+
 ## Cross-component events (cheat sheet)
 
 | Event | Detail | Fired by | Listen in |
 |---|---|---|---|
-| `sigta-toast` | `{heading, text, variant, duration, link}` | `Sigta::toast()` / your code | toast region |
+| `sigta-toast` | `{heading, text, variant, duration, link, action, key}` | `Sigta::toast()` / your code | toast region |
+| `sigta-celebrate` | `{level, text, target}` | `Sigta::celebrate()` / your code | the runtime |
+| `sigta-save-state` | `{name, state}` | `$sigta.save()` / `$sigta.saveState()` / your code | `save-state` with that `name` |
 | `sigta-modal-show` | `{name}` | `modal.trigger` / your code | `modal` |
 | `sigta-modal-hide` | `{name}` | `modal.close` / your code | `modal` |
 | `sigta-composer-submit` | `{text}` | `composer` | your chat handler |
