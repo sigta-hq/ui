@@ -360,6 +360,23 @@ document.addEventListener('alpine:init', () => {
         return layer;
     };
 
+    // A flourish rides along with its element: placed once on the fixed layer,
+    // then shifted every frame by however far the element has moved since (a
+    // scroll, a layout change) until the flourish is gone. It stays where it
+    // was if the element leaves the page.
+    const follow = (el, node) => {
+        const start = el.getBoundingClientRect();
+        const step = () => {
+            if (!node.isConnected) return;
+            if (el.isConnected) {
+                const now = el.getBoundingClientRect();
+                node.style.transform = `translate(${now.left - start.left}px, ${now.top - start.top}px)`;
+            }
+            requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+    };
+
     const svgNode = (name, attributes = {}) => {
         const node = document.createElementNS('http://www.w3.org/2000/svg', name);
         Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, value));
@@ -408,6 +425,7 @@ document.addEventListener('alpine:init', () => {
             );
         }
         overlay(el).appendChild(svg);
+        follow(el, svg);
         setTimeout(() => svg.remove(), time + 200);
     };
 
@@ -447,6 +465,7 @@ document.addEventListener('alpine:init', () => {
         });
         svg.appendChild(path);
         overlay(el).appendChild(svg);
+        follow(el, svg);
         const draw = duration('--sigta-dur-draw', 420) * 1.6;
         const hold = options.hold ?? 900;
         path.animate([{ strokeDashoffset: '101' }, { strokeDashoffset: '0' }], { duration: draw, easing: pen(el), fill: 'forwards' });
@@ -461,19 +480,23 @@ document.addEventListener('alpine:init', () => {
         const el = elementOf(target);
         if (reduced() || !el?.isConnected || !text) return;
         const rect = el.getBoundingClientRect();
+        const holder = document.createElement('div');
+        holder.style.cssText = `position:absolute;left:${rect.right + 6}px;top:${rect.top - 16}px`;
         const word = document.createElement('span');
         word.textContent = text;
         word.className = 'sigta-write';
-        word.style.cssText = `position:absolute;left:${rect.right + 6}px;top:${rect.top - 16}px;font-family:var(--sigta-font-hand);font-weight:600;font-size:${options.size ?? '1.4rem'};line-height:1;white-space:nowrap;color:${options.color ?? 'var(--sigta-fg)'};rotate:${options.rotate ?? -6}deg`;
-        overlay(el).appendChild(word);
+        word.style.cssText = `display:inline-block;font-family:var(--sigta-font-hand);font-weight:600;font-size:${options.size ?? '1.4rem'};line-height:1;white-space:nowrap;color:${options.color ?? 'var(--sigta-fg)'};rotate:${options.rotate ?? -6}deg`;
+        holder.appendChild(word);
+        overlay(el).appendChild(holder);
         // Keep it on screen: flip to the left of the element, or below it.
-        const box = word.getBoundingClientRect();
-        if (box.right > window.innerWidth - 8) word.style.left = `${Math.max(8, rect.left - box.width - 6)}px`;
-        if (box.top < 8) word.style.top = `${rect.bottom + 4}px`;
+        const box = holder.getBoundingClientRect();
+        if (box.right > window.innerWidth - 8) holder.style.left = `${Math.max(8, rect.left - box.width - 6)}px`;
+        if (box.top < 8) holder.style.top = `${rect.bottom + 4}px`;
+        follow(el, holder);
         settled(word.animate(
             [{ translate: '0 0', opacity: 1 }, { translate: '0 -0.6rem', opacity: 0 }],
             { duration: 520, delay: options.hold ?? 1100, easing: 'ease-in', fill: 'forwards' },
-        )).then(() => word.remove());
+        )).then(() => holder.remove());
     };
 
     /* Confetti — paper, not glitter: slips of paper, ink dots and a few
