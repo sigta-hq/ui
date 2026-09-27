@@ -1,5 +1,5 @@
 <x-kit-shell title="Save state">
-    <x-sigta::text variant="muted" class="max-w-[60ch]">The compass stands in for "Saving…". It draws while a save is in flight, lands with a handwritten "Saved" as the mark completes, and shakes red when a save fails, validation errors included. Typing into a watched field closes the compass: unsaved.</x-sigta::text>
+    <x-sigta::text variant="muted" class="max-w-[60ch]">The compass stands in for "Saving…". It draws while a save is in flight, lands with a handwritten "Saved" as the mark completes, and shakes red when a save fails, validation errors included. Typing into a watched field greys it and takes away the arc: unsaved.</x-sigta::text>
 
     <x-kit-example label="States">
     «div class="flex flex-wrap items-center gap-x-10 gap-y-4">

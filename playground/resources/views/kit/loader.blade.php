@@ -1,5 +1,5 @@
 <x-kit-shell title="Loader">
-    <x-sigta::text variant="muted" class="max-w-[60ch]">The Sigta compass. While work runs, the pencil leg swings and the arc follows its tip, never quite closing; when the work lands, the mark completes and stamps. Use it wherever a page would otherwise say "Loading…" or "Saving…".</x-sigta::text>
+    <x-sigta::text variant="muted" class="max-w-[60ch]">The Sigta compass, in use. While work runs the handle turns, the legs swing round each other and the pencil draws a circle on the paper, then lifts it. When the work lands the compass finishes its turn, the circle closes and its front rises into the mark's arc, then it stamps. Use it wherever a page would otherwise say "Loading…" or "Saving…".</x-sigta::text>
 
     <x-kit-example label="Sizes — xs · sm · base · lg · xl">
     «div class="flex flex-wrap items-end gap-7">
@@ -32,7 +32,7 @@
     «/div>
     </x-kit-example>
 
-    <x-kit-example label="Progress — the frame fills with the value">
+    <x-kit-example label="Progress — the circle is drawn as far round as the value">
     «div class="flex flex-wrap items-center gap-8" x-data="{ p: 8 }" x-init="setInterval(() => p = p >= 100 ? 8 : Math.min(100, p + 13), 1100)">
         «sigta:loader size="xl" :value="8" x-bind:style="'--sigta-progress: ' + p" x-bind:data-state="p >= 100 ? 'done' : 'working'" />
         «sigta:loader size="lg" :value="35" />

@@ -184,66 +184,107 @@
    Sigta values for themes that predate them.
 --------------------------------------------------------------------------- */
 @layer components {
-    /* Loader — the Sigta compass (<sigta:loader>). Working: the pencil leg
-       swings and the arc follows its tip, never quite closing; done: the mark
-       completes and stamps; failed: it shakes. Each state's pose is a pair of
-       custom properties, so its still frame (reduced motion) reads right too. */
+    /* Loader — the Sigta compass (<sigta:loader>), the mark in use. While it
+       works the handle turns: the legs swing round each other in perspective
+       and the pencil draws a circle on the paper, then lifts it again. With a
+       value, the circle is drawn as far round as the work has come. When it
+       is done the mark stands complete, with its arc, and stamps; failed shakes
+       it. Every pose comes from one angle, --sigta-loader-deg: the pencil foot
+       sits on the paper circle at that angle (0 = the mark's own stance), the
+       needle foot opposite it, so a state only has to say which angle. */
     [data-sigta="loader"] {
-        --sigta-loader-open: 0deg; /* pencil leg: 0 = the mark, 55.8deg = shut on the needle leg */
-        --sigta-loader-ink: 0;     /* arc dash offset: 0 = drawn, 101 = not yet */
+        --sigta-loader-deg: 0;
+        --sigta-loader-pen: 2.4;
+        --sigta-loader-frame: 2.2;
     }
+    /* Hairlines vanish at icon sizes, so the small sizes draw a heavier pen. */
+    [data-sigta="loader"][data-size="xs"] { --sigta-loader-pen: 3.3; --sigta-loader-frame: 3; }
+    [data-sigta="loader"][data-size="sm"] { --sigta-loader-pen: 2.9; --sigta-loader-frame: 2.6; }
     [data-sigta="loader"] svg {
         display: block;
         width: 100%;
         height: 100%;
         overflow: visible;
     }
-    [data-sigta="loader"] .sigta-loader-pencil {
+    [data-sigta="loader"] .sigta-loader-frame { stroke-width: var(--sigta-loader-frame); }
+    [data-sigta="loader"] :is(.sigta-loader-leg, .sigta-loader-ring, .sigta-loader-arc) { stroke-width: var(--sigta-loader-pen); }
+
+    /* The legs are drawn straight down from the hinge and turned and stretched
+       to reach their feet: the pencil at (20 + 9 cos θ, 29 + 2.8 sin θ), the
+       needle opposite. Whichever leg is behind the other draws a touch lighter;
+       at rest both are full ink. */
+    [data-sigta="loader"] .sigta-loader-leg {
         transform-box: view-box;
         transform-origin: 20px 12px;
-        transform: rotate(var(--sigta-loader-open));
+        transform: rotate(calc(-1 * atan2(var(--sigta-loader-x), var(--sigta-loader-y)))) scaleY(calc(hypot(var(--sigta-loader-x), var(--sigta-loader-y)) / 17));
     }
-    /* Dashes run 100 on, 200 off over a pathLength of 100, and hide at ±101:
-       a zero-length dash left at either end would still paint its round cap. */
-    [data-sigta="loader"] .sigta-loader-arc {
+    [data-sigta="loader"] .sigta-loader-pencil {
+        --sigta-loader-x: calc(9 * cos(var(--sigta-loader-deg) * 1deg));
+        --sigta-loader-y: calc(17 + 2.8 * sin(var(--sigta-loader-deg) * 1deg));
+        opacity: calc(1 - 0.28 * clamp(0, -8 * sin(var(--sigta-loader-deg) * 1deg), 1));
+    }
+    [data-sigta="loader"] .sigta-loader-needle {
+        --sigta-loader-x: calc(-9 * cos(var(--sigta-loader-deg) * 1deg));
+        --sigta-loader-y: calc(17 - 2.8 * sin(var(--sigta-loader-deg) * 1deg));
+        opacity: calc(1 - 0.28 * clamp(0, 8 * sin(var(--sigta-loader-deg) * 1deg), 1));
+    }
+
+    /* The circle on the paper, in two halves so the back one can sit behind
+       the legs. Over a loop the angle runs 0 → 720: the first turn draws the
+       front half then the back, the second lifts them in the same order. The
+       blend of (1 − cos φ)/2 and φ/180 is how far along a half the pencil is
+       at angle φ (the true arc length, to within 0.35%), so the ink stays on
+       its tip. Dashes run 100 on, 200 off over a pathLength of 100 and hide at
+       ±101: a zero-length dash left at either end would paint its round cap.
+       --sigta-loader-fill closes the circle whatever the angle (the landing). */
+    [data-sigta="loader"] .sigta-loader-ring {
         stroke-dasharray: 100 200;
-        stroke-dashoffset: var(--sigta-loader-ink);
+        --sigta-loader-drawn: calc(0.694 * (1 - cos(var(--sigta-loader-a) * 1deg)) / 2 + 0.306 * var(--sigta-loader-a) / 180);
+        --sigta-loader-lifted: calc(0.694 * (1 - cos(var(--sigta-loader-b) * 1deg)) / 2 + 0.306 * var(--sigta-loader-b) / 180);
+        stroke-dashoffset: calc(101 - 101 * (var(--sigta-loader-drawn) + (1 - var(--sigta-loader-drawn)) * var(--sigta-loader-fill)) - 101 * var(--sigta-loader-lifted) * (1 - var(--sigta-loader-fill)));
     }
+    [data-sigta="loader"] .sigta-loader-ring-front {
+        --sigta-loader-a: clamp(0, var(--sigta-loader-deg), 180);
+        --sigta-loader-b: clamp(0, var(--sigta-loader-deg) - 360, 180);
+        /* The landing lifts the front half into the arc across the legs; the
+           pen thickens to make up for the squash. */
+        transform-box: view-box;
+        transform-origin: 20px 29px;
+        transform: translateY(calc(-3.3px * var(--sigta-loader-rise))) scale(calc(1 - 0.1944 * var(--sigta-loader-rise)), calc(1 - 0.3571 * var(--sigta-loader-rise)));
+        stroke-width: calc(var(--sigta-loader-pen) * (1 + 0.39 * var(--sigta-loader-rise)));
+    }
+    [data-sigta="loader"] .sigta-loader-ring-back {
+        --sigta-loader-a: clamp(0, var(--sigta-loader-deg) - 180, 180);
+        --sigta-loader-b: clamp(0, var(--sigta-loader-deg) - 540, 180);
+        opacity: calc(0.35 * (1 - var(--sigta-loader-rise)));
+    }
+    [data-sigta="loader"] .sigta-loader-arc { opacity: 0; }
     [data-sigta="loader"] .sigta-loader-pivot {
         transform-box: fill-box;
         transform-origin: center;
     }
-    [data-sigta="loader"] .sigta-loader-track {
-        stroke: var(--sigta-line);
+
+    /* Working with no value: two turns per loop, easing through the moment
+       the circle is empty. Its still frame (reduced motion) is part-drawn. */
+    [data-sigta="loader"][data-variant="compass"]:is([data-state="working"], [data-landing]):not([data-progress]) {
+        --sigta-loader-deg: 250;
+        animation: sigta-loader-turn var(--sigta-dur-loop, 3000ms) cubic-bezier(.37, 0, .63, 1) infinite;
     }
-    [data-sigta="loader"] .sigta-loader-progress {
-        stroke-dasharray: 100 200;
-        stroke-dashoffset: calc(101 - var(--sigta-progress, 100) * 1.01);
-        transition: stroke-dashoffset 480ms var(--sigta-curve-out, cubic-bezier(.2, .8, .2, 1));
+    /* Working with a value: the circle is drawn as far round as the work has come. */
+    [data-sigta="loader"][data-variant="compass"][data-progress]:is([data-state="working"], [data-landing]) {
+        --sigta-loader-deg: calc(var(--sigta-progress) * 3.6);
+    }
+    [data-sigta="loader"][data-progress] {
+        transition: --sigta-progress 600ms var(--sigta-curve-out, cubic-bezier(.2, .8, .2, 1));
     }
 
-    [data-sigta="loader"][data-state="idle"] { color: var(--sigta-fg-muted); }
-    [data-sigta="loader"][data-state="queued"] {
-        --sigta-loader-open: 55.8deg;
-        --sigta-loader-ink: 101;
-        color: var(--sigta-fg-muted);
-    }
-    [data-sigta="loader"]:is([data-state="working"], [data-state="failed"]) {
-        --sigta-loader-open: 24deg;
-        --sigta-loader-ink: 43;
-    }
+    [data-sigta="loader"]:is([data-state="idle"], [data-state="done"]):not([data-landing]) .sigta-loader-arc { opacity: 1; }
+    [data-sigta="loader"]:is([data-state="idle"], [data-state="queued"]) { color: var(--sigta-fg-muted); }
     [data-sigta="loader"][data-state="failed"] { color: var(--sigta-danger); }
-
-    [data-sigta="loader"][data-state="working"] .sigta-loader-pencil {
-        animation: sigta-loader-swing var(--sigta-dur-loop, 1500ms) var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1)) infinite alternate;
-    }
-    [data-sigta="loader"][data-state="working"] .sigta-loader-arc {
-        animation: sigta-loader-ink var(--sigta-dur-loop, 1500ms) var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1)) infinite alternate;
-    }
-    [data-sigta="loader"][data-state="done"] svg {
+    [data-sigta="loader"][data-state="done"]:not([data-landing]) svg {
         animation: sigta-loader-pop 480ms var(--sigta-curve-spring, cubic-bezier(.34, 1.56, .64, 1)) both;
     }
-    [data-sigta="loader"][data-state="done"] .sigta-loader-pivot {
+    [data-sigta="loader"][data-state="done"]:not([data-landing]) .sigta-loader-pivot {
         animation: sigta-loader-pivot 480ms ease-out both;
     }
     [data-sigta="loader"][data-state="failed"] svg {
@@ -254,10 +295,6 @@
     [data-sigta="loader"][data-variant="sketch"] :is(.sigta-loader-frame, .sigta-loader-leg) {
         stroke-dasharray: 100 200;
     }
-    [data-sigta="loader"][data-variant="sketch"][data-state="working"] {
-        --sigta-loader-open: 0deg;
-        --sigta-loader-ink: 101;
-    }
     [data-sigta="loader"][data-variant="sketch"][data-state="working"] .sigta-loader-frame {
         animation: sigta-sketch-frame 2600ms var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1)) infinite;
     }
@@ -265,6 +302,7 @@
         animation: sigta-sketch-leg 2600ms var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1)) infinite;
     }
     [data-sigta="loader"][data-variant="sketch"][data-state="working"] .sigta-loader-arc {
+        stroke-dasharray: 100 200;
         animation: sigta-sketch-arc 2600ms var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1)) infinite;
     }
     [data-sigta="loader"][data-variant="sketch"][data-state="working"] .sigta-loader-pivot {
@@ -357,8 +395,13 @@
     }
 }
 
-@keyframes sigta-loader-swing { from { transform: rotate(48deg); } to { transform: rotate(8deg); } }
-@keyframes sigta-loader-ink { from { stroke-dashoffset: 86; } to { stroke-dashoffset: 14; } }
+/* The loader's angle, fill and rise are registered so they animate and
+   transition smoothly instead of flipping at the halfway point. */
+@property --sigta-loader-deg { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --sigta-loader-fill { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --sigta-loader-rise { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --sigta-progress { syntax: "<number>"; inherits: true; initial-value: 100; }
+@keyframes sigta-loader-turn { from { --sigta-loader-deg: 0; } to { --sigta-loader-deg: 720; } }
 @keyframes sigta-loader-pop { 0% { transform: scale(.88); } 55% { transform: scale(1.08); } 100% { transform: scale(1); } }
 @keyframes sigta-loader-pivot { 0%, 35% { transform: scale(1); } 70% { transform: scale(1.6); } 100% { transform: scale(1); } }
 @keyframes sigta-loader-shake {

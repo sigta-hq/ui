@@ -1,5 +1,5 @@
 {{-- Job — one piece of long-running work: an import, an export, a queue run.
-     The compass frame fills as the work progresses, the stage line says what
+     The compass draws its circle as the work progresses, the stage line says what
      is happening now, and the moment it turns done the mark completes with a
      burst. Its state is plain markup, so a Livewire poll that re-renders it
      (wire:poll) moves it along; in a [data-sigta-motion] list a finished job
@@ -8,7 +8,7 @@
        <sigta:job heading="Importing contacts" :value="$import->progress"
                   stage="Matching duplicates" :since="$import->started_at" />
 
-     `value` null keeps the compass swinging with no frame progress. --}}
+     `value` null keeps the compass turning with no progress. --}}
 @props([
     'heading' => null,
     'description' => null,

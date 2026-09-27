@@ -13,26 +13,31 @@ it('renders the working compass by default', function () {
         ->toContain('aria-label="Working"')
         ->toContain('size-7')
         ->toContain('sigta-loader-pencil')
+        ->toContain('sigta-loader-needle')
+        ->toContain('sigta-loader-ring-front')
+        ->toContain('sigta-loader-ring-back')
         ->toContain('sigta-loader-arc')
         ->toContain('sigta-loader-pivot')
         ->toContain('sigta-loader-frame')
+        ->not->toContain('data-progress')
         ->not->toContain('aria-valuenow');
 });
 
-it('maps each size to its box and draws a heavier pen when small', function () {
-    expect(Blade::render('<x-sigta::loader size="xs" />'))->toContain('size-4')->toContain('stroke-width="3.3"');
-    expect(Blade::render('<x-sigta::loader size="sm" />'))->toContain('size-5')->toContain('stroke-width="2.9"');
-    expect(Blade::render('<x-sigta::loader size="lg" />'))->toContain('size-11')->toContain('stroke-width="2.4"');
-    expect(Blade::render('<x-sigta::loader size="xl" />'))->toContain('size-[4.5rem]');
+it('maps each size to its box and names it for the pen weight', function () {
+    expect(Blade::render('<x-sigta::loader size="xs" />'))->toContain('size-4')->toContain('data-size="xs"');
+    expect(Blade::render('<x-sigta::loader size="sm" />'))->toContain('size-5')->toContain('data-size="sm"');
+    expect(Blade::render('<x-sigta::loader size="lg" />'))->toContain('size-11')->toContain('data-size="lg"');
+    expect(Blade::render('<x-sigta::loader size="xl" />'))->toContain('size-[4.5rem]')->toContain('data-size="xl"');
+    expect(Blade::render('<x-sigta::loader size="huge" />'))->toContain('size-7')->toContain('data-size="base"');
 });
 
-it('turns the frame into progress when given a value', function () {
+it('draws the circle as far round as its value', function () {
     $html = Blade::render('<x-sigta::loader :value="42" />');
 
     expect($html)
-        ->toContain('sigta-loader-track')
-        ->toContain('sigta-loader-progress')
-        ->not->toContain('sigta-loader-frame')
+        ->toContain('data-progress')
+        ->toContain('sigta-loader-ring-front')
+        ->toContain('sigta-loader-frame')
         ->toContain('--sigta-progress: 42')
         ->toContain('aria-valuemin="0"')
         ->toContain('aria-valuemax="100"')

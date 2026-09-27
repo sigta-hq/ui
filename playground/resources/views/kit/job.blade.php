@@ -1,5 +1,5 @@
 <x-kit-shell title="Job">
-    <x-sigta::text variant="muted" class="max-w-[60ch]">One piece of long-running work: an import, an export, a queue run. The compass frame fills as it progresses, the stage line says what is happening now, and the moment it turns done the mark completes with a burst. Its state is plain markup, so a Livewire poll that re-renders it moves it along.</x-sigta::text>
+    <x-sigta::text variant="muted" class="max-w-[60ch]">One piece of long-running work: an import, an export, a queue run. The compass draws its circle as far round as the work has come, the stage line says what is happening now, and the moment it turns done the circle rises into the mark's arc with a burst. Its state is plain markup, so a Livewire poll that re-renders it moves it along.</x-sigta::text>
 
     <x-kit-example label="States">
     «div class="flex max-w-xl flex-col gap-2.5">

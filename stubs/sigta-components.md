@@ -174,9 +174,9 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 ### `loader`
 - **Props:** `size` (default `base`), `variant` (default `compass`), `state` (default `working`), `value` (default null), `label` (default per state), `decorative` (bool, default `false`)
 - **Sizes:** `xs` (16px), `sm` (20px), `base` (28px), `lg` (44px), `xl` (72px)
-- **Variants:** `compass` (the pencil leg swings, the arc follows it), `sketch` (the whole mark draws itself on a loop, for longer waits)
-- **States:** `queued` (compass shut, graphite), `working`, `done` (the mark completes with a small stamp), `failed` (shakes, danger), `idle` (the complete mark, graphite)
-- The Sigta loader, drawn from the brand mark. **Use it wherever you would write "Loading…" or reach for a spinner.** `value` (0–100) turns the frame into the progress. State lives in `data-state`, so a Livewire morph or `x-bind:data-state` drives it. `role="progressbar"` with an accessible name; `decorative` hides it when a parent already announces the work. `currentColor` throughout.
+- **Variants:** `compass` (the mark in use: the handle turns, the legs swing round each other and the pencil draws a circle on the paper, then lifts it), `sketch` (the whole mark draws itself on a loop, for longer waits)
+- **States:** `queued` (the compass standing, no arc yet, graphite), `working`, `done` (the mark complete with its arc, and a small stamp), `failed` (shakes, danger), `idle` (the complete mark, graphite)
+- The Sigta loader, drawn from the brand mark. **Use it wherever you would write "Loading…" or reach for a spinner.** With `value` (0–100) the circle on the paper is drawn as far round as the work has come. When a working loader turns `done`, the Sigta script lets it finish its turn, close the circle and raise it into the mark's arc before the stamp (without the script, or with reduced motion, it lands at once). State lives in `data-state`, so a Livewire morph or `x-bind:data-state` drives it. `role="progressbar"` with an accessible name; `decorative` hides it when a parent already announces the work. `currentColor` throughout.
 ```blade
 <sigta:loader />
 <sigta:loader size="lg" :value="$import->progress" :state="$import->done ? 'done' : 'working'" />
@@ -359,7 +359,7 @@ Sigta::toast(
 ### `job`
 - **Props:** `heading`, `description` (default null), `stage` (default null), `value` (default null), `state` (default `working`), `since` (default null); `actions` named slot; default slot for extra content
 - **States:** `queued`, `working`, `done`, `failed`
-- One piece of long-running work (an import, an export, a queue run). A large compass whose frame fills with `value`, a mono status line (`Running · <stage> · <elapsed>`), and — the moment it turns `done` — the mark completes with a burst. `value` null keeps the compass swinging with no frame progress. Its state is plain markup: drive it with `wire:poll` and let the morph move it along; in a `[data-sigta-motion]` list a finished job the server drops folds away.
+- One piece of long-running work (an import, an export, a queue run). A large compass that draws its circle as far round as `value`, a mono status line (`Running · <stage> · <elapsed>`), and — the moment it turns `done` — the circle rises into the mark's arc with a burst. `value` null keeps the compass turning without progress. Its state is plain markup: drive it with `wire:poll` and let the morph move it along; in a `[data-sigta-motion]` list a finished job the server drops folds away.
 ```blade
 <div wire:poll.2s data-sigta-motion class="space-y-2.5">
     @foreach ($imports as $import)

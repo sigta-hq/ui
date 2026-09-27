@@ -60,10 +60,10 @@
 
     /* motion — ink on paper: strokes draw, paper settles, rows fold away */
     --sigta-curve-out: cubic-bezier(.2, .8, .2, 1);       /* arriving, settling */
-    --sigta-curve-pen: cubic-bezier(.65, 0, .35, 1);      /* a pen stroke, a compass swing */
+    --sigta-curve-pen: cubic-bezier(.65, 0, .35, 1);      /* a pen stroke */
     --sigta-curve-spring: cubic-bezier(.34, 1.56, .64, 1); /* press release, stamp, pop */
     --sigta-dur-press: 90ms;                              /* a press landing */
     --sigta-dur-draw: 420ms;                              /* one pen stroke */
     --sigta-dur-leave: 360ms;                             /* a row folding away */
-    --sigta-dur-loop: 1500ms;                             /* one loader swing */
+    --sigta-dur-loop: 3000ms;                             /* one loader cycle: circle drawn, then lifted */
 }

@@ -764,6 +764,35 @@ document.addEventListener('alpine:init', () => {
         }
     };
 
+    /* Loader landing — when a working compass is told it is done, it finishes
+       the turn it is on and closes its circle, then the circle's front rises
+       into the mark's arc, and only then does the CSS done state (the stamp)
+       take over. data-landing keeps the working motion running underneath
+       until the landing hands over. Without this script, or with reduced
+       motion, the loader simply lands. */
+    const landLoader = (loader) => {
+        if (reduced() || loader.dataset.variant !== 'compass' || loader.hasAttribute('data-landing')) return;
+        loader.setAttribute('data-landing', '');
+        const deg = parseFloat(getComputedStyle(loader).getPropertyValue('--sigta-loader-deg')) || 0;
+        const end = Math.max(360, Math.ceil(deg / 360 - 1e-6) * 360);
+        const turn = 380 + 520 * ((end - deg) / 360);
+        const rise = 320;
+        const ease = settle(loader);
+        const landing = loader.animate([
+            { '--sigta-loader-deg': String(deg), '--sigta-loader-fill': '0', '--sigta-loader-rise': '0', easing: ease },
+            { '--sigta-loader-deg': String(end), '--sigta-loader-fill': '1', '--sigta-loader-rise': '0', offset: turn / (turn + rise), easing: ease },
+            { '--sigta-loader-deg': String(end), '--sigta-loader-fill': '1', '--sigta-loader-rise': '1' },
+        ], { duration: turn + rise, fill: 'forwards' });
+        settled(landing).then(() => {
+            loader.removeAttribute('data-landing');
+            landing.cancel();
+        });
+    };
+    new MutationObserver((records) => records.forEach((record) => {
+        const loader = record.target;
+        if (loader.dataset?.sigta === 'loader' && loader.dataset.state === 'done' && record.oldValue === 'working') landLoader(loader);
+    })).observe(document.documentElement, { attributes: true, attributeFilter: ['data-state'], attributeOldValue: true, subtree: true });
+
     /* Livewire keeps rows in motion lists alive long enough to leave. A row
        the server drops would be removed outright by the morph, so just before
        the morph it is written back into the incoming HTML beside a neighbour
@@ -839,6 +868,12 @@ document.addEventListener('alpine:init', () => {
 
         window.Livewire.hook('morph.removing', ({ el, skip }) => {
             if (held.has(el)) skip();
+        });
+
+        // A loader mid-landing keeps its flag through a morph (a poll, say),
+        // or its stamp would start before the circle has risen.
+        window.Livewire.hook('morph.updating', ({ el, toEl }) => {
+            if (el.hasAttribute?.('data-landing')) toEl.setAttribute('data-landing', '');
         });
 
         window.Livewire.hook('morphed', () => {

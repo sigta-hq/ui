@@ -18,7 +18,7 @@ it('renders a running job with its progress and stage', function () {
         ->toContain('aria-label="Importing contacts"');
 });
 
-it('keeps the compass swinging with no value', function () {
+it('keeps the compass turning with no value', function () {
     $html = Blade::render('<x-sigta::job heading="Rebuilding the index" />');
 
     expect($html)
