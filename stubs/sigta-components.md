@@ -246,6 +246,13 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 - **Variants:** `default`, `inverse`
 - Bordered surface **without** `overflow-hidden` — so overhanging annotations/badges show. Static (no hover lift). Use where Card would clip. `variant="inverse"` is a dark ink band; pair with `<sigta:label variant="inverse">` and `<sigta:stat tone="inverse">`.
 - Default padding is fluid (24 to 40px). Pass any padding class (`p-4`, `px-6`, `sm:p-5`, `!p-2`) and it replaces the default entirely; without one, the default applies.
+- Children stack as a flex column, so `gap-*` spaces them and `items-*` / `justify-*` act on that column (`items-center` centres them horizontally). Pass a display class (`flex`, `grid`, `block`) and it replaces the stack entirely, so `class="flex items-center justify-between"` is a row; a direction class alone (`flex-row`) keeps the flex and turns it. Responsive classes (`sm:flex-row`) build on the stack.
+```blade
+<sigta:panel class="flex items-center justify-between gap-3 p-4">
+    <sigta:profile name="Ada Lovelace" meta="ada@example.com" />
+    <sigta:badge>Owner</sigta:badge>
+</sigta:panel>
+```
 
 ### `tooltip`
 - **Props:** `text` (**required**), `position` (default `top`)

@@ -6,18 +6,35 @@
      <sigta:stat tone="inverse"> so nested chrome inverts too.
 
      Pass any padding class (p-4, px-6, sm:p-5, !p-2) to replace the default
-     fluid padding entirely. --}}
+     fluid padding entirely.
+
+     Children stack as a flex column. Pass a display class (flex, grid, block)
+     to lay them out yourself, or a direction class (flex-row) to keep the flex
+     and turn it. --}}
 @props([
     'variant' => 'default',
 ])
 
 @php
+$class = (string) $attributes->get('class');
+
 // A padding utility from the consumer replaces the default rather than competing
 // with it: both would be single-class utilities, and the compiled CSS order, not
 // the markup, would pick the winner.
-$padding = preg_match('/(^|\s)([^\s:]+:)*!?p[xytrblse]?-/', (string) $attributes->get('class'))
+$padding = preg_match('/(^|\s)([^\s:]+:)*!?p[xytrblse]?-/', $class)
     ? ''
     : 'p-[clamp(24px,3vw,40px)] ';
+
+// The same goes for the layout, or row classes (flex items-center) silently act
+// on the column. Only an unprefixed class counts: a responsive one (sm:flex-row)
+// builds on the stack, and outranks it wherever it applies.
+$display = preg_match('/(^|\s)!?(block|inline-block|flex|inline-flex|grid|inline-grid|flow-root)!?(?=\s|$)/', $class)
+    ? ''
+    : 'flex ';
+
+$direction = $display === '' || preg_match('/(^|\s)!?flex-(row|col)(-reverse)?!?(?=\s|$)/', $class)
+    ? ''
+    : 'flex-col ';
 
 $surface = match ($variant) {
     'inverse' => 'bg-inverse text-inverse-fg border border-inverse-line',
@@ -25,4 +42,4 @@ $surface = match ($variant) {
 };
 @endphp
 
-<div data-sigta="panel" data-variant="{{ $variant }}" {{ $attributes->merge(['class' => 'relative flex flex-col rounded-panel '.$padding.$surface]) }}>{{ $slot }}</div>
+<div data-sigta="panel" data-variant="{{ $variant }}" {{ $attributes->merge(['class' => 'relative '.$display.$direction.'rounded-panel '.$padding.$surface]) }}>{{ $slot }}</div>
