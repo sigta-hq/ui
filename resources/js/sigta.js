@@ -844,11 +844,16 @@ document.addEventListener('alpine:init', () => {
         };
 
         window.Livewire.hook('morph', ({ el, toEl }) => {
+            // A nested component's rows are its own morph's to keep or drop: the
+            // parent's new HTML never carries them, so they would read as dropped
+            // and fold away whenever the parent re-renders.
+            const owner = el.closest('[wire\\:id]');
             const rows = new Set([
                 ...el.querySelectorAll('[data-sigta-motion] > *'),
                 ...el.querySelectorAll('[data-sigta-completing]'),
             ]);
             Array.from(rows)
+                .filter((row) => row.parentElement?.closest('[wire\\:id]') === owner)
                 .sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1))
                 .forEach((row) => {
                     const key = keyOf(row);

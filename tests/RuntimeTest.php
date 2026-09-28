@@ -64,3 +64,11 @@ it('ships the runtime verbatim in dist', function () {
     expect(file_get_contents(__DIR__.'/../dist/sigta.js'))
         ->toBe(file_get_contents(__DIR__.'/../resources/js/sigta.js'));
 });
+
+it('leaves a nested component its own rows when the parent morphs', function () {
+    // The parent's new HTML never carries a child component's rows, so they
+    // would all read as dropped and fold away on every parent re-render.
+    expect(file_get_contents(__DIR__.'/../resources/js/sigta.js'))
+        ->toContain("const owner = el.closest('[wire\\\\:id]');")
+        ->toContain(".filter((row) => row.parentElement?.closest('[wire\\\\:id]') === owner)");
+});
