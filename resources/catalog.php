@@ -23,6 +23,7 @@ return [
         'description' => 'Installation, theming, and usage guidance.',
         'items' => [
             'installation', // production install: private VCS repo, auth, fonts, deploy
+            'motion',       // motion language: press, complete, count, celebrate, settle
         ],
     ],
 
@@ -41,6 +42,7 @@ return [
             'radio',
             'switch',
             'progress',
+            'loader',     // the Sigta compass
             'slider',
             'skeleton',
             'elapsed-clock', // + duration display
@@ -71,6 +73,8 @@ return [
             'context-menu',
             'modal',
             'toast',
+            'save-state',
+            'job',
             'floating-bar',
             'tabs',
             'accordion',
@@ -128,6 +132,7 @@ return [
             'landing',
             'dashboard',
             'chat',
+            'inbox',
         ],
     ],
 ];

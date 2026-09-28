@@ -1,6 +1,8 @@
 {{-- Toast region. Include ONCE per layout, near </body>.
      Trigger from Livewire: Sigta::toast('Saved') or $this->dispatch('sigta-toast', variant: 'success')
      Trigger from Alpine/JS: $sigta.toast('Saved') or window.Sigta.toast({ text: '…', variant: 'danger' })
+     An action adds a button that fires an event and closes the toast — the
+     "Undo" after a completion: action: { text: 'Undo', event: 'task-reopen', detail: { id: 5 } }
      With wire:navigate, wrap in @persist('toast') so toasts survive page transitions.
      Bottom placements rise above a visible floating bar rather than covering it. --}}
 @props([
@@ -32,12 +34,12 @@ $placement = match ($position) {
                 'border-warning': toast.variant === 'warning',
                 'border-ink': toast.variant === 'info',
             }"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 translate-y-2"
-            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:enter="transition ease-sigta-spring duration-300"
+            x-transition:enter-start="opacity-0 translate-y-3 scale-[0.97]"
+            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
             x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
+            x-transition:leave-start="opacity-100 translate-x-0"
+            x-transition:leave-end="opacity-0 translate-x-4"
         >
             <span class="mt-0.5 shrink-0" x-bind:class="{
                 'text-success': toast.variant === 'success',
@@ -63,6 +65,14 @@ $placement = match ($position) {
                         x-text="toast.link.text || 'View'"
                         class="block mt-1.5 font-mono text-[0.72rem] uppercase tracking-[0.12em] text-ink underline underline-offset-2 hover:no-underline"
                     ></a>
+                </template>
+                <template x-if="toast.action && toast.action.text">
+                    <button
+                        type="button"
+                        x-on:click="act(toast)"
+                        x-text="toast.action.text"
+                        class="block mt-1.5 font-mono text-[0.72rem] uppercase tracking-[0.12em] text-ink underline underline-offset-2 hover:no-underline cursor-pointer"
+                    ></button>
                 </template>
             </span>
             <button type="button" x-on:click="remove(toast.id)" aria-label="Dismiss"
