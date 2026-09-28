@@ -191,8 +191,8 @@ the UI feel unfinished. Work out every state before you place one:
   nothing for a quick one: don't add `wire:loading` text or a loader to it.
   Wherever a loader goes, it holds still (MUST 5).
 - **Completing an item must not just make it vanish.** Put list rows in a
-  `data-sigta-motion` container with `wire:key` on each row, mark the title
-  `data-sigta-strike`, and complete through
+  `data-sigta-motion` container with `wire:key` on each row, wrap the title's
+  text in `<span data-sigta-strike>`, and complete through
   `$sigta.complete($el, () => $wire.complete(id))`: it ticks, crosses out and
   folds the row away, and restores it if the commit fails. Offer Undo with
   `Sigta::toast(..., action: [...], key: '…')`.

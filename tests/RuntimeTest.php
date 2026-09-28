@@ -93,3 +93,16 @@ it('marks a button busy only once its action outlasts a beat', function () {
         ->toContain('[data-sigta="button"][data-sigta-busy] > .sigta-button-busy')
         ->not->toContain('> .sigta-button-label {');
 });
+
+it('crosses out every line a struck title wraps onto, over its words', function () {
+    // A positioned line covers one box spanning a wrapped title's lines, so it
+    // landed under the first line and read as an underline.
+    $css = file_get_contents(__DIR__.'/../resources/css/core.css');
+
+    expect($css)
+        ->not->toContain('[data-sigta-strike]::after')
+        ->toContain('background-size: 100% 0.11em, 100% 100%;')
+        ->toContain('background-clip: border-box, text;')
+        ->toContain('[data-sigta-done] [data-sigta-strike] { text-decoration: line-through; }');
+});
+
