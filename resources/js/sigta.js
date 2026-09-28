@@ -671,6 +671,19 @@ document.addEventListener('alpine:init', () => {
         ], { duration: time * 1.4, easing: settle(el) })).then(() => { el.style.overflow = ''; });
     };
 
+    // The text either side of a removed row becomes one node, as a fresh render
+    // has it: two in a row make the next morph move the row after them into
+    // line, and a moved row replays its animations (a strike drawn twice).
+    const detach = (el) => {
+        const before = el.previousSibling;
+        const after = el.nextSibling;
+        el.remove();
+        if (before?.nodeType === Node.TEXT_NODE && after?.nodeType === Node.TEXT_NODE) {
+            before.nodeValue += after.nodeValue;
+            after.remove();
+        }
+    };
+
     /* Leave — fold a row away and remove it. Pass { remove: false } when a
        framework owns the node (an Alpine x-for): fold, then drop the item. */
     const leave = async (target, options = {}) => {
@@ -680,7 +693,7 @@ document.addEventListener('alpine:init', () => {
         await fold(el);
         // Brought back mid-fold (an undo that beat the animation): it stays.
         if (!el.hasAttribute('data-sigta-leaving')) return;
-        if (options.remove !== false) el.remove();
+        if (options.remove !== false) detach(el);
     };
 
     // Undo a fold in progress and hand the row back to the page.

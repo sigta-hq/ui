@@ -72,3 +72,11 @@ it('leaves a nested component its own rows when the parent morphs', function () 
         ->toContain("const owner = el.closest('[wire\\\\:id]');")
         ->toContain(".filter((row) => row.parentElement?.closest('[wire\\\\:id]') === owner)");
 });
+
+it('merges the text either side of a row that leaves', function () {
+    // Two text nodes in a row make the next morph move the row after them into
+    // line, which replays that row's animations (an inbox strike drawn twice).
+    expect(file_get_contents(__DIR__.'/../resources/js/sigta.js'))
+        ->toContain('if (options.remove !== false) detach(el);')
+        ->toContain('before.nodeValue += after.nodeValue;');
+});
