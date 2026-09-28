@@ -12,6 +12,10 @@ document.addEventListener('alpine:init', () => {
     const Alpine = window.Alpine;
     if (!Alpine) return;
 
+    /* Every component declares each field it writes: Alpine stores an
+       undeclared `this.x = …` on the nearest ancestor scope that has an `x`,
+       so a save state inside a modal once renamed the modal and it never opened. */
+
     /* Dropdown / popover — open state + roving focus over menu items. */
     Alpine.data('sigtaDropdown', () => ({
         open: false,
@@ -71,6 +75,8 @@ document.addEventListener('alpine:init', () => {
        in place) and publishes its footprint so the page and toasts keep clear. */
     Alpine.data('sigtaFloatingBar', () => ({
         visible: false,
+        showObserver: null,
+        sizeObserver: null,
         init() {
             this.visible = this.$root.dataset.show === 'true';
             this.showObserver = new MutationObserver(() => {
@@ -924,6 +930,8 @@ document.addEventListener('alpine:init', () => {
        plain write), rising when it grows and dropping when it shrinks. */
     const numberIn = (el) => parseFloat(el.textContent.replace(/[^\d.-]/g, ''));
     Alpine.data('sigtaCount', () => ({
+        last: null,
+        observer: null,
         init() {
             this.last = numberIn(this.$root);
             this.observer = new MutationObserver(() => this.bump());
@@ -953,6 +961,12 @@ document.addEventListener('alpine:init', () => {
        component — or listens for sigta-save-state events: $sigta.save(promise). */
     Alpine.data('sigtaSaveState', () => ({
         state: 'idle',
+        name: null,
+        timer: null,
+        component: null,
+        onEvent: null,
+        onInput: null,
+        stopFollowing: null,
         init() {
             this.state = this.$root.dataset.state || 'idle';
             this.name = this.$root.dataset.name || null;
@@ -1025,6 +1039,8 @@ document.addEventListener('alpine:init', () => {
        (a poll or a morph updates data-state); this adds only the moment it
        lands: a burst from the compass when it turns done. */
     Alpine.data('sigtaJob', () => ({
+        state: null,
+        observer: null,
         init() {
             this.state = this.$root.dataset.state;
             this.observer = new MutationObserver(() => {
