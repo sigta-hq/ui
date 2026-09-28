@@ -40,11 +40,12 @@ class Sigta
     /**
      * Celebrate a finished thing on the current page: `small` flicks a burst
      * from the target, `medium` rings it with a handwritten note, `big` throws
-     * paper confetti. `target` is a CSS selector; `text` is the note.
+     * paper confetti. `target` is a CSS selector; `text` is the note, and
+     * false leaves it out.
      */
     public function celebrate(
         string $level = 'small',
-        ?string $text = null,
+        string|false|null $text = null,
         ?string $target = null,
     ): void {
         $this->dispatch('sigta-celebrate', [

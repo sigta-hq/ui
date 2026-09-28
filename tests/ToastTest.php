@@ -39,6 +39,12 @@ it('dispatches sigta-celebrate from Sigta::celebrate', function () {
         ->assertDispatched('sigta-celebrate', level: 'big', text: 'Inbox zero!', target: '#inbox');
 });
 
+it('leaves the note out when text is false', function () {
+    Livewire::test(ToastHarness::class)
+        ->call('triggerCelebrate', level: 'big', text: false, target: '#done')
+        ->assertDispatched('sigta-celebrate', level: 'big', text: false, target: '#done');
+});
+
 it('celebrates small by default', function () {
     Livewire::test(ToastHarness::class)
         ->call('triggerCelebrate')

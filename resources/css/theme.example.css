@@ -94,4 +94,5 @@
     --sigta-dur-draw: 420ms;
     --sigta-dur-leave: 360ms;
     --sigta-dur-loop: 3000ms;
+    --sigta-dur-busy: 500ms;
 }

@@ -77,17 +77,45 @@ it('settles on press and springs back', function () {
         ->toContain('ease-sigta-spring');
 });
 
-it('carries the compass for a Livewire action, hidden until Livewire marks it loading', function () {
+it('carries the compass for a Livewire action, shown only once the runtime marks it busy', function () {
     $html = Blade::render('<x-sigta::button wire:click="save">Save</x-sigta::button>');
 
     expect($html)
         ->toContain('<span class="sigta-button-label contents">Save</span>')
         ->toContain('sigta-button-busy')
         ->toContain('data-sigta="loader"')
-        ->not->toContain('data-loading');
+        ->not->toContain('data-loading="true"')
+        ->not->toContain('data-sigta-busy');
 
     expect(Blade::render('<x-sigta::button type="submit">Send</x-sigta::button>'))->toContain('sigta-button-busy');
     expect(Blade::render('<x-sigta::button x-bind:data-loading="busy">Send</x-sigta::button>'))->toContain('sigta-button-busy');
+});
+
+it('keeps the label and writes the compass in beside it, never over it', function () {
+    $html = Blade::render('<x-sigta::button wire:click="save">Save</x-sigta::button>');
+
+    expect(strpos($html, 'sigta-button-busy'))->toBeLessThan(strpos($html, 'sigta-button-label'))
+        ->and($html)->not->toContain('absolute inset-0');
+});
+
+it('stands the compass in for a leading icon, and only a leading one', function () {
+    expect(Blade::render('<x-sigta::button wire:click="save"><x-sigta::icon name="check" size="sm" /> Save</x-sigta::button>'))
+        ->toContain('data-lead-icon');
+
+    expect(Blade::render('<x-sigta::button wire:click="save">Save</x-sigta::button>'))
+        ->not->toContain('data-lead-icon');
+
+    expect(Blade::render('<x-sigta::button wire:click="next">Next <x-sigta::icon name="arrow-right" size="sm" /></x-sigta::button>'))
+        ->not->toContain('data-lead-icon');
+
+    expect(Blade::render('<x-sigta::button><x-sigta::icon name="check" size="sm" /> Plain</x-sigta::button>'))
+        ->not->toContain('data-lead-icon');
+});
+
+it('keeps a submitting form\'s button in ink while it is disabled for the submit', function () {
+    expect(Blade::render('<x-sigta::button type="submit">Send</x-sigta::button>'))
+        ->toContain('disabled:not-in-data-loading:opacity-40')
+        ->not->toContain(' disabled:opacity-40');
 });
 
 it('adds no loader markup to a plain button', function () {
@@ -99,6 +127,7 @@ it('adds no loader markup to a plain button', function () {
 it('shows the busy state now with loading, and never with loading false', function () {
     expect(Blade::render('<x-sigta::button loading>Exporting</x-sigta::button>'))
         ->toContain('data-loading="true"')
+        ->toContain('data-sigta-busy')
         ->toContain('aria-busy="true"')
         ->toContain('sigta-button-busy');
 

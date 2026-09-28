@@ -12,6 +12,10 @@ document.addEventListener('alpine:init', () => {
     const Alpine = window.Alpine;
     if (!Alpine) return;
 
+    /* Every component declares each field it writes: Alpine stores an
+       undeclared `this.x = …` on the nearest ancestor scope that has an `x`,
+       so a save state inside a modal once renamed the modal and it never opened. */
+
     /* Dropdown / popover — open state + roving focus over menu items. */
     Alpine.data('sigtaDropdown', () => ({
         open: false,
@@ -71,6 +75,8 @@ document.addEventListener('alpine:init', () => {
        in place) and publishes its footprint so the page and toasts keep clear. */
     Alpine.data('sigtaFloatingBar', () => ({
         visible: false,
+        showObserver: null,
+        sizeObserver: null,
         init() {
             this.visible = this.$root.dataset.show === 'true';
             this.showObserver = new MutationObserver(() => {
@@ -665,6 +671,19 @@ document.addEventListener('alpine:init', () => {
         ], { duration: time * 1.4, easing: settle(el) })).then(() => { el.style.overflow = ''; });
     };
 
+    // The text either side of a removed row becomes one node, as a fresh render
+    // has it: two in a row make the next morph move the row after them into
+    // line, and a moved row replays its animations (a strike drawn twice).
+    const detach = (el) => {
+        const before = el.previousSibling;
+        const after = el.nextSibling;
+        el.remove();
+        if (before?.nodeType === Node.TEXT_NODE && after?.nodeType === Node.TEXT_NODE) {
+            before.nodeValue += after.nodeValue;
+            after.remove();
+        }
+    };
+
     /* Leave — fold a row away and remove it. Pass { remove: false } when a
        framework owns the node (an Alpine x-for): fold, then drop the item. */
     const leave = async (target, options = {}) => {
@@ -674,7 +693,7 @@ document.addEventListener('alpine:init', () => {
         await fold(el);
         // Brought back mid-fold (an undo that beat the animation): it stays.
         if (!el.hasAttribute('data-sigta-leaving')) return;
-        if (options.remove !== false) el.remove();
+        if (options.remove !== false) detach(el);
     };
 
     // Undo a fold in progress and hand the row back to the page.
@@ -793,6 +812,27 @@ document.addEventListener('alpine:init', () => {
         if (loader.dataset?.sigta === 'loader' && loader.dataset.state === 'done' && record.oldValue === 'working') landLoader(loader);
     })).observe(document.documentElement, { attributes: true, attributeFilter: ['data-state'], attributeOldValue: true, subtree: true });
 
+    /* Busy buttons: Livewire sets data-loading on a button (on the form, for
+       a submit) the moment its action goes out. The button says so only once
+       the action outlasts a beat, so a quick one shows nothing: a timer, not
+       a CSS delay, because reduced motion drops every animation. */
+    const busyTimers = new WeakMap();
+    const busyButtons = (el) => (el.matches('form')
+        ? Array.from(el.querySelectorAll('[data-sigta="button"][type="submit"]'))
+        : el.matches('[data-sigta="button"]') ? [el] : []);
+    new MutationObserver((records) => records.forEach(({ target }) => {
+        const buttons = busyButtons(target);
+        if (buttons.length === 0) return;
+        clearTimeout(busyTimers.get(target));
+        if (!target.hasAttribute('data-loading')) {
+            buttons.forEach((button) => button.removeAttribute('data-sigta-busy'));
+            return;
+        }
+        busyTimers.set(target, setTimeout(() => {
+            if (target.hasAttribute('data-loading')) buttons.forEach((button) => button.setAttribute('data-sigta-busy', ''));
+        }, duration('--sigta-dur-busy', 500, target)));
+    })).observe(document.documentElement, { attributes: true, attributeFilter: ['data-loading'], subtree: true });
+
     /* Livewire keeps rows in motion lists alive long enough to leave. A row
        the server drops would be removed outright by the morph, so just before
        the morph it is written back into the incoming HTML beside a neighbour
@@ -838,11 +878,16 @@ document.addEventListener('alpine:init', () => {
         };
 
         window.Livewire.hook('morph', ({ el, toEl }) => {
+            // A nested component's rows are its own morph's to keep or drop: the
+            // parent's new HTML never carries them, so they would read as dropped
+            // and fold away whenever the parent re-renders.
+            const owner = el.closest('[wire\\:id]');
             const rows = new Set([
                 ...el.querySelectorAll('[data-sigta-motion] > *'),
                 ...el.querySelectorAll('[data-sigta-completing]'),
             ]);
             Array.from(rows)
+                .filter((row) => row.parentElement?.closest('[wire\\:id]') === owner)
                 .sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1))
                 .forEach((row) => {
                     const key = keyOf(row);
@@ -924,6 +969,8 @@ document.addEventListener('alpine:init', () => {
        plain write), rising when it grows and dropping when it shrinks. */
     const numberIn = (el) => parseFloat(el.textContent.replace(/[^\d.-]/g, ''));
     Alpine.data('sigtaCount', () => ({
+        last: null,
+        observer: null,
         init() {
             this.last = numberIn(this.$root);
             this.observer = new MutationObserver(() => this.bump());
@@ -953,6 +1000,12 @@ document.addEventListener('alpine:init', () => {
        component — or listens for sigta-save-state events: $sigta.save(promise). */
     Alpine.data('sigtaSaveState', () => ({
         state: 'idle',
+        name: null,
+        timer: null,
+        component: null,
+        onEvent: null,
+        onInput: null,
+        stopFollowing: null,
         init() {
             this.state = this.$root.dataset.state || 'idle';
             this.name = this.$root.dataset.name || null;
@@ -1025,6 +1078,8 @@ document.addEventListener('alpine:init', () => {
        (a poll or a morph updates data-state); this adds only the moment it
        lands: a burst from the compass when it turns done. */
     Alpine.data('sigtaJob', () => ({
+        state: null,
+        observer: null,
         init() {
             this.state = this.$root.dataset.state;
             this.observer = new MutationObserver(() => {

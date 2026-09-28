@@ -110,10 +110,10 @@ the UI feel unfinished. Work out every state before you place one:
   `done`) instead. If it must not show at rest, keep its box and hide it with
   `invisible`: `class="invisible" wire:loading.class.remove="invisible"`.
 - **Let the kit hold the space.** `<sigta:save-state>` keeps the width of its
-  longest label, `<sigta:button>` lays the compass over its own label and
-  keeps its size, `<sigta:job>` gives its percentage a fixed width. Reach for
-  them before pairing a loader with text by hand, and never swap a button's
-  label for "Saving…".
+  longest label, `<sigta:button>` keeps its label and stands the compass in
+  for its icon only once an action outlasts a beat, `<sigta:job>` gives its
+  percentage a fixed width. Reach for them before pairing a loader with text
+  by hand, and never swap a button's label for "Saving…" or for the loader.
 - **Pin the compass to the side that stays put; the words grow away from
   it.** Against a right edge (the end of a toolbar, a `justify-between`
   header, the last table cell) use `<sigta:save-state align="end">`, or put a
@@ -187,8 +187,9 @@ the UI feel unfinished. Work out every state before you place one:
 - **Never show "Loading…" / "Saving…" text or a generic spinner.** Use
   `<sigta:loader>` (the Sigta compass), `<sigta:save-state target="…">` for
   saves, `<sigta:job>` for long-running work. A `<sigta:button wire:click="…">`
-  already shows the compass while its action runs — don't add
-  `wire:loading` text to it. Wherever a loader goes, it holds still (MUST 5).
+  already shows the compass beside its label when its action runs long, and
+  nothing for a quick one: don't add `wire:loading` text or a loader to it.
+  Wherever a loader goes, it holds still (MUST 5).
 - **Completing an item must not just make it vanish.** Put list rows in a
   `data-sigta-motion` container with `wire:key` on each row, mark the title
   `data-sigta-strike`, and complete through

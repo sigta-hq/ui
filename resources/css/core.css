@@ -310,17 +310,28 @@
     }
 
     /* Button busy — while Livewire runs a button's action it sets
-       data-loading on it (on the form, for a submit); the label steps aside
-       for the compass and the button keeps its size. */
+       data-loading on it (on the form, for a submit) and the button stops
+       taking clicks. The label never gives way: only once the action outlasts
+       a beat does the runtime set data-sigta-busy, and the compass stands in
+       for the leading icon, or is written in before a label that has none. */
     [data-sigta="button"] > .sigta-button-busy { display: none; }
     :is([data-sigta="button"][data-loading], form[data-loading] [data-sigta="button"][type="submit"]) {
         pointer-events: none;
     }
-    :is([data-sigta="button"][data-loading], form[data-loading] [data-sigta="button"][type="submit"]) > .sigta-button-label {
-        visibility: hidden;
-    }
-    :is([data-sigta="button"][data-loading], form[data-loading] [data-sigta="button"][type="submit"]) > .sigta-button-busy {
+    [data-sigta="button"][data-sigta-busy] > .sigta-button-busy {
         display: grid;
+        place-items: center;
+        width: 1rem;
+        overflow: hidden;
+        animation: sigta-busy-in 200ms var(--sigta-curve-out, cubic-bezier(.2, .8, .2, 1)) both;
+    }
+    [data-sigta="button"][data-lead-icon] > .sigta-button-label > svg:first-child {
+        transition: opacity var(--sigta-ease-fast, 140ms ease);
+    }
+    [data-sigta="button"][data-lead-icon][data-sigta-busy] > .sigta-button-label > svg:first-child { opacity: 0; }
+    [data-sigta="button"][data-lead-icon][data-sigta-busy] > .sigta-button-busy {
+        margin-inline-end: calc(-1rem - 0.55em);
+        animation-name: sigta-busy-fade;
     }
 
     /* Checkbox — the tick is drawn as two pen strokes, short then long, as
@@ -454,6 +465,8 @@
     66%, 78% { transform: scale(1); opacity: 1; }
     94%, 100% { transform: scale(1); opacity: 0; }
 }
+@keyframes sigta-busy-in { from { width: 0; margin-inline-end: -0.55em; opacity: 0; } }
+@keyframes sigta-busy-fade { from { opacity: 0; } }
 @keyframes sigta-strike { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes sigta-stamp {
     from { opacity: 0; scale: 1.9; rotate: -16deg; }
