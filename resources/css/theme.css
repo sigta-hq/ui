@@ -66,4 +66,5 @@
     --sigta-dur-draw: 420ms;                              /* one pen stroke */
     --sigta-dur-leave: 360ms;                             /* a row folding away */
     --sigta-dur-loop: 3000ms;                             /* one loader cycle: circle drawn, then lifted */
+    --sigta-dur-busy: 500ms;                              /* an action this quick never shows it is busy */
 }

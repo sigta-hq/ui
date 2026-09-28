@@ -80,3 +80,16 @@ it('merges the text either side of a row that leaves', function () {
         ->toContain('if (options.remove !== false) detach(el);')
         ->toContain('before.nodeValue += after.nodeValue;');
 });
+
+it('marks a button busy only once its action outlasts a beat', function () {
+    // A CSS delay would not do: reduced motion drops every animation, and the
+    // compass would flash on every quick click.
+    expect(file_get_contents(__DIR__.'/../resources/js/sigta.js'))
+        ->toContain("attributeFilter: ['data-loading']")
+        ->toContain("duration('--sigta-dur-busy', 500, target)")
+        ->toContain("button.setAttribute('data-sigta-busy', '')");
+
+    expect(file_get_contents(__DIR__.'/../resources/css/core.css'))
+        ->toContain('[data-sigta="button"][data-sigta-busy] > .sigta-button-busy')
+        ->not->toContain('> .sigta-button-label {');
+});

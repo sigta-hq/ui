@@ -6,8 +6,10 @@
 
 @php
 // Pressed, a lifted button lands back on the paper and gives a little; let go,
-// it springs back up. The spring curve only overshoots by a hair.
-$classes = 'relative inline-flex items-center gap-[0.55em] whitespace-nowrap font-mono tracking-[0.04em] no-underline cursor-pointer rounded-base border-[1.5px] transition duration-150 ease-sigta-spring active:scale-[0.97] active:duration-[var(--sigta-dur-press,90ms)] active:ease-out disabled:opacity-40 disabled:pointer-events-none aria-disabled:opacity-40 aria-disabled:pointer-events-none';
+// it springs back up. The spring curve only overshoots by a hair. Livewire
+// disables a submitting form's buttons only to stop a second submit, so those
+// keep their ink rather than dimming like a disabled one.
+$classes = 'relative inline-flex items-center gap-[0.55em] whitespace-nowrap font-mono tracking-[0.04em] no-underline cursor-pointer rounded-base border-[1.5px] transition duration-150 ease-sigta-spring active:scale-[0.97] active:duration-[var(--sigta-dur-press,90ms)] active:ease-out disabled:not-in-data-loading:opacity-40 disabled:pointer-events-none aria-disabled:opacity-40 aria-disabled:pointer-events-none';
 
 $classes .= ' '.match ($size) {
     'sm' => 'text-[0.72rem] px-[1.1em] py-[0.6em]',
@@ -31,16 +33,23 @@ if ($attributes->get('target') === '_blank' && ! $attributes->has('rel')) {
 }
 
 // While Livewire runs a button's action it sets data-loading on the button (on
-// the form for a submit), and the compass takes the label's place. The loader
-// markup is added only where that can happen, unless `loading` says otherwise:
-// true shows it now (a busy button you drive yourself), false never.
+// the form for a submit). The label never gives way: once the action outlasts
+// a beat the runtime marks the button data-sigta-busy and the compass stands
+// in for its leading icon, or is written in before a label that has none, so
+// a quick action shows nothing. The loader markup is added only where that
+// can happen, unless `loading` says otherwise: true shows it now (a busy
+// button you drive yourself), false never.
 $busy = $loading ?? ($attributes->get('type') === 'submit' || collect(array_keys($attributes->getAttributes()))->contains(
     fn (string $name) => str_starts_with($name, 'wire:click') || str_starts_with($name, 'wire:submit') || in_array($name, ['data-loading', 'x-bind:data-loading', ':data-loading'], true)
 ));
 
 $buttonAttributes = ['type' => 'button', 'class' => $classes];
+if ($busy && str_starts_with(ltrim((string) $slot), '<svg')) {
+    $buttonAttributes['data-lead-icon'] = '';
+}
 if ($loading === true) {
     $buttonAttributes['data-loading'] = 'true';
+    $buttonAttributes['data-sigta-busy'] = '';
     $buttonAttributes['aria-busy'] = 'true';
 }
 @endphp
@@ -50,8 +59,8 @@ if ($loading === true) {
 @else
     <button data-sigta="button" {{ $attributes->merge($buttonAttributes) }}>
         @if ($busy)
+            <span class="sigta-button-busy" aria-hidden="true"><x-sigta::loader size="xs" decorative /></span>
             <span class="sigta-button-label contents">{{ $slot }}</span>
-            <span class="sigta-button-busy absolute inset-0 place-items-center" aria-hidden="true"><x-sigta::loader size="xs" decorative /></span>
         @else
             {{ $slot }}
         @endif

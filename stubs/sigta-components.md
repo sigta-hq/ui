@@ -87,7 +87,7 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 - **Variants:** `primary`, `cta`, `ghost`, `danger`, `inverse`, `ghost-inverse`, `secondary`
 - **Sizes:** `sm`, `base`
 - Renders `<a>` when `href` is set, else `<button>`. Lifts on hover, settles back onto the paper while pressed, springs back on release. `cta` = accent-filled emphasis. Pass `target="_blank"` on a link button (adds `rel="noopener"` unless `rel` is set).
-- **Busy:** a button with `wire:click`/`wire:submit` (or `type="submit"`) carries the Sigta compass; while Livewire runs its action (Livewire sets `data-loading`, on the form for a submit) the label steps aside for the loader and the button keeps its size. `loading` = `true` shows the busy state now (you drive it), `false` never adds the loader. Never write "Saving…" into a button label yourself.
+- **Busy:** a button with `wire:click`/`wire:submit` (or `type="submit"`) carries the Sigta compass and takes no clicks while Livewire runs its action (Livewire sets `data-loading`, on the form for a submit). The label never gives way to the loader: a quick action shows nothing, and once one outlasts a beat (`--sigta-dur-busy`, 500ms) the runtime sets `data-sigta-busy` and the compass stands in for a leading icon, or is written in before a label that has none. A submitting form's button keeps its ink while Livewire disables it. `loading` = `true` shows the busy state now (you drive it), `false` never adds the loader. Never write "Saving…" into a button label yourself.
 ```blade
 <sigta:button variant="cta" href="/book">Book a project <sigta:icon name="arrow-right" size="sm" /></sigta:button>
 <sigta:button href="https://calendly.com/sf-sigta/30min" target="_blank">Book a call</sigta:button>

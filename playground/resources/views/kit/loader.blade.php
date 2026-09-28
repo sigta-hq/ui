@@ -48,7 +48,7 @@
     «/div>
     </x-kit-example>
 
-    <x-kit-example label="In a busy button (Livewire sets data-loading while it works)">
+    <x-kit-example label="In a busy button, once its action outlasts a beat (the label stays)">
     «div class="flex flex-wrap items-center gap-3">
         «sigta:button variant="primary" loading>Save changes«/sigta:button>
         «sigta:button loading>Export CSV«/sigta:button>

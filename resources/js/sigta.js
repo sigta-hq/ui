@@ -812,6 +812,27 @@ document.addEventListener('alpine:init', () => {
         if (loader.dataset?.sigta === 'loader' && loader.dataset.state === 'done' && record.oldValue === 'working') landLoader(loader);
     })).observe(document.documentElement, { attributes: true, attributeFilter: ['data-state'], attributeOldValue: true, subtree: true });
 
+    /* Busy buttons: Livewire sets data-loading on a button (on the form, for
+       a submit) the moment its action goes out. The button says so only once
+       the action outlasts a beat, so a quick one shows nothing: a timer, not
+       a CSS delay, because reduced motion drops every animation. */
+    const busyTimers = new WeakMap();
+    const busyButtons = (el) => (el.matches('form')
+        ? Array.from(el.querySelectorAll('[data-sigta="button"][type="submit"]'))
+        : el.matches('[data-sigta="button"]') ? [el] : []);
+    new MutationObserver((records) => records.forEach(({ target }) => {
+        const buttons = busyButtons(target);
+        if (buttons.length === 0) return;
+        clearTimeout(busyTimers.get(target));
+        if (!target.hasAttribute('data-loading')) {
+            buttons.forEach((button) => button.removeAttribute('data-sigta-busy'));
+            return;
+        }
+        busyTimers.set(target, setTimeout(() => {
+            if (target.hasAttribute('data-loading')) buttons.forEach((button) => button.setAttribute('data-sigta-busy', ''));
+        }, duration('--sigta-dur-busy', 500, target)));
+    })).observe(document.documentElement, { attributes: true, attributeFilter: ['data-loading'], subtree: true });
+
     /* Livewire keeps rows in motion lists alive long enough to leave. A row
        the server drops would be removed outright by the morph, so just before
        the morph it is written back into the incoming HTML beside a neighbour
