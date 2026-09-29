@@ -357,25 +357,34 @@
     }
 
     /* Completed rows — Sigta.complete() sets data-sigta-done on the row (a
-       server can render it too); each [data-sigta-strike] inside is crossed
-       out with a hand-drawn line and greys to graphite. */
+       server can render it too); each [data-sigta-strike] inside, an inline
+       element holding text, is crossed out with a pen line and greys to
+       graphite. The line is a background, which a browser paints across every
+       line the text wraps onto; a positioned line covers one box spanning all
+       of them and lands under the first line. The words are painted as the
+       layer beneath it, so the line crosses them instead of passing behind.
+       A transition draws it, so a row rendered done shows its line at once. */
     [data-sigta-strike] {
-        position: relative;
-        transition: color var(--sigta-ease-slow, 220ms ease);
+        padding-inline: 0.1em;
+        margin-inline: -0.1em;
+        background:
+            linear-gradient(var(--sigta-fg), var(--sigta-fg)) no-repeat 0 52% / 0 0.11em,
+            linear-gradient(transparent, transparent) no-repeat 0 0 / 100% 100%;
     }
-    [data-sigta-done] [data-sigta-strike] { color: var(--sigta-fg-muted); }
-    [data-sigta-done] [data-sigta-strike]::after {
-        content: "";
-        position: absolute;
-        left: -0.1em;
-        right: -0.1em;
-        top: 52%;
-        height: 0.5em;
-        translate: 0 -50%;
-        background: var(--sigta-fg);
-        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 10' preserveAspectRatio='none'%3E%3Cpath d='M2 6.4C22 4.2 38 7.6 60 5.6S98 4.1 118 5.2' fill='none' stroke='black' stroke-width='2.3' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
-        pointer-events: none;
-        animation: sigta-strike var(--sigta-dur-draw, 420ms) var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1)) 80ms both;
+    [data-sigta-done] [data-sigta-strike] {
+        color: transparent;
+        background-image:
+            linear-gradient(var(--sigta-fg), var(--sigta-fg)),
+            linear-gradient(var(--sigta-fg-muted), var(--sigta-fg-muted));
+        background-size: 100% 0.11em, 100% 100%;
+        -webkit-background-clip: border-box, text;
+        background-clip: border-box, text;
+        transition:
+            color var(--sigta-ease-slow, 220ms ease),
+            background-size var(--sigta-dur-draw, 420ms) var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1)) 80ms;
+    }
+    @media (forced-colors: active) {
+        [data-sigta-done] [data-sigta-strike] { text-decoration: line-through; }
     }
 
     /* Stamp — Sigta.complete(el, commit, { stamp: 'Done' }) presses one onto the row. */
@@ -467,7 +476,6 @@
 }
 @keyframes sigta-busy-in { from { width: 0; margin-inline-end: -0.55em; opacity: 0; } }
 @keyframes sigta-busy-fade { from { opacity: 0; } }
-@keyframes sigta-strike { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes sigta-stamp {
     from { opacity: 0; scale: 1.9; rotate: -16deg; }
     60% { opacity: 1; }
