@@ -447,7 +447,8 @@ Sigta::toast(
 - **Props:** `href`, `current` (bool, default `false`). Renders link, or current-page span with `aria-current="page"`.
 
 ### `navbar`
-- **Props:** `ctaLabel`, `ctaHref`, `target`. Slots: brand, default (links), actions. Sticky translucent header; mobile menu via Alpine. When `ctaLabel` is set and the actions slot is empty, renders a CTA button; `target` forwards onto it like `<sigta:button>`.
+- **Props:** `ctaLabel`, `ctaHref`, `target`, `collapse` (default `md`). Slots: brand, default (links), actions. Sticky translucent header; mobile menu via Alpine. When `ctaLabel` is set and the actions slot is empty, renders a CTA button; `target` forwards onto it like `<sigta:button>`.
+- **Collapse:** `md`, `lg`. The breakpoint below which the links fold behind the burger. Use `lg` when the links and a wide CTA do not fit on one line at tablet widths, so no link wraps onto two lines; the actions slot stays visible either way.
 
 ### `navlink`
 - **Props:** `current` (bool, default `false`). Underline grows on hover; `aria-current` when current.
