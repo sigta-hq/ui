@@ -56,7 +56,15 @@ $tiers ??= [
                 @endif
 
                 @if (! empty($tier['figure']))
-                    <div class="mt-[0.4rem] mb-[1.2rem] font-head font-medium text-[clamp(2rem,3.4vw,2.8rem)] tabular-nums">@if ($tier['mark'] ?? false)<x-sigta::mark>{{ $tier['figure'] }}</x-sigta::mark>@else{{ $tier['figure'] }}@endif @if (! empty($tier['figureSuffix']))<small class="font-mono text-[0.85rem] font-normal text-graphite">{{ $tier['figureSuffix'] }}</small>@endif</div>
+                    {{-- A wrapping flex row, not inline text: a suffix too long for the line
+                         drops below the figure as one block with its own leading, instead of
+                         breaking inside the figure's tall line box and stranding its last words. --}}
+                    <div class="mt-[0.4rem] mb-[1.2rem] flex flex-wrap items-baseline gap-x-[0.3em] gap-y-1 font-head font-medium text-[clamp(2rem,3.4vw,2.8rem)] tabular-nums">
+                        <span>@if ($tier['mark'] ?? false)<x-sigta::mark>{{ $tier['figure'] }}</x-sigta::mark>@else{{ $tier['figure'] }}@endif</span>
+                        @if (! empty($tier['figureSuffix']))
+                            <small class="font-mono text-[0.85rem] font-normal leading-snug text-graphite">{{ $tier['figureSuffix'] }}</small>
+                        @endif
+                    </div>
                 @endif
 
                 @foreach (($tier['body'] ?? []) as $paragraph)
