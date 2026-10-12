@@ -59,6 +59,23 @@ it('renders a custom tier set via :tiers, marking the figure when asked', functi
         ->not->toContain('Spor 1 · Timepris');
 });
 
+it('sets the figure suffix as its own wrapping block, not inline in the figure line', function () {
+    $html = Blade::render(
+        '<x-sigta::section.pricing :tiers="$tiers" />',
+        ['tiers' => [
+            [
+                'figure' => '40.000 kr.',
+                'figureSuffix' => '+ 20.000 kr. til sparring',
+            ],
+        ]],
+    );
+
+    expect($html)
+        ->toContain('flex flex-wrap items-baseline')
+        ->toContain('<span>40.000 kr.</span>')
+        ->toContain('<small class="font-mono text-[0.85rem] font-normal leading-snug text-graphite">+ 20.000 kr. til sparring</small>');
+});
+
 it('forwards arbitrary attributes onto the section root', function () {
     $html = Blade::render('<x-sigta::section.pricing id="priser" data-test="pris" />');
 
