@@ -1,14 +1,23 @@
 {{-- Brand header.nav: sticky translucent paper bar with hairline. Slots: brand / default (links) / actions.
      Optional CTA props render a button in the actions area when the actions slot is empty —
-     `target` forwards onto that button like a normal <sigta:button>. --}}
+     `target` forwards onto that button like a normal <sigta:button>. `collapse` is the breakpoint
+     below which the links fold behind the burger: `md` (default) or `lg`. --}}
 @props([
     'ctaLabel' => null,
     'ctaHref' => null,
     'target' => null,
+    'collapse' => 'md',
 ])
 
 @php
 $panelId = 'sigta-navbar-panel-'.\Illuminate\Support\Str::random(8);
+
+// Written out whole so Tailwind finds each class. A site with longer links and a
+// wide CTA folds them away up to `lg`, rather than wrapping each link onto two lines.
+[$barLinks, $belowOnly] = match ($collapse) {
+    'lg' => ['hidden lg:flex', 'lg:hidden'],
+    default => ['hidden md:flex', 'md:hidden'],
+};
 @endphp
 
 <header
@@ -21,7 +30,7 @@ $panelId = 'sigta-navbar-panel-'.\Illuminate\Support\Str::random(8);
             <div {{ $brand->attributes->merge(['class' => 'flex items-center shrink-0']) }}>{{ $brand }}</div>
         @endisset
 
-        <nav class="hidden md:flex items-center gap-8" aria-label="Primary">
+        <nav class="{{ $barLinks }} items-center gap-8" aria-label="Primary">
             {{ $slot }}
         </nav>
 
@@ -34,7 +43,7 @@ $panelId = 'sigta-navbar-panel-'.\Illuminate\Support\Str::random(8);
 
             <button
                 type="button"
-                class="md:hidden inline-flex items-center justify-center p-2 -mr-2 text-ink rounded-base cursor-pointer hover:bg-ink/5 transition duration-150 ease-out"
+                class="{{ $belowOnly }} inline-flex items-center justify-center p-2 -mr-2 text-ink rounded-base cursor-pointer hover:bg-ink/5 transition duration-150 ease-out"
                 aria-expanded="false"
                 :aria-expanded="open ? 'true' : 'false'"
                 aria-controls="{{ $panelId }}"
@@ -52,7 +61,7 @@ $panelId = 'sigta-navbar-panel-'.\Illuminate\Support\Str::random(8);
         x-show="open"
         x-cloak
         @keydown.escape.window="open = false"
-        class="md:hidden border-t border-line px-(--sigta-gutter) py-4 flex flex-col gap-3"
+        class="{{ $belowOnly }} border-t border-line px-(--sigta-gutter) py-4 flex flex-col gap-3"
         aria-label="Primary"
     >
         {{ $slot }}

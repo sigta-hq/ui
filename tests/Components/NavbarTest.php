@@ -33,6 +33,27 @@ it('wires the mobile toggle with aria-expanded and a controlled panel', function
     expect($html)->toContain('id="'.$m[1].'"');
 });
 
+it('folds the links behind the burger below md by default', function () {
+    $html = Blade::render('<x-sigta::navbar><x-sigta::navlink href="/">Home</x-sigta::navlink></x-sigta::navbar>');
+
+    expect($html)
+        ->toContain('class="hidden md:flex items-center gap-8"')
+        ->toContain('class="md:hidden inline-flex')
+        ->toContain('class="md:hidden border-t')
+        ->not->toContain('lg:flex');
+});
+
+it('folds the links behind the burger below lg when collapse is lg', function () {
+    $html = Blade::render('<x-sigta::navbar collapse="lg"><x-sigta::navlink href="/">Home</x-sigta::navlink></x-sigta::navbar>');
+
+    expect($html)
+        ->toContain('class="hidden lg:flex items-center gap-8"')
+        ->toContain('class="lg:hidden inline-flex')
+        ->toContain('class="lg:hidden border-t')
+        ->not->toContain('md:flex')
+        ->not->toContain('md:hidden');
+});
+
 it('forwards attributes onto the header root', function () {
     $html = Blade::render('<x-sigta::navbar data-test="nav" wire:key="topnav">Links</x-sigta::navbar>');
 
