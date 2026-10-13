@@ -60,6 +60,15 @@ it('declares every field a component writes, so none lands on an ancestor scope'
     }
 });
 
+it('declares every field the editor runtime writes', function () {
+    $components = runtimeAlpineComponents(file_get_contents(__DIR__.'/../resources/js/editor.js'));
+
+    expect($components)->toHaveKey('sigtaEditor');
+
+    expect(array_values(array_diff($components['sigtaEditor']['assigned'], $components['sigtaEditor']['declared'])))
+        ->toBe([], 'sigtaEditor writes fields it does not declare');
+});
+
 it('ships the runtime verbatim in dist', function () {
     expect(file_get_contents(__DIR__.'/../dist/sigta.js'))
         ->toBe(file_get_contents(__DIR__.'/../resources/js/sigta.js'));

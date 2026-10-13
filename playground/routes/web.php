@@ -34,3 +34,16 @@ Route::get('/kit-api/resolve', function () {
 
     return response()->json(['title' => 'Kit: '.ucfirst(trim(basename($path), '/') ?: 'home'), 'url' => request()->query('url')]);
 });
+
+Route::get('/kit-api/mentions', function () {
+    $query = mb_strtolower(trim((string) request()->query('q')));
+
+    $people = collect(['Astrid Holm', 'Bo Lindqvist', 'Freja Dahl', 'Søren Frisk'])
+        ->map(fn (string $name, int $id) => ['id' => $id + 1, 'label' => $name, 'group' => 'People']);
+    $pages = collect(['Editor', 'Combobox', 'Kanban'])
+        ->map(fn (string $title) => ['label' => $title, 'url' => url('/kit/'.mb_strtolower($title)), 'group' => 'Kit pages', 'description' => 'Kit']);
+
+    return response()->json($people->concat($pages)
+        ->filter(fn (array $item) => $query === '' || str_contains(mb_strtolower($item['label']), $query))
+        ->values());
+});

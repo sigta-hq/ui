@@ -499,14 +499,16 @@ Command palette (⌘K / Ctrl-K).
 - Chat composer: auto-growing textarea, leading (`<x-slot:leading>`) attach slot, send button. Dispatches `sigta-composer-submit {text}`.
 
 ### `editor`
-- **Props:** `label`, `description`, `error`, `name`, `value` (default `''`), `format` (default `html`), `variant` (default `default`), `placeholder` (default `''`), `rows` (min height in lines; default `6`, or `3` for `inline`), `upload-url` (default `null`), `resolve-url` (default `null`)
+- **Props:** `label`, `description`, `error`, `name`, `value` (default `''`), `format` (default `html`), `variant` (default `default`), `placeholder` (default `''`), `rows` (min height in lines; default `6`, or `3` for `inline`), `upload-url` (default `null`), `resolve-url` (default `null`), `mention-url` (default `null`)
 - **Formats:** `html`, `markdown`. **Variants:** `default`, `inline`
 - Rich text editor (TipTap). **Requires `@sigtaEditorScripts` in layout head.** Toolbar: bold/italic/strike/link/heading/lists/quote/code, plus a picture tool when `upload-url` is set. Links: Cmd/Ctrl+K or the toolbar edits (with Open and Remove), Cmd/Ctrl+click follows; a plain click only places the caret. `format="markdown"` parses `value` as markdown and writes markdown to the hidden input (single newlines are line breaks). `variant="inline"` is the always-editable form for detail views: borderless until hover, toolbar only while editing. The editor never reads its hidden input back, so Livewire re-renders cannot disturb typing; replace content on purpose by dispatching `sigta-editor-set` on the root with the new value as detail.
 - **Pictures:** with `upload-url`, a dropped, pasted or picked image is posted there as multipart `file` with the session CSRF token in `X-CSRF-TOKEN`; the endpoint answers JSON `{url, name?}` and the picture is inserted as an image node (`![name](url)` in markdown). A failed upload raises a warning toast and inserts nothing. Data URLs are refused.
 - **Titled links:** with `resolve-url`, a pasted address on the page's own origin is linked at once, then `GET resolve-url?url=…` is asked for JSON `{title, url?}`; the link text becomes the title (and the href the returned `url`) when it answers, and stays the address when it does not. With text selected, a pasted address links the selection as before.
+- **Mentions:** with `mention-url`, typing `@` asks `GET mention-url?q=…` (the words after the `@`, spaces included) for a JSON array of `{label, id?, url?, group?, description?}` and lists the answers beside the caret (arrows, Enter or Tab to choose, Escape to leave). An answer with `url` is inserted as a link whose text is its label; one with `id` becomes a mention node, `<span data-type="mention" data-id="…" data-label="…">@label</span>` in HTML and `[@ id="…" label="…"]` in markdown, so the host reads who was named by id. Answers sharing a `group` are listed under it; `description` sits beside the label. Nothing is shown while nothing matches. Inside `.sigta-prose`, a host rendering stored text gives a mention the same `data-type="mention"` span to match.
 ```blade
 <sigta:editor format="markdown" variant="inline" placeholder="Add a description" rows="3" wire:model="description" :value="$description" />
 <sigta:editor format="markdown" wire:model="body" :value="$body" :upload-url="route('images.store')" :resolve-url="route('links.resolve')" />
+<sigta:editor format="markdown" wire:model="comment" :mention-url="route('mentions.index')" />
 ```
 
 ### `calendar`
