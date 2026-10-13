@@ -76,6 +76,28 @@ it('sets the figure suffix as its own wrapping block, not inline in the figure l
         ->toContain('<small class="font-mono text-[0.85rem] font-normal leading-snug text-graphite">+ 20.000 kr. til sparring</small>');
 });
 
+it('renders the aside slot beside the tiers in the same grid', function () {
+    $html = Blade::render(<<<'BLADE'
+        <x-sigta::section.pricing :tiers="[['title' => 'Projektpris', 'figure' => '60.000 kr.']]">
+            <x-slot:aside class="text-center">I tvivl? Book en samtale.</x-slot:aside>
+        </x-sigta::section.pricing>
+        BLADE);
+
+    expect($html)
+        ->toContain('Projektpris')
+        ->toContain('I tvivl? Book en samtale.')
+        ->toContain('class="flex flex-col justify-center gap-4 text-center"');
+
+    expect(strpos($html, 'I tvivl?'))->toBeGreaterThan(strpos($html, 'Projektpris'));
+    expect(substr_count($html, 'data-sigta="panel"'))->toBe(1);
+});
+
+it('renders no aside without the slot', function () {
+    $html = Blade::render('<x-sigta::section.pricing />');
+
+    expect($html)->not->toContain('flex flex-col justify-center gap-4');
+});
+
 it('forwards arbitrary attributes onto the section root', function () {
     $html = Blade::render('<x-sigta::section.pricing id="priser" data-test="pris" />');
 
