@@ -72,5 +72,11 @@ $tiers ??= [
                 @endforeach
             </x-sigta::panel>
         @endforeach
+
+        {{-- One tier leaves the second column empty; the aside slot fills it, e.g.
+             with the call to book for a reader still deciding. --}}
+        @isset($aside)
+            <div {{ $aside->attributes->merge(['class' => 'flex flex-col justify-center gap-4']) }}>{{ $aside }}</div>
+        @endisset
     </div>
 </section>
