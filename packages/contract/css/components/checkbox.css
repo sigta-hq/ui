@@ -1,8 +1,21 @@
+/* Checkbox — a square on paper that fills with ink; pressed, the box gives
+   a little and springs back. With a label it is a mono label row and the
+   disabled look moves to the row. */
+[data-sigta-check] {
+    @apply relative size-[18px] shrink-0 cursor-pointer appearance-none rounded-[4px] border-[1.5px] border-graphite bg-surface transition duration-150 ease-sigta-spring checked:bg-ink checked:border-ink active:scale-90 active:duration-[var(--sigta-dur-press,90ms)] active:ease-out;
+}
+input[data-sigta="checkbox"] {
+    @apply disabled:opacity-40 disabled:pointer-events-none;
+}
+label[data-sigta="checkbox"] {
+    @apply inline-flex cursor-pointer items-center gap-[0.6rem] font-mono text-[0.82rem] text-ink has-[:disabled]:opacity-40 has-[:disabled]:pointer-events-none;
+}
+
 /* Checkbox — the tick is drawn as two pen strokes, short then long, as
    it is checked, and lifts off in one go when unchecked. Transitions, not
    animations, so a box rendered checked does not replay its tick. */
-.sigta-check::before,
-.sigta-check::after {
+[data-sigta-check]::before,
+[data-sigta-check]::after {
     content: "";
     position: absolute;
     height: 2px;
@@ -12,10 +25,10 @@
     scale: 0 1;
     transition: scale 80ms ease-in;
 }
-.sigta-check::before { left: 2.2px; top: 6.6px; width: 6.1px; rotate: 45deg; }
-.sigta-check::after { left: 5.1px; top: 9.5px; width: 10.35px; rotate: -46.9deg; }
-.sigta-check:checked::before { scale: 1 1; transition: scale 100ms ease-in; }
-.sigta-check:checked::after {
+[data-sigta-check]::before { left: 2.2px; top: 6.6px; width: 6.1px; rotate: 45deg; }
+[data-sigta-check]::after { left: 5.1px; top: 9.5px; width: 10.35px; rotate: -46.9deg; }
+[data-sigta-check]:checked::before { scale: 1 1; transition: scale 100ms ease-in; }
+[data-sigta-check]:checked::after {
     scale: 1 1;
     transition: scale 170ms var(--sigta-curve-out, cubic-bezier(.2, .8, .2, 1)) 90ms;
 }

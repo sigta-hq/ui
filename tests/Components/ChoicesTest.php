@@ -10,9 +10,10 @@ it('renders a checkbox wrapped in its label', function () {
         ->toContain('<label')
         ->toContain('type="checkbox"')
         ->toContain('checked')
-        ->toContain('rounded-[4px]')
-        ->toContain('checked:bg-ink')
+        ->toContain('data-sigta-check')
         ->toContain('Paper grain overlay');
+
+    expect(contractCss('checkbox'))->toContain('rounded-[4px]')->toContain('checked:bg-ink');
 });
 
 it('renders a bare checkbox without a label wrapper', function () {
@@ -72,10 +73,10 @@ it('forwards wire:model and disabled to the native switch input', function () {
 });
 
 it('draws the checkbox tick as pen strokes and gives on press', function () {
-    $html = Blade::render('<x-sigta::checkbox />');
+    expect(Blade::render('<x-sigta::checkbox />'))->toContain('data-sigta-check');
 
-    expect($html)
-        ->toContain('sigta-check')
+    expect(contractCss('checkbox'))
+        ->toContain('[data-sigta-check]::before')
         ->toContain('active:scale-90')
         ->not->toContain('after:rotate-45');
 });

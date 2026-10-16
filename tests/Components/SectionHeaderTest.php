@@ -13,7 +13,7 @@ it('renders a heading and a lede in a baseline-aligned flex row', function () {
         ->toContain('justify-between')
         ->toContain('items-end')
         ->toContain('flex-wrap')
-        ->toContain('text-graphite');
+        ->toContain('data-variant="muted"');
 });
 
 it('renders the lede from the default slot when no lede prop is given', function () {

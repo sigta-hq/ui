@@ -1,0 +1,37 @@
+/* Modal — a native <dialog> on paper over a blurred ink backdrop. A large
+   one takes the whole screen below the tablet breakpoint; a small one stays a
+   centred card, since a confirmation is a lighter act than a workspace. */
+[data-scope="modal"][data-part="dialog"] {
+    @apply w-[calc(100vw-2.5rem)] max-w-lg max-h-[calc(100dvh-2.5rem)] overflow-y-auto overscroll-contain bg-surface-raised text-ink border border-line rounded-frame shadow-paper p-0 backdrop:bg-ink/45 backdrop:backdrop-blur-[2px] m-auto;
+
+    &[data-size="sm"] { @apply max-w-sm; }
+    &[data-size="lg"] { @apply max-w-2xl; }
+    &[data-size="xl"] { @apply max-w-4xl; }
+
+    &[data-fullscreen] {
+        @apply max-md:w-full max-md:max-w-none max-md:h-dvh max-md:max-h-none max-md:m-0 max-md:rounded-none max-md:border-0;
+    }
+}
+/* min-h-full over a column lets content choose: a flex-1 panel fills the
+   screen exactly, and anything taller grows and scrolls the dialog. */
+[data-scope="modal"][data-part="body"] {
+    @apply relative p-6 md:p-8;
+
+    [data-fullscreen] > & { @apply max-md:flex max-md:min-h-full max-md:flex-col; }
+}
+/* With a heading the close button shares the header row beside it. */
+[data-scope="modal"][data-part="header"] {
+    @apply flex items-start justify-between gap-4 mb-4;
+}
+[data-scope="modal"][data-part="close"] {
+    @apply p-1.5 rounded-base text-graphite hover:text-ink hover:bg-ink/5 cursor-pointer;
+
+    [data-part="header"] > & { @apply ml-auto -mr-1 -mt-1; }
+    /* With no heading it floats in the corner instead of reserving an empty
+       header row; leave the top-right of the content clear for it. */
+    [data-part="body"] > & { @apply absolute right-5 top-5 z-10; }
+}
+[data-sigta="modal.trigger"],
+[data-sigta="modal.close"] {
+    @apply inline-flex;
+}

@@ -30,5 +30,6 @@ it('forwards wire:model to the hidden value input', function () {
 it('shows an error state', function () {
     $html = Blade::render('<x-sigta::autocomplete label="Country" error="Pick one." />');
 
-    expect($html)->toContain('border-danger')->toContain('Pick one.');
+    expect($html)->toContain('aria-invalid="true"')->toContain('data-part="error"')->toContain('Pick one.');
+    expect(contractCss('autocomplete'))->toContain('&[aria-invalid="true"] { @apply border-danger focus:border-ink; }');
 });

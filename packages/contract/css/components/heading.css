@@ -1,0 +1,9 @@
+/* Heading — Fraunces at the brand scale; the level sets a default size. */
+[data-sigta="heading"] {
+    @apply font-head text-balance text-[1.28rem] font-medium leading-[1.15];
+
+    &[data-size="display"] { @apply text-[clamp(2.7rem,7vw,5.1rem)] font-normal tracking-[-0.02em] leading-[1.04]; }
+    &[data-size="xl"] { @apply text-[clamp(1.9rem,3.6vw,2.9rem)] font-normal tracking-[-0.012em] leading-[1.04]; }
+    &[data-size="lg"] { @apply text-[clamp(1.5rem,2.4vw,1.9rem)] font-medium leading-[1.1]; }
+    &[data-size="sm"] { @apply text-[1.05rem] font-medium leading-[1.2]; }
+}

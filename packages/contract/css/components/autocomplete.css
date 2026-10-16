@@ -1,0 +1,28 @@
+/* Autocomplete — a filtering combobox: the query box, a floating listbox of
+   options, and its own label, description and error lines. */
+[data-sigta="autocomplete"] {
+    @apply relative;
+}
+[data-scope="autocomplete"][data-part="label"] {
+    @apply block font-mono text-[0.68rem] tracking-[0.08em] uppercase text-graphite mb-1.5;
+}
+[data-scope="autocomplete"][data-part="input"] {
+    @apply w-full font-body text-[0.98rem] text-ink bg-surface border-[1.5px] border-line rounded-[5px] px-3 py-2 transition-colors focus:outline-none focus:border-ink focus:shadow-[0_0_0_3px_var(--sigta-line)];
+
+    &[aria-invalid="true"] { @apply border-danger focus:border-ink; }
+}
+[data-scope="autocomplete"][data-part="listbox"] {
+    @apply fixed z-50 max-h-64 overflow-y-auto bg-surface-raised border border-line rounded-panel shadow-paper py-1.5;
+}
+[data-scope="autocomplete"][data-part="empty"] {
+    @apply px-3.5 py-2 font-mono text-[0.72rem] text-graphite;
+}
+[data-scope="autocomplete"][data-part="description"] {
+    @apply mt-1.5 text-[0.85rem] text-graphite;
+}
+[data-scope="autocomplete"][data-part="error"] {
+    @apply mt-1.5 font-mono text-[0.72rem] text-danger;
+}
+[data-sigta="autocomplete.option"] {
+    @apply px-3.5 py-2 font-mono text-[0.78rem] text-ink cursor-pointer data-active:bg-ink data-active:text-surface aria-selected:font-medium;
+}

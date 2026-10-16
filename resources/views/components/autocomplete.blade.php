@@ -17,11 +17,11 @@ $listboxId = $id.'-listbox';
     x-data="sigtaCombobox()"
     x-on:keydown.escape.prevent="closeList()"
     x-on:focusout="if (! $el.contains($event.relatedTarget)) closeList()"
-    {{ $attributes->only('class')->merge(['class' => 'relative']) }}
+    {{ $attributes->only('class') }}
     data-sigta="autocomplete"
 >
     @if ($label)
-        <label for="{{ $id }}" class="block font-mono text-[0.68rem] tracking-[0.08em] uppercase text-graphite mb-1.5">{{ $label }}</label>
+        <label for="{{ $id }}" data-scope="autocomplete" data-part="label">{{ $label }}</label>
     @endif
 
     <input
@@ -31,6 +31,7 @@ $listboxId = $id.'-listbox';
         role="combobox"
         aria-autocomplete="list"
         aria-controls="{{ $listboxId }}"
+        aria-expanded="false"
         x-bind:aria-expanded="open"
         x-bind:aria-activedescendant="activeId"
         x-model="query"
@@ -40,8 +41,10 @@ $listboxId = $id.'-listbox';
         x-on:keydown.up.prevent="move(-1)"
         x-on:keydown.enter.prevent="chooseActive()"
         @if ($placeholder) placeholder="{{ $placeholder }}" @endif
+        @if ($error) aria-invalid="true" @endif
         autocomplete="off"
-        class="w-full font-body text-[0.98rem] text-ink bg-surface border-[1.5px] rounded-[5px] px-3 py-2 transition-colors focus:outline-none focus:border-ink focus:shadow-[0_0_0_3px_var(--sigta-line)] {{ $error ? 'border-danger' : 'border-line' }}"
+        data-scope="autocomplete"
+        data-part="input"
     >
 
     <input type="hidden" x-ref="value" @if ($name) name="{{ $name }}" @endif {{ $attributes->except(['class', 'id']) }}>
@@ -52,16 +55,17 @@ $listboxId = $id.'-listbox';
         x-ref="panel"
         id="{{ $listboxId }}"
         role="listbox"
-        class="fixed z-50 max-h-64 overflow-y-auto bg-surface-raised border border-line rounded-panel shadow-paper py-1.5"
+        data-scope="autocomplete"
+        data-part="listbox"
     >
         {{ $slot }}
-        <div x-show="visible().length === 0" class="px-3.5 py-2 font-mono text-[0.72rem] text-graphite">No matches.</div>
+        <div x-cloak x-show="matches === 0" data-scope="autocomplete" data-part="empty">No matches.</div>
     </div>
 
     @if ($description && ! $error)
-        <p class="mt-1.5 text-[0.85rem] text-graphite">{{ $description }}</p>
+        <p data-scope="autocomplete" data-part="description">{{ $description }}</p>
     @endif
     @if ($error)
-        <p class="mt-1.5 font-mono text-[0.72rem] text-danger">{{ $error }}</p>
+        <p data-scope="autocomplete" data-part="error">{{ $error }}</p>
     @endif
 </div>

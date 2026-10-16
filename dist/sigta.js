@@ -1,4 +1,4 @@
-/* Sigta UI — Livewire runtime. Built by scripts/build-livewire.js from resources/js/sigta.js and packages/core/src; do not edit. sources:68fee6d9c272cc21d29aff0ff9e446a89ea94c6a */
+/* Sigta UI — Livewire runtime. Built by scripts/build-livewire.js from resources/js/sigta.js and packages/core/src; do not edit. sources:d521cac0b3c67ca30a382df199292b9341fea27b */
 (() => {
   // packages/core/src/env.ts
   var isBrowser = () => typeof window !== "undefined" && typeof document !== "undefined";
@@ -415,7 +415,10 @@
         await options.onCommitted?.(row);
       } else {
         await marked;
-        if (options.leave !== false) await fold(row);
+        if (options.leave !== false) {
+          row.setAttribute("data-sigta-leaving", "");
+          await fold(row);
+        }
         await run();
         row.removeAttribute("data-sigta-completing");
         if (options.leave !== false && !commit) row.remove();
@@ -547,6 +550,7 @@
   // packages/core/src/toast.ts
   var TOAST_EVENT = "sigta-toast";
   var DEFAULT_TOAST_DURATION = 5e3;
+  var TOAST_LEAVE_MS = 150;
   function toastDetail(messageOrOptions, options) {
     if (typeof messageOrOptions === "string") {
       return options && typeof options === "object" ? { text: messageOrOptions, ...options } : { text: messageOrOptions };
@@ -562,6 +566,7 @@
     kept.push({
       key: detail.key ?? null,
       id,
+      leaving: false,
       heading: detail.heading ?? null,
       text: detail.text ?? "",
       variant: detail.variant ?? "info",
@@ -571,6 +576,7 @@
     return kept;
   }
   var dropToast = (list, id) => list.filter((t) => t.id !== id);
+  var leaveToast = (list, id) => list.map((t) => t.id === id ? { ...t, leaving: true } : t);
   var toastDuration = (detail) => detail.duration ?? DEFAULT_TOAST_DURATION;
   function runToastAction(action, dispatch = (event, detail) => window.dispatchEvent(new CustomEvent(event, { detail }))) {
     if (!action) return;
@@ -794,6 +800,9 @@
       value: config.multiple ? config.initial ?? [] : config.initial ?? null,
       multiple: config.multiple ?? false,
       activeId: null,
+      // How many options the last query kept (null until one is typed): the
+      // "no matches" line reads it, since Alpine cannot watch the options' DOM.
+      matches: null,
       init() {
         this.$watch("open", (open) => {
           if (open) this.$nextTick(() => this.positionPanel());
@@ -819,6 +828,7 @@
         this.options().forEach((o) => {
           o.hidden = !matchesQuery(o.textContent, this.query);
         });
+        this.matches = this.visible().length;
         this.setActive(null);
         this.open = true;
         this.$nextTick(() => this.positionPanel());
@@ -894,7 +904,10 @@
         if (duration2 > 0) setTimeout(() => this.remove(id), duration2);
       },
       remove(id) {
-        this.toasts = dropToast(this.toasts, id);
+        this.toasts = leaveToast(this.toasts, id);
+        setTimeout(() => {
+          this.toasts = dropToast(this.toasts, id);
+        }, TOAST_LEAVE_MS);
       },
       act(toast2) {
         runToastAction(toast2.action, (event, detail) => {

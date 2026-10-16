@@ -17,8 +17,10 @@ it('renders label, description, error and the slotted control', function () {
         ->toContain('Required.')
         ->toContain('id="proj-description"')
         ->toContain('id="proj-error"')
-        ->toContain('text-danger')
+        ->toContain('data-scope="field" data-part="error"')
         ->toContain('<input id="proj"');
+
+    expect(contractCss('field'))->toContain('[data-scope="field"][data-part="error"] {')->toContain('@apply text-danger;');
 });
 
 it('generates an id for the label when none is given', function () {
@@ -30,10 +32,8 @@ it('generates an id for the label when none is given', function () {
 it('styles the label as uppercase mono graphite', function () {
     $html = Blade::render('<x-sigta::field label="Email" for="e"><input id="e" /></x-sigta::field>');
 
-    expect($html)
-        ->toContain('font-mono')
-        ->toContain('uppercase')
-        ->toContain('text-graphite');
+    expect($html)->toContain('data-sigta="label"');
+    expect(contractCss('label'))->toContain('@apply font-mono text-[0.68rem] tracking-[0.08em] uppercase text-graphite;');
 });
 
 it('renders only the slot when it has no chrome', function () {
@@ -49,8 +49,9 @@ it('forwards attributes onto the wrapper', function () {
 
     expect($html)
         ->toContain('data-test="field"')
-        ->toContain('mt-4')
-        ->toContain('flex flex-col');
+        ->toContain('class="mt-4"');
+
+    expect(contractCss('field'))->toContain('@apply flex flex-col gap-[0.4rem];');
 });
 
 it('renders a standalone label with the field label style', function () {
@@ -60,7 +61,6 @@ it('renders a standalone label with the field label style', function () {
         ->toContain('data-sigta="label"')
         ->toContain('<label')
         ->toContain('for="kf1"')
-        ->toContain('font-mono')
-        ->toContain('uppercase')
+        ->toContain('data-variant="default"')
         ->toContain('Engagement type');
 });

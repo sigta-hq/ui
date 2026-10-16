@@ -1,0 +1,19 @@
+/* Input — paper field with an ink focus ring; an error turns the border red
+   until it is focused. A leading icon sits inside the left padding. */
+[data-sigta="input"] {
+    @apply w-full font-body text-[0.98rem] text-ink bg-surface placeholder:text-graphite/70 border-[1.5px] border-line rounded-[5px] px-[0.8em] py-[0.62em] transition duration-150 ease-out focus:outline-none focus:border-ink focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--sigta-fg)_8%,transparent)] disabled:opacity-40 disabled:pointer-events-none;
+
+    &[aria-invalid="true"] {
+        @apply border-danger focus:border-ink;
+    }
+}
+[data-scope="input"][data-part="wrap"] {
+    @apply relative block;
+
+    & > [data-sigta="input"] {
+        @apply pl-[2.4em];
+    }
+}
+[data-scope="input"][data-part="icon"] {
+    @apply pointer-events-none absolute left-[0.8em] top-1/2 -translate-y-1/2 text-graphite;
+}

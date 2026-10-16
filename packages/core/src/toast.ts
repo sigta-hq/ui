@@ -41,6 +41,8 @@ export interface ToastDetail {
 
 export interface Toast {
     id: number;
+    /** Dismissed and sliding off; removed after TOAST_LEAVE_MS. */
+    leaving: boolean;
     key: string | null;
     heading: string | null;
     text: string;
@@ -51,6 +53,8 @@ export interface Toast {
 
 export const TOAST_EVENT = 'sigta-toast';
 export const DEFAULT_TOAST_DURATION = 5000;
+/** How long a dismissed toast slides off before it leaves the list (the CSS transition). */
+export const TOAST_LEAVE_MS = 150;
 
 /** `toast('Saved')`, `toast('Saved', { variant: 'success' })` or `toast({ heading, text, … })`. */
 export function toastDetail(messageOrOptions: string | ToastDetail, options?: ToastDetail): ToastDetail {
@@ -72,6 +76,7 @@ export function pushToast(list: Toast[], detail: ToastDetail, id: number): Toast
     kept.push({
         key: detail.key ?? null,
         id,
+        leaving: false,
         heading: detail.heading ?? null,
         text: detail.text ?? '',
         variant: detail.variant ?? 'info',
@@ -82,6 +87,9 @@ export function pushToast(list: Toast[], detail: ToastDetail, id: number): Toast
 }
 
 export const dropToast = (list: Toast[], id: number): Toast[] => list.filter((t) => t.id !== id);
+
+/** The list with toast `id` marked as leaving (it slides off, then dropToast removes it). */
+export const leaveToast = (list: Toast[], id: number): Toast[] => list.map((t) => (t.id === id ? { ...t, leaving: true } : t));
 
 /** How long a toast stays, in ms; 0 or less keeps it until dismissed. */
 export const toastDuration = (detail: ToastDetail): number => detail.duration ?? DEFAULT_TOAST_DURATION;

@@ -15,6 +15,8 @@ import {
     choose,
     createApi,
     dropToast,
+    leaveToast,
+    TOAST_LEAVE_MS,
     installGlobals,
     isChosen,
     isSaveState,
@@ -198,6 +200,9 @@ document.addEventListener('alpine:init', () => {
         value: config.multiple ? (config.initial ?? []) : (config.initial ?? null),
         multiple: config.multiple ?? false,
         activeId: null,
+        // How many options the last query kept (null until one is typed): the
+        // "no matches" line reads it, since Alpine cannot watch the options' DOM.
+        matches: null,
 
         init() {
             // Reposition the panel whenever it opens (see positionPanel).
@@ -227,6 +232,7 @@ document.addEventListener('alpine:init', () => {
             this.options().forEach((o) => {
                 o.hidden = !matchesQuery(o.textContent, this.query);
             });
+            this.matches = this.visible().length;
             this.setActive(null);
             this.open = true;
             // Filtering changes the panel height — re-anchor it.
@@ -308,7 +314,9 @@ document.addEventListener('alpine:init', () => {
             if (duration > 0) setTimeout(() => this.remove(id), duration);
         },
         remove(id) {
-            this.toasts = dropToast(this.toasts, id);
+            // It slides off (data-leaving) before it leaves the list.
+            this.toasts = leaveToast(this.toasts, id);
+            setTimeout(() => { this.toasts = dropToast(this.toasts, id); }, TOAST_LEAVE_MS);
         },
         act(toast) {
             runToastAction(toast.action, (event, detail) => {

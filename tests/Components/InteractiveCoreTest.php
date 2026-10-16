@@ -35,11 +35,11 @@ it('renders a modal built on native dialog', function () {
         ->toContain("sigtaModal('confirm')")
         ->toContain('sigta-modal-show.window')
         ->toContain('aria-label="Close"')
-        // Caps at the viewport and scrolls its own body so long modals do not
-        // clip on small screens.
-        ->toContain('max-h-[calc(100dvh-2.5rem)]')
-        ->toContain('overflow-y-auto')
         ->toContain('Body');
+
+    // Caps at the viewport and scrolls its own body so long modals do not
+    // clip on small screens.
+    expect(contractCss('modal'))->toContain('max-h-[calc(100dvh-2.5rem)]')->toContain('overflow-y-auto');
 });
 
 it('keeps the dialog open across a host Livewire morph', function () {
@@ -55,17 +55,17 @@ it('floats the close button with no header band when a modal has no heading', fu
     $withHeading = Blade::render('<x-sigta::modal name="a" heading="Sure?">Body</x-sigta::modal>');
     $noHeading = Blade::render('<x-sigta::modal name="b">Body</x-sigta::modal>');
 
-    // A headed modal keeps the close button in a header row (spaced with mb-4).
-    expect($withHeading)->toContain('aria-label="Close"')->toContain('mb-4');
+    // A headed modal keeps the close button in a header row.
+    expect($withHeading)->toContain('aria-label="Close"')->toContain('data-part="header"');
 
     // A heading-less modal still offers a close button, but floats it in the
-    // corner (absolute + z-10) with no reserved header row, so the content sits
-    // at the top of the panel with no wasted band.
+    // corner with no reserved header row, so the content sits at the top of
+    // the panel with no wasted band.
     expect($noHeading)
         ->toContain('aria-label="Close"')
-        ->toContain('absolute')
-        ->toContain('z-10')
-        ->not->toContain('mb-4');
+        ->not->toContain('data-part="header"');
+
+    expect(contractCss('modal'))->toContain('@apply absolute right-5 top-5 z-10;');
 });
 
 it('renders no close button when a heading-less modal is not dismissible', function () {
@@ -108,10 +108,11 @@ it('renders the toast region listening for sigta-toast', function () {
         ->toContain('data-sigta="toast"')
         ->toContain('sigta-toast.window')
         ->toContain('x-for="toast in toasts"')
-        ->toContain('border-warning')
-        ->toContain('text-warning')
+        ->toContain('x-bind:data-variant="toast.variant"')
         ->toContain("toast.variant === 'warning'")
         ->toContain('toast.link.href');
+
+    expect(contractCss('toast'))->toContain('&[data-variant="warning"] { @apply border-warning; }');
 });
 
 it('renders segmented control as a radio group', function () {

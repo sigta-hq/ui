@@ -9,51 +9,28 @@
     'position' => 'bottom-end',
 ])
 
-@php
-$placement = match ($position) {
-    'bottom-start' => 'bottom-0 left-0 items-start mb-[var(--sigta-floating-space,0px)]',
-    'top-end' => 'top-0 right-0 items-end',
-    'top-start' => 'top-0 left-0 items-start',
-    default => 'bottom-0 right-0 items-end mb-[var(--sigta-floating-space,0px)]',
-};
-@endphp
-
 <div
     x-data="sigtaToasts"
     x-on:sigta-toast.window="add($event.detail)"
-    {{ $attributes->merge(['class' => 'fixed z-[90] p-5 flex flex-col gap-2.5 pointer-events-none '.$placement]) }}
+    {{ $attributes->merge(['data-position' => $position]) }}
     data-sigta="toast"
 >
     <template x-for="toast in toasts" :key="toast.id">
         <div
             x-bind:role="toast.variant === 'danger' ? 'alert' : 'status'"
-            class="pointer-events-auto flex items-start gap-3 min-w-64 max-w-sm bg-surface-raised border-[1.5px] rounded-[5px] px-4 py-3 shadow-paper border-l-4"
-            x-bind:class="{
-                'border-success': toast.variant === 'success',
-                'border-danger': toast.variant === 'danger',
-                'border-warning': toast.variant === 'warning',
-                'border-ink': toast.variant === 'info',
-            }"
-            x-transition:enter="transition ease-sigta-spring duration-300"
-            x-transition:enter-start="opacity-0 translate-y-3 scale-[0.97]"
-            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-            x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100 translate-x-0"
-            x-transition:leave-end="opacity-0 translate-x-4"
+            x-bind:data-variant="toast.variant"
+            x-bind:data-leaving="toast.leaving ? '' : null"
+            data-scope="toast"
+            data-part="item"
         >
-            <span class="mt-0.5 shrink-0" x-bind:class="{
-                'text-success': toast.variant === 'success',
-                'text-danger': toast.variant === 'danger',
-                'text-warning': toast.variant === 'warning',
-                'text-ink': toast.variant === 'info',
-            }" aria-hidden="true">
+            <span data-scope="toast" data-part="icon" aria-hidden="true">
                 <template x-if="toast.variant === 'success'"><x-sigta::icon name="circle-check" size="sm" /></template>
                 <template x-if="toast.variant === 'danger'"><x-sigta::icon name="triangle-alert" size="sm" /></template>
                 <template x-if="toast.variant === 'warning'"><x-sigta::icon name="circle-alert" size="sm" /></template>
                 <template x-if="toast.variant === 'info'"><x-sigta::icon name="info" size="sm" /></template>
             </span>
-            <span class="text-[0.92rem] leading-snug flex-1 min-w-0">
-                <b x-show="toast.heading" x-text="toast.heading" class="font-head font-semibold block"></b>
+            <span data-scope="toast" data-part="body">
+                <b x-show="toast.heading" x-text="toast.heading" data-scope="toast" data-part="heading"></b>
                 <span x-text="toast.text"></span>
                 <template x-if="toast.link && toast.link.href">
                     <a
@@ -63,7 +40,8 @@ $placement = match ($position) {
                         x-bind:download="toast.link.download || null"
                         x-bind="toast.link.navigate ? { 'wire:navigate': true } : {}"
                         x-text="toast.link.text || 'View'"
-                        class="block mt-1.5 font-mono text-[0.72rem] uppercase tracking-[0.12em] text-ink underline underline-offset-2 hover:no-underline"
+                        data-scope="toast"
+                        data-part="link"
                     ></a>
                 </template>
                 <template x-if="toast.action && toast.action.text">
@@ -71,12 +49,12 @@ $placement = match ($position) {
                         type="button"
                         x-on:click="act(toast)"
                         x-text="toast.action.text"
-                        class="block mt-1.5 font-mono text-[0.72rem] uppercase tracking-[0.12em] text-ink underline underline-offset-2 hover:no-underline cursor-pointer"
+                        data-scope="toast"
+                        data-part="action"
                     ></button>
                 </template>
             </span>
-            <button type="button" x-on:click="remove(toast.id)" aria-label="Dismiss"
-                    class="ml-auto -mr-1 p-1 rounded-base text-graphite hover:text-ink cursor-pointer">
+            <button type="button" x-on:click="remove(toast.id)" aria-label="Dismiss" data-scope="toast" data-part="dismiss">
                 <x-sigta::icon name="x" size="xs" />
             </button>
         </div>

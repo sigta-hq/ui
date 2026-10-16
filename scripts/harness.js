@@ -46,7 +46,7 @@ export async function startHarness(fixtures, bladeHtml, svelteHtml) {
     // Fixture files must exist before the stylesheet scans them for utilities.
     mkdirSync(work, { recursive: true });
     for (const fixture of fixtures) {
-        writeFileSync(join(work, `${fileId(fixture.id)}.svelte`), `<script>\n${fixture.imports}\n</script>\n\n${fixture.svelte}\n`);
+        writeFileSync(join(work, `${fileId(fixture.id)}.svelte`), fixture.imports === null ? fixture.svelte : `<script>\n${fixture.imports}\n</script>\n\n${fixture.svelte}\n`);
         writeFileSync(join(work, `${fileId(fixture.id)}.blade.html`), typeof bladeHtml[fixture.id] === 'string' ? bladeHtml[fixture.id] : '');
     }
     const css = buildCss();

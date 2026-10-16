@@ -1,0 +1,11 @@
+/* Field — a label, the control, then its description or error. The parts
+   are shared: every form control renders its chrome through them. */
+[data-sigta="field"] {
+    @apply flex flex-col gap-[0.4rem];
+}
+[data-scope="field"]:is([data-part="description"], [data-part="error"]) {
+    @apply font-mono text-[0.7rem] leading-relaxed text-graphite;
+}
+[data-scope="field"][data-part="error"] {
+    @apply text-danger;
+}

@@ -29,15 +29,25 @@ export function collectFixtures(filter = []) {
     for (const manifest of manifests) {
         if (filter.length && !filter.includes(manifest.name)) continue;
         manifest.examples.forEach((example, index) => {
-            if (!example.tree || example.conformance === false) return;
-            fixtures.push({
+            if (example.conformance === false) return;
+            const base = {
+                browserOnly: example.conformance === 'browser',
+                interactions: example.interactions ?? [],
                 id: `${manifest.name}--${index}`,
                 component: manifest.name,
                 label: example.label,
-                blade: toBlade(example.tree, registry, { prefix: 'x-sigta::' }),
-                svelte: toSvelte(example.tree, registry),
-                imports: svelteImports(example.tree, registry),
-            });
+            };
+            if (example.tree) {
+                fixtures.push({
+                    ...base,
+                    blade: toBlade(example.tree, registry, { prefix: 'x-sigta::' }),
+                    svelte: toSvelte(example.tree, registry),
+                    imports: svelteImports(example.tree, registry),
+                });
+            } else if (example.blade && example.svelte && example.conformance === 'browser') {
+                // Per-runtime snippets (bindings, scripts): compared by what they render.
+                fixtures.push({ ...base, blade: example.blade, svelte: example.svelte, imports: null });
+            }
         });
     }
     return fixtures;
@@ -64,7 +74,7 @@ export async function renderSvelte(fixtures) {
     try {
         for (const fixture of fixtures) {
             const file = join(work, `${fixture.id.replace(/[^a-zA-Z0-9-]/g, '_')}.svelte`);
-            writeFileSync(file, `<script>\n${fixture.imports}\n</script>\n\n${fixture.svelte}\n`);
+            writeFileSync(file, fixture.imports === null ? fixture.svelte : `<script>\n${fixture.imports}\n</script>\n\n${fixture.svelte}\n`);
             try {
                 const component = (await vite.ssrLoadModule(file)).default;
                 out[fixture.id] = render(component).body;
@@ -83,7 +93,12 @@ const ignoredStates = new Set(manifests.flatMap((m) => Object.values(m.states ??
 const BOOLEAN = new Set(['disabled', 'checked', 'selected', 'readonly', 'required', 'multiple', 'hidden', 'open', 'autofocus', 'novalidate', 'inert', 'defer', 'async', 'controls', 'loop', 'muted', 'playsinline', 'reversed', 'ismap', 'default', 'formnovalidate', 'nomodule', 'allowfullscreen']);
 const ID_REFS = new Set(['id', 'for', 'aria-controls', 'aria-labelledby', 'aria-describedby', 'aria-activedescendant', 'aria-owns', 'list', 'form', 'popovertarget', 'anchor']);
 
+// In the browser the live value of a control is a property; whether the
+// attribute is still there after hydration says nothing about what shows.
+const LIVE = new Set(['value', 'checked', 'selected']);
+
 function ignoredAttribute(name) {
+    if (browserMode && LIVE.has(name)) return true;
     return name.startsWith('x-') || name.startsWith('@') || name.startsWith(':') || name.startsWith('wire:') || ignoredStates.has(name);
 }
 
@@ -105,18 +120,30 @@ export function normalize(html) {
             if (child.nodeType === 3) {
                 const text = child.nodeValue.replace(/\s+/g, ' ').trim();
                 if (text) lines.push(`${'  '.repeat(depth)}"${text}"`);
+            } else if (child.nodeType === 1 && child.localName === 'template') {
+                // Alpine's x-for / x-if scaffolding; what it renders sits beside it.
+                continue;
             } else if (child.nodeType === 1) {
+                // Hidden is hidden, however a runtime says it: the hidden
+                // attribute, x-cloak before Alpine starts, or x-show's inline display:none.
+                const style = child.getAttribute('style') ?? '';
+                const hidden = child.hasAttribute('hidden') || child.hasAttribute('x-cloak') || /display:\s*none/.test(style);
                 const attrs = Array.from(child.attributes)
-                    .filter((a) => !ignoredAttribute(a.name))
+                    .filter((a) => !ignoredAttribute(a.name) && a.name !== 'hidden')
+                    // An empty value is no value, an empty class no class.
+                    .filter((a) => !(a.name === 'value' && a.value === '' && ['input', 'option'].includes(child.localName)))
+                    .filter((a) => !(a.name === 'class' && a.value.trim() === ''))
+                    .filter((a) => a.name !== 'style' || normalizeStyle(a.value.replace(/display:\s*none;?/g, '')) !== '')
                     .map((a) => {
                         let value = a.value.replace(/\s+/g, ' ').trim();
                         if (BOOLEAN.has(a.name)) value = '';
                         if (a.name === 'class') value = value.split(' ').filter(Boolean).sort().join(' ');
-                        if (a.name === 'style') value = normalizeStyle(value);
+                        if (a.name === 'style') value = normalizeStyle(value.replace(/display:\s*none;?/g, ''));
                         if (ID_REFS.has(a.name)) value = mapIds(value);
                         return `${a.name}="${value}"`;
                     })
                     .sort();
+                if (hidden) attrs.unshift('(hidden)');
                 lines.push(`${'  '.repeat(depth)}<${child.localName}${attrs.length ? ' ' + attrs.join(' ') : ''}>`);
                 walk(child.localName === 'template' ? child.content : child, depth + 1);
             }
@@ -166,8 +193,25 @@ async function inBrowser(fixtures, blade, svelte) {
                 if (runtime === 'svelte') await page.waitForFunction(() => window.__hydrated === true, null, { timeout: 10000 }).catch(() => errors.push('svelte: never hydrated'));
                 await page.evaluate(() => document.fonts.ready);
                 await page.waitForTimeout(250);
-                doms[runtime] = await page.locator('#fixture').innerHTML();
-                shots[runtime] = PNG.sync.read(await page.locator('#fixture').screenshot());
+                if (fixture.interactions.length) {
+                    for (const step of fixture.interactions) try {
+                        if (step.focus) await page.focus(step.focus);
+                        if (step.hover) await page.hover(step.hover);
+                        if (step.click) await page.click(step.click);
+                        if (step.fill) await page.fill(step.fill[0], step.fill[1]);
+                        if (step.script) await page.evaluate(step.script);
+                        for (const key of [step.press ?? []].flat()) await page.keyboard.press(key);
+                        await page.waitForTimeout(step.wait ?? 350);
+                    } catch (error) {
+                        errors.push(`${runtime}: interaction ${JSON.stringify(step)} failed — ${error.message.split('\n')[0]}`);
+                    }
+                    // Open dialogs and floating panels leave the fixture's box.
+                    doms[runtime] = await page.locator('#fixture').innerHTML();
+                    shots[runtime] = PNG.sync.read(await page.screenshot());
+                } else {
+                    doms[runtime] = await page.locator('#fixture').innerHTML();
+                    shots[runtime] = PNG.sync.read(await page.locator('#fixture').screenshot());
+                }
                 await page.close();
             }
             let pixels = 0;
@@ -207,18 +251,22 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
             console.log(`✗ ${fixture.id} (${fixture.label}) — render error\n  blade : ${b?.error ?? 'ok'}\n  svelte: ${s?.error ?? 'ok'}`);
             continue;
         }
+        if (fixture.browserOnly && !browserMode) {
+            if (verbose) console.log(`· ${fixture.id} (${fixture.label}) — compared in the browser only`);
+            continue;
+        }
         const nb = normalize(b);
         const ns = normalize(s);
         const visual = browser?.[fixture.id];
+        if (visual && writeAt) {
+            const { PNG } = await import('pngjs');
+            writeFileSync(join(writeAt, `${fixture.id}.blade.png`), PNG.sync.write(visual.shots.blade));
+            writeFileSync(join(writeAt, `${fixture.id}.svelte.png`), PNG.sync.write(visual.shots.svelte));
+        }
         if (visual && (visual.pixels !== 0 || visual.errors.length)) {
             failed++;
             const why = visual.pixels === -1 ? `size ${visual.size.join(' vs ')}` : visual.pixels ? `${visual.pixels} px differ` : '';
             console.log(`✗ ${fixture.id} (${fixture.label}) — ${[why, ...visual.errors].filter(Boolean).join('; ')}`);
-            if (writeAt) {
-                const { PNG } = await import('pngjs');
-                writeFileSync(join(writeAt, `${fixture.id}.blade.png`), PNG.sync.write(visual.shots.blade));
-                writeFileSync(join(writeAt, `${fixture.id}.svelte.png`), PNG.sync.write(visual.shots.svelte));
-            }
             if (nb !== ns) console.log(diff(nb, ns));
             continue;
         }

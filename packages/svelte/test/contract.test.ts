@@ -23,7 +23,10 @@ function destructuredProps(source: string): Destructured[] {
                 const name = property.key.name ?? property.key.value;
                 const value = property.value;
                 if (value.type === 'AssignmentPattern') {
-                    const right = value.right;
+                    // $bindable(x) declares a two-way prop whose default is x.
+                    const right = value.right.type === 'CallExpression' && value.right.callee?.name === '$bindable'
+                        ? (value.right.arguments[0] ?? { type: 'Identifier', name: 'undefined' })
+                        : value.right;
                     const literal = right.type === 'Literal' ? right.value
                         : right.type === 'Identifier' && right.name === 'undefined' ? undefined
                         : right.type === 'ArrayExpression' || right.type === 'ObjectExpression' ? JSON.parse(source.slice(right.start, right.end).replace(/'/g, '"').replace(/(\w+):/g, '"$1":'))

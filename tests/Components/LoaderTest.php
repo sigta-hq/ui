@@ -82,7 +82,6 @@ it('forwards attributes so a binding can drive its state', function () {
 
     expect($html)
         ->toContain('x-bind:data-state="state"')
-        ->toContain('text-danger')
-        ->toContain('inline-block')
+        ->toContain('class="text-danger"')
         ->toContain('id="import-loader"');
 });

@@ -22,8 +22,10 @@ it('renders headings at the requested level', function () {
 
 it('renders text variants', function () {
     expect(Blade::render('<x-sigta::text variant="lede">Intro</x-sigta::text>'))
-        ->toContain('text-graphite')
+        ->toContain('data-variant="lede"')
         ->toContain('Intro');
+
+    expect(contractCss('text'))->toContain('&[data-variant="lede"] { @apply text-[clamp(1.05rem,1.6vw,1.3rem)] text-graphite');
 });
 
 it('renders the hand-drawn rule', function () {

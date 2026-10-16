@@ -69,7 +69,12 @@ export async function complete(target: Target, commit: Commit = null, options: C
             await options.onCommitted?.(row);
         } else {
             await marked;
-            if (options.leave !== false) await fold(row);
+            if (options.leave !== false) {
+                // It is leaving now: a runtime that removes it after the
+                // commit (a Svelte out: transition) has nothing left to fold.
+                row.setAttribute('data-sigta-leaving', '');
+                await fold(row);
+            }
             await run();
             row.removeAttribute('data-sigta-completing');
             if (options.leave !== false && !commit) row.remove();

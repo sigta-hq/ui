@@ -8,8 +8,7 @@ it('renders a bare native input without field chrome', function () {
     expect($html)
         ->toContain('data-sigta="input"')
         ->toContain('type="text"')
-        ->toContain('bg-surface')
-        ->toContain('rounded-[5px]')
+        ->not->toContain('class=')
         ->toContain('placeholder="Marginalia v3"')
         ->not->toContain('data-sigta="field"');
 });
@@ -37,12 +36,12 @@ it('shows the error state on the native input', function () {
     $html = Blade::render('<x-sigta::input label="Email" id="e" error="Required." />');
 
     expect($html)
-        ->toContain('border-danger')
         ->toContain('aria-invalid="true"')
         ->toContain('aria-describedby="e-error"')
-        ->toContain('text-danger')
-        ->toContain('Required.')
-        ->not->toContain('border-line');
+        ->toContain('data-part="error"')
+        ->toContain('Required.');
+
+    expect(contractCss('input'))->toContain('&[aria-invalid="true"] {')->toContain('@apply border-danger focus:border-ink;');
 });
 
 it('renders a description and points aria-describedby at it', function () {
@@ -67,7 +66,10 @@ it('renders a leading icon and pads the input for it', function () {
 
     expect($html)
         ->toContain('<svg')
-        ->toContain('pl-[2.4em]');
+        ->toContain('data-scope="input" data-part="wrap"')
+        ->toContain('data-scope="input" data-part="icon"');
+
+    expect(contractCss('input'))->toContain('@apply pl-[2.4em];');
 });
 
 it('allows overriding the type', function () {

@@ -1,0 +1,8 @@
+/* Label — mono uppercase form label; inverse re-colours it for a dark surface. */
+[data-sigta="label"] {
+    @apply font-mono text-[0.68rem] tracking-[0.08em] uppercase text-graphite;
+
+    &[data-variant="inverse"] {
+        @apply text-inverse-fg-muted;
+    }
+}

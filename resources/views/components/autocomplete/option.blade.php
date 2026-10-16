@@ -18,7 +18,8 @@ $id = 'sigta-option-'.\Illuminate\Support\Str::random(8);
     x-on:mousedown.prevent=""
     x-on:click="choose($el)"
     x-on:mousemove="setActive($el)"
+    aria-selected="false"
     x-bind:aria-selected="isSelected($el.dataset.value ?? $el.textContent.trim()) ? 'true' : 'false'"
-    {{ $attributes->merge(['class' => 'px-3.5 py-2 font-mono text-[0.78rem] text-ink cursor-pointer data-active:bg-ink data-active:text-surface aria-selected:font-medium']) }}
+    {{ $attributes }}
     data-sigta="autocomplete.option"
 >{{ $slot }}</div>

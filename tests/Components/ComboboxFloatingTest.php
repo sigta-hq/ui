@@ -22,9 +22,10 @@ it('renders the autocomplete panel as a fixed, anchored floater', function () {
         ->toContain('x-ref="anchor"')
         ->toContain('x-ref="panel"')
         ->toContain('role="listbox"')
-        // fixed, not the old absolute-in-relative that clipped
-        ->toContain('class="fixed z-50')
-        ->not->toContain('absolute top-full inset-x-0');
+        ->toContain('data-part="listbox"');
+
+    // fixed, not the old absolute-in-relative that clipped
+    expect(contractCss('autocomplete'))->toContain('@apply fixed z-50')->not->toContain('absolute top-full inset-x-0');
 });
 
 it('renders the pillbox panel as a fixed, anchored floater', function () {

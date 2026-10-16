@@ -1,0 +1,7 @@
+/* Text — Newsreader body copy; lede, muted, caption (mono) and hand (Caveat). */
+[data-sigta="text"] {
+    &[data-variant="lede"] { @apply text-[clamp(1.05rem,1.6vw,1.3rem)] text-graphite leading-[1.55]; }
+    &[data-variant="muted"] { @apply text-graphite; }
+    &[data-variant="caption"] { @apply font-mono text-[0.74rem] tracking-[0.04em] text-graphite; }
+    &[data-variant="hand"] { @apply font-hand font-semibold text-[1.15rem] leading-none; }
+}

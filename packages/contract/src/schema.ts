@@ -71,10 +71,33 @@ export interface Example {
     /** Per-runtime snippets for examples a tree cannot express (bindings, scripts). */
     blade?: string;
     svelte?: string;
-    /** Leave this tree out of the conformance comparison (e.g. a demo with random ids it cannot normalize). */
-    conformance?: boolean;
+    /**
+     * false leaves this tree out of the conformance comparison; 'browser'
+     * compares it only once both runtimes' scripts have run (content a
+     * runtime renders on the client, like Alpine's x-for).
+     */
+    conformance?: boolean | 'browser';
+    /**
+     * Steps the browser conformance check performs in both runtimes before it
+     * compares them again (a click opens a menu, keys move through a list).
+     */
+    interactions?: Interaction[];
     /** Wrap the demo on a dark band, a narrow column, … in the docs. */
     frame?: 'inverse' | 'narrow' | 'wide';
+}
+
+export interface Interaction {
+    click?: string;
+    hover?: string;
+    focus?: string;
+    /** Keys pressed on the focused element, e.g. 'ArrowDown', 'Enter'. */
+    press?: string | string[];
+    /** [selector, text] typed into a field. */
+    fill?: [string, string];
+    /** JavaScript run in the page (window.Sigta is there in both runtimes). */
+    script?: string;
+    /** Milliseconds to wait afterwards (default 350). */
+    wait?: number;
 }
 
 export interface ComponentManifest {
