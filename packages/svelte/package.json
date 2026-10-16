@@ -1,0 +1,39 @@
+{
+    "name": "@sigta-hq/svelte",
+    "version": "0.1.0",
+    "description": "Sigta UI for Svelte 5 — the paper-and-ink design system as Svelte components, sharing one contract, stylesheet and core with the Livewire runtime.",
+    "license": "UNLICENSED",
+    "type": "module",
+    "repository": { "type": "git", "url": "git+https://github.com/sigta-hq/ui.git", "directory": "packages/svelte" },
+    "publishConfig": { "registry": "https://npm.pkg.github.com" },
+    "files": ["dist", "bin", "stubs"],
+    "sideEffects": ["*.css"],
+    "svelte": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "bin": { "sigta": "./bin/sigta.js" },
+    "exports": {
+        ".": { "types": "./dist/index.d.ts", "svelte": "./dist/index.js", "default": "./dist/index.js" },
+        "./inertia": { "types": "./dist/inertia/index.d.ts", "svelte": "./dist/inertia/index.js", "default": "./dist/inertia/index.js" },
+        "./sigta.css": "./dist/sigta.css"
+    },
+    "peerDependencies": {
+        "svelte": "^5.29.0",
+        "@inertiajs/svelte": "^2.0.0"
+    },
+    "peerDependenciesMeta": {
+        "@inertiajs/svelte": { "optional": true }
+    },
+    "dependencies": {
+        "@sigta-hq/contract": "0.1.0",
+        "@sigta-hq/core": "0.1.0",
+        "@tiptap/core": "~3.31.0",
+        "@tiptap/extension-image": "~3.31.0",
+        "@tiptap/extensions": "~3.31.0",
+        "@tiptap/markdown": "~3.31.0",
+        "@tiptap/starter-kit": "~3.31.0"
+    },
+    "scripts": {
+        "build": "svelte-package -i src/lib -o dist && node scripts/postbuild.js",
+        "test": "vitest run"
+    }
+}

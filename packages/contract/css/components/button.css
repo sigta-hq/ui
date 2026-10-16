@@ -1,0 +1,64 @@
+/* Button — pressed, a lifted button lands back on the paper and gives a
+   little; let go, it springs back up. The spring curve only overshoots by a
+   hair. A submitting form's buttons are disabled only to stop a second
+   submit, so they keep their ink rather than dimming like a disabled one. */
+[data-sigta="button"] {
+    @apply relative inline-flex items-center gap-[0.55em] whitespace-nowrap font-mono tracking-[0.04em] no-underline cursor-pointer rounded-base border-[1.5px] transition duration-150 ease-sigta-spring active:scale-[0.97] active:duration-[var(--sigta-dur-press,90ms)] active:ease-out disabled:not-in-data-loading:opacity-40 disabled:pointer-events-none aria-disabled:opacity-40 aria-disabled:pointer-events-none;
+    @apply text-[0.82rem] px-[1.4em] py-[0.78em];
+
+    &[data-size="sm"] {
+        @apply text-[0.72rem] px-[1.1em] py-[0.6em];
+    }
+
+    /* secondary, and any value the component does not know */
+    &:not(:is([data-variant="primary"], [data-variant="cta"], [data-variant="ghost"], [data-variant="danger"], [data-variant="inverse"], [data-variant="ghost-inverse"])) {
+        @apply bg-transparent text-ink border-ink hover:bg-ink/5 hover:-translate-y-[2px] active:translate-y-0 active:bg-ink/10;
+    }
+    &:is([data-variant="primary"], [data-variant="cta"]) {
+        @apply bg-ink text-surface border-ink hover:-translate-y-[2px] hover:shadow-paper active:translate-y-0 active:shadow-none;
+    }
+    &[data-variant="ghost"] {
+        @apply border-transparent text-ink hover:border-line hover:bg-surface-raised active:bg-ink/10;
+    }
+    &[data-variant="danger"] {
+        @apply bg-danger text-surface-raised border-danger hover:-translate-y-[2px] active:translate-y-0;
+    }
+    /* Paper fill for dark/ink bands — the CTA button that sits on bg-inverse. */
+    &[data-variant="inverse"] {
+        @apply bg-surface text-ink border-surface hover:-translate-y-[2px] hover:shadow-paper active:translate-y-0 active:shadow-none;
+    }
+    /* Transparent outline on dark/ink bands — hairline border, paper text, faint tint on hover. */
+    &[data-variant="ghost-inverse"] {
+        @apply bg-transparent text-inverse-fg border-inverse-line hover:bg-inverse-fg/10 hover:-translate-y-[2px] active:translate-y-0;
+    }
+}
+
+/* The label keeps the button's own flow, so icons and text sit on its gap. */
+[data-scope="button"][data-part="label"] {
+    display: contents;
+}
+
+/* Busy — while an action runs the runtime sets data-loading on the button
+   (on the form, for a submit) and the button stops taking clicks. The label
+   never gives way: only once the action outlasts a beat does the runtime set
+   data-sigta-busy, and the compass stands in for the leading icon, or is
+   written in before a label that has none. */
+[data-scope="button"][data-part="busy"] { display: none; }
+:is([data-sigta="button"][data-loading], form[data-loading] [data-sigta="button"][type="submit"]) {
+    pointer-events: none;
+}
+[data-sigta="button"][data-sigta-busy] > [data-part="busy"] {
+    display: grid;
+    place-items: center;
+    width: 1rem;
+    overflow: hidden;
+    animation: sigta-busy-in 200ms var(--sigta-curve-out, cubic-bezier(.2, .8, .2, 1)) both;
+}
+[data-sigta="button"][data-lead-icon] > [data-part="label"] > svg:first-child {
+    transition: opacity var(--sigta-ease-fast, 140ms ease);
+}
+[data-sigta="button"][data-lead-icon][data-sigta-busy] > [data-part="label"] > svg:first-child { opacity: 0; }
+[data-sigta="button"][data-lead-icon][data-sigta-busy] > [data-part="busy"] {
+    margin-inline-end: calc(-1rem - 0.55em);
+    animation-name: sigta-busy-fade;
+}

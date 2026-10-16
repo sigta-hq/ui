@@ -53,25 +53,41 @@ it('renders the inverse variant as a paper fill for dark bands', function () {
 
     expect($html)
         ->toContain('data-sigta="button"')
-        ->toContain('bg-surface')
-        ->toContain('text-ink')
-        ->toContain('border-surface');
+        ->toContain('data-variant="inverse"');
+
+    expect(contractCss('button'))
+        ->toContain('&[data-variant="inverse"] {')
+        ->toContain('@apply bg-surface text-ink border-surface');
 });
 
 it('renders the ghost-inverse variant as a hairline outline for dark bands', function () {
-    $html = Blade::render('<x-sigta::button variant="ghost-inverse">Mail</x-sigta::button>');
+    expect(Blade::render('<x-sigta::button variant="ghost-inverse">Mail</x-sigta::button>'))
+        ->toContain('data-variant="ghost-inverse"');
+
+    expect(contractCss('button'))
+        ->toContain('@apply bg-transparent text-inverse-fg border-inverse-line hover:bg-inverse-fg/10');
+});
+
+it('carries its variant and size as contract attributes, never as classes', function () {
+    $html = Blade::render('<x-sigta::button variant="primary" size="sm">Save</x-sigta::button>');
 
     expect($html)
-        ->toContain('bg-transparent')
-        ->toContain('text-inverse-fg')
-        ->toContain('border-inverse-line')
-        ->toContain('hover:bg-inverse-fg/10');
+        ->toContain('data-variant="primary"')
+        ->toContain('data-size="sm"')
+        ->not->toContain('class=');
+
+    expect(Blade::render('<x-sigta::button>Preview</x-sigta::button>'))
+        ->toContain('data-variant="secondary"')
+        ->toContain('data-size="base"');
+});
+
+it('merges a consumer class onto the root', function () {
+    expect(Blade::render('<x-sigta::button class="w-full">Go</x-sigta::button>'))
+        ->toContain('class="w-full"');
 });
 
 it('settles on press and springs back', function () {
-    $html = Blade::render('<x-sigta::button variant="primary">Save</x-sigta::button>');
-
-    expect($html)
+    expect(contractCss('button'))
         ->toContain('active:scale-[0.97]')
         ->toContain('active:translate-y-0')
         ->toContain('ease-sigta-spring');
@@ -81,20 +97,20 @@ it('carries the compass for a Livewire action, shown only once the runtime marks
     $html = Blade::render('<x-sigta::button wire:click="save">Save</x-sigta::button>');
 
     expect($html)
-        ->toContain('<span class="sigta-button-label contents">Save</span>')
-        ->toContain('sigta-button-busy')
+        ->toContain('<span data-scope="button" data-part="label">Save</span>')
+        ->toContain('data-part="busy"')
         ->toContain('data-sigta="loader"')
         ->not->toContain('data-loading="true"')
         ->not->toContain('data-sigta-busy');
 
-    expect(Blade::render('<x-sigta::button type="submit">Send</x-sigta::button>'))->toContain('sigta-button-busy');
-    expect(Blade::render('<x-sigta::button x-bind:data-loading="busy">Send</x-sigta::button>'))->toContain('sigta-button-busy');
+    expect(Blade::render('<x-sigta::button type="submit">Send</x-sigta::button>'))->toContain('data-part="busy"');
+    expect(Blade::render('<x-sigta::button x-bind:data-loading="busy">Send</x-sigta::button>'))->toContain('data-part="busy"');
 });
 
 it('keeps the label and writes the compass in beside it, never over it', function () {
     $html = Blade::render('<x-sigta::button wire:click="save">Save</x-sigta::button>');
 
-    expect(strpos($html, 'sigta-button-busy'))->toBeLessThan(strpos($html, 'sigta-button-label'))
+    expect(strpos($html, 'data-part="busy"'))->toBeLessThan(strpos($html, 'data-part="label"'))
         ->and($html)->not->toContain('absolute inset-0');
 });
 
@@ -113,14 +129,14 @@ it('stands the compass in for a leading icon, and only a leading one', function 
 });
 
 it('keeps a submitting form\'s button in ink while it is disabled for the submit', function () {
-    expect(Blade::render('<x-sigta::button type="submit">Send</x-sigta::button>'))
+    expect(contractCss('button'))
         ->toContain('disabled:not-in-data-loading:opacity-40')
         ->not->toContain(' disabled:opacity-40');
 });
 
 it('adds no loader markup to a plain button', function () {
     expect(Blade::render('<x-sigta::button>Cancel</x-sigta::button>'))
-        ->not->toContain('sigta-button-busy')
+        ->not->toContain('data-part="busy"')
         ->not->toContain('data-sigta="loader"');
 });
 
@@ -129,8 +145,8 @@ it('shows the busy state now with loading, and never with loading false', functi
         ->toContain('data-loading="true"')
         ->toContain('data-sigta-busy')
         ->toContain('aria-busy="true"')
-        ->toContain('sigta-button-busy');
+        ->toContain('data-part="busy"');
 
     expect(Blade::render('<x-sigta::button wire:click="save" :loading="false">Save</x-sigta::button>'))
-        ->not->toContain('sigta-button-busy');
+        ->not->toContain('data-part="busy"');
 });

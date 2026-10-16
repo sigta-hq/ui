@@ -1,0 +1,98 @@
+/* ---------------------------------------------------------------------------
+   Sigta UI — theme template
+
+   Copy this file into your app, rename it (e.g. `resources/css/brand.css`),
+   fill in your values, and wire it up:
+
+       @import "tailwindcss";
+       @import "../../vendor/sigta/ui/resources/css/core.css";
+       @import "./brand.css";                       // this file, renamed
+       @source "../../vendor/sigta/ui/resources/views";
+
+   Every token below is REQUIRED — core.css and the components read them all.
+   Names are semantic roles, not literal colors, so pick values that fit YOUR
+   brand; the component markup never changes.
+
+   Multi-brand tip: scope the block under an attribute instead of :root to run
+   several brands in one app —
+       [data-sigta-theme="acme"] { --sigta-surface: …; … }
+   then set <html data-sigta-theme="acme"> (or on any subtree).
+--------------------------------------------------------------------------- */
+:root {
+    /* --- surfaces & text ---------------------------------------------------
+       surface        = page background
+       surface-raised = cards / inputs / panels sitting on the page
+       fg             = primary text, borders, solid fills
+       fg-muted       = secondary text
+       line           = hairlines, dividers, input borders                   */
+    --sigta-surface: #ffffff;
+    --sigta-surface-raised: #f7f7f8;
+    --sigta-fg: #16181d;
+    --sigta-fg-muted: #6b7280;
+    --sigta-line: #e4e4e7;
+
+    /* --- brand & status ----------------------------------------------------
+       accent      = the one emphasis color (used sparingly)
+       accent-line = border for accent-filled elements
+       success / danger = status colors                                       */
+    --sigta-accent: #4f46e5;
+    --sigta-accent-line: #4338ca;
+    --sigta-success: #15803d;
+    --sigta-warning: #b45309;
+    --sigta-danger: #b91c1c;
+
+    /* --- inverse (dark bands: CTA sections, spotlights) --------------------
+       inverse        = the dark ground
+       inverse-fg     = text on that ground
+       inverse-fg-muted / inverse-line = muted text / borders on it           */
+    --sigta-inverse: #16181d;
+    --sigta-inverse-fg: #ffffff;
+    --sigta-inverse-fg-muted: #a1a1aa;
+    --sigta-inverse-line: #3f3f46;
+
+    /* --- type --------------------------------------------------------------
+       head = headings, body = prose, mono = UI chrome/labels/data,
+       hand = decorative handwriting (set to a system font if you don't use it).
+       Ship your own @font-face declarations alongside this file.             */
+    --sigta-font-head: ui-sans-serif, system-ui, sans-serif;
+    --sigta-font-body: ui-sans-serif, system-ui, sans-serif;
+    --sigta-font-mono: ui-monospace, SFMono-Regular, monospace;
+    --sigta-font-hand: ui-sans-serif, system-ui, sans-serif;
+
+    /* --- shape & depth -----------------------------------------------------
+       radius = controls, radius-lg = cards, radius-xl = big frames           */
+    --sigta-radius: 6px;
+    --sigta-radius-lg: 10px;
+    --sigta-radius-xl: 16px;
+    --sigta-shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 10px 30px -18px rgba(0, 0, 0, .2);
+
+    /* --- layout ------------------------------------------------------------ */
+    --sigta-maxw: 1180px;
+    --sigta-gutter: clamp(20px, 5vw, 64px);
+
+    /* --- focus ring -------------------------------------------------------- */
+    --sigta-focus-width: 2.5px;
+    --sigta-focus-offset: 3px;
+
+    /* --- motion ------------------------------------------------------------ */
+    --sigta-ease-fast: 140ms ease;
+    --sigta-ease: 180ms ease;
+    --sigta-ease-slow: 220ms ease;
+
+    /* --- motion: loaders, completions, celebrations ------------------------
+       curve-out    = things arriving and settling
+       curve-pen    = drawn strokes
+       curve-spring = press release, stamps, pops (overshoots a little)
+       dur-press / dur-draw / dur-leave / dur-loop = a press landing, one
+       drawn stroke, a list row folding away, one loader cycle (the circle
+       drawn, then lifted).
+       Optional: core.css falls back to the Sigta values when these are unset. */
+    --sigta-curve-out: cubic-bezier(.2, .8, .2, 1);
+    --sigta-curve-pen: cubic-bezier(.65, 0, .35, 1);
+    --sigta-curve-spring: cubic-bezier(.34, 1.56, .64, 1);
+    --sigta-dur-press: 90ms;
+    --sigta-dur-draw: 420ms;
+    --sigta-dur-leave: 360ms;
+    --sigta-dur-loop: 3000ms;
+    --sigta-dur-busy: 500ms;
+}

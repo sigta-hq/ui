@@ -19,11 +19,11 @@ it('renders the default ink band copy and both buttons', function () {
 it('styles the dark band via button variants, not !-overrides', function () {
     $html = Blade::render('<x-sigta::section.cta />');
 
-    // The primary button uses variant="inverse" (paper fill = bg-surface),
-    // the secondary uses variant="ghost-inverse" (border-inverse-line).
+    // The primary button uses variant="inverse" (paper fill), the secondary
+    // uses variant="ghost-inverse" (hairline outline).
     expect($html)
-        ->toContain('bg-surface')
-        ->toContain('border-inverse-line')
+        ->toContain('data-variant="inverse"')
+        ->toContain('data-variant="ghost-inverse"')
         ->not->toContain('!');
 });
 

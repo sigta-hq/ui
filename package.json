@@ -1,19 +1,47 @@
 {
-    "name": "@sigta/ui-assets",
+    "name": "sigta-ui",
     "private": true,
-    "description": "Asset pipeline for sigta/ui — bundles the editor (TipTap) into dist/. The core runtime (dist/sigta.js) stays a verbatim copy of resources/js/sigta.js.",
+    "description": "Sigta UI monorepo — the shared contract, core and Svelte adapter (npm workspaces) beside the Composer package at the root, which carries the Livewire adapter.",
     "type": "module",
+    "workspaces": [
+        "packages/contract",
+        "packages/core",
+        "packages/svelte",
+        "harness/svelte",
+        "docs"
+    ],
     "scripts": {
-        "build": "npm run build:core && npm run build:editor",
-        "build:core": "cp resources/js/sigta.js dist/sigta.js",
-        "build:editor": "esbuild resources/js/editor.js --bundle --minify --format=iife --outfile=dist/sigta-editor.js"
+        "build": "npm run build:contract && npm run build:core && npm run build:livewire && npm run build:editor && npm run build:svelte",
+        "build:contract": "npm run build -w @sigta-hq/contract",
+        "build:core": "npm run build -w @sigta-hq/core",
+        "build:livewire": "node scripts/build-livewire.js",
+        "build:editor": "esbuild resources/js/editor.js --bundle --minify --format=iife --outfile=dist/sigta-editor.js",
+        "build:svelte": "npm run build -w @sigta-hq/svelte",
+        "generate": "node packages/contract/scripts/generate.ts",
+        "generate:check": "node packages/contract/scripts/generate.ts --check",
+        "conformance": "node scripts/conformance.js",
+        "test": "npm run test -w @sigta-hq/contract -w @sigta-hq/core -w @sigta-hq/svelte",
+        "check": "npm run build && npm run generate:check && npm run test && npm run conformance && ./vendor/bin/pest && ./scripts/check-tokens.sh"
     },
     "devDependencies": {
+        "@playwright/test": "^1.64.1",
+        "@sveltejs/package": "^3.0.1",
+        "@sveltejs/vite-plugin-svelte": "^7.3.1",
+        "@tailwindcss/cli": "^4.3.3",
         "@tiptap/core": "~3.31.0",
         "@tiptap/extension-image": "~3.31.0",
         "@tiptap/extensions": "~3.31.0",
         "@tiptap/markdown": "~3.31.0",
         "@tiptap/starter-kit": "~3.31.0",
-        "esbuild": "^0.28.0"
+        "esbuild": "^0.28.0",
+        "jsdom": "^29.1.1",
+        "pixelmatch": "^8.0.0",
+        "pngjs": "^7.0.0",
+        "svelte": "^5.57.2",
+        "svelte-check": "^4.7.7",
+        "tailwindcss": "^4.3.3",
+        "typescript": "^6.0.3",
+        "vite": "^8.3.4",
+        "vitest": "^5.0.5"
     }
 }

@@ -75,7 +75,7 @@ class SigtaServiceProvider extends ServiceProvider
 
         // Fonts must live under public/ so @font-face URLs resolve.
         $this->publishes([
-            __DIR__.'/../resources/fonts' => public_path('vendor/sigta/fonts'),
+            __DIR__.'/../packages/contract/fonts' => public_path('vendor/sigta/fonts'),
         ], 'sigta-fonts');
     }
 

@@ -1,0 +1,21 @@
+/* Checkbox — the tick is drawn as two pen strokes, short then long, as
+   it is checked, and lifts off in one go when unchecked. Transitions, not
+   animations, so a box rendered checked does not replay its tick. */
+.sigta-check::before,
+.sigta-check::after {
+    content: "";
+    position: absolute;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--sigta-surface);
+    transform-origin: 1px 1px;
+    scale: 0 1;
+    transition: scale 80ms ease-in;
+}
+.sigta-check::before { left: 2.2px; top: 6.6px; width: 6.1px; rotate: 45deg; }
+.sigta-check::after { left: 5.1px; top: 9.5px; width: 10.35px; rotate: -46.9deg; }
+.sigta-check:checked::before { scale: 1 1; transition: scale 100ms ease-in; }
+.sigta-check:checked::after {
+    scale: 1 1;
+    transition: scale 170ms var(--sigta-curve-out, cubic-bezier(.2, .8, .2, 1)) 90ms;
+}

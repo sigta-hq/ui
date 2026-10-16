@@ -1,0 +1,8 @@
+{
+    "name": "@sigta-hq/docs",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "node build.js"
+    }
+}

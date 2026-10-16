@@ -1,0 +1,44 @@
+/* ---------------------------------------------------------------------------
+   Sigta UI — Tailwind bridge
+
+   Maps the --sigta-* tokens onto Tailwind v4 utilities (bg-surface,
+   text-ink, font-mono, rounded-base, ease-sigta-pen …) for an app's own UI.
+   Tailwind-only syntax: import it after "tailwindcss" when your app uses
+   Tailwind. The component stylesheet never needs it at runtime.
+--------------------------------------------------------------------------- */
+@theme inline {
+    /* colors → bg-surface, text-ink, text-graphite, border-line, bg-accent … */
+    --color-surface: var(--sigta-surface);
+    --color-surface-raised: var(--sigta-surface-raised);
+    --color-ink: var(--sigta-fg);
+    --color-graphite: var(--sigta-fg-muted);
+    --color-line: var(--sigta-line);
+    --color-accent: var(--sigta-accent);
+    --color-accent-line: var(--sigta-accent-line);
+    --color-success: var(--sigta-success);
+    --color-warning: var(--sigta-warning);
+    --color-danger: var(--sigta-danger);
+    --color-inverse: var(--sigta-inverse);
+    --color-inverse-fg: var(--sigta-inverse-fg);
+    --color-inverse-fg-muted: var(--sigta-inverse-fg-muted);
+    --color-inverse-line: var(--sigta-inverse-line);
+
+    /* type → font-head, font-body, font-mono, font-hand */
+    --font-head: var(--sigta-font-head);
+    --font-body: var(--sigta-font-body);
+    --font-mono: var(--sigta-font-mono);
+    --font-hand: var(--sigta-font-hand);
+
+    /* shape → rounded-base, rounded-panel, rounded-frame; shadow-paper */
+    --radius-base: var(--sigta-radius);
+    --radius-panel: var(--sigta-radius-lg);
+    --radius-frame: var(--sigta-radius-xl);
+    --shadow-paper: var(--sigta-shadow);
+
+    /* motion → ease-sigta-out, ease-sigta-pen, ease-sigta-spring; animate-sigta-settle */
+    --ease-sigta-out: var(--sigta-curve-out, cubic-bezier(.2, .8, .2, 1));
+    --ease-sigta-pen: var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1));
+    --ease-sigta-spring: var(--sigta-curve-spring, cubic-bezier(.34, 1.56, .64, 1));
+    --animate-sigta-settle: sigta-settle var(--sigta-dur-draw, 420ms) var(--sigta-curve-out, cubic-bezier(.2, .8, .2, 1)) both;
+}
+

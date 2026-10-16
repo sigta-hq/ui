@@ -1,0 +1,40 @@
+/* -------- base -------------------------------------------------------------
+   Opinionated on purpose: Sigta UI is a branded system, not a neutral kit.
+   Every value is a token, so a new theme re-skins these too.
+--------------------------------------------------------------------------- */
+@layer base {
+    [x-cloak] {
+        display: none !important;
+    }
+
+    body {
+        background-color: var(--sigta-surface);
+        color: var(--sigta-fg);
+        font-family: var(--sigta-font-body);
+        font-size: clamp(16px, 1.05vw, 18px);
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
+
+    h1, h2, h3, h4 {
+        font-family: var(--sigta-font-head);
+        font-weight: 500;
+        line-height: 1.04;
+        letter-spacing: -0.012em;
+        text-wrap: balance;
+    }
+
+    :focus-visible {
+        outline: var(--sigta-focus-width) solid var(--sigta-fg);
+        outline-offset: var(--sigta-focus-offset);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation: none !important;
+            transition: none !important;
+        }
+    }
+}
+

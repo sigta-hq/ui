@@ -60,9 +60,20 @@ it('declares every field a component writes, so none lands on an ancestor scope'
     }
 });
 
-it('ships the runtime verbatim in dist', function () {
-    expect(file_get_contents(__DIR__.'/../dist/sigta.js'))
-        ->toBe(file_get_contents(__DIR__.'/../resources/js/sigta.js'));
+it('ships a build of the current runtime sources in dist', function () {
+    // dist/sigta.js is built from resources/js/sigta.js and the core
+    // (npm run build:livewire); its banner hashes every source it was built from.
+    $root = dirname(__DIR__);
+    $core = glob($root.'/packages/core/src/*.ts');
+    sort($core);
+    $context = hash_init('sha1');
+    foreach ([$root.'/resources/js/sigta.js', ...$core] as $file) {
+        hash_update($context, substr($file, strlen($root) + 1)."\0");
+        hash_update($context, str_replace("\r\n", "\n", file_get_contents($file))."\0");
+    }
+
+    expect(file_get_contents($root.'/dist/sigta.js'))
+        ->toContain('sources:'.hash_final($context).' */');
 });
 
 it('leaves a nested component its own rows when the parent morphs', function () {
@@ -76,28 +87,28 @@ it('leaves a nested component its own rows when the parent morphs', function () 
 it('merges the text either side of a row that leaves', function () {
     // Two text nodes in a row make the next morph move the row after them into
     // line, which replays that row's animations (an inbox strike drawn twice).
-    expect(file_get_contents(__DIR__.'/../resources/js/sigta.js'))
+    expect(file_get_contents(__DIR__.'/../packages/core/src/fold.ts'))
         ->toContain('if (options.remove !== false) detach(el);')
-        ->toContain('before.nodeValue += after.nodeValue;');
+        ->toContain("before.nodeValue += after.nodeValue ?? '';");
 });
 
 it('marks a button busy only once its action outlasts a beat', function () {
     // A CSS delay would not do: reduced motion drops every animation, and the
     // compass would flash on every quick click.
-    expect(file_get_contents(__DIR__.'/../resources/js/sigta.js'))
+    expect(file_get_contents(__DIR__.'/../packages/core/src/observe.ts'))
         ->toContain("attributeFilter: ['data-loading']")
         ->toContain("duration('--sigta-dur-busy', 500, target)")
         ->toContain("button.setAttribute('data-sigta-busy', '')");
 
-    expect(file_get_contents(__DIR__.'/../resources/css/core.css'))
-        ->toContain('[data-sigta="button"][data-sigta-busy] > .sigta-button-busy')
-        ->not->toContain('> .sigta-button-label {');
+    expect(file_get_contents(__DIR__.'/../packages/contract/css/components/button.css'))
+        ->toContain('[data-sigta="button"][data-sigta-busy] > [data-part="busy"]')
+        ->not->toContain('> [data-part="label"] {');
 });
 
 it('crosses out every line a struck title wraps onto, over its words', function () {
     // A positioned line covers one box spanning a wrapped title's lines, so it
     // landed under the first line and read as an underline.
-    $css = file_get_contents(__DIR__.'/../resources/css/core.css');
+    $css = file_get_contents(__DIR__.'/../packages/contract/css/motion.css');
 
     expect($css)
         ->not->toContain('[data-sigta-strike]::after')

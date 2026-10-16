@@ -66,7 +66,7 @@ class InstallCommand extends Command
     }
 
     /**
-     * Mirror resources/fonts → public/vendor/sigta/fonts: copy every source
+     * Mirror packages/contract/fonts → public/vendor/sigta/fonts: copy every source
      * file (overwriting), then delete target files that no longer exist in the
      * source. A true mirror, not the copy-or-skip that vendor:publish gives.
      */
@@ -74,7 +74,7 @@ class InstallCommand extends Command
     {
         $this->components->info('Fonts');
 
-        $source = __DIR__.'/../../resources/fonts';
+        $source = __DIR__.'/../../packages/contract/fonts';
         $target = public_path('vendor/sigta/fonts');
 
         if (! $files->isDirectory($source)) {
