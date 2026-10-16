@@ -11,7 +11,7 @@ it('renders the working compass by default', function () {
         ->toContain('data-variant="compass"')
         ->toContain('role="progressbar"')
         ->toContain('aria-label="Working"')
-        ->toContain('size-7')
+        ->toContain('data-size="base"')
         ->toContain('sigta-loader-pencil')
         ->toContain('sigta-loader-needle')
         ->toContain('sigta-loader-ring-front')
@@ -24,11 +24,15 @@ it('renders the working compass by default', function () {
 });
 
 it('maps each size to its box and names it for the pen weight', function () {
-    expect(Blade::render('<x-sigta::loader size="xs" />'))->toContain('size-4')->toContain('data-size="xs"');
-    expect(Blade::render('<x-sigta::loader size="sm" />'))->toContain('size-5')->toContain('data-size="sm"');
-    expect(Blade::render('<x-sigta::loader size="lg" />'))->toContain('size-11')->toContain('data-size="lg"');
-    expect(Blade::render('<x-sigta::loader size="xl" />'))->toContain('size-[4.5rem]')->toContain('data-size="xl"');
-    expect(Blade::render('<x-sigta::loader size="huge" />'))->toContain('size-7')->toContain('data-size="base"');
+    expect(Blade::render('<x-sigta::loader size="xs" />'))->toContain('data-size="xs"');
+    expect(Blade::render('<x-sigta::loader size="sm" />'))->toContain('data-size="sm"');
+    expect(Blade::render('<x-sigta::loader size="lg" />'))->toContain('data-size="lg"');
+    expect(Blade::render('<x-sigta::loader size="xl" />'))->toContain('data-size="xl"');
+    expect(Blade::render('<x-sigta::loader size="huge" />'))->toContain('data-size="base"');
+
+    expect(contractCss('loader'))
+        ->toContain('[data-sigta="loader"][data-size="xs"] { @apply size-4; }')
+        ->toContain('[data-sigta="loader"][data-size="xl"] { @apply size-[4.5rem]; }');
 });
 
 it('draws the circle as far round as its value', function () {

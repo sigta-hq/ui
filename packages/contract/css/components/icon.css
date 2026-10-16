@@ -1,0 +1,8 @@
+/* Icon — the pinned Lucide set at the brand stroke (1.75). */
+[data-sigta="icon"] {
+    @apply size-5;
+
+    &[data-size="xs"] { @apply size-3.5; }
+    &[data-size="sm"] { @apply size-4; }
+    &[data-size="lg"] { @apply size-6; }
+}

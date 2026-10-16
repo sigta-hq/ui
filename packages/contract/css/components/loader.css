@@ -7,10 +7,15 @@
    sits on the paper circle at that angle (0 = the mark's own stance), the
    needle foot opposite it, so a state only has to say which angle. */
 [data-sigta="loader"] {
+    @apply inline-block shrink-0 align-middle size-7;
     --sigta-loader-deg: 0;
     --sigta-loader-pen: 2.4;
     --sigta-loader-frame: 2.2;
 }
+[data-sigta="loader"][data-size="xs"] { @apply size-4; }
+[data-sigta="loader"][data-size="sm"] { @apply size-5; }
+[data-sigta="loader"][data-size="lg"] { @apply size-11; }
+[data-sigta="loader"][data-size="xl"] { @apply size-[4.5rem]; }
 /* Hairlines vanish at icon sizes, so the small sizes draw a heavier pen. */
 [data-sigta="loader"][data-size="xs"] { --sigta-loader-pen: 3.3; --sigta-loader-frame: 3; }
 [data-sigta="loader"][data-size="sm"] { --sigta-loader-pen: 2.9; --sigta-loader-frame: 2.6; }

@@ -21,6 +21,8 @@ export interface PropSpec {
     /** Allowed values for an enum. */
     values?: readonly string[];
     required?: boolean;
+    /** A native HTML attribute the component reads (href, type, name, disabled): forwarded in Blade, a plain prop in Svelte. */
+    native?: boolean;
     /** Two-way: Svelte exposes it through `bind:`; Livewire binds it with `wire:model` on the native element. */
     bindable?: boolean;
     /** Shape of an array/object prop, in words or TypeScript. */
@@ -40,6 +42,8 @@ export interface StateSpec {
     attribute: string;
     values?: readonly string[];
     description: string;
+    /** false when one runtime sets it on the client only (left out of the conformance comparison). */
+    conformance?: boolean;
 }
 
 export interface SlotSpec {

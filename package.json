@@ -24,15 +24,18 @@
         "check": "npm run build && npm run generate:check && npm run test && npm run conformance && ./vendor/bin/pest && ./scripts/check-tokens.sh"
     },
     "devDependencies": {
+        "@alpinejs/focus": "^3.17.4",
         "@playwright/test": "^1.64.1",
         "@sveltejs/package": "^3.0.1",
         "@sveltejs/vite-plugin-svelte": "^7.3.1",
         "@tailwindcss/cli": "^4.3.3",
+        "@tailwindcss/node": "^4.3.3",
         "@tiptap/core": "~3.31.0",
         "@tiptap/extension-image": "~3.31.0",
         "@tiptap/extensions": "~3.31.0",
         "@tiptap/markdown": "~3.31.0",
         "@tiptap/starter-kit": "~3.31.0",
+        "alpinejs": "^3.17.4",
         "esbuild": "^0.28.0",
         "jsdom": "^29.1.1",
         "pixelmatch": "^8.0.0",

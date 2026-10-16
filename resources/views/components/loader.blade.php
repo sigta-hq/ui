@@ -24,14 +24,6 @@
 @php
 $size = in_array($size, ['xs', 'sm', 'base', 'lg', 'xl'], true) ? $size : 'base';
 
-$box = match ($size) {
-    'xs' => 'size-4',
-    'sm' => 'size-5',
-    'lg' => 'size-11',
-    'xl' => 'size-[4.5rem]',
-    default => 'size-7',
-};
-
 $state = in_array($state, ['idle', 'queued', 'working', 'done', 'failed'], true) ? $state : 'working';
 $variant = $variant === 'sketch' ? 'sketch' : 'compass';
 
@@ -49,7 +41,6 @@ $label ??= match ($state) {
 };
 
 $rootAttributes = [
-    'class' => 'inline-block shrink-0 align-middle '.$box,
     'data-state' => $state,
     'data-variant' => $variant,
     'data-size' => $size,
