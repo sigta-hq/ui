@@ -1,0 +1,34 @@
+name: Publish
+
+# One tag, one version for everything: the Composer package is the tagged
+# repository, and the npm packages are published to GitHub Packages with the
+# same version (npm run version -- 1.2.3 sets it everywhere before tagging).
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  npm:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: https://npm.pkg.github.com
+          scope: '@sigta-hq'
+      - run: composer install --no-interaction --prefer-dist
+      - run: npm ci
+      - name: Tag and package versions agree
+        run: node scripts/version.js --check "${GITHUB_REF_NAME#v}"
+      - run: npm run build
+      - run: npm publish -w @sigta-hq/contract -w @sigta-hq/core -w @sigta-hq/svelte
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

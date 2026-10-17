@@ -71,7 +71,10 @@ export function phpLiteral(value: unknown): string {
     if (value === null || value === undefined) return 'null';
     if (typeof value === 'boolean') return value ? 'true' : 'false';
     if (typeof value === 'number') return String(value);
-    if (typeof value === 'string') return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+    if (typeof value === 'string') {
+        // A bound attribute sits inside "…", so a double quote is spliced in with chr(34).
+        return value.split('"').map((part) => `'${part.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`).join('.chr(34).');
+    }
     if (Array.isArray(value)) return `[${value.map(phpLiteral).join(', ')}]`;
     return `[${Object.entries(value as Record<string, unknown>).map(([k, v]) => `${phpLiteral(k)} => ${phpLiteral(v)}`).join(', ')}]`;
 }
@@ -99,7 +102,8 @@ function bladeAttributes(registry: Registry, node: ComponentNode): string {
         } else if (typeof value === 'string') {
             out.push(`${name}="${escapeAttr(value)}"`);
         } else {
-            out.push(`:${name}="${escapeAttr(phpLiteral(value))}"`);
+            // A PHP expression: Blade evaluates it as written, so no HTML escaping.
+            out.push(`:${name}="${phpLiteral(value)}"`);
         }
     }
     return out.length ? ' ' + out.join(' ') : '';
