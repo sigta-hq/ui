@@ -9,20 +9,21 @@
     'checked' => null,
 ])
 
-<fieldset {{ $attributes->only('class')->merge(['class' => 'inline-block']) }} data-sigta="segmented">
-    @if ($label)<legend class="sr-only">{{ $label }}</legend>@endif
-    <div class="inline-flex border border-line rounded-[5px] overflow-hidden font-mono text-[0.72rem]">
+<fieldset {{ $attributes->only('class') }} data-sigta="segmented">
+    @if ($label)<legend data-scope="segmented" data-part="legend">{{ $label }}</legend>@endif
+    <div data-scope="segmented" data-part="group">
         @foreach ($options as $value => $optionLabel)
-            <label class="cursor-pointer">
+            <label data-scope="segmented" data-part="option">
                 <input
                     type="radio"
                     name="{{ $name }}"
                     value="{{ $value }}"
                     @checked($checked !== null && (string) $checked === (string) $value)
                     {{ $attributes->except('class') }}
-                    class="sr-only peer"
+                    data-scope="segmented"
+                    data-part="input"
                 >
-                <span class="inline-block px-3 py-1.5 text-graphite peer-checked:bg-ink peer-checked:text-surface hover:text-ink peer-checked:hover:text-surface peer-focus-visible:outline-[2.5px] peer-focus-visible:outline-ink peer-focus-visible:-outline-offset-2 transition-colors">{{ $optionLabel }}</span>
+                <span data-scope="segmented" data-part="label">{{ $optionLabel }}</span>
             </label>
         @endforeach
     </div>

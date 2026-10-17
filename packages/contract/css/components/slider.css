@@ -1,0 +1,20 @@
+/* Slider — a native range input: a hairline track and a raised paper thumb
+   with an ink rim (red with an error). With showValue the live value sits
+   beside it in mono. */
+[data-sigta="slider"] {
+    @apply w-full appearance-none cursor-pointer bg-transparent disabled:opacity-40 disabled:pointer-events-none;
+    @apply [&::-webkit-slider-runnable-track]:h-1 [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-line;
+    @apply [&::-moz-range-track]:h-1 [&::-moz-range-track]:rounded-full [&::-moz-range-track]:bg-line;
+    @apply [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:size-[18px] [&::-webkit-slider-thumb]:-mt-[7px] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-[1.5px] [&::-webkit-slider-thumb]:border-solid [&::-webkit-slider-thumb]:border-ink [&::-webkit-slider-thumb]:bg-surface-raised [&::-webkit-slider-thumb]:shadow-[0_1px_2px_rgba(0,0,0,0.25)] [&::-webkit-slider-thumb]:transition [&::-webkit-slider-thumb]:duration-150 [&::-webkit-slider-thumb]:ease-out;
+    @apply [&::-moz-range-thumb]:size-[18px] [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-[1.5px] [&::-moz-range-thumb]:border-solid [&::-moz-range-thumb]:border-ink [&::-moz-range-thumb]:bg-surface-raised;
+
+    &[aria-invalid="true"] {
+        @apply [&::-webkit-slider-thumb]:border-danger [&::-moz-range-thumb]:border-danger;
+    }
+}
+[data-scope="slider"][data-part="wrap"] {
+    @apply flex items-center gap-3;
+}
+[data-scope="slider"][data-part="value"] {
+    @apply min-w-[2.5ch] text-right font-mono text-[0.72rem] text-ink tabular-nums;
+}

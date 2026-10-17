@@ -26,7 +26,12 @@ function emit(path: string, content: string): void {
 /* -------- manifest registry ----------------------------------------------- */
 const manifestDir = join(root, 'packages/contract/src/manifests');
 const names = readdirSync(manifestDir).filter((f) => f.endsWith('.ts') && f !== 'index.ts').map((f) => f.slice(0, -3)).sort();
-const ident = (name: string) => name.replace(/[^a-zA-Z0-9]+(.)/g, (_, ch: string) => ch.toUpperCase()).replace(/^./, (ch) => ch.toLowerCase());
+// A component named after a reserved word (switch) gets a suffix as an identifier.
+const RESERVED = new Set(['switch', 'case', 'default', 'delete', 'new', 'import', 'export', 'class', 'function', 'return', 'var', 'let', 'const', 'in', 'do', 'if', 'for', 'while', 'with', 'try', 'catch', 'finally', 'throw', 'void', 'typeof', 'instanceof', 'this', 'super', 'extends', 'yield', 'enum', 'await', 'break', 'continue', 'debugger', 'else', 'null', 'true', 'false']);
+const ident = (name: string) => {
+    const id = name.replace(/[^a-zA-Z0-9]+(.)/g, (_, ch: string) => ch.toUpperCase()).replace(/^./, (ch) => ch.toLowerCase());
+    return RESERVED.has(id) ? `${id}Manifest` : id;
+};
 
 emit('packages/contract/src/manifests/index.ts', [
     `/* ${HEADER} */`,

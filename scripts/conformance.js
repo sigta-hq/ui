@@ -118,6 +118,9 @@ export function normalize(html) {
     const walk = (node, depth) => {
         for (const child of node.childNodes) {
             if (child.nodeType === 3) {
+                // A <textarea>'s text is its default value; live, the value is a
+                // property (Svelte's hydration drops the text node).
+                if (browserMode && node.localName === 'textarea') continue;
                 const text = child.nodeValue.replace(/\s+/g, ' ').trim();
                 if (text) lines.push(`${'  '.repeat(depth)}"${text}"`);
             } else if (child.nodeType === 1 && child.localName === 'template') {
@@ -133,6 +136,8 @@ export function normalize(html) {
                     // An empty value is no value, an empty class no class.
                     .filter((a) => !(a.name === 'value' && a.value === '' && ['input', 'option'].includes(child.localName)))
                     .filter((a) => !(a.name === 'class' && a.value.trim() === ''))
+                    // Svelte's server render records an <img>'s load/error for hydration to replay.
+                    .filter((a) => !(['onload', 'onerror'].includes(a.name) && a.value === 'this.__e=event'))
                     .filter((a) => a.name !== 'style' || normalizeStyle(a.value.replace(/display:\s*none;?/g, '')) !== '')
                     .map((a) => {
                         let value = a.value.replace(/\s+/g, ' ').trim();
@@ -140,6 +145,8 @@ export function normalize(html) {
                         if (a.name === 'class') value = value.split(' ').filter(Boolean).sort().join(' ');
                         if (a.name === 'style') value = normalizeStyle(value.replace(/display:\s*none;?/g, ''));
                         if (ID_REFS.has(a.name)) value = mapIds(value);
+                        // An SVG paint or clip reference: fill="url(#gradient)".
+                        value = value.replace(/url\(#([^)\s]+)\)/g, (ref, id) => (ids.has(id) ? `url(${ids.get(id)})` : ref));
                         return `${a.name}="${value}"`;
                     })
                     .sort();

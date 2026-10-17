@@ -1,0 +1,12 @@
+/* Radio — a round box on paper that fills with ink around a paper dot when
+   chosen. Bare, the input is the root; with a label it is the control part
+   of a mono label row, and the disabled look moves to the row. */
+:is(input[data-sigta="radio"], [data-scope="radio"][data-part="control"]) {
+    @apply relative size-[18px] shrink-0 cursor-pointer appearance-none rounded-full border-[1.5px] border-graphite bg-surface transition duration-150 ease-out checked:bg-ink checked:border-ink checked:after:content-[''] after:absolute after:inset-[4px] after:rounded-full after:bg-surface;
+}
+input[data-sigta="radio"] {
+    @apply disabled:opacity-40 disabled:pointer-events-none;
+}
+label[data-sigta="radio"] {
+    @apply inline-flex cursor-pointer items-center gap-[0.6rem] font-mono text-[0.82rem] text-ink has-[:disabled]:opacity-40 has-[:disabled]:pointer-events-none;
+}

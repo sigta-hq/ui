@@ -26,8 +26,8 @@
         id={trackId}
         role="progressbar"
         aria-valuemin="0"
-        aria-valuemax={phpFloat(top)}
-        aria-valuenow={indeterminate ? undefined : String(value)}
+        aria-valuemax={Number(phpFloat(top))}
+        aria-valuenow={indeterminate ? undefined : value}
         aria-labelledby={label ? `${trackId}-label` : undefined}
         data-indeterminate={indeterminate ? '' : undefined}
         {...rest}

@@ -14,10 +14,9 @@ $length = max(1, (int) $length);
 $id = $attributes->get('id') ?? 'sigta-'.\Illuminate\Support\Str::random(8);
 $disabled = $attributes->has('disabled');
 
-$boxClasses = 'size-11 rounded-[5px] border-[1.5px] bg-surface text-center font-mono text-lg text-ink tabular-nums transition duration-150 ease-out focus:outline-none focus:border-ink focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--sigta-fg)_8%,transparent)] disabled:opacity-40 disabled:pointer-events-none';
-$boxClasses .= $error ? ' border-danger' : ' border-line';
-
-$describedBy = trim(($description ? $id.'-description ' : '').($error ? $id.'-error' : ''));
+// The field chrome is rendered for the first box ($id-0), so its description
+// and error carry that prefix.
+$describedBy = trim(($description ? $id.'-0-description ' : '').($error ? $id.'-0-error' : ''));
 @endphp
 
 <x-sigta::field :label="$label" :description="$description" :error="$error" :for="$id.'-0'">
@@ -72,7 +71,7 @@ $describedBy = trim(($description ? $id.'-description ' : '').($error ? $id.'-er
                 target.select();
             },
         }"
-        {{ $attributes->only('class')->merge(['class' => 'flex items-center gap-2']) }}
+        {{ $attributes->only('class') }}
     >
         @for ($i = 0; $i < $length; $i++)
             <input
@@ -80,7 +79,8 @@ $describedBy = trim(($description ? $id.'-description ' : '').($error ? $id.'-er
                 inputmode="numeric"
                 autocomplete="one-time-code"
                 aria-label="Digit {{ $i + 1 }} of {{ $length }}"
-                class="{{ $boxClasses }}"
+                data-scope="otp"
+                data-part="box"
                 x-ref="box{{ $i }}"
                 @focus="$event.target.select()"
                 @input="handleInput({{ $i }}, $event)"

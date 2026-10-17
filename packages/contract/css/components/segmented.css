@@ -1,0 +1,23 @@
+/* Segmented — a hairline strip of mono options; the chosen one is filled in
+   ink. The radios are visually hidden; focus rings are drawn on the label. */
+[data-sigta="segmented"] {
+    @apply inline-block;
+}
+[data-scope="segmented"]:is([data-part="legend"], [data-part="input"]) {
+    @apply sr-only;
+}
+[data-scope="segmented"][data-part="group"] {
+    @apply inline-flex border border-line rounded-[5px] overflow-hidden font-mono text-[0.72rem];
+}
+[data-scope="segmented"][data-part="option"] {
+    @apply cursor-pointer;
+}
+[data-scope="segmented"][data-part="label"] {
+    @apply inline-block px-3 py-1.5 text-graphite hover:text-ink transition-colors;
+}
+[data-scope="segmented"][data-part="input"]:checked ~ [data-scope="segmented"][data-part="label"] {
+    @apply bg-ink text-surface hover:text-surface;
+}
+[data-scope="segmented"][data-part="input"]:focus-visible ~ [data-scope="segmented"][data-part="label"] {
+    @apply outline-[2.5px] outline-ink -outline-offset-2;
+}
