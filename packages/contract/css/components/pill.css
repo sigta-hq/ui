@@ -1,0 +1,12 @@
+/* Pill — a status pill: a leading dot in the status colour on a faint tint. */
+[data-sigta="pill"] {
+    @apply inline-flex items-center gap-[0.45em] leading-none font-mono text-[0.68rem] px-[0.7em] py-[0.32em] rounded-full;
+
+    /* neutral, and any variant the component does not know */
+    &:not(:is([data-variant="success"], [data-variant="danger"])) { @apply bg-graphite/10 text-graphite; }
+    &[data-variant="success"] { @apply bg-success/10 text-success; }
+    &[data-variant="danger"] { @apply bg-danger/10 text-danger; }
+}
+[data-scope="pill"][data-part="dot"] {
+    @apply size-[7px] rounded-full bg-current shrink-0;
+}

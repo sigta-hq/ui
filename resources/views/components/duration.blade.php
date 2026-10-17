@@ -7,6 +7,8 @@
     Static duration display. Whole minutes rendered as a compact "1h 15m" label
     (default) or an "HH:MM" clock. Exact hours drop the minutes ("2h"); zero
     renders as "0m". For a value that counts up live use <sigta:elapsed-clock>.
+    The Svelte twin formats with formatDuration() in packages/core/src/format.ts;
+    keep the two in step.
 
         <sigta:duration :minutes="$task->estimate_minutes" />
         <sigta:duration :minutes="90" format="clock" />   (renders 01:30)
@@ -22,4 +24,4 @@ $text = match ($format) {
 };
 @endphp
 
-<span data-sigta="duration" {{ $attributes->merge(['class' => 'tabular-nums']) }}>{{ $text }}</span>
+<span data-sigta="duration" {{ $attributes }}>{{ $text }}</span>

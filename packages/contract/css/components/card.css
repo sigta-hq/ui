@@ -1,0 +1,15 @@
+/* Card — a raised surface on a hairline that clips its thumb, with fluid
+   body padding. Interactive cards lift on hover. A padding class from the
+   consumer replaces the body's own padding (data-padding="custom"), so the
+   two do not stack into double the intended inset. */
+[data-sigta="card"] {
+    @apply flex flex-col bg-surface-raised border border-line rounded-panel overflow-hidden;
+
+    &[data-hover] { @apply transition duration-200 ease-out hover:-translate-y-[3px] hover:shadow-paper; }
+}
+[data-scope="card"][data-part="thumb"] {
+    @apply relative aspect-video bg-surface border-b border-line overflow-hidden;
+}
+[data-scope="card"][data-part="body"] {
+    [data-sigta="card"]:not([data-padding="custom"]) > & { @apply p-[clamp(18px,2vw,26px)]; }
+}

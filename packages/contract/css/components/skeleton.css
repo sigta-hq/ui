@@ -1,0 +1,11 @@
+/* Skeleton — a pulsing hairline-tinted placeholder in the shape of what is
+   loading: a line, a heading, a block or a circle. */
+[data-sigta="skeleton"] {
+    @apply bg-line/60 animate-pulse;
+
+    /* line, and any variant the component does not know */
+    &:not(:is([data-variant="heading"], [data-variant="block"], [data-variant="circle"])) { @apply h-4 rounded-base; }
+    &[data-variant="heading"] { @apply h-8 w-2/3 rounded-base; }
+    &[data-variant="block"] { @apply aspect-video rounded-base; }
+    &[data-variant="circle"] { @apply size-10 rounded-full; }
+}

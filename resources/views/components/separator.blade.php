@@ -2,4 +2,4 @@
     'variant' => 'solid',
 ])
 
-<hr {{ $attributes->merge(['class' => 'border-0 border-t border-line'.($variant === 'dashed' ? ' border-dashed' : '')]) }}>
+<hr data-sigta="separator" {{ $attributes->merge(['data-variant' => $variant]) }}>

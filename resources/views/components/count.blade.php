@@ -11,5 +11,5 @@
 <span
     data-sigta="count"
     x-data="sigtaCount"
-    {{ $attributes->merge(['class' => 'inline-block tabular-nums']) }}
+    {{ $attributes }}
 >{{ $value ?? $slot }}</span>

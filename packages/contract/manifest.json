@@ -90,6 +90,10 @@
       "uses": [
         "autocomplete.option"
       ],
+      "usage": {
+        "livewire": "<sigta:autocomplete label=\"Country\" wire:model=\"country\" placeholder=\"Search…\">\n    <sigta:autocomplete.option value=\"dk\">Denmark</sigta:autocomplete.option>\n    <sigta:autocomplete.option value=\"se\">Sweden</sigta:autocomplete.option>\n</sigta:autocomplete>",
+        "svelte": "<Autocomplete label=\"Country\" bind:value={country} placeholder=\"Search…\">\n    <Autocomplete.Option value=\"dk\">Denmark</Autocomplete.Option>\n    <Autocomplete.Option value=\"se\">Sweden</Autocomplete.Option>\n</Autocomplete>"
+      },
       "notes": {
         "shared": [
           "The listbox floats with fixed positioning, so it escapes cards and forms that clip overflow."
@@ -246,13 +250,20 @@
           "required": true
         }
       },
+      "usage": {
+        "livewire": "<sigta:button variant=\"cta\" href=\"/book\">Book a project <sigta:icon name=\"arrow-right\" size=\"sm\" /></sigta:button>\n<sigta:button href=\"https://calendly.com/sf-sigta/30min\" target=\"_blank\">Book a call</sigta:button>\n<sigta:button>Preview</sigta:button>\n<sigta:button variant=\"ghost\">Cancel</sigta:button>\n<sigta:button variant=\"primary\" wire:click=\"save\">Save</sigta:button>   {{-- compass while it saves --}}",
+        "svelte": "<Button variant=\"cta\" href=\"/book\">Book a project <Icon name=\"arrow-right\" size=\"sm\" /></Button>\n<Button href=\"https://calendly.com/sf-sigta/30min\" target=\"_blank\">Book a call</Button>\n<Button>Preview</Button>\n<Button variant=\"ghost\">Cancel</Button>\n<Button variant=\"primary\" loading={form.processing} onclick={save}>Save</Button>   <!-- compass while it saves -->"
+      },
       "notes": {
         "shared": [
+          "Renders <a> when href is set, else <button>. Lifts on hover, settles back onto the paper while pressed, springs back on release.",
           "Use variant=\"cta\" with a trailing arrow-right icon for the main call to action.",
-          "On a dark band (bg-inverse) use variant=\"inverse\" and \"ghost-inverse\" — never override colours."
+          "On a dark band (bg-inverse) use variant=\"inverse\" and \"ghost-inverse\" — never override colours.",
+          "A link button with target=\"_blank\" gets rel=\"noopener\" unless rel is set.",
+          "The label never gives way to the loader: a quick action shows nothing; once one outlasts a beat (--sigta-dur-busy, 500ms) the compass stands in for a leading icon, or is written in before a label that has none. A submitting form's button keeps its ink while it is disabled for the submit. Never write \"Saving…\" into a button label yourself."
         ],
         "livewire": [
-          "wire:click / wire:submit / type=\"submit\" add the busy markup; Livewire sets data-loading and the runtime shows the compass after a beat.",
+          "wire:click / wire:submit / type=\"submit\" add the busy markup and the button takes no clicks while Livewire runs its action (Livewire sets data-loading, on the form for a submit); the runtime shows the compass after a beat.",
           ":loading=\"true\" shows the busy state now (a button you drive yourself); :loading=\"false\" never shows it."
         ],
         "svelte": [
@@ -309,6 +320,8 @@
       },
       "notes": {
         "shared": [
+          "Use it instead of <input type=\"checkbox\"> with classes. Renders a <label> wrapper when label is set, the bare input otherwise.",
+          "The tick is drawn as two pen strokes when checked; the box gives a little under a press.",
           "To complete a row with the full motion (tick, burst, strike, fold), call complete from its change handler in a [data-sigta-motion] list and mark the row's title with data-sigta-strike."
         ],
         "livewire": [
@@ -327,6 +340,141 @@
         },
         {
           "label": "Ticked by hand"
+        }
+      ]
+    },
+    {
+      "name": "count",
+      "title": "Count",
+      "tier": "elements",
+      "page": "motion",
+      "svelte": "Count",
+      "description": "A number that bumps when it changes — rising as it grows, dropping as it shrinks — whether a morph, an x-text, a Svelte update or a plain write changes it. For unread badges and \"12 open\" headings. Tabular numerals.",
+      "aria": "A plain <span>; the number is its text.",
+      "props": {
+        "value": {
+          "type": "number",
+          "default": null,
+          "description": "The number; falls back to the slot (children) when unset. Zero is a value."
+        }
+      },
+      "slots": {
+        "default": {
+          "description": "The number, when value is unset (an x-text target in Alpine)."
+        }
+      },
+      "usage": {
+        "livewire": "<sigta:count :value=\"$openCount\" /> open\n<sigta:count x-text=\"items.length\">{{ count($items) }}</sigta:count>",
+        "svelte": "<Count value={openCount} /> open"
+      },
+      "notes": {
+        "shared": [
+          "Use it for a count that changes (unread, open) instead of a bare number in a badge.",
+          "The bump is a script animation from the shared core; with reduced motion the number just changes."
+        ],
+        "livewire": [
+          "A Livewire morph or an x-text on the count moves it; give the slot the server-rendered number so it reads right before Alpine starts."
+        ],
+        "svelte": [
+          "Pass the reactive number as value; the component watches its own text, so any update bumps it."
+        ]
+      },
+      "examples": [
+        {
+          "label": "A value"
+        },
+        {
+          "label": "Zero, and the slot"
+        },
+        {
+          "label": "Rises as it grows, drops as it shrinks"
+        }
+      ]
+    },
+    {
+      "name": "duration",
+      "title": "Duration",
+      "tier": "elements",
+      "page": "elapsed-clock",
+      "svelte": "Duration",
+      "description": "Static duration display in tabular numerals: whole minutes as a compact \"1h 15m\" (default) or an \"HH:MM\" clock. Exact hours drop the minutes (\"2h\"); zero renders \"0m\".",
+      "aria": "A plain <span>; the duration is its text.",
+      "props": {
+        "minutes": {
+          "type": "number",
+          "default": null,
+          "description": "Whole minutes; null and negatives read as 0, fractions are truncated."
+        },
+        "format": {
+          "type": "enum",
+          "values": [
+            "compact",
+            "clock"
+          ],
+          "default": "compact",
+          "description": "compact (1h 15m) or clock (01:30). Unknown values fall back to compact."
+        }
+      },
+      "usage": {
+        "livewire": "<sigta:duration :minutes=\"$task->estimate_minutes\" />\n<sigta:duration :minutes=\"90\" format=\"clock\" />   {{-- 01:30 --}}",
+        "svelte": "<Duration minutes={task.estimateMinutes} />\n<Duration minutes={90} format=\"clock\" />   <!-- 01:30 -->"
+      },
+      "notes": {
+        "shared": [
+          "For a value that counts up live use elapsed-clock.",
+          "Both runtimes format with the same rules (the core's formatDuration), so a server render and a client render agree."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Compact and clock"
+        },
+        {
+          "label": "Zero and unset"
+        }
+      ]
+    },
+    {
+      "name": "elapsed-clock",
+      "title": "Elapsed clock",
+      "tier": "elements",
+      "page": "elapsed-clock",
+      "svelte": "ElapsedClock",
+      "description": "Live-ticking HH:MM:SS value counting up from since, in tabular numerals. Presentational — the timer's persistence stays in your app; it cleans up its interval on teardown.",
+      "aria": "A plain <span>; the clock is its text.",
+      "props": {
+        "since": {
+          "type": "date",
+          "default": null,
+          "description": "The start instant as an ISO-8601 string; unset means now (the moment it mounts).",
+          "blade": {
+            "accepts": "string|\\DateTimeInterface (Carbon)",
+            "note": "A Carbon/DateTimeInterface is normalized to ISO-8601."
+          }
+        }
+      },
+      "usage": {
+        "livewire": "<sigta:elapsed-clock :since=\"$entry->started_at\" class=\"text-lg\" />",
+        "svelte": "<ElapsedClock since={entry.startedAt} class=\"text-lg\" />"
+      },
+      "notes": {
+        "shared": [
+          "Server-rendered as 00:00:00; it ticks once a second on the client. A start in the future reads 00:00:00.",
+          "For a static duration use duration."
+        ],
+        "livewire": [
+          "Pass :since an ISO string or a Carbon/DateTime; omit it for \"now\"."
+        ],
+        "svelte": [
+          "Pass since an ISO string (new Date().toISOString(), or what your backend sends)."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Counting up from a start instant"
+        },
+        {
+          "label": "On a dark band"
         }
       ]
     },
@@ -379,7 +527,8 @@
       ],
       "notes": {
         "shared": [
-          "With no label, description, error or attributes it renders the control alone, without a wrapper."
+          "With no label, description, error or attributes it renders the control alone, without a wrapper.",
+          "Use it when wrapping a custom control; Sigta form controls already wrap themselves."
         ]
       },
       "examples": [
@@ -424,6 +573,15 @@
           "required": true
         }
       },
+      "usage": {
+        "livewire": "<sigta:heading level=\"1\" size=\"display\">Page title</sigta:heading>",
+        "svelte": "<Heading level={1} size=\"display\">Page title</Heading>"
+      },
+      "notes": {
+        "shared": [
+          "Use it instead of styling <h1>–<h6> by hand. The semantic level drives the default size; override the look with size."
+        ]
+      },
       "examples": [
         {
           "label": "Scale"
@@ -456,9 +614,14 @@
           "description": "xs 14px, sm 16px, base 20px, lg 24px."
         }
       },
+      "usage": {
+        "livewire": "<sigta:icon name=\"arrow-right\" size=\"sm\" />",
+        "svelte": "<Icon name=\"arrow-right\" size=\"sm\" />"
+      },
       "notes": {
         "shared": [
-          "Never import another icon library; every icon comes from <sigta:icon> / <Icon>."
+          "Never import another icon library; every icon comes from <sigta:icon> / <Icon>. If an icon is missing from Lucide, say so in a comment rather than substituting another set.",
+          "aria-hidden by default; pass aria-label (and aria-hidden=\"false\") for a meaningful icon."
         ]
       },
       "examples": [
@@ -530,7 +693,14 @@
         "field",
         "icon"
       ],
+      "usage": {
+        "livewire": "<sigta:input label=\"Email\" type=\"email\" icon=\"mail\" wire:model=\"email\" placeholder=\"you@studio.co\" description=\"We only use this for the invoice.\" />",
+        "svelte": "<Input label=\"Email\" type=\"email\" icon=\"mail\" bind:value={email} placeholder=\"you@studio.co\" description=\"We only use this for the invoice.\" />"
+      },
       "notes": {
+        "shared": [
+          "Use it instead of a raw <input>; it wraps itself in the field chrome."
+        ],
         "livewire": [
           "wire:model (with .live / .blur modifiers) is forwarded onto the native <input>. Under Livewire 4 write wire:model.live.blur for v3-style blur sync."
         ],
@@ -586,6 +756,11 @@
           "description": "The label text.",
           "required": true
         }
+      },
+      "notes": {
+        "shared": [
+          "inverse re-colours it for a dark surface (inside <sigta:panel variant=\"inverse\"> / <Panel variant=\"inverse\">)."
+        ]
       },
       "examples": [
         {
@@ -680,10 +855,23 @@
           "description": "Set by the runtime while a finished compass closes its circle."
         }
       },
+      "usage": {
+        "livewire": "<sigta:loader />\n<sigta:loader size=\"lg\" :value=\"$import->progress\" :state=\"$import->done ? 'done' : 'working'\" />\n<sigta:loader variant=\"sketch\" size=\"xl\" label=\"Preparing your workspace\" />",
+        "svelte": "<Loader />\n<Loader size=\"lg\" value={job.progress} state={job.done ? 'done' : 'working'} />\n<Loader variant=\"sketch\" size=\"xl\" label=\"Preparing your workspace\" />"
+      },
       "notes": {
         "shared": [
-          "A loader never moves and nothing moves around it: keep labels beside it rendered through every state.",
-          "Drive the state from data (a poll, a prop); the runtime lands the compass when working turns done."
+          "Use it wherever you would write \"Loading…\" or reach for a spinner.",
+          "States: queued (the compass standing, no arc yet, graphite), working, done (the mark complete with its arc and a small stamp), failed (shakes, danger), idle (the complete mark, graphite).",
+          "When a working loader turns done, the runtime lets it finish its turn, close the circle and raise it into the mark's arc before the stamp (with reduced motion it lands at once). currentColor throughout.",
+          "It never moves. Keep it rendered and change state rather than mounting it per request; if it must be hidden at rest, keep its box with class=\"invisible\". Put it on the side of its text that stays put (after right-aligned text at a right edge) and reserve the text's room so a new word never pushes it.",
+          "Prefer save-state, a busy button or job, which hold their space already."
+        ],
+        "livewire": [
+          "Never wrap it in @if, x-if, x-show or a bare wire:loading; drive state with a morph or x-bind:data-state. Hidden at rest: class=\"invisible\" wire:loading.class.remove=\"invisible\"."
+        ],
+        "svelte": [
+          "Never wrap it in {#if}; pass state (and value) from your data."
         ]
       },
       "examples": [
@@ -796,8 +984,13 @@
         "modal.trigger",
         "modal.close"
       ],
+      "usage": {
+        "livewire": "<sigta:modal.trigger name=\"settings\"><sigta:button>Settings</sigta:button></sigta:modal.trigger>\n<sigta:modal name=\"settings\" heading=\"Settings\">…</sigta:modal>",
+        "svelte": "<Modal.Trigger name=\"settings\"><Button>Settings</Button></Modal.Trigger>\n<Modal name=\"settings\" heading=\"Settings\">…</Modal>\n<!-- or: <Modal bind:open heading=\"Settings\">…</Modal> -->"
+      },
       "notes": {
         "shared": [
+          "Use it instead of custom dialog markup.",
           "Open by name with <sigta:modal.trigger name=\"…\"> / <Modal.Trigger name=\"…\">, or a sigta-modal-show window event { name }; close with modal.close or sigta-modal-hide."
         ],
         "livewire": [
@@ -878,6 +1071,171 @@
       ]
     },
     {
+      "name": "money",
+      "title": "Money",
+      "tier": "components",
+      "page": "money",
+      "svelte": "Money",
+      "description": "Formats a minor-unit amount (øre/cents) in tabular numerals. Known codes (DKK/EUR/USD/GBP/SEK/NOK) carry symbol, position and separators; override any piece, or pass an unknown code (trailing symbol). suffix renders a muted per-unit tail (e.g. \"/ hour\").",
+      "aria": "A plain <span>; the amount is its text.",
+      "props": {
+        "minor": {
+          "type": "number",
+          "default": null,
+          "description": "The amount in MINOR units (øre / cents); null reads as 0."
+        },
+        "currency": {
+          "type": "string",
+          "default": "DKK",
+          "description": "ISO code; drives symbol, position and separators. Printed upper case in data-currency."
+        },
+        "decimals": {
+          "type": "number",
+          "default": 2,
+          "description": "Fraction digits to show (0 for whole-major display; rounds half away from zero)."
+        },
+        "symbol": {
+          "type": "string",
+          "default": null,
+          "description": "Override the mapped symbol."
+        },
+        "position": {
+          "type": "enum",
+          "values": [
+            "before",
+            "after"
+          ],
+          "default": null,
+          "description": "Override the mapped symbol position."
+        },
+        "thousands": {
+          "type": "string",
+          "default": null,
+          "description": "Override the mapped thousands separator."
+        },
+        "decimal": {
+          "type": "string",
+          "default": null,
+          "description": "Override the mapped decimal separator."
+        },
+        "suffix": {
+          "type": "string",
+          "default": null,
+          "description": "Muted per-unit tail, e.g. \"/ hour\"."
+        }
+      },
+      "parts": {
+        "suffix": {
+          "description": "The muted per-unit tail."
+        }
+      },
+      "states": {
+        "currency": {
+          "attribute": "data-currency",
+          "description": "The upper-cased ISO code."
+        }
+      },
+      "usage": {
+        "livewire": "<sigta:money :minor=\"$rate->amount_minor\" :currency=\"$rate->currency->value\" suffix=\"/ hour\" />",
+        "svelte": "<Money minor={rate.amountMinor} currency={rate.currency} suffix=\"/ hour\" />"
+      },
+      "notes": {
+        "shared": [
+          "The amount and currency stay app data: pass minor units and an ISO code, never a preformatted string.",
+          "Both runtimes format with the same rules (the core's formatMoney, PHP number_format semantics), so a server render and a client render agree."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Minor units, formatted per currency"
+        },
+        {
+          "label": "Whole-major & per-unit suffix"
+        },
+        {
+          "label": "Overrides and unknown codes"
+        }
+      ]
+    },
+    {
+      "name": "progress",
+      "title": "Progress",
+      "tier": "elements",
+      "page": "progress",
+      "svelte": "Progress",
+      "description": "Determinate or indeterminate progress bar: a hairline track filled in ink. A label adds a mono header row with the percentage. Attributes land on the progressbar element itself.",
+      "aria": "role=\"progressbar\" with aria-valuemin/max and aria-valuenow (omitted when indeterminate); aria-labelledby points at the label.",
+      "props": {
+        "value": {
+          "type": "number",
+          "default": 0,
+          "description": "Progress against max."
+        },
+        "max": {
+          "type": "number",
+          "default": 100,
+          "description": "The value that fills the bar."
+        },
+        "label": {
+          "type": "string",
+          "default": null,
+          "description": "Header text; adds the header row with the rounded percentage."
+        },
+        "indeterminate": {
+          "type": "boolean",
+          "default": false,
+          "description": "Sweep a short bar across instead of filling; no percentage."
+        }
+      },
+      "parts": {
+        "field": {
+          "description": "Stacks the header over the track (only with a label)."
+        },
+        "header": {
+          "description": "The mono header row."
+        },
+        "label": {
+          "description": "The label text."
+        },
+        "value": {
+          "description": "The rounded percentage."
+        },
+        "fill": {
+          "description": "The ink fill; its width is --sigta-progress (0–100), set inline."
+        }
+      },
+      "states": {
+        "indeterminate": {
+          "attribute": "data-indeterminate",
+          "description": "On the track: the fill sweeps."
+        }
+      },
+      "usage": {
+        "livewire": "<sigta:progress :value=\"$upload->percent\" label=\"Uploading\" />",
+        "svelte": "<Progress value={upload.percent} label=\"Uploading\" />"
+      },
+      "notes": {
+        "shared": [
+          "For long-running background work prefer job (or loader with a value), which carry the brand motion; use progress for a plain bar (uploads, steps).",
+          "The percentage is value / max, clamped to 0–100."
+        ]
+      },
+      "examples": [
+        {
+          "label": "With label"
+        },
+        {
+          "label": "Bare"
+        },
+        {
+          "label": "Indeterminate"
+        },
+        {
+          "label": "Against a max"
+        }
+      ]
+    },
+    {
       "name": "text",
       "title": "Text",
       "tier": "elements",
@@ -904,6 +1262,15 @@
           "description": "The text.",
           "required": true
         }
+      },
+      "usage": {
+        "livewire": "<sigta:text variant=\"muted\">Secondary detail.</sigta:text>",
+        "svelte": "<Text variant=\"muted\">Secondary detail.</Text>"
+      },
+      "notes": {
+        "shared": [
+          "Use it instead of a <p> with text utilities. lede = large intro; muted = graphite secondary; caption = small mono; hand = Caveat handwriting."
+        ]
       },
       "examples": [
         {
@@ -982,12 +1349,20 @@
       "uses": [
         "icon"
       ],
+      "usage": {
+        "livewire": "@persist('toast')\n    <sigta:toast />\n@endpersist\n\n{{-- PHP --}}\nSigta::toast('Your changes have been saved.');\nSigta::toast(heading: 'Changes saved.', text: 'You can always update this in your settings.', variant: 'success', duration: 5000, link: ['text' => 'View settings', 'href' => '/settings', 'navigate' => true]);",
+        "svelte": "<!-- root layout -->\n<Toast />\n\n<script>\n    import { sigta } from '@sigta-hq/svelte';\n    sigta.toast('Your changes have been saved.');\n    sigta.toast({ heading: 'Changes saved.', text: 'You can always update this in your settings.', variant: 'success', duration: 5000, link: { text: 'View settings', href: '/settings' } });\n</script>"
+      },
       "notes": {
         "shared": [
+          "Variants: success, warning, danger, info.",
+          "An action (e.g. Undo after a completion) adds a button that fires its event — or runs onClick from JS — and closes the toast. A key replaces the showing toast with the same key instead of stacking another.",
           "Mount it once per layout, near the end of <body>.",
           "Use a key to replace rather than stack (ticking off five items leaves one toast)."
         ],
         "livewire": [
+          "From Alpine: $sigta.toast('Saved') or $sigta.toast({ heading: '…', variant: 'warning' }); from JS: window.Sigta.toast(…); low level: $this->dispatch('sigta-toast', heading: 'Saved', variant: 'success').",
+          "action: ['text' => 'Undo', 'event' => 'task-reopen', 'detail' => ['id' => $id]] fires through Livewire, so an #[On('task-reopen')] method receives $id.",
           "From PHP: Sigta::toast('Saved') or Sigta::toast(heading: '…', variant: 'success', action: ['text' => 'Undo', 'event' => 'task-reopen', 'detail' => ['id' => 5]]). An action's event goes through Livewire, so #[On] listeners hear it.",
           "With wire:navigate, wrap it in @persist('toast') so toasts survive page transitions."
         ],
@@ -1002,6 +1377,89 @@
         },
         {
           "label": "Top start"
+        }
+      ]
+    },
+    {
+      "name": "tooltip",
+      "title": "Tooltip",
+      "tier": "components",
+      "page": "tooltip",
+      "svelte": "Tooltip",
+      "description": "Ink bubble on hover/focus with a 150ms open delay; Escape dismisses it. The slot (children) is the trigger.",
+      "aria": "The bubble is role=\"tooltip\"; the trigger wrapper points at it with aria-describedby.",
+      "props": {
+        "text": {
+          "type": "string",
+          "required": true,
+          "description": "The bubble text."
+        },
+        "position": {
+          "type": "enum",
+          "values": [
+            "top",
+            "bottom",
+            "left",
+            "right"
+          ],
+          "default": "top",
+          "description": "Side of the trigger; unknown values sit on top."
+        }
+      },
+      "parts": {
+        "trigger": {
+          "description": "Wraps the slot; carries aria-describedby."
+        },
+        "bubble": {
+          "description": "The ink bubble (role=\"tooltip\"), hidden until shown."
+        }
+      },
+      "states": {
+        "position": {
+          "attribute": "data-position",
+          "values": [
+            "top",
+            "bottom",
+            "left",
+            "right"
+          ],
+          "description": "On the root: which side the bubble sits."
+        }
+      },
+      "slots": {
+        "default": {
+          "description": "The trigger — usually a button.",
+          "required": true
+        }
+      },
+      "usage": {
+        "livewire": "<sigta:tooltip text=\"Delete permanently\"><sigta:button variant=\"ghost\"><sigta:icon name=\"trash-2\" /></sigta:button></sigta:tooltip>",
+        "svelte": "<Tooltip text=\"Delete permanently\"><Button variant=\"ghost\"><Icon name=\"trash-2\" /></Button></Tooltip>"
+      },
+      "notes": {
+        "shared": [
+          "Use it instead of a title= attribute or a custom popover.",
+          "A tooltip only adds a hint: an icon-only trigger still needs its own aria-label."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Hover or focus the trigger"
+        },
+        {
+          "label": "Positions"
+        },
+        {
+          "label": "Shown on the bottom"
+        },
+        {
+          "label": "Shown on the left"
+        },
+        {
+          "label": "Shown on the right"
+        },
+        {
+          "label": "Escape dismisses"
         }
       ]
     }

@@ -18,6 +18,9 @@
         <sigta:money :minor="$rate->amount_minor" :currency="$rate->currency->value" />
         <sigta:money :minor="145000" currency="DKK" suffix="/ hour" />
         <sigta:money :minor="1234" currency="USD" :decimals="0" />
+
+    The Svelte twin formats with formatMoney() in packages/core/src/format.ts;
+    keep the two in step.
 --}}
 @php
 $known = [
@@ -43,4 +46,4 @@ $formatted = number_format(($minor ?? 0) / 100, $digits, $dec, $thou);
 $amount = $pos === 'before' ? $sym.$formatted : $formatted.' '.$sym;
 @endphp
 
-<span data-sigta="money" data-currency="{{ $code }}" {{ $attributes->merge(['class' => 'tabular-nums']) }}>{{ $amount }}@if ($suffix)<span class="text-graphite"> {{ $suffix }}</span>@endif</span>
+<span data-sigta="money" data-currency="{{ $code }}" {{ $attributes }}>{{ $amount }}@if ($suffix)<span data-scope="money" data-part="suffix"> {{ $suffix }}</span>@endif</span>

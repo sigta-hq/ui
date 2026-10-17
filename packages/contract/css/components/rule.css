@@ -1,0 +1,7 @@
+/* Rule — the brand's hand-drawn squiggle divider, a hairline in currentColor. */
+[data-sigta="rule"] {
+    @apply block w-full h-3.5 text-line;
+}
+[data-scope="rule"][data-part="line"] {
+    @apply w-full h-full;
+}

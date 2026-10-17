@@ -16,30 +16,24 @@
 ])
 
 @php
+// The same two tests as ownsPadding() / ownsDisplay() in @sigta-hq/core, which
+// the Svelte panel runs.
 $class = (string) $attributes->get('class');
+$contract = ['data-variant' => $variant];
 
 // A padding utility from the consumer replaces the default rather than competing
-// with it: both would be single-class utilities, and the compiled CSS order, not
-// the markup, would pick the winner.
-$padding = preg_match('/(^|\s)([^\s:]+:)*!?p[xytrblse]?-/', $class)
-    ? ''
-    : 'p-[clamp(24px,3vw,40px)] ';
+// with it: px-6 alone leaves no vertical default either.
+if (preg_match('/(^|\s)([^\s:]+:)*!?p[xytrblse]?-/', $class)) {
+    $contract['data-padding'] = 'custom';
+}
 
 // The same goes for the layout, or row classes (flex items-center) silently act
 // on the column. Only an unprefixed class counts: a responsive one (sm:flex-row)
-// builds on the stack, and outranks it wherever it applies.
-$display = preg_match('/(^|\s)!?(block|inline-block|flex|inline-flex|grid|inline-grid|flow-root)!?(?=\s|$)/', $class)
-    ? ''
-    : 'flex ';
-
-$direction = $display === '' || preg_match('/(^|\s)!?flex-(row|col)(-reverse)?!?(?=\s|$)/', $class)
-    ? ''
-    : 'flex-col ';
-
-$surface = match ($variant) {
-    'inverse' => 'bg-inverse text-inverse-fg border border-inverse-line',
-    default => 'bg-surface-raised border border-line',
-};
+// builds on the stack, and outranks it wherever it applies. A direction class
+// alone (flex-row) keeps the flex and outranks the column by itself.
+if (preg_match('/(^|\s)!?(block|inline-block|flex|inline-flex|grid|inline-grid|flow-root)!?(?=\s|$)/', $class)) {
+    $contract['data-layout'] = 'custom';
+}
 @endphp
 
-<div data-sigta="panel" data-variant="{{ $variant }}" {{ $attributes->merge(['class' => 'relative '.$display.$direction.'rounded-panel '.$padding.$surface]) }}>{{ $slot }}</div>
+<div data-sigta="panel" {{ $attributes->merge($contract) }}>{{ $slot }}</div>

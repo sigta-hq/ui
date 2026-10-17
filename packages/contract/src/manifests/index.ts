@@ -4,6 +4,9 @@ import autocomplete from './autocomplete.ts';
 import autocompleteOption from './autocomplete.option.ts';
 import button from './button.ts';
 import checkbox from './checkbox.ts';
+import count from './count.ts';
+import duration from './duration.ts';
+import elapsedClock from './elapsed-clock.ts';
 import field from './field.ts';
 import heading from './heading.ts';
 import icon from './icon.ts';
@@ -13,9 +16,12 @@ import loader from './loader.ts';
 import modal from './modal.ts';
 import modalClose from './modal.close.ts';
 import modalTrigger from './modal.trigger.ts';
+import money from './money.ts';
+import progress from './progress.ts';
 import text from './text.ts';
 import toast from './toast.ts';
+import tooltip from './tooltip.ts';
 
-export const manifests: ComponentManifest[] = [autocomplete, autocompleteOption, button, checkbox, field, heading, icon, input, label, loader, modal, modalClose, modalTrigger, text, toast];
+export const manifests: ComponentManifest[] = [autocomplete, autocompleteOption, button, checkbox, count, duration, elapsedClock, field, heading, icon, input, label, loader, modal, modalClose, modalTrigger, money, progress, text, toast, tooltip];
 
 export const registry: Record<string, ComponentManifest> = Object.fromEntries(manifests.map((m) => [m.name, m]));

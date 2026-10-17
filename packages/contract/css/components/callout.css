@@ -1,0 +1,22 @@
+/* Callout — an inline note on paper with a heavy left edge; the edge and the
+   icon take the variant's colour (info is ink). */
+[data-sigta="callout"] {
+    @apply flex items-start gap-[0.8rem] bg-surface border-[1.5px] border-l-4 rounded-[5px] px-[1em] py-[0.9em] text-[0.92rem];
+
+    /* info, and any variant the component does not know */
+    &:not(:is([data-variant="success"], [data-variant="danger"])) { @apply border-ink; }
+    &[data-variant="success"] { @apply border-success; }
+    &[data-variant="danger"] { @apply border-danger; }
+}
+[data-scope="callout"][data-part="icon"] {
+    @apply shrink-0 mt-[2px] text-ink;
+
+    [data-sigta="callout"][data-variant="success"] > & { @apply text-success; }
+    [data-sigta="callout"][data-variant="danger"] > & { @apply text-danger; }
+}
+[data-scope="callout"][data-part="body"] {
+    @apply min-w-0;
+}
+[data-scope="callout"][data-part="heading"] {
+    @apply font-head font-semibold;
+}

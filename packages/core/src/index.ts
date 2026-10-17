@@ -8,3 +8,6 @@ export * from './save.ts';
 export * from './floating.ts';
 export * from './combobox.ts';
 export * from './globals.ts';
+export * from './format.ts';
+export * from './classes.ts';
+export * from './chart.ts';

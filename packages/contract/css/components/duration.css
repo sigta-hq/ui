@@ -1,0 +1,4 @@
+/* Duration — a static span of time in tabular numerals. */
+[data-sigta="duration"] {
+    @apply tabular-nums;
+}

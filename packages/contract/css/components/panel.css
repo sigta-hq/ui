@@ -1,0 +1,16 @@
+/* Panel — a bordered surface like the card but without the clip, so
+   overhanging annotations and badges show; static, no hover lift. inverse is
+   a dark ink band. Children stack as a flex column with fluid padding: a
+   consumer padding class replaces the padding (data-padding="custom") and an
+   unprefixed display class replaces the stack (data-layout="custom"), rather
+   than competing with them property by property. */
+[data-sigta="panel"] {
+    @apply relative rounded-panel;
+
+    &:not([data-layout="custom"]) { @apply flex flex-col; }
+    &:not([data-padding="custom"]) { @apply p-[clamp(24px,3vw,40px)]; }
+
+    /* default, and any variant the component does not know */
+    &:not([data-variant="inverse"]) { @apply bg-surface-raised border border-line; }
+    &[data-variant="inverse"] { @apply bg-inverse text-inverse-fg border border-inverse-line; }
+}

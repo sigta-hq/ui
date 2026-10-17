@@ -1,0 +1,24 @@
+/* Avatar — a portrait, or mono initials on an ink (or hairline) ground.
+   Circle by default, square on request. */
+[data-sigta="avatar"] {
+    @apply inline-flex items-center justify-center shrink-0 select-none overflow-hidden;
+
+    /* base, and any size the component does not know */
+    &:not(:is([data-size="xs"], [data-size="sm"], [data-size="lg"])) { @apply size-10 text-[0.72rem]; }
+    &[data-size="xs"] { @apply size-6 text-[0.55rem]; }
+    &[data-size="sm"] { @apply size-8 text-[0.62rem]; }
+    &[data-size="lg"] { @apply size-14 text-[0.9rem]; }
+
+    &:not([data-shape="square"]) { @apply rounded-full; }
+    &[data-shape="square"] { @apply rounded-base; }
+
+    &:is(img) { @apply object-cover; }
+
+    /* Initials: ink, and any tone the component does not know; line is a hairline ground. */
+    &:not(img) {
+        @apply font-mono;
+
+        &:not([data-tone="line"]) { @apply bg-ink text-surface; }
+        &[data-tone="line"] { @apply bg-line text-ink; }
+    }
+}

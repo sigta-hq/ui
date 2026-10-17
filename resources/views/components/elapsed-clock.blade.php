@@ -9,6 +9,9 @@
     in your app; this only renders the counting value.
 
         <sigta:elapsed-clock :since="$entry->started_at" class="text-lg" />
+
+    The Svelte twin counts with formatElapsed() in packages/core/src/format.ts;
+    keep the label below in step with it.
 --}}
 @php
 $startIso = $since instanceof \DateTimeInterface ? $since->format(\DateTime::ATOM) : $since;
@@ -16,7 +19,7 @@ $startIso = $since instanceof \DateTimeInterface ? $since->format(\DateTime::ATO
 
 <span
     data-sigta="elapsed-clock"
-    {{ $attributes->merge(['class' => 'tabular-nums']) }}
+    {{ $attributes }}
     x-data="{
         started: {{ $startIso ? "new Date('".$startIso."').getTime()" : 'Date.now()' }},
         now: Date.now(),

@@ -1,0 +1,4 @@
+/* Elapsed clock — HH:MM:SS in tabular numerals, so the ticking never jitters. */
+[data-sigta="elapsed-clock"] {
+    @apply tabular-nums;
+}

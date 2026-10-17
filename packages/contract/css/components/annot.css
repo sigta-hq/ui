@@ -1,0 +1,10 @@
+/* Annot — a handwritten margin note in Caveat. The tone colours it: ink,
+   muted (graphite) or accent (for a dark band). The rotation is set inline. */
+[data-sigta="annot"] {
+    @apply font-hand font-semibold leading-none text-[1.35rem] inline-block;
+
+    /* ink, and any tone the component does not know */
+    &:not(:is([data-tone="muted"], [data-tone="accent"])) { @apply text-ink; }
+    &[data-tone="muted"] { @apply text-graphite; }
+    &[data-tone="accent"] { @apply text-accent; }
+}

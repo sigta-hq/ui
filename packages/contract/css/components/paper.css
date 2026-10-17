@@ -1,0 +1,14 @@
+/* Paper — the page ground behind everything: a faint dot grid and a paper
+   grain, fixed to the viewport and never in the way of a click. */
+[data-sigta="paper"] {
+    @apply pointer-events-none fixed inset-0 z-0;
+}
+[data-scope="paper"][data-part="dots"] {
+    @apply absolute inset-0 opacity-55 [background-image:radial-gradient(var(--sigta-line)_1px,transparent_1.4px)] [background-size:26px_26px] [background-position:-13px_-13px];
+}
+[data-scope="paper"][data-part="grain"] {
+    @apply absolute inset-0 opacity-5 mix-blend-multiply;
+}
+[data-scope="paper"][data-part="noise"] {
+    @apply w-full h-full;
+}

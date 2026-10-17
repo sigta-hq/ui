@@ -1,0 +1,6 @@
+/* Separator — a plain hairline <hr> inside content, solid or dashed. */
+[data-sigta="separator"] {
+    @apply border-0 border-t border-line;
+
+    &[data-variant="dashed"] { @apply border-dashed; }
+}

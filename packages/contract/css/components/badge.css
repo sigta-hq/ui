@@ -1,0 +1,10 @@
+/* Badge — a small mono pill with a 1.5px border: outline, solid ink or the
+   accent highlight. Tight line-height keeps the label vertically centred. */
+[data-sigta="badge"] {
+    @apply inline-flex items-center leading-none font-mono text-[0.68rem] tracking-[0.05em] px-[0.7em] py-[0.32em] rounded-full border-[1.5px];
+
+    /* outline, and any variant the component does not know */
+    &:not(:is([data-variant="solid"], [data-variant="accent"])) { @apply bg-transparent text-ink border-ink; }
+    &[data-variant="solid"] { @apply bg-ink text-surface border-ink; }
+    &[data-variant="accent"] { @apply bg-accent border-accent-line text-ink; }
+}

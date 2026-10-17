@@ -1,0 +1,4 @@
+/* Eyebrow — a mono uppercase kicker led by a short ink dash. */
+[data-sigta="eyebrow"] {
+    @apply font-mono text-[0.72rem] tracking-[0.22em] uppercase text-graphite flex items-center gap-[0.7em] before:content-[''] before:inline-block before:w-[1.6rem] before:h-px before:bg-ink;
+}

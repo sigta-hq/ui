@@ -1,0 +1,18 @@
+/* Brand — the SIGTA lockup: glyph and wordmark in currentColor, so a text
+   colour on the root recolours the whole mark. */
+[data-sigta="brand"] {
+    @apply inline-flex items-center gap-[0.6em] text-ink;
+}
+/* base, and any size the component does not know */
+[data-scope="brand"][data-part="glyph"] {
+    @apply size-[30px] shrink-0;
+
+    [data-sigta="brand"][data-size="sm"] > & { @apply size-[22px]; }
+    [data-sigta="brand"][data-size="lg"] > & { @apply size-[38px]; }
+}
+[data-scope="brand"][data-part="name"] {
+    @apply font-head font-semibold text-[1.3rem] tracking-[0.02em];
+
+    [data-sigta="brand"][data-size="sm"] > & { @apply text-[1.05rem]; }
+    [data-sigta="brand"][data-size="lg"] > & { @apply text-[1.6rem]; }
+}

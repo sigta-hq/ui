@@ -1,0 +1,5 @@
+/* Count — tabular numerals, so a bump never shifts its neighbours. The bump
+   itself is the core's observeCount (a script animation). */
+[data-sigta="count"] {
+    @apply inline-block tabular-nums;
+}

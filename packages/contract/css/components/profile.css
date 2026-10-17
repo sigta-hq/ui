@@ -1,0 +1,16 @@
+/* Profile — an avatar beside a Fraunces name and an optional mono meta
+   line; reverse mirrors it for a right edge. */
+[data-sigta="profile"] {
+    @apply inline-flex items-center gap-3;
+
+    &[data-reverse] { @apply flex-row-reverse text-right; }
+}
+[data-scope="profile"][data-part="text"] {
+    @apply flex min-w-0 flex-col;
+}
+[data-scope="profile"][data-part="name"] {
+    @apply font-head font-medium text-[0.98rem] leading-[1.2];
+}
+[data-scope="profile"][data-part="meta"] {
+    @apply font-mono text-[0.68rem] tracking-[0.04em] text-graphite mt-0.5;
+}

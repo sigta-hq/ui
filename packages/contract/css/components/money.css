@@ -1,0 +1,7 @@
+/* Money — an amount in tabular numerals; a per-unit suffix is muted. */
+[data-sigta="money"] {
+    @apply tabular-nums;
+}
+[data-scope="money"][data-part="suffix"] {
+    @apply text-graphite;
+}

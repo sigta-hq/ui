@@ -1,0 +1,24 @@
+/* Tooltip — a small ink bubble beside its trigger, on paper-coloured mono
+   text. data-position (top, bottom, left, right) picks the side; anything
+   else sits on top. */
+[data-sigta="tooltip"] {
+    @apply relative inline-flex;
+}
+[data-scope="tooltip"][data-part="trigger"] {
+    @apply inline-flex;
+}
+[data-scope="tooltip"][data-part="bubble"] {
+    @apply absolute z-20 pointer-events-none bg-ink text-surface font-mono text-[0.7rem] tracking-[0.04em] px-2 py-1 rounded-base whitespace-nowrap shadow-paper;
+}
+[data-sigta="tooltip"]:not(:is([data-position="bottom"], [data-position="left"], [data-position="right"])) > [data-scope="tooltip"][data-part="bubble"] {
+    @apply bottom-full left-1/2 -translate-x-1/2 mb-2;
+}
+[data-sigta="tooltip"][data-position="bottom"] > [data-scope="tooltip"][data-part="bubble"] {
+    @apply top-full left-1/2 -translate-x-1/2 mt-2;
+}
+[data-sigta="tooltip"][data-position="left"] > [data-scope="tooltip"][data-part="bubble"] {
+    @apply right-full top-1/2 -translate-y-1/2 mr-2;
+}
+[data-sigta="tooltip"][data-position="right"] > [data-scope="tooltip"][data-part="bubble"] {
+    @apply left-full top-1/2 -translate-y-1/2 ml-2;
+}

@@ -12,8 +12,8 @@ $paths = [
 $d = $paths[((int) $variant - 1) % 3 + 1] ?? $paths[1];
 @endphp
 
-<div {{ $attributes->merge(['class' => 'block w-full h-3.5 text-line']) }} aria-hidden="true" data-sigta="rule">
-    <svg class="w-full h-full" viewBox="0 0 1180 14" preserveAspectRatio="none" fill="none">
+<div {{ $attributes->merge(['data-variant' => $variant]) }} aria-hidden="true" data-sigta="rule">
+    <svg data-scope="rule" data-part="line" viewBox="0 0 1180 14" preserveAspectRatio="none" fill="none">
         <path d="{{ $d }}" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
     </svg>
 </div>
