@@ -21,8 +21,9 @@ export default defineComponent({
             type: 'enum',
             values: ['idle', 'dirty', 'saving', 'saved', 'failed'],
             default: 'idle',
-            description: 'The state it shows (anything else reads as idle). Livewire: the initial state; Svelte: drive it here (bind:state also follows the events).',
-            svelte: { note: 'Bindable: bind:state follows the sigta-save-state events too.' },
+            description: 'The state it shows (anything else reads as idle).',
+            blade: { note: 'The initial state; after that it follows target and the events.' },
+            svelte: { note: 'Drive it here; bind:state also follows the sigta-save-state events.' },
         },
         align: { type: 'enum', values: ['start', 'end'], default: 'start', description: 'end puts the compass on the right and right-aligns the words — for the right end of a bar.' },
         idle: { type: 'string', default: null, description: 'Text shown at rest ("All changes saved"); none by default.' },
@@ -64,12 +65,12 @@ export default defineComponent({
         svelte: `<script>
     import { Heading, SaveState, Textarea, sigta } from '@sigta-hq/svelte';
 
-    let state = $state('idle');
+    let draft = $state('idle');
 </script>
 
 <header class="flex items-center justify-between">
     <Heading>Draft</Heading>
-    <SaveState bind:state align="end" />   <!-- flush right, words grow leftward -->
+    <SaveState bind:state={draft} align="end" />   <!-- flush right, words grow leftward -->
 </header>
 
 <SaveState name="profile" idle="All changes saved" />
