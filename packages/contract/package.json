@@ -1,7 +1,7 @@
 {
     "name": "@sigta-hq/contract",
     "version": "0.1.0",
-    "description": "Sigta UI contract \u2014 component manifests, the shared component stylesheet, tokens, fonts and icons every runtime renders against.",
+    "description": "Sigta UI contract — component manifests, the shared component stylesheet, tokens, fonts and icons every runtime renders against.",
     "license": "UNLICENSED",
     "type": "module",
     "repository": {
@@ -17,6 +17,7 @@
         "manifest.json",
         "css",
         "fonts",
+        "icons/lucide.json",
         "src"
     ],
     "sideEffects": [

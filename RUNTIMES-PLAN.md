@@ -8,6 +8,19 @@ single-sourced, while the rendering and interactivity layer is an adapter.
 Livewire/Blade (today's) is one adapter, Svelte 5 is the second, and a Svelte
 app built on Sigta looks and behaves indistinguishably from a Livewire one.
 
+## Status
+
+Implemented. All 112 components (elements, components, layout, sections) have
+a manifest, a contract stylesheet, a Blade view and a Svelte twin. Every
+manifest example is rendered by both runtimes and compared on the server and
+live in Chromium, including DOM, pixels and scripted interactions. The
+whole-page acceptance pairs (landing, dashboard, chat) are compared at desk
+and phone widths, together with their click-through flows. The Livewire look
+was held pixel-identical to the pre-migration kit by a visual check on every
+kit page. The ongoing rules for keeping the runtimes in step are in
+[CLAUDE.md](CLAUDE.md), [CONVENTIONS.md](CONVENTIONS.md) and
+[AUTHORING.md](AUTHORING.md).
+
 ## Approach
 
 The design leaves the Blade templates. Every component's look lives in one
@@ -197,8 +210,13 @@ move/column-move), pickers (ISO strings).
 
 - `npm run build`: contract CSS → `dist/` + `packages/contract/dist`; core;
   Livewire runtime IIFE; editor bundle; Svelte package.
-- `npm run generate`: manifest JSON, stubs (both runtimes), docs data.
-- `npm run conformance`: Blade renders (PHP) vs Svelte SSR renders (Node).
+- `npm run generate`: manifest JSON, the Svelte index, stubs (both runtimes).
+- `npm run conformance`: Blade renders (PHP) vs Svelte SSR renders (Node);
+  `--browser` loads both in Chromium and compares the live DOM, screenshots
+  and interactions, plus the acceptance pages in `harness/acceptance/`.
+- `npm run check`: the merge gate (build, generate --check, Vitest,
+  svelte-check, conformance server + browser, Pest, token guard), mirrored
+  job for job in CI.
 - `npx sigta install`: fonts are bundled by Vite; writes `sigta-ui.md`,
   `sigta-components.md` (Svelte edition) and the `AGENTS.md` line.
 

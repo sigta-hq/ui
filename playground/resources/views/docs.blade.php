@@ -27,7 +27,6 @@
     /* resources/css/app.css */
     @import "tailwindcss";
     @import "../../vendor/sigta/ui/resources/css/sigta.css";   /* core + Sigta brand */
-    @source "../../vendor/sigta/ui/resources/views";
     CSS;
 
     $codeLayout = <<<'BLADE'
@@ -115,7 +114,6 @@
     /* Mode A — drop-in Sigta brand */
     @import "tailwindcss";
     @import "../../vendor/sigta/ui/resources/css/sigta.css";
-    @source "../../vendor/sigta/ui/resources/views";
     CSS;
 
     $codeOwnTheme = <<<'CSS'
@@ -123,7 +121,6 @@
     @import "tailwindcss";
     @import "../../vendor/sigta/ui/resources/css/core.css";
     @import "./brand.css";        /* your :root{--sigta-*} + @font-face */
-    @source "../../vendor/sigta/ui/resources/views";
     CSS;
 
     $codeScope = <<<'CSS'

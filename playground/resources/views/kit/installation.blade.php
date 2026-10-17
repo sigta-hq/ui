@@ -85,7 +85,6 @@
     /* resources/css/app.css */
     @import "tailwindcss";
     @import "../../vendor/sigta/ui/resources/css/sigta.css";   /* core + Sigta brand */
-    @source "../../vendor/sigta/ui/resources/views";
     CSS;
 
     $codeAppCssOwnBrand = <<<'CSS'
@@ -93,7 +92,6 @@
     @import "tailwindcss";
     @import "../../vendor/sigta/ui/resources/css/core.css";
     @import "./brand.css";        /* your :root{--sigta-*} + @font-face */
-    @source "../../vendor/sigta/ui/resources/views";
     CSS;
 
     $codeLayout = <<<'BLADE'
@@ -152,6 +150,8 @@
         is proprietary and not published to Packagist, so <code class="font-mono text-ink">composer require sigta/ui</code>
         alone will fail — you must point Composer at a private VCS repository first. This page covers that path end to end.
         For the local-dev quickstart, see <a href="/docs#install" class="text-ink underline underline-offset-[3px]">/docs</a>.
+        Building with Svelte 5 instead? The same components, looks and behavior ship as the npm package
+        <code class="font-mono text-ink">@sigta-hq/svelte</code>, with no PHP needed; its installation lives in the docs site's Svelte edition.
     </x-sigta::text>
 
     {{-- ===================== REQUIREMENTS ===================== --}}
@@ -248,8 +248,8 @@
     <section>
         <x-sigta::eyebrow class="mb-3">04 · CSS entry</x-sigta::eyebrow>
         <x-sigta::text variant="muted" class="mt-2 max-w-[60ch]">
-            Import the Sigta stylesheet into your app's CSS entry, and add <code class="font-mono text-ink">@source</code>
-            so Tailwind v4 scans the package's views for class names to keep.
+            Import the Sigta stylesheet into your app's CSS entry. The component styles ship prebuilt, so
+            Tailwind needs no <code class="font-mono text-ink">@source</code> for the package's views (an existing one is harmless).
         </x-sigta::text>
 
         <div class="mt-5 grid gap-5 lg:grid-cols-2">
@@ -305,8 +305,8 @@
     <section>
         <x-sigta::eyebrow class="mb-3">07 · Build assets</x-sigta::eyebrow>
         <x-sigta::text variant="muted" class="mt-2 max-w-[60ch]">
-            Vite compiles your app's CSS (Tailwind scans the package views via
-            <code class="font-mono text-ink">@source</code>). The package's own JavaScript ships pre-built in
+            Vite compiles your app's CSS (the Sigta component styles arrive prebuilt
+            inside it). The package's own JavaScript ships pre-built in
             <code class="font-mono text-ink">dist/</code> and is served by route — it needs <b class="text-ink">no build step</b>
             on your side.
         </x-sigta::text>

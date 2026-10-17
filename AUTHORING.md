@@ -1,18 +1,18 @@
-# Moving a component onto the contract
+# Building a component on the contract
 
-How a Blade component that styles itself with utility classes becomes a
-contract component that both runtimes render: one manifest, one stylesheet, a
-Blade view and a Svelte component that emit the same DOM. Read
-[CLAUDE.md](CLAUDE.md) and [CONVENTIONS.md](CONVENTIONS.md) first. The pilot
-components show every pattern below in working code: `button`, `input`,
-`field`, `label`, `heading`, `text`, `modal` (+ `modal.trigger`,
-`modal.close`), `autocomplete` (+ `autocomplete.option`), `toast`,
-`checkbox`, `icon`, `loader`.
+How a component is made so both runtimes render it: one manifest, one
+stylesheet, a Blade view and a Svelte component that emit the same DOM. Every
+component in the package was moved onto the contract this way, so the
+existing ones show every pattern below in working code — start from the
+closest one (`button`, `input`, `field`, `modal`, `autocomplete`, `toast`,
+`tabs`, `kanban`, `section.hero`). Read [CLAUDE.md](CLAUDE.md) and
+[CONVENTIONS.md](CONVENTIONS.md) first.
 
-The bar: **the Livewire look stays pixel-identical to today** (the visual
-check), **both runtimes agree** (conformance, server render and browser), and
-**the Blade API does not change** (same tag, `@props`, slots, attribute and
-`wire:*` forwarding).
+The bar for every change: **both runtimes agree** (conformance, server render
+and browser), **the Livewire look does not move unless you meant it to** (the
+visual check against a baseline taken before the change), and **the Blade API
+stays compatible** (same tag, `@props`, slots, attribute and `wire:*`
+forwarding).
 
 ## Files per component
 
@@ -30,15 +30,20 @@ Generated, never edited by hand: `packages/contract/src/manifests/index.ts`,
 
 ## 1. Read before writing
 
-- The Blade view, its kit page (`playground/resources/views/kit/<page>.blade.php`),
-  its Pest tests, and any Alpine component it uses in `resources/js/sigta.js`.
-- The components it renders (`<x-sigta::…>` inside it). A Svelte component can
-  only use Svelte components that already exist; if a dependency is not
-  migrated yet and is outside your batch, say so in your report.
+- For a change: the manifest, the stylesheet, both adapters, the kit page
+  (`playground/resources/views/kit/<page>.blade.php`), the Pest tests and any
+  Alpine component it uses in `resources/js/sigta.js`.
+- For a new component: the closest existing one, and the components the new
+  one renders. Add it to `resources/catalog.php` (the kit sidebar, the docs
+  navigation and the stub ordering all read it) and give it a kit page.
+- Take a visual baseline of the kit pages you may affect before you edit
+  anything (`node scripts/visual-snapshot.js <dir> http://127.0.0.1:8321 <pages…>`).
 
-## 2. The stylesheet — move the look, keep it identical
+## 2. The stylesheet
 
-Write the classes from the Blade view as `@apply` rules on contract selectors:
+The look is written as Tailwind `@apply` rules on contract selectors — the
+token utilities (`bg-surface`, `font-mono`, `rounded-panel`, …) are the
+vocabulary, the selectors are the contract:
 
 ```css
 [data-sigta="badge"] {                       /* the root: data-sigta="<name>" */
@@ -58,11 +63,11 @@ Write the classes from the Blade view as `@apply` rules on contract selectors:
   scope (`[data-part="label"]` alone leaks into nested components).
 - **Variants and sizes**: emit the prop as `data-variant`, `data-size`,
   `data-tone`, `data-position`… (always, including the default value).
-- **A `match` default arm** ("anything else looks like secondary") becomes
+- **A fallback look** ("anything else looks like secondary") is
   `&:not(:is([data-variant="a"], [data-variant="b"]))` so unknown values keep
-  today's fallback look.
-- **Conditional classes** (`$error ? 'border-danger' : 'border-line'`,
-  Alpine `:class="{ … }"`) become state attributes: prefer ARIA
+  the fallback look.
+- **Conditional looks** (an error border, a selected row) are state
+  attributes, never class toggles: prefer ARIA
   (`aria-invalid`, `aria-selected`, `aria-current`, `aria-expanded`,
   `aria-pressed`, `aria-checked`, `aria-disabled`), else `data-*`
   (`data-active`, `data-selected`, `data-open`). In Alpine:
@@ -70,33 +75,35 @@ Write the classes from the Blade view as `@apply` rules on contract selectors:
 - **Computed values** (a width from a percentage, grid columns from a prop)
   become a CSS custom property set inline by both runtimes:
   `style="--sigta-progress: 42"` and `width: calc(var(--sigta-progress) * 1%)`.
-- **group-hover / peer** utilities become nested selectors
+- **group-hover / peer** effects are nested selectors
   (`[data-sigta="card"]:hover [data-part="arrow"]`).
-- **`x-transition` classes** become CSS: an `animation` on insertion and a
+- **Enter/leave transitions** are CSS: an `animation` on insertion and a
   `data-leaving` (or similar) state the runtime sets before removing; see
   `toast.css`.
 - **Classes that are hooks, not looks** (`sigta-loader-*`, `sigta-prose`,
   `sigta-stamp`, `sigta-write`) may stay; they are part of the contract.
-- **Precedence trap.** Two utilities on one element that set the same property
-  (a size's `px-[1.4em]` and a variant's `px-[0.6em]`) were resolved by
-  Tailwind's internal sort order, not by intent — often the "wrong" one won.
-  Nested selectors make the variant win instead. Match what renders today:
-  the visual check will show any difference; drop the dead utility.
+- **Precedence.** Rules are plain CSS, so specificity and order decide —
+  not Tailwind's utility sort. A variant nested under the root beats the
+  root's own rule; a part rule a parent component sets on a child (a
+  section sizing its heading) needs a selector specific enough to beat the
+  child's own rule. Check the result in both runtimes, not the source.
 - Raw hex colours are never allowed (`scripts/check-tokens.sh`).
 
 Run `node packages/contract/scripts/build.ts` after editing CSS.
 
 ## 3. The Blade view
 
-- Keep `@props` exactly (names, defaults, order is free). The Pest contract
-  test compares them with the manifest.
-- Remove every design class; add the data attributes. Keep `$attributes`
+- `@props` match the manifest (names and defaults); the Pest contract test
+  compares them. Never rename or drop an existing prop (Livewire apps rely
+  on it).
+- No design classes; only the data attributes. Keep `$attributes`
   forwarding where it was (root, or the native element for form controls),
   so a consumer's `class`, `wire:*`, `x-*`, `id`, `aria-*` land where they did.
   `$attributes->merge(['data-variant' => $variant])` is fine; a consumer's
   `class` is merged in and wins over the component layer.
-- Keep Alpine behavior and Livewire glue as they are; only class bindings
-  change. Never interpolate state into `x-data` (see CONVENTIONS.md).
+- Behavior is a registered `Alpine.data('sigta<Name>')` in
+  `resources/js/sigta.js` with a constant `x-data` (never interpolate state
+  into it; see CONVENTIONS.md).
 - A server-rendered element the client hides until Alpine starts needs
   `x-cloak` (the Svelte twin renders it `hidden` on the server).
 
@@ -109,7 +116,7 @@ and two-way ones `bindable: true`. Describe parts, states (the attributes
 the CSS reads), slots, events (`blade:` how Livewire hears it, `svelte:` the
 callback prop) and notes per runtime for the LLM stubs.
 
-Examples: port the kit page's examples as neutral trees
+Examples: write the kit page's examples as neutral trees
 (`c('badge', { variant: 'accent' }, 'New')`, `el('div', { class: … }, …)`).
 They are the docs and the conformance fixtures at once.
 
@@ -160,9 +167,15 @@ declared in its returned object (`tests/RuntimeTest.php` checks it).
 
 ## 7. Tests
 
-Pest tests that asserted classes now assert the contract: the data attributes
-in the markup, and the look through `contractCss('<name>')` (the stylesheet
-source). Keep every test's intent; never delete one to get green.
+Pest tests assert the contract: the data attributes in the markup, and the
+look through `contractCss('<name>')` (the stylesheet source). Svelte gets its
+contract test for free (props and defaults against the manifest); add a
+Vitest test in `packages/svelte/test/` for runtime logic the conformance
+examples cannot reach. Never delete a test to get green.
+
+A whole page built from many components belongs in `harness/acceptance/`
+(`<page>.blade.php` beside `<page>.svelte`, optional `<page>.flows.json` of
+click-through steps). They are compared full-page at 1280 and 390 wide.
 
 ## 8. Verify
 
@@ -172,6 +185,7 @@ node scripts/conformance.js <names…>              # server renders agree
 node scripts/conformance.js <names…> --browser    # live DOM + pixels + interactions agree
 ./vendor/bin/pest tests/Components/<X>Test.php tests/ContractTest.php
 npx vitest run --root packages/svelte
+node scripts/conformance.js acceptance --browser   # whole pages and their flows
 SIGTA_VISUAL_DIR=<scratch dir> scripts/visual-check.sh <baseline-dir> <kit pages…>   # Livewire look unchanged
 ./scripts/check-tokens.sh
 ```
