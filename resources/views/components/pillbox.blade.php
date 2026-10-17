@@ -17,18 +17,18 @@ $listboxId = $id.'-listbox';
     x-data="sigtaCombobox({ multiple: true })"
     x-on:keydown.escape.prevent="closeList()"
     x-on:focusout="if (! $el.contains($event.relatedTarget)) closeList()"
-    {{ $attributes->only('class')->merge(['class' => 'relative']) }}
+    {{ $attributes->only('class') }}
     data-sigta="pillbox"
 >
     @if ($label)
-        <label for="{{ $id }}" class="block font-mono text-[0.68rem] tracking-[0.08em] uppercase text-graphite mb-1.5">{{ $label }}</label>
+        <label for="{{ $id }}" data-scope="pillbox" data-part="label">{{ $label }}</label>
     @endif
 
-    <div x-ref="anchor" class="flex flex-wrap items-center gap-1.5 bg-surface border-[1.5px] rounded-[5px] px-2 py-1.5 focus-within:border-ink transition-colors {{ $error ? 'border-danger' : 'border-line' }}">
+    <div x-ref="anchor" data-scope="pillbox" data-part="control">
         <template x-for="v in value" :key="v">
-            <span class="inline-flex items-center gap-1.5 font-mono text-[0.68rem] tracking-[0.05em] px-2.5 py-1 rounded-full border-[1.5px] border-ink text-ink">
+            <span data-scope="pillbox" data-part="chip">
                 <span x-text="labelFor(v)"></span>
-                <button type="button" x-on:click="deselect(v)" x-bind:aria-label="'Remove ' + labelFor(v)" class="cursor-pointer opacity-60 hover:opacity-100">
+                <button type="button" x-on:click="deselect(v)" x-bind:aria-label="'Remove ' + labelFor(v)" data-scope="pillbox" data-part="remove">
                     <x-sigta::icon name="x" size="xs" />
                 </button>
             </span>
@@ -40,6 +40,7 @@ $listboxId = $id.'-listbox';
             role="combobox"
             aria-autocomplete="list"
             aria-controls="{{ $listboxId }}"
+            aria-expanded="false"
             x-bind:aria-expanded="open"
             x-bind:aria-activedescendant="activeId"
             x-model="query"
@@ -49,8 +50,10 @@ $listboxId = $id.'-listbox';
             x-on:keydown.up.prevent="move(-1)"
             x-on:keydown.enter.prevent="chooseActive()"
             placeholder="{{ $placeholder }}"
+            @if ($error) aria-invalid="true" @endif
             autocomplete="off"
-            class="flex-1 min-w-24 font-body text-[0.95rem] text-ink bg-transparent px-1 py-0.5 focus:outline-none placeholder:text-graphite"
+            data-scope="pillbox"
+            data-part="input"
         >
     </div>
 
@@ -63,16 +66,17 @@ $listboxId = $id.'-listbox';
         id="{{ $listboxId }}"
         role="listbox"
         aria-multiselectable="true"
-        class="fixed z-50 max-h-64 overflow-y-auto bg-surface-raised border border-line rounded-panel shadow-paper py-1.5"
+        data-scope="pillbox"
+        data-part="listbox"
     >
         {{ $slot }}
-        <div x-show="visible().length === 0" class="px-3.5 py-2 font-mono text-[0.72rem] text-graphite">No matches.</div>
+        <div x-cloak x-show="matches === 0" data-scope="pillbox" data-part="empty">No matches.</div>
     </div>
 
     @if ($description && ! $error)
-        <p class="mt-1.5 text-[0.85rem] text-graphite">{{ $description }}</p>
+        <p data-scope="pillbox" data-part="description">{{ $description }}</p>
     @endif
     @if ($error)
-        <p class="mt-1.5 font-mono text-[0.72rem] text-danger">{{ $error }}</p>
+        <p data-scope="pillbox" data-part="error">{{ $error }}</p>
     @endif
 </div>

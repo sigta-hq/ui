@@ -1,0 +1,14 @@
+/* Section: faq — a section header over a single-open accordion at a reading
+   measure, centred. */
+[data-sigta="section.faq"] {
+    @apply py-[clamp(40px,6vw,72px)];
+}
+[data-scope="section.faq"][data-part="wrap"] {
+    @apply mx-auto max-w-(--sigta-maxw) px-(--sigta-gutter);
+}
+[data-scope="section.faq"][data-part="header"] {
+    @apply mb-[clamp(28px,4vw,52px)];
+}
+[data-scope="section.faq"][data-part="accordion"] {
+    @apply mx-auto max-w-[760px];
+}

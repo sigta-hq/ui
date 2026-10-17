@@ -12,16 +12,28 @@ it('renders a composer with an auto-growing textarea and send button', function 
         ->toContain('name="message"')
         ->toContain('aria-label="Message"')
         ->toContain('x-ref="input"')
-        ->toContain('resize()')                 // auto-grow behavior
+        ->toContain('x-data="sigtaComposer"')
+        ->toContain('x-on:input="resize()"')    // auto-grow behavior
         ->toContain('aria-label="Send"')
-        ->toContain('aria-label="Attach file"'); // default leading slot
+        ->toContain('aria-label="Attach file"') // default leading slot
+        ->toContain('data-scope="composer"'."\n".'        data-part="input"')
+        ->not->toContain('class=');
+
+    expect(contractCss('composer'))
+        ->toContain('focus-within:border-ink')
+        ->toContain('@apply flex-1 min-w-0 resize-none bg-transparent');
 });
 
 it('wires Enter-to-send, Shift+Enter newline, and the submit event', function () {
     $html = Blade::render('<x-sigta::composer />');
 
+    $runtime = file_get_contents(dirname(__DIR__, 2).'/resources/js/sigta.js');
+
+    // The event goes out from the textarea, where a listener on the component lands.
+    expect($runtime)->toContain("this.\$refs.input.dispatchEvent(new CustomEvent('sigta-composer-submit', { detail: { text: value }");
+
     expect($html)
-        ->toContain('sigta-composer-submit')                 // dispatched event
+        ->toContain('x-data="sigtaComposer"')                // dispatches the event
         ->toContain('x-on:keydown.enter=')                   // Enter handling
         ->toContain('$event.shiftKey')                       // Shift+Enter = newline
         ->toContain('x-on:click="submit()"')

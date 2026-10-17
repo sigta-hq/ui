@@ -1,0 +1,41 @@
+/* Kanban — a board of columns in a horizontally scrolling row; each column
+   is a paper panel with a mono header (label, actions, count badge) over a
+   dashed drop zone of raised cards. Dragging states: the dragged card and a
+   dragged column fade (data-dragging, data-col-dragging), the column under
+   the pointer inks its drop zone (data-over). */
+[data-sigta="kanban"] {
+    @apply flex items-start gap-4 overflow-x-auto pb-3;
+}
+
+[data-sigta="kanban.column"] {
+    @apply flex w-72 shrink-0 flex-col rounded-panel border border-line bg-surface;
+
+    /* only a sortable column is ever marked */
+    &[data-col-dragging] { @apply opacity-40; }
+}
+[data-scope="kanban.column"][data-part="header"] {
+    @apply flex items-center justify-between gap-2 px-3.5 py-3 border-b border-line;
+}
+[data-scope="kanban.column"][data-part="handle"] {
+    @apply shrink-0 cursor-grab text-graphite transition-colors hover:text-ink active:cursor-grabbing;
+}
+[data-scope="kanban.column"][data-part="heading"] {
+    @apply min-w-0 flex-1;
+}
+[data-scope="kanban.column"][data-part="label"] {
+    @apply min-w-0 flex-1 font-mono text-[0.7rem] tracking-[0.14em] uppercase text-graphite;
+}
+[data-scope="kanban.column"][data-part="end"] {
+    @apply flex shrink-0 items-center gap-1.5;
+}
+[data-scope="kanban.column"][data-part="body"] {
+    @apply flex flex-1 flex-col gap-2.5 min-h-24 p-2.5 rounded-b-panel border-[1.5px] border-dashed border-transparent transition-colors duration-150 ease-out;
+
+    &[data-over] { @apply border-ink bg-ink/5; }
+}
+
+[data-sigta="kanban.card"] {
+    @apply cursor-grab active:cursor-grabbing select-none rounded-base border border-line bg-surface-raised px-3 py-2.5 font-body text-[0.9rem] leading-snug text-ink transition duration-150 ease-out hover:-translate-y-[2px] hover:shadow-paper focus-visible:-translate-y-[2px];
+
+    &[data-dragging] { @apply opacity-40 cursor-grabbing; }
+}

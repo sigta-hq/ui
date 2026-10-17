@@ -57,7 +57,14 @@ emit('packages/contract/manifest.json', JSON.stringify({ comment: HEADER, compon
 // `Button` → components/Button.svelte; `Dropdown.Item` → components/Dropdown.Item.svelte,
 // attached to the Dropdown export; a namespace with no root component (Section,
 // Chart) is a plain object.
-const svelteNames: string[] = manifests.map((m) => m.svelte);
+// A manifest whose Svelte component is not written yet is left out (with a
+// warning), so the package stays importable while a component is under way;
+// the Svelte contract test still fails until the file exists.
+const svelteNames: string[] = manifests.map((m) => m.svelte).filter((path: string) => {
+    const exists = existsSync(join(root, 'packages/svelte/src/lib/components', `${path}.svelte`));
+    if (!exists) console.warn(`generate: no Svelte component for ${path} yet — not exported`);
+    return exists;
+});
 const roots = new Map<string, string[]>();
 for (const path of svelteNames) {
     const [head, ...tail] = path.split('.');

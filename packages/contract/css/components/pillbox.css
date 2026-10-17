@@ -1,0 +1,37 @@
+/* Pillbox — a multi-select combobox: chips and the query box share one
+   paper field (red with an error, ink while focused), the options float
+   below it like the autocomplete's. */
+[data-sigta="pillbox"] {
+    @apply relative;
+}
+[data-scope="pillbox"][data-part="label"] {
+    @apply block font-mono text-[0.68rem] tracking-[0.08em] uppercase text-graphite mb-1.5;
+}
+[data-scope="pillbox"][data-part="control"] {
+    @apply flex flex-wrap items-center gap-1.5 bg-surface border-[1.5px] border-line rounded-[5px] px-2 py-1.5 focus-within:border-ink transition-colors;
+
+    &:has([aria-invalid="true"]) {
+        @apply border-danger focus-within:border-ink;
+    }
+}
+[data-scope="pillbox"][data-part="chip"] {
+    @apply inline-flex items-center gap-1.5 font-mono text-[0.68rem] tracking-[0.05em] px-2.5 py-1 rounded-full border-[1.5px] border-ink text-ink;
+}
+[data-scope="pillbox"][data-part="remove"] {
+    @apply cursor-pointer opacity-60 hover:opacity-100;
+}
+[data-scope="pillbox"][data-part="input"] {
+    @apply flex-1 min-w-24 font-body text-[0.95rem] text-ink bg-transparent px-1 py-0.5 focus:outline-none placeholder:text-graphite;
+}
+[data-scope="pillbox"][data-part="listbox"] {
+    @apply fixed z-50 max-h-64 overflow-y-auto bg-surface-raised border border-line rounded-panel shadow-paper py-1.5;
+}
+[data-scope="pillbox"][data-part="empty"] {
+    @apply px-3.5 py-2 font-mono text-[0.72rem] text-graphite;
+}
+[data-scope="pillbox"][data-part="description"] {
+    @apply mt-1.5 text-[0.85rem] text-graphite;
+}
+[data-scope="pillbox"][data-part="error"] {
+    @apply mt-1.5 font-mono text-[0.72rem] text-danger;
+}

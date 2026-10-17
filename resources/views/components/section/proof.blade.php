@@ -7,12 +7,12 @@
     'logos' => ['Park Styling', 'Jelling Musikfestival'],
 ])
 
-<section data-sigta="section.proof" {{ $attributes->merge(['class' => 'py-[clamp(40px,6vw,72px)]']) }} aria-label="Erfaring og kunder">
-    <div class="mx-auto max-w-(--sigta-maxw) px-(--sigta-gutter)">
-        <div class="flex flex-wrap items-center justify-center gap-[clamp(20px,4vw,56px)] border-y border-line py-[clamp(24px,3vw,40px)]">
-            <x-sigta::stat variant="inline" :value="$yearsValue" :label="$yearsLabel" class="text-center" />
+<section data-sigta="section.proof" {{ $attributes }} aria-label="Erfaring og kunder">
+    <div data-scope="section.proof" data-part="wrap">
+        <div data-scope="section.proof" data-part="strip">
+            <x-sigta::stat variant="inline" :value="$yearsValue" :label="$yearsLabel" data-scope="section.proof" data-part="stat" />
             @foreach ($logos as $logo)
-                <span class="font-mono text-[0.9rem] tracking-[0.16em] uppercase text-graphite opacity-80">{{ $logo }}</span>
+                <span data-scope="section.proof" data-part="logo">{{ $logo }}</span>
             @endforeach
         </div>
     </div>

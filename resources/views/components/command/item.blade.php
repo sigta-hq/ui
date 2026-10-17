@@ -18,12 +18,12 @@ $id = 'sigta-command-'.\Illuminate\Support\Str::random(8);
     @if ($value !== null) data-value="{{ $value }}" @endif
     x-on:mousemove="setActive($el)"
     x-on:click="hide()"
-    {{ $attributes->merge(['class' => 'w-full text-left flex items-center gap-3 px-4 py-2.5 font-mono text-[0.8rem] text-ink cursor-pointer data-active:bg-ink data-active:text-surface']) }}
+    {{ $attributes }}
     data-sigta="command.item"
 >
-    @if ($icon)<x-sigta::icon :name="$icon" size="sm" class="shrink-0 opacity-70" />@endif
-    <span class="grow">{{ $slot }}</span>
-    @if ($kbd)<kbd class="font-mono text-[0.62rem] opacity-60">{{ $kbd }}</kbd>@endif
+    @if ($icon)<x-sigta::icon :name="$icon" size="sm" data-scope="command.item" data-part="icon" />@endif
+    <span data-scope="command.item" data-part="label">{{ $slot }}</span>
+    @if ($kbd)<kbd data-scope="command.item" data-part="kbd">{{ $kbd }}</kbd>@endif
 @if ($attributes->has('href'))
     </a>
 @else

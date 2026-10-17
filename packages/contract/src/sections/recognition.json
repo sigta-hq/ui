@@ -1,0 +1,24 @@
+{
+    "items": [
+        {
+            "num": "01 · Tilbuddet i indbakken",
+            "scene": "\"Vi har fået et tilbud på 750.000 kr. fra et bureau. Er det rimeligt?\"",
+            "answer": "Svært at vide, når man ikke taler sproget. Vi læser det med dig, linje for linje."
+        },
+        {
+            "num": "02 · Projektet skrider",
+            "scene": "\"Udviklingen er bagud, budgettet er brugt, og ingen kan rigtig forklare hvorfor.\"",
+            "answer": "Vi finder ud af, hvor det knirker, og hvad der skal til for at komme i mål."
+        },
+        {
+            "num": "03 · Klar til at bygge",
+            "scene": "\"Idéen er på plads. Men arkitektur, teknologivalg, og hvem skal bygge det?\"",
+            "answer": "Vi lægger planen sammen med dig, før du bruger den første krone."
+        },
+        {
+            "num": "04 · Vokset fra gaffatapen",
+            "scene": "\"Virksomheden er vokset. Systemerne er fulgt med, men kun på gaffatape.\"",
+            "answer": "Vi rydder op og sætter en teknisk retning, der holder til næste vækstspring."
+        }
+    ]
+}

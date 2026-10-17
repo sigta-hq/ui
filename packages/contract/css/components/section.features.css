@@ -1,0 +1,24 @@
+/* Section: features — a section header over a tile grid of services: a mono
+   number, an ink icon, a title and graphite text per tile. */
+[data-sigta="section.features"] {
+    @apply max-w-(--sigta-maxw) mx-auto px-(--sigta-gutter) py-[clamp(40px,6vw,72px)];
+}
+[data-scope="section.features"][data-part="header"] {
+    @apply mb-[clamp(28px,4vw,52px)];
+}
+[data-scope="section.features"][data-part="tile"] {
+    @apply min-h-[240px];
+}
+[data-scope="section.features"][data-part="icon"] {
+    @apply mt-[18px] mb-auto text-ink;
+}
+/* An icon named from the set, drawn at the inline SVGs' 34px (outranks the icon's own size). */
+[data-scope="section.features"][data-part="glyph"] {
+    @apply size-[34px];
+}
+[data-scope="section.features"][data-part="title"] {
+    @apply mt-[18px] mb-2;
+}
+[data-scope="section.features"][data-part="text"] {
+    @apply text-[0.95rem] leading-[1.5] text-graphite;
+}

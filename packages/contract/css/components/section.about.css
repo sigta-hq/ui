@@ -1,0 +1,30 @@
+/* Section: about — a device-framed portrait beside a text column (eyebrow,
+   heading, graphite paragraphs); the columns stack on a phone. The default
+   portrait is a placeholder with a hand-note hanging below its frame. */
+[data-sigta="section.about"] {
+    @apply py-[clamp(40px,6vw,72px)];
+}
+[data-scope="section.about"][data-part="wrap"] {
+    @apply mx-auto max-w-(--sigta-maxw) px-(--sigta-gutter);
+}
+[data-scope="section.about"][data-part="grid"] {
+    @apply grid items-center gap-[clamp(32px,5vw,72px)] md:grid-cols-[0.8fr_1.2fr];
+}
+[data-scope="section.about"][data-part="portrait"] {
+    @apply relative;
+}
+[data-scope="section.about"][data-part="frame"] {
+    @apply overflow-hidden rounded-frame border border-line bg-surface-raised shadow-paper text-ink;
+}
+[data-scope="section.about"][data-part="image"] {
+    @apply block h-auto w-full;
+}
+[data-scope="section.about"][data-part="note"] {
+    @apply absolute -bottom-[38px] right-[6%];
+}
+[data-scope="section.about"]:is([data-part="eyebrow"], [data-part="heading"]) {
+    @apply mb-[1.2rem];
+}
+[data-scope="section.about"][data-part="paragraph"] {
+    @apply mb-4 max-w-[52ch] text-graphite last:mb-0;
+}

@@ -1,4 +1,4 @@
-/* Sigta UI — Livewire runtime. Built by scripts/build-livewire.js from resources/js/sigta.js and packages/core/src; do not edit. sources:a100dadca35ec28c2e03d15ef8922e569225f4be */
+/* Sigta UI — Livewire runtime. Built by scripts/build-livewire.js from resources/js/sigta.js and packages/core/src; do not edit. sources:7d51d44aac0625e9ad09542e0942a95c1033eabb */
 (() => {
   // packages/core/src/env.ts
   var isBrowser = () => typeof window !== "undefined" && typeof document !== "undefined";
@@ -661,6 +661,72 @@
     return () => window.removeEventListener(CELEBRATE_EVENT, onCelebrate);
   }
 
+  // packages/core/src/format.ts
+  var pad2 = (n) => String(n).padStart(2, "0");
+  function toInt(value) {
+    const n = Math.trunc(Number(value ?? 0));
+    return Number.isFinite(n) ? n : 0;
+  }
+  function formatDuration(minutes, format = "compact") {
+    const total = Math.max(0, toInt(minutes));
+    const h = Math.floor(total / 60);
+    const m = total % 60;
+    if (format === "clock") return `${pad2(h)}:${pad2(m)}`;
+    return h === 0 ? `${m}m` : m === 0 ? `${h}h` : `${h}h ${m}m`;
+  }
+  function shift(value, places) {
+    const [mantissa, exponent = "0"] = String(value).split("e");
+    return Number(`${mantissa}e${Number(exponent) + places}`);
+  }
+  function numberFormat(value, decimals = 0, decimal = ".", thousands = ",") {
+    const places = Math.max(0, toInt(decimals));
+    const abs = Math.abs(Number(value) || 0);
+    const pre = Number(abs.toPrecision(15));
+    const rounded = Math.round(shift(pre, places));
+    const digits = places ? String(rounded).padStart(places + 1, "0") : String(rounded);
+    const whole = places ? digits.slice(0, -places) : digits;
+    const fraction = places ? digits.slice(-places) : "";
+    const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, thousands);
+    const sign = value < 0 && rounded !== 0 ? "-" : "";
+    return sign + grouped + (places ? decimal + fraction : "");
+  }
+  function isNumeric(value) {
+    if (typeof value === "number") return Number.isFinite(value);
+    return typeof value === "string" && /^\s*[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?\s*$/.test(value);
+  }
+  function majorFromMinor(minor) {
+    if (!isNumeric(minor)) return "";
+    return numberFormat(toInt(minor) / 100, 2, ".", "").replace(/0+$/, "").replace(/\.$/, "");
+  }
+  function minorFromMajor(text) {
+    const n = parseFloat(String(text ?? "").replace(",", "."));
+    return Number.isFinite(n) ? Math.round(n * 100) : null;
+  }
+  function durationMinutes(value) {
+    return isNumeric(value) ? Math.max(0, toInt(value)) : null;
+  }
+  function durationLabel(minutes, placeholder = "0m") {
+    const total = durationMinutes(minutes) ?? 0;
+    if (total <= 0) return placeholder;
+    const h = Math.floor(total / 60);
+    const m = total % 60;
+    return h === 0 ? `${m}m` : m === 0 ? `${h}h` : `${h}h${m}m`;
+  }
+  function durationDraft(minutes) {
+    const total = durationMinutes(minutes) ?? 0;
+    return total > 0 ? formatDuration(total, "clock") : "";
+  }
+  function parseDuration(raw) {
+    const s = (raw ?? "").trim();
+    if (s === "") return 0;
+    if (s.includes(":")) {
+      const [hours, mins] = s.split(":");
+      return Math.max(0, (parseInt(hours, 10) || 0) * 60 + (parseInt(mins, 10) || 0));
+    }
+    const n = parseInt(s, 10);
+    return Number.isNaN(n) ? 0 : Math.max(0, n);
+  }
+
   // packages/core/src/floating-bar.ts
   var FLOATING_SPACE = "--sigta-floating-space";
   function publishFloatingSpace(root, bar, visible) {
@@ -677,13 +743,13 @@
   // packages/core/src/calendar.ts
   var MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var SHORT_MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  var pad2 = (n) => String(n).padStart(2, "0");
+  var pad22 = (n) => String(n).padStart(2, "0");
   function utc(year, month, day) {
     const date = /* @__PURE__ */ new Date(0);
     date.setUTCFullYear(year, month - 1, day);
     return date;
   }
-  var fromUtc = (date) => `${String(date.getUTCFullYear()).padStart(4, "0")}-${pad2(date.getUTCMonth() + 1)}-${pad2(date.getUTCDate())}`;
+  var fromUtc = (date) => `${String(date.getUTCFullYear()).padStart(4, "0")}-${pad22(date.getUTCMonth() + 1)}-${pad22(date.getUTCDate())}`;
   function isoDate(year, month, day) {
     return fromUtc(utc(year, month, day));
   }
@@ -695,7 +761,7 @@
   }
   function todayIso(now = Date.now()) {
     const date = now instanceof Date ? now : new Date(now);
-    return `${String(date.getFullYear()).padStart(4, "0")}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+    return `${String(date.getFullYear()).padStart(4, "0")}-${pad22(date.getMonth() + 1)}-${pad22(date.getDate())}`;
   }
   function daysInMonth(year, month) {
     return utc(year, month + 1, 0).getUTCDate();
@@ -804,7 +870,7 @@
   }
 
   // packages/core/src/time.ts
-  var pad22 = (n) => String(n).padStart(2, "0");
+  var pad23 = (n) => String(n).padStart(2, "0");
   var int = (text) => {
     const n = Number.parseInt(String(text ?? ""), 10);
     return Number.isFinite(n) ? n : 0;
@@ -814,13 +880,13 @@
     return int(h) * 60 + int(m);
   }
   function minutesToTime(minutes) {
-    return `${pad22(Math.floor(minutes / 60))}:${pad22(minutes % 60)}`;
+    return `${pad23(Math.floor(minutes / 60))}:${pad23(minutes % 60)}`;
   }
   function formatTime(value, format = "24") {
     if (!value) return "";
     const [h, m] = String(value).split(":").map(int);
-    if (String(format) === "12") return `${h % 12 || 12}:${pad22(m)} ${h < 12 ? "AM" : "PM"}`;
-    return `${pad22(h)}:${pad22(m)}`;
+    if (String(format) === "12") return `${h % 12 || 12}:${pad23(m)} ${h < 12 ? "AM" : "PM"}`;
+    return `${pad23(h)}:${pad23(m)}`;
   }
   function parseTime(text) {
     const typed = String(text ?? "").trim();
@@ -834,7 +900,7 @@
       if (h === 12) h = 0;
       if (meridiem === "pm") h += 12;
     }
-    return h < 24 && m < 60 ? `${pad22(h)}:${pad22(m)}` : null;
+    return h < 24 && m < 60 ? `${pad23(h)}:${pad23(m)}` : null;
   }
   function isTimeOutOfRange(value, min, max) {
     const minutes = timeToMinutes(value);
@@ -864,6 +930,122 @@
     const index = options.findIndex((option) => option.value === value);
     return index >= 0 ? index : 0;
   }
+
+  // packages/core/src/carousel.ts
+  function slideOffsets(track) {
+    const slides = Array.from(track.children);
+    const base = slides[0]?.offsetLeft ?? 0;
+    return slides.map((slide) => slide.offsetLeft - base);
+  }
+  function nearestSlide(offsets, scrollLeft) {
+    let best = 0;
+    let min = Infinity;
+    offsets.forEach((offset, index) => {
+      const distance = Math.abs(offset - scrollLeft);
+      if (distance < min) {
+        min = distance;
+        best = index;
+      }
+    });
+    return best;
+  }
+  function activeSlide(track) {
+    return nearestSlide(slideOffsets(track), track.scrollLeft);
+  }
+  function scrollToSlide(track, index) {
+    const target = track.children[index];
+    if (!target) return;
+    track.scrollTo({ left: slideOffsets(track)[index], behavior: reduced() ? "auto" : "smooth" });
+  }
+
+  // packages/core/src/autosize.ts
+  function autosize(el, maxRows) {
+    el.style.height = "auto";
+    const line = parseFloat(getComputedStyle(el).lineHeight) || 20;
+    const max = line * maxRows;
+    el.style.height = Math.min(el.scrollHeight, max) + "px";
+    el.style.overflowY = el.scrollHeight > max ? "auto" : "hidden";
+  }
+
+  // packages/core/src/files.ts
+  var UNITS = ["B", "KB", "MB", "GB", "TB"];
+  function formatBytes(bytes) {
+    let n = bytes;
+    let i = 0;
+    while (n >= 1024 && i < UNITS.length - 1) {
+      n /= 1024;
+      i++;
+    }
+    return (i === 0 ? n : n.toFixed(n >= 10 ? 0 : 1)) + " " + UNITS[i];
+  }
+  function fileEntries(files) {
+    return Array.from(files ?? []).map((file) => ({ name: file.name, size: formatBytes(file.size) }));
+  }
+
+  // packages/core/src/kanban.ts
+  function dropBefore(spans, pointer) {
+    let best = -1;
+    let closest = Number.NEGATIVE_INFINITY;
+    spans.forEach((span, index) => {
+      const offset = pointer - span.start - span.size / 2;
+      if (offset < 0 && offset > closest) {
+        closest = offset;
+        best = index;
+      }
+    });
+    return best;
+  }
+  var vertical = (el) => {
+    const box = el.getBoundingClientRect();
+    return { start: box.top, size: box.height };
+  };
+  var escape = (id) => typeof CSS !== "undefined" && CSS.escape ? CSS.escape(id) : id.replace(/['\\\n]/g, (ch) => `\\${ch === "\n" ? "a " : ch}`);
+  var horizontal = (el) => {
+    const box = el.getBoundingClientRect();
+    return { start: box.left, size: box.width };
+  };
+  function cardElement(board, id) {
+    if (!id) return null;
+    return board.querySelector(`[data-card-id='${escape(id)}']`);
+  }
+  function placeCard(body, card, y) {
+    const cards = Array.from(body.querySelectorAll("[data-card-id]:not([data-dragging])"));
+    const index = dropBefore(cards.map(vertical), y);
+    if (index === -1) body.appendChild(card);
+    else body.insertBefore(card, cards[index]);
+  }
+  function cardPosition(body, card) {
+    return Array.from(body.querySelectorAll("[data-card-id]")).indexOf(card);
+  }
+  function columnElement(board, id) {
+    if (!id) return null;
+    return board.querySelector(`[data-sigta='kanban.column'][data-column='${escape(id)}']`);
+  }
+  function columnUnit(board, el) {
+    while (el && el.parentNode !== board) el = el.parentNode;
+    return el;
+  }
+  function columnUnits(board) {
+    return Array.from(board.children).filter(
+      (child) => child.matches(`[data-sigta='kanban.column']`) || child.querySelector(`[data-sigta='kanban.column']`) !== null
+    );
+  }
+  function placeColumn(board, unit, x) {
+    const others = columnUnits(board).filter((other) => other !== unit);
+    const index = dropBefore(others.map(horizontal), x);
+    if (index !== -1) {
+      board.insertBefore(unit, others[index]);
+      return;
+    }
+    const units = columnUnits(board);
+    const last = units[units.length - 1];
+    if (last && last !== unit) board.insertBefore(unit, last.nextSibling);
+  }
+  function columnPosition(board, unit) {
+    return unit ? columnUnits(board).indexOf(unit) : 0;
+  }
+  var KANBAN_MOVE_EVENT = "sigta-kanban-move";
+  var KANBAN_COLUMN_MOVE_EVENT = "sigta-kanban-column-move";
 
   // resources/js/sigta.js
   var dropped = /* @__PURE__ */ new WeakSet();
@@ -931,6 +1113,62 @@
       },
       close() {
         this.open = false;
+      }
+    }));
+    Alpine.data("sigtaCarousel", () => ({
+      active: 0,
+      count: 0,
+      init() {
+        this.count = this.$refs.track.children.length;
+        this.$nextTick(() => this.sync());
+      },
+      sync() {
+        this.active = activeSlide(this.$refs.track);
+      },
+      go(index) {
+        scrollToSlide(this.$refs.track, index);
+      },
+      prev() {
+        this.go(Math.max(0, this.active - 1));
+      },
+      next() {
+        this.go(Math.min(this.count - 1, this.active + 1));
+      },
+      atStart() {
+        return this.active <= 0;
+      },
+      atEnd() {
+        return this.active >= this.count - 1;
+      }
+    }));
+    Alpine.data("sigtaComposer", () => ({
+      text: "",
+      maxRows: 6,
+      init() {
+        this.$nextTick(() => this.resize());
+      },
+      resize() {
+        autosize(this.$refs.input, this.maxRows);
+      },
+      submit() {
+        const value = this.text.trim();
+        if (!value) return;
+        this.$refs.input.dispatchEvent(new CustomEvent("sigta-composer-submit", { detail: { text: value }, bubbles: true, composed: true, cancelable: true }));
+        this.text = "";
+        this.$nextTick(() => this.resize());
+      }
+    }));
+    Alpine.data("sigtaFileUpload", () => ({
+      dragging: 0,
+      files: [],
+      update(input) {
+        this.files = fileEntries(input.files);
+      },
+      drop(event) {
+        this.dragging = 0;
+        if (!event.dataTransfer?.files?.length) return;
+        this.$refs.input.files = event.dataTransfer.files;
+        this.$refs.input.dispatchEvent(new Event("change", { bubbles: true }));
       }
     }));
     Alpine.data("sigtaFloatingBar", () => ({
@@ -1109,6 +1347,62 @@
         input.value = serialize(this.value);
         input.dispatchEvent(new Event("input", { bubbles: true }));
         input.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    }));
+    Alpine.data("sigtaMoneyInput", () => ({
+      major: "",
+      currency: "",
+      open: false,
+      init() {
+        this.major = majorFromMinor(this.$refs.total.value);
+        this.currency = this.$refs.currency.value;
+        this.sync();
+      },
+      sync() {
+        const el = this.$refs.total;
+        el.value = minorFromMajor(this.major) ?? "";
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+      },
+      selectCurrency(code) {
+        this.currency = code;
+        const el = this.$refs.currency;
+        el.value = code;
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+        this.open = false;
+      }
+    }));
+    Alpine.data("sigtaDurationInput", (placeholder = "0m") => ({
+      minutes: null,
+      editing: false,
+      draft: "",
+      placeholder,
+      init() {
+        this.minutes = durationMinutes(this.$refs.total.value);
+      },
+      get hasValue() {
+        return this.minutes !== null && this.minutes > 0;
+      },
+      get label() {
+        return durationLabel(this.minutes, this.placeholder);
+      },
+      edit() {
+        this.draft = durationDraft(this.minutes);
+        this.editing = true;
+        this.$nextTick(() => {
+          this.$refs.editor.focus();
+          this.$refs.editor.select();
+        });
+      },
+      commit() {
+        const total = parseDuration(this.draft);
+        this.minutes = total > 0 ? total : null;
+        const el = this.$refs.total;
+        el.value = total > 0 ? total : "";
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+        this.editing = false;
+      },
+      cancel() {
+        this.editing = false;
       }
     }));
     Alpine.data("sigtaToasts", () => ({
@@ -1395,6 +1689,92 @@
         this.value = value || null;
         this.display = formatTime(this.value, this.format);
         this.commit();
+      }
+    }));
+    Alpine.data("sigtaKanban", () => ({
+      draggedId: null,
+      fromColumn: null,
+      overColumn: null,
+      draggedColumn: null,
+      draggedEl() {
+        return cardElement(this.$root, this.draggedId);
+      },
+      start(id, event) {
+        this.draggedId = id;
+        const body = event.target.closest("[data-kanban-body]");
+        this.fromColumn = body ? body.dataset.columnId : null;
+        if (event.dataTransfer) {
+          event.dataTransfer.effectAllowed = "move";
+          try {
+            event.dataTransfer.setData("text/plain", id);
+          } catch (e) {
+          }
+        }
+      },
+      end() {
+        this.draggedId = null;
+        this.fromColumn = null;
+        this.overColumn = null;
+      },
+      over(event, columnId) {
+        if (!this.draggedId) return;
+        if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
+        this.overColumn = columnId;
+        const dragged = this.draggedEl();
+        if (dragged) placeCard(event.currentTarget, dragged, event.clientY);
+      },
+      drop(event, columnId) {
+        const body = event.currentTarget;
+        const dragged = this.draggedEl();
+        this.overColumn = null;
+        if (!dragged) return;
+        this.$dispatch(KANBAN_MOVE_EVENT, {
+          card: this.draggedId,
+          from: this.fromColumn,
+          to: columnId,
+          position: cardPosition(body, dragged)
+        });
+        this.end();
+      },
+      columnEl() {
+        return columnElement(this.$root, this.draggedColumn);
+      },
+      columnStart(id, event) {
+        this.draggedColumn = id;
+        if (event.dataTransfer) {
+          event.dataTransfer.effectAllowed = "move";
+          try {
+            event.dataTransfer.setData("text/plain", id);
+          } catch (e) {
+          }
+          const col = this.columnEl();
+          if (col) {
+            try {
+              event.dataTransfer.setDragImage(col, 24, 24);
+            } catch (e) {
+            }
+          }
+        }
+        event.stopPropagation();
+      },
+      columnOver(event) {
+        if (!this.draggedColumn) return;
+        event.preventDefault();
+        if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
+        const col = this.columnEl();
+        if (col) placeColumn(this.$root, columnUnit(this.$root, col), event.clientX);
+      },
+      columnDrop(event) {
+        if (!this.draggedColumn) return;
+        event.preventDefault();
+        const id = this.draggedColumn;
+        const col = this.columnEl();
+        const position = columnPosition(this.$root, col ? columnUnit(this.$root, col) : null);
+        this.columnEnd();
+        this.$dispatch(KANBAN_COLUMN_MOVE_EVENT, { column: id, position });
+      },
+      columnEnd() {
+        this.draggedColumn = null;
       }
     }));
     observeLoaders();

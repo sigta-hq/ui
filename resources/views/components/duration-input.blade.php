@@ -19,13 +19,17 @@
 
         <sigta:duration-input label="Estimate" :value="$task->estimate_minutes"
             wire:model="estimate" wire:key="est-{{ $task->estimate_minutes }}" />
+
+    The behavior lives in sigtaDurationInput (resources/js/sigta.js), on the
+    core's durationLabel / durationDraft / parseDuration
+    (packages/core/src/format.ts); the initial label below is durationLabel, in PHP.
 --}}
 @php
 $initial = is_numeric($value) ? max(0, (int) $value) : null;
 $placeholderText = $placeholder ?? '0m';
 
-// Compact "1h15m" label for the initial (server-rendered) state — mirrors the
-// Alpine `label` getter below so there's no flash on hydrate. No app helper.
+// Compact "1h15m" label for the initial (server-rendered) state — the same as
+// the runtime's label, so there's no flash on hydrate. No app helper.
 if ($initial) {
     $h = intdiv($initial, 60);
     $m = $initial % 60;
@@ -34,59 +38,13 @@ if ($initial) {
     $initialLabel = $placeholderText;
 }
 
-$controlClasses = 'w-28 text-left font-body text-[0.98rem] bg-surface border-[1.5px] border-line rounded-[5px] px-[0.8em] py-[0.62em] transition duration-150 ease-out focus:outline-none focus:border-ink focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--sigta-fg)_8%,transparent)]';
+$editorId = 'sigta-'.\Illuminate\Support\Str::random(8);
 @endphp
 
-<x-sigta::field :label="$label" {{ $attributes->whereDoesntStartWith('wire:model') }}>
+<x-sigta::field :label="$label" :for="$editorId" {{ $attributes->whereDoesntStartWith('wire:model') }}>
     <div
         data-sigta="duration-input"
-        x-data="{
-            minutes: {{ $initial ?? 'null' }},
-            editing: false,
-            draft: '',
-            placeholder: @js($placeholderText),
-            get hasValue() { return this.minutes !== null && this.minutes > 0; },
-            get label() {
-                if (! this.hasValue) { return this.placeholder; }
-                const mins = Math.max(0, this.minutes || 0);
-                const h = Math.floor(mins / 60);
-                const m = mins % 60;
-                if (h === 0) { return m + 'm'; }
-                if (m === 0) { return h + 'h'; }
-                return h + 'h' + m + 'm';
-            },
-            edit() {
-                const mins = Math.max(0, this.minutes || 0);
-                if (mins > 0) {
-                    this.draft = String(Math.floor(mins / 60)).padStart(2, '0') + ':' + String(mins % 60).padStart(2, '0');
-                } else {
-                    this.draft = '';
-                }
-                this.editing = true;
-                this.$nextTick(() => { this.$refs.editor.focus(); this.$refs.editor.select(); });
-            },
-            commit() {
-                const total = this.parse(this.draft);
-                this.minutes = total > 0 ? total : null;
-                const el = this.$refs.total;
-                el.value = total > 0 ? total : '';
-                el.dispatchEvent(new Event('input', { bubbles: true }));
-                this.editing = false;
-            },
-            cancel() { this.editing = false; },
-            parse(raw) {
-                const s = (raw || '').trim();
-                if (s === '') { return 0; }
-                if (s.includes(':')) {
-                    const parts = s.split(':');
-                    const h = parseInt(parts[0], 10) || 0;
-                    const m = parseInt(parts[1], 10) || 0;
-                    return Math.max(0, h * 60 + m);
-                }
-                const n = parseInt(s, 10);
-                return Number.isNaN(n) ? 0 : Math.max(0, n);
-            },
-        }"
+        x-data="sigtaDurationInput({{ \Illuminate\Support\Js::from($placeholderText) }})"
     >
         <input type="hidden" x-ref="total" value="{{ $initial }}" {{ $attributes->whereStartsWith('wire:model') }} />
 
@@ -95,8 +53,10 @@ $controlClasses = 'w-28 text-left font-body text-[0.98rem] bg-surface border-[1.
             x-show="! editing"
             x-on:click="edit()"
             x-text="label"
-            :class="hasValue ? 'text-ink' : 'text-graphite'"
-            class="{{ $controlClasses }} cursor-text hover:border-ink"
+            @unless ($initial) data-empty="" @endunless
+            x-bind:data-empty="hasValue ? null : ''"
+            data-scope="duration-input"
+            data-part="display"
             data-test="duration-display"
         >{{ $initialLabel }}</button>
 
@@ -104,6 +64,7 @@ $controlClasses = 'w-28 text-left font-body text-[0.98rem] bg-surface border-[1.
             x-show="editing"
             x-cloak
             x-ref="editor"
+            id="{{ $editorId }}"
             type="text"
             x-model="draft"
             x-on:blur="commit()"
@@ -111,8 +72,9 @@ $controlClasses = 'w-28 text-left font-body text-[0.98rem] bg-surface border-[1.
             x-on:keydown.escape.prevent="cancel()"
             inputmode="numeric"
             placeholder="00:00"
-            class="{{ $controlClasses }} text-ink placeholder:text-graphite/70"
             aria-label="{{ trim(($label ? $label.' ' : '').__('as hours and minutes, HH:MM')) }}"
+            data-scope="duration-input"
+            data-part="editor"
             data-test="duration-editor"
         />
     </div>

@@ -19,3 +19,4 @@ export * from './focus.ts';
 export * from './carousel.ts';
 export * from './autosize.ts';
 export * from './files.ts';
+export * from './kanban.ts';

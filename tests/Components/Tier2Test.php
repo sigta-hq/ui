@@ -191,15 +191,34 @@ it('renders a file dropzone forwarding wire:model onto the native input', functi
 
     expect($html)
         ->toContain('data-sigta="file-upload"')
+        ->toContain('x-data="sigtaFileUpload"')
         ->toContain('type="file"')
         ->toContain('wire:model="file"')
         ->toContain('accept="image/*"')
-        ->toContain('Attachment');
+        ->toContain('Attachment')
+        ->toContain('data-scope="file-upload"'."\n".'                data-part="input"')
+        ->not->toContain('class=');
+
+    // The native input is visually hidden inside its dashed label zone.
+    expect(contractCss('file-upload'))
+        ->toMatch('/\[data-part="input"\] \{\s*@apply sr-only;/')
+        ->toContain('border-[1.5px] border-dashed border-line')
+        ->toContain('data-[dragging]:border-ink');
 });
 
 it('supports multiple files and error state', function () {
     $html = Blade::render('<x-sigta::file-upload multiple error="Too big" />');
-    expect($html)->toContain('multiple')->toContain('Too big')->toContain('border-danger');
+    expect($html)->toContain('multiple')->toContain('Too big')->toContain('data-invalid')->toContain('aria-invalid="true"');
+
+    // Red, but hover and a drag still ink it.
+    expect(contractCss('file-upload'))->toContain('&:where([data-invalid]) { @apply border-danger; }');
+});
+
+it('dims a disabled file upload zone', function () {
+    expect(Blade::render('<x-sigta::file-upload disabled />'))->toContain('data-disabled')->toContain('disabled');
+    expect(Blade::render('<x-sigta::file-upload />'))->not->toContain('data-disabled')->not->toContain('data-invalid');
+
+    expect(contractCss('file-upload'))->toContain('&[data-disabled] { @apply opacity-40 pointer-events-none; }');
 });
 
 /* -------- charts ---------------------------------------------------------- */
@@ -248,6 +267,7 @@ it('renders the app shell with a current nav link', function () {
         ->toContain('data-sigta="shell"')
         ->toContain('data-sigta="shell.bar"')
         ->toContain('aria-current="page"')
+        ->toContain('data-scope="shell.link" data-part="icon"')
         ->toContain('Overview')
         ->toContain('Q2 2026');
 });

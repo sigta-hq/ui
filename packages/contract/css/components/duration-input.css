@@ -1,0 +1,14 @@
+/* Duration input — one paper field, the compact label as a button that
+   reads like the input it turns into (graphite while empty), then the
+   HH:MM editor. */
+[data-scope="duration-input"]:is([data-part="display"], [data-part="editor"]) {
+    @apply w-28 text-left font-body text-[0.98rem] bg-surface border-[1.5px] border-line rounded-[5px] px-[0.8em] py-[0.62em] transition duration-150 ease-out focus:outline-none focus:border-ink focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--sigta-fg)_8%,transparent)];
+}
+[data-scope="duration-input"][data-part="display"] {
+    @apply cursor-text text-ink hover:border-ink;
+
+    &[data-empty] { @apply text-graphite; }
+}
+[data-scope="duration-input"][data-part="editor"] {
+    @apply text-ink placeholder:text-graphite/70;
+}

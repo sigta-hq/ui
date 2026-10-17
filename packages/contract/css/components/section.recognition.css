@@ -1,0 +1,33 @@
+/* Section: recognition — a section header over a two-column tile grid of
+   scene/answer cards (the scene in Fraunces italic, the answer led by a mono
+   arrow), then a centred closing line and call to action. */
+[data-sigta="section.recognition"] {
+    @apply max-w-(--sigta-maxw) mx-auto px-(--sigta-gutter) py-[clamp(40px,6vw,72px)];
+}
+[data-scope="section.recognition"][data-part="header"] {
+    @apply mb-[clamp(28px,4vw,52px)];
+}
+[data-scope="section.recognition"][data-part="tile"] {
+    @apply gap-[0.9rem];
+}
+[data-scope="section.recognition"][data-part="scene"] {
+    @apply font-head italic font-normal text-[clamp(1.15rem,1.7vw,1.4rem)] leading-[1.3];
+}
+[data-scope="section.recognition"][data-part="answer"] {
+    @apply flex items-baseline gap-[0.55em] text-[0.95rem] text-graphite before:content-['→'] before:shrink-0 before:font-mono before:text-ink;
+}
+[data-scope="section.recognition"][data-part="outro"] {
+    @apply mt-8 flex flex-wrap items-center justify-center gap-4 text-center;
+}
+[data-scope="section.recognition"][data-part="closing"] {
+    @apply text-[1.1rem];
+}
+/* The button's arrow nudges forward while the button is hovered. */
+[data-scope="section.recognition"][data-part="arrow"] {
+    @apply transition-transform duration-[180ms] ease-out;
+}
+@media (hover: hover) {
+    [data-sigta="button"]:hover [data-scope="section.recognition"][data-part="arrow"] {
+        @apply translate-x-[3px];
+    }
+}

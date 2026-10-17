@@ -1,0 +1,34 @@
+/* Section: cta — a dark ink band (rounded frame) with a centred heading, a
+   muted lede and the inverse / ghost-inverse button pair. An accent
+   hand-note overhangs the top-right corner on wider screens. */
+[data-sigta="section.cta"] {
+    @apply py-[clamp(40px,6vw,72px)];
+}
+[data-scope="section.cta"][data-part="wrap"] {
+    @apply mx-auto max-w-(--sigta-maxw) px-(--sigta-gutter);
+}
+[data-scope="section.cta"][data-part="band"] {
+    @apply relative overflow-hidden rounded-frame bg-inverse p-[clamp(34px,6vw,72px)] text-center text-inverse-fg;
+}
+/* Outranks the annot's own display, so it hides on a phone. */
+[data-scope="section.cta"][data-part="note"] {
+    @apply absolute top-[18px] right-[7%] max-md:hidden;
+}
+[data-scope="section.cta"][data-part="heading"] {
+    @apply mx-auto max-w-[20ch] text-balance font-head font-normal text-[clamp(2rem,5vw,3.4rem)] leading-[1.04];
+}
+[data-scope="section.cta"][data-part="lede"] {
+    @apply mx-auto mt-[1.2rem] mb-[2.2rem] max-w-[46ch] text-inverse-fg-muted;
+}
+[data-scope="section.cta"][data-part="actions"] {
+    @apply flex flex-wrap justify-center gap-[0.9rem];
+}
+/* The primary button's arrow nudges forward while the button is hovered. */
+[data-scope="section.cta"][data-part="arrow"] {
+    @apply transition-transform duration-[180ms] ease-out;
+}
+@media (hover: hover) {
+    [data-sigta="button"]:hover [data-scope="section.cta"][data-part="arrow"] {
+        @apply translate-x-[3px];
+    }
+}

@@ -1,0 +1,14 @@
+/* Section: quote — a centred pull-quote in light Fraunces italic over a mono
+   cite, with generous rhythm above and below. */
+[data-sigta="section.quote"] {
+    @apply py-[clamp(50px,8vw,96px)] text-center;
+}
+[data-scope="section.quote"][data-part="wrap"] {
+    @apply mx-auto max-w-(--sigta-maxw) px-(--sigta-gutter);
+}
+[data-scope="section.quote"][data-part="quote"] {
+    @apply mx-auto max-w-[24ch] text-balance font-head font-light italic text-[clamp(1.8rem,4.6vw,3.2rem)] leading-[1.14] tracking-[-0.015em];
+}
+[data-scope="section.quote"][data-part="cite"] {
+    @apply mt-[1.8rem] block font-mono text-[0.74rem] tracking-[0.12em] uppercase text-graphite;
+}

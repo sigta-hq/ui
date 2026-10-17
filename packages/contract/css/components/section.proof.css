@@ -1,0 +1,17 @@
+/* Section: proof — a centred strip between hairlines: an inline years
+   figure and the client names as mono wordmarks. */
+[data-sigta="section.proof"] {
+    @apply py-[clamp(40px,6vw,72px)];
+}
+[data-scope="section.proof"][data-part="wrap"] {
+    @apply mx-auto max-w-(--sigta-maxw) px-(--sigta-gutter);
+}
+[data-scope="section.proof"][data-part="strip"] {
+    @apply flex flex-wrap items-center justify-center gap-[clamp(20px,4vw,56px)] border-y border-line py-[clamp(24px,3vw,40px)];
+}
+[data-scope="section.proof"][data-part="stat"] {
+    @apply text-center;
+}
+[data-scope="section.proof"][data-part="logo"] {
+    @apply font-mono text-[0.9rem] tracking-[0.16em] uppercase text-graphite opacity-80;
+}

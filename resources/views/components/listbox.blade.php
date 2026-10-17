@@ -18,10 +18,7 @@
 $id = $attributes->get('id') ?? 'sigta-'.\Illuminate\Support\Str::random(8);
 $listboxId = $id.'-listbox';
 
-$buttonClasses = 'w-full flex items-center justify-between gap-2 text-left font-body text-[0.98rem] text-ink bg-surface border-[1.5px] rounded-[5px] px-[0.8em] py-[0.62em] cursor-pointer transition duration-150 ease-out focus:outline-none focus:border-ink focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--sigta-fg)_8%,transparent)] disabled:opacity-40 disabled:pointer-events-none';
-$buttonClasses .= $error ? ' border-danger' : ' border-line';
-
-$buttonAttributes = ['id' => $id, 'class' => $buttonClasses];
+$buttonAttributes = ['id' => $id];
 
 if ($error) {
     $buttonAttributes['aria-invalid'] = 'true';
@@ -40,7 +37,7 @@ if ($describedBy = trim(($description ? $id.'-description ' : '').($error ? $id.
         x-on:keydown.up.prevent="move(-1)"
         x-on:keydown.enter.prevent="open ? chooseActive() : openList()"
         x-on:focusout="if (! $el.contains($event.relatedTarget)) closeList()"
-        {{ $attributes->only('class')->merge(['class' => 'relative']) }}
+        {{ $attributes->only('class') }}
         data-sigta="listbox"
     >
         <button
@@ -49,16 +46,23 @@ if ($describedBy = trim(($description ? $id.'-description ' : '').($error ? $id.
             role="combobox"
             aria-haspopup="listbox"
             aria-controls="{{ $listboxId }}"
+            aria-expanded="false"
             x-bind:aria-expanded="open"
             x-bind:aria-activedescendant="activeId"
             x-on:click="open ? closeList() : openList()"
+            data-scope="listbox"
+            data-part="trigger"
             {{ (new \Illuminate\View\ComponentAttributeBag)->merge($buttonAttributes) }}
         >
+            {{-- The placeholder until Alpine starts, then the chosen option's text. --}}
             <span
                 x-text="value ? labelFor(value) : {{ \Illuminate\Support\Js::from($placeholder) }}"
-                x-bind:class="value ? 'text-ink' : 'font-mono text-[0.78rem] text-graphite'"
+                data-empty=""
+                x-bind:data-empty="value ? null : ''"
+                data-scope="listbox"
+                data-part="value"
             >{{ $placeholder }}</span>
-            <span aria-hidden="true" class="shrink-0 text-graphite transition-transform duration-150" x-bind:class="open ? 'rotate-180' : ''">
+            <span aria-hidden="true" data-scope="listbox" data-part="chevron">
                 <x-sigta::icon name="chevron-down" size="sm" />
             </span>
         </button>
@@ -78,7 +82,8 @@ if ($describedBy = trim(($description ? $id.'-description ' : '').($error ? $id.
             x-on:click.outside="closeList()"
             id="{{ $listboxId }}"
             role="listbox"
-            class="fixed z-50 max-h-64 overflow-y-auto bg-surface-raised border border-line rounded-panel shadow-paper py-1.5"
+            data-scope="listbox"
+            data-part="listbox"
         >
             {{ $slot }}
         </div>

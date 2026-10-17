@@ -20,13 +20,27 @@ it('renders the shell grid with sidebar, bar, and main', function () {
 
     expect($html)
         ->toContain('data-sigta="shell"')
-        ->toContain('md:grid-cols-[220px_1fr]')
         ->toContain('data-sigta="shell.sidebar"')
         ->toContain('data-sigta="shell.main"')
         ->toContain('data-sigta="shell.bar"')
         ->toContain('Plumb')
         ->toContain('Overview')
-        ->toContain('Reports');
+        ->toContain('Reports')
+        ->toContain('<h3 data-scope="shell.bar" data-part="heading">Overview</h3>')
+        ->toContain('<span data-scope="shell.bar" data-part="sub">Q2 2026</span>')
+        ->not->toContain('class=');
+
+    // The look lives in the contract: a 220px rail beside the main column.
+    expect(contractCss('shell'))
+        ->toContain('@apply grid md:grid-cols-[220px_1fr] bg-surface-raised text-ink;')
+        ->toContain('&:not([data-full]) { @apply min-h-[440px] border border-line rounded-frame overflow-hidden; }');
+});
+
+it('marks a full-viewport shell', function () {
+    expect(Blade::render('<x-sigta::shell full>Body</x-sigta::shell>'))->toContain('data-full');
+    expect(Blade::render('<x-sigta::shell>Body</x-sigta::shell>'))->not->toContain('data-full');
+
+    expect(contractCss('shell'))->toContain('&[data-full] { @apply min-h-screen rounded-none border-0; }');
 });
 
 it('collapses the sidebar nav behind a burger toggle on mobile', function () {
@@ -40,10 +54,15 @@ it('collapses the sidebar nav behind a burger toggle on mobile', function () {
     expect($html)
         ->toContain('x-data="sigtaShellSidebar"')
         ->toContain('aria-expanded="false"')
-        ->toContain('md:hidden')             // burger button is hidden on desktop
+        ->toContain('data-scope="shell.sidebar"'."\n".'                data-part="toggle"')
         ->toContain('x-on:click="toggle()"') // burger toggles the nav
-        ->toContain('md:!flex')              // panel is forced visible on desktop
+        ->toContain('data-part="nav"')
         ->toContain('aria-controls="');
+
+    expect(contractCss('shell'))
+        // The burger is hidden on desktop; the panel is forced visible there.
+        ->toMatch('/\[data-part="toggle"\] \{\s*@apply md:hidden inline-flex/')
+        ->toMatch('/\[data-scope="shell\.sidebar"\]\[data-part="nav"\] \{\s*@apply flex md:!flex/');
 
     // The burger's aria-controls points at the id of the collapsible nav panel.
     preg_match('/aria-controls="([^"]+)"/', $html, $m);
@@ -71,14 +90,17 @@ it('slides the nav in as a drawer over the page on mobile', function () {
         BLADE);
 
     expect($html)
+        ->toContain('data-part="nav"')
+        // It slides rather than appearing, through the contract's transition hooks.
+        ->toContain('x-transition:enter="sigta-shell-enter"')
+        ->toContain('x-transition:enter-start="sigta-shell-away"')
+        ->toContain('x-transition:leave-end="sigta-shell-away"');
+
+    expect(contractCss('shell'))
         // Off the flow and over the page, from the rail's own edge, full height.
-        ->toContain('max-md:fixed')
-        ->toContain('max-md:inset-y-0')
-        ->toContain('max-md:start-0')
-        ->toContain('max-md:z-50')
-        // It slides rather than appearing, and from the correct edge either way.
-        ->toContain('max-md:ltr:-translate-x-full')
-        ->toContain('max-md:rtl:translate-x-full');
+        ->toContain('max-md:fixed max-md:inset-y-0 max-md:start-0 max-md:z-50')
+        // ...and from the correct edge either way.
+        ->toContain('&.sigta-shell-away { @apply max-md:ltr:-translate-x-full max-md:rtl:translate-x-full; }');
 });
 
 it('dims the page behind the drawer and closes when the scrim is tapped', function () {
@@ -90,11 +112,12 @@ it('dims the page behind the drawer and closes when the scrim is tapped', functi
         BLADE);
 
     expect($html)
-        ->toContain('bg-ink/45')
+        ->toContain('data-part="scrim"')
         ->toContain('x-on:click="close()"')
-        // The scrim sits under the drawer and over the page.
-        ->toContain('z-40')
         ->toContain('aria-hidden="true"');
+
+    // The scrim dims the page, under the drawer (z-50) and over the page.
+    expect(contractCss('shell'))->toContain('@apply md:hidden fixed inset-0 z-40 bg-ink/45 backdrop-blur-[2px];');
 });
 
 it('treats the open drawer as a modal dialog but never the rail', function () {
@@ -155,8 +178,13 @@ it('marks the current shell link and forwards attributes', function () {
 
     expect($current)
         ->toContain('aria-current="page"')
-        ->toContain('bg-ink')
-        ->toContain('wire:navigate');
+        ->toContain('wire:navigate')
+        ->not->toContain('class=');
+
+    // The current link inverts to ink; the rest stay graphite.
+    expect(contractCss('shell'))
+        ->toContain('&[aria-current="page"] { @apply bg-ink text-surface; }')
+        ->toContain('&:not([aria-current="page"]) { @apply text-graphite hover:bg-ink/5 hover:text-ink; }');
 });
 
 it('renders an actions slot beside the burger', function () {
@@ -224,34 +252,39 @@ it('renders an optional header row across both columns', function () {
 
     expect($html)
         ->toContain('data-header')
-        ->toContain('grid-rows-[auto_auto_1fr]')
-        ->toContain('md:grid-rows-[auto_1fr]')
         ->toContain('data-sigta="shell.header"')
-        ->toContain('md:col-span-2')
         ->toContain('data-test="top"')
         ->toContain('Plumb')
         ->toContain('Account');
 
     // The header comes first, so it sits above both columns.
     expect(strpos($html, 'shell.header'))->toBeLessThan(strpos($html, 'shell.sidebar'));
+
+    expect(contractCss('shell'))
+        ->toContain('&[data-header] { @apply grid-rows-[auto_auto_1fr] md:grid-rows-[auto_1fr]; }')
+        ->toContain('@apply md:col-span-2 flex items-center gap-2 min-h-14');
 });
 
 it('leaves a shell without a header exactly as before', function () {
     $html = Blade::render('<x-sigta::shell><x-sigta::shell.main>Body</x-sigta::shell.main></x-sigta::shell>');
 
-    expect($html)
-        ->not->toContain('data-header')
-        ->not->toContain('grid-rows-[auto_auto_1fr]');
+    expect($html)->not->toContain('data-header');
+
+    // The pinned rows are keyed on the header, so a shell without one keeps auto rows.
+    expect(contractCss('shell'))->not->toMatch('/\[data-sigta="shell"\] \{\s*@apply[^;]*grid-rows/');
 });
 
 it('drops the sidebar brand row when the shell has a header', function () {
     $html = Blade::render('<x-sigta::shell.sidebar>Nav</x-sigta::shell.sidebar>');
 
     expect($html)
-        ->toContain('group-data-[header]/shell:hidden')
-        ->toContain('max-md:group-data-[header]/shell:p-0')
+        ->toContain('data-part="top"')
         // The header's burger opens this drawer through a window event.
         ->toContain('x-on:sigta-shell-toggle.window="toggle()"');
+
+    expect(contractCss('shell'))
+        ->toContain('[data-sigta="shell"][data-header] & { @apply hidden; }')
+        ->toContain('[data-sigta="shell"][data-header] & { @apply max-md:p-0 max-md:border-b-0 md:min-h-0 md:overflow-y-auto; }');
 });
 
 it('puts the drawer burger in the header on a phone', function () {
@@ -259,7 +292,7 @@ it('puts the drawer burger in the header on a phone', function () {
 
     expect($html)
         ->toContain('aria-label="Toggle navigation"')
-        ->toContain('md:hidden')
+        ->toContain('data-scope="shell.header"'."\n".'            data-part="toggle"')
         ->toContain('$dispatch(\'sigta-shell-toggle\')')
         ->toContain('x-on:sigta-shell-nav.window="navOpen = $event.detail.open"')
         ->toContain('aria-expanded="false"');
@@ -268,5 +301,7 @@ it('puts the drawer burger in the header on a phone', function () {
 it('keeps the main column clear of a visible floating bar', function () {
     $html = Blade::render('<x-sigta::shell.main>Body</x-sigta::shell.main>');
 
-    expect($html)->toContain('pb-[calc(1.5rem+var(--sigta-floating-space,0px))]');
+    expect($html)->toContain('data-sigta="shell.main"')->not->toContain('class=');
+
+    expect(contractCss('shell'))->toContain('pb-[calc(1.5rem+var(--sigta-floating-space,0px))]');
 });

@@ -13,5 +13,5 @@
         "skipLibCheck": true,
         "erasableSyntaxOnly": true
     },
-    "include": ["src/index.ts", "src/schema.ts", "src/examples.ts", "src/icons.ts", "src/manifests/**/*.ts"]
+    "include": ["src/index.ts", "src/schema.ts", "src/examples.ts", "src/icons.ts", "src/sections.ts", "src/manifests/**/*.ts"]
 }

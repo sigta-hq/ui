@@ -34,27 +34,28 @@ $aria ??= $label;
     data-sigta="kanban.column"
     data-column="{{ $id }}"
     @if ($sortable) x-bind:data-col-dragging="draggedColumn === '{{ $id }}' ? '' : null" @endif
-    {{ $attributes->merge(['class' => 'flex w-72 shrink-0 flex-col rounded-panel border border-line bg-surface'.($sortable ? ' data-[col-dragging]:opacity-40' : '')]) }}
+    {{ $attributes }}
 >
-    <div class="flex items-center justify-between gap-2 px-3.5 py-3 border-b border-line">
+    <div data-scope="kanban.column" data-part="header">
         @if ($sortable)
             <button
                 type="button"
                 draggable="true"
                 x-on:dragstart="columnStart('{{ $id }}', $event)"
-                class="shrink-0 cursor-grab text-graphite transition-colors hover:text-ink active:cursor-grabbing"
                 aria-label="{{ $aria ? 'Reorder '.$aria : 'Reorder column' }}"
                 data-sigta="kanban.column-handle"
+                data-scope="kanban.column"
+                data-part="handle"
             >
                 <x-sigta::icon name="grip-vertical" size="xs" />
             </button>
         @endif
         @isset($heading)
-            <div class="min-w-0 flex-1">{{ $heading }}</div>
+            <div data-scope="kanban.column" data-part="heading">{{ $heading }}</div>
         @else
-            <span class="min-w-0 flex-1 font-mono text-[0.7rem] tracking-[0.14em] uppercase text-graphite">{{ $label }}</span>
+            <span data-scope="kanban.column" data-part="label">{{ $label }}</span>
         @endisset
-        <div class="flex shrink-0 items-center gap-1.5">
+        <div data-scope="kanban.column" data-part="end">
             @isset($actions)
                 {{ $actions }}
             @endisset
@@ -67,10 +68,11 @@ $aria ??= $label;
         aria-label="{{ $aria }}"
         data-kanban-body
         data-column-id="{{ $id }}"
+        data-scope="kanban.column"
+        data-part="body"
         x-on:dragover.prevent="over($event, '{{ $id }}')"
         x-on:drop.prevent="drop($event, '{{ $id }}')"
-        x-bind:class="overColumn === '{{ $id }}' ? 'border-ink bg-ink/5' : 'border-transparent'"
-        class="flex flex-1 flex-col gap-2.5 min-h-24 p-2.5 rounded-b-panel border-[1.5px] border-dashed transition-colors duration-150 ease-out"
+        x-bind:data-over="overColumn === '{{ $id }}' ? '' : null"
     >
         {{ $slot }}
     </div>

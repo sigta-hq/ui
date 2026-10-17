@@ -34,14 +34,10 @@ $userName = $user !== null ? (string) data_get($user, 'name') : null;
 $memberData = collect($members)
     ->map(fn ($m) => ['id' => data_get($m, 'id'), 'name' => (string) data_get($m, 'name')])
     ->values();
-
-$triggerBase = 'inline-flex max-w-full items-center gap-1.5 rounded-base text-left outline-none focus-visible:ring-2 focus-visible:ring-ink/20';
-$panelBase = 'z-50 w-64 rounded-panel border border-line bg-surface-raised p-2 shadow-paper';
 @endphp
 
 <div
     data-sigta="assignee-picker"
-    class="relative inline-flex max-w-full"
     {{ $attributes->only(['wire:key']) }}
     x-data="{
         open: false,
@@ -82,17 +78,19 @@ $panelBase = 'z-50 w-64 rounded-panel border border-line bg-surface-raised p-2 s
         x-on:dragstart.stop.prevent
         draggable="false"
         aria-label="{{ $label ?? __('Assignee') }}"
-        {{ $attributes->except(['wire:key'])->merge(['class' => $triggerBase]) }}
+        data-scope="assignee-picker"
+        data-part="trigger"
+        {{ $attributes->except(['wire:key']) }}
     >
         @if ($user)
             <x-sigta::avatar :name="$userName" :size="$size" />
         @else
-            <span class="inline-flex {{ $size === 'sm' ? 'size-8' : 'size-6' }} items-center justify-center rounded-full border-[1.5px] border-dashed border-line text-graphite transition-colors hover:border-ink hover:text-ink" aria-hidden="true">
+            <span aria-hidden="true" data-scope="assignee-picker" data-part="placeholder" data-size="{{ $size }}">
                 <x-sigta::icon name="plus" size="xs" />
             </span>
         @endif
         @if ($showName)
-            <span class="truncate font-mono text-[0.7rem] text-graphite">{{ $userName ?? __('Assign') }}</span>
+            <span data-scope="assignee-picker" data-part="name">{{ $userName ?? __('Assign') }}</span>
         @endif
     </button>
 
@@ -105,7 +103,9 @@ $panelBase = 'z-50 w-64 rounded-panel border border-line bg-surface-raised p-2 s
             x-on:dragstart.stop
             draggable="false"
             @if (! $inline) :style="`position: fixed; top: ${top}px; left: ${left}px;`" @endif
-            class="{{ $panelBase }} {{ $inline ? 'absolute left-0 top-full mt-1' : '' }}"
+            data-scope="assignee-picker"
+            data-part="panel"
+            @if ($inline) data-inline="" @endif
             data-test="assignee-dropdown"
         >
             {{-- x-if keeps the search + member list out of the DOM until opened, so N closed pickers stay cheap. --}}
@@ -116,21 +116,22 @@ $panelBase = 'z-50 w-64 rounded-panel border border-line bg-surface-raised p-2 s
                         x-model="q"
                         type="text"
                         placeholder="{{ __('Search people') }}"
-                        class="mb-1.5 w-full rounded-base border border-line bg-surface px-2.5 py-1.5 text-sm outline-none focus:border-ink"
+                        data-scope="assignee-picker"
+                        data-part="search"
                         data-test="assignee-search"
                     />
-                    <div class="max-h-56 overflow-y-auto">
-                        <button type="button" x-on:click="select(null)" class="flex w-full items-center gap-2 rounded-base px-2 py-1.5 text-left text-sm text-graphite hover:bg-ink/5">
-                            <span class="inline-flex size-6 shrink-0 items-center justify-center rounded-full border-[1.5px] border-dashed border-line" aria-hidden="true"><x-sigta::icon name="x" size="xs" /></span>
+                    <div data-scope="assignee-picker" data-part="list">
+                        <button type="button" x-on:click="select(null)" data-scope="assignee-picker" data-part="unassign">
+                            <span aria-hidden="true" data-scope="assignee-picker" data-part="mark"><x-sigta::icon name="x" size="xs" /></span>
                             {{ __('Unassigned') }}
                         </button>
                         <template x-for="m in filtered" :key="m.id">
-                            <button type="button" x-on:click="select(m.id)" class="flex w-full items-center gap-2 rounded-base px-2 py-1.5 text-left text-sm text-ink hover:bg-ink/5">
-                                <span class="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-ink font-mono text-[0.55rem] text-surface" x-text="initials(m.name)"></span>
-                                <span class="truncate" x-text="m.name"></span>
+                            <button type="button" x-on:click="select(m.id)" data-scope="assignee-picker" data-part="option">
+                                <x-sigta::avatar size="xs" aria-hidden="true" x-text="initials(m.name)" />
+                                <span x-text="m.name" data-scope="assignee-picker" data-part="label"></span>
                             </button>
                         </template>
-                        <p x-show="filtered.length === 0" class="px-2 py-2 font-mono text-[0.7rem] text-graphite">{{ __('No people found.') }}</p>
+                        <p x-show="filtered.length === 0" data-scope="assignee-picker" data-part="empty">{{ __('No people found.') }}</p>
                     </div>
                 </div>
             </template>

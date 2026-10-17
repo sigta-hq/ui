@@ -1,0 +1,36 @@
+/* Command — a palette in a native dialog on paper over a blurred ink
+   backdrop, set high on the screen: a mono query row, then the commands,
+   the active one filled in ink. */
+[data-scope="command"][data-part="dialog"] {
+    @apply w-[calc(100vw-2.5rem)] max-w-xl bg-surface-raised text-ink border border-line rounded-frame shadow-paper p-0 backdrop:bg-ink/45 backdrop:backdrop-blur-[2px] m-auto mt-[12vh];
+}
+[data-scope="command"][data-part="search"] {
+    @apply flex items-center gap-2.5 px-4 border-b border-line;
+}
+[data-scope="command"][data-part="icon"] {
+    @apply text-graphite shrink-0;
+}
+[data-scope="command"][data-part="input"] {
+    @apply w-full font-mono text-[0.85rem] text-ink bg-transparent py-3.5 focus:outline-none placeholder:text-graphite;
+}
+[data-scope="command"][data-part="esc"] {
+    @apply font-mono text-[0.62rem] text-graphite border border-line rounded-base px-1.5 py-0.5;
+}
+[data-scope="command"][data-part="list"] {
+    @apply max-h-80 overflow-y-auto py-2;
+}
+[data-scope="command"][data-part="empty"] {
+    @apply px-4 py-3 font-mono text-[0.74rem] text-graphite;
+}
+[data-sigta="command.item"] {
+    @apply w-full text-left flex items-center gap-3 px-4 py-2.5 font-mono text-[0.8rem] text-ink cursor-pointer data-active:bg-ink data-active:text-surface;
+}
+[data-scope="command.item"][data-part="icon"] {
+    @apply shrink-0 opacity-70;
+}
+[data-scope="command.item"][data-part="label"] {
+    @apply grow;
+}
+[data-scope="command.item"][data-part="kbd"] {
+    @apply font-mono text-[0.62rem] opacity-60;
+}

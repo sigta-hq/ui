@@ -64,7 +64,9 @@ export default defineComponent({
             )],
         },
         {
+            // The option's aria-selected is bound on the client in Blade.
             label: 'Preselected value + description',
+            conformance: 'browser',
             tree: [el('div', { class: 'max-w-xs' },
                 c('listbox', { label: 'Plan', name: 'plan', value: 'studio', description: 'Billed yearly. Change anytime.' },
                     c('autocomplete.option', { value: 'solo' }, 'Solo'),
@@ -102,6 +104,7 @@ export default defineComponent({
         },
         {
             label: 'Closed with Escape',
+            conformance: 'browser',
             tree: [el('div', { class: 'max-w-xs' },
                 c('listbox', { label: 'Plan', name: 'plan', value: 'studio' },
                     c('autocomplete.option', { value: 'solo' }, 'Solo'),

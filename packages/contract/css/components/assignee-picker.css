@@ -1,0 +1,43 @@
+/* Assignee picker — the assignee's avatar (or a dashed + circle) opens a
+   paper dropdown: a search box, "Unassigned" and the people with their
+   initials. The panel sits on <body> by default, or inside the picker. */
+[data-sigta="assignee-picker"] {
+    @apply relative inline-flex max-w-full;
+}
+[data-scope="assignee-picker"][data-part="trigger"] {
+    @apply inline-flex max-w-full items-center gap-1.5 rounded-base text-left outline-none focus-visible:ring-2 focus-visible:ring-ink/20;
+}
+[data-scope="assignee-picker"][data-part="placeholder"] {
+    @apply inline-flex size-6 items-center justify-center rounded-full border-[1.5px] border-dashed border-line text-graphite transition-colors hover:border-ink hover:text-ink;
+
+    &[data-size="sm"] { @apply size-8; }
+}
+[data-scope="assignee-picker"][data-part="name"] {
+    @apply truncate font-mono text-[0.7rem] text-graphite;
+}
+[data-scope="assignee-picker"][data-part="panel"] {
+    @apply z-50 w-64 rounded-panel border border-line bg-surface-raised p-2 shadow-paper;
+
+    &[data-inline] { @apply absolute left-0 top-full mt-1; }
+}
+[data-scope="assignee-picker"][data-part="search"] {
+    @apply mb-1.5 w-full rounded-base border border-line bg-surface px-2.5 py-1.5 text-sm outline-none focus:border-ink;
+}
+[data-scope="assignee-picker"][data-part="list"] {
+    @apply max-h-56 overflow-y-auto;
+}
+[data-scope="assignee-picker"]:is([data-part="unassign"], [data-part="option"]) {
+    @apply flex w-full items-center gap-2 rounded-base px-2 py-1.5 text-left text-sm text-ink hover:bg-ink/5;
+}
+[data-scope="assignee-picker"][data-part="unassign"] {
+    @apply text-graphite;
+}
+[data-scope="assignee-picker"][data-part="mark"] {
+    @apply inline-flex size-6 shrink-0 items-center justify-center rounded-full border-[1.5px] border-dashed border-line;
+}
+[data-scope="assignee-picker"][data-part="label"] {
+    @apply truncate;
+}
+[data-scope="assignee-picker"][data-part="empty"] {
+    @apply px-2 py-2 font-mono text-[0.7rem] text-graphite;
+}

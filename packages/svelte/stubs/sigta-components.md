@@ -543,6 +543,29 @@ Rich single select: a button trigger showing the current choice opens a floating
 </Listbox>
 ```
 
+### `Pillbox`
+
+Multi-select combobox with removable chips: type to narrow the slotted <autocomplete.option>s, Enter or a click adds (or removes) the active one as a chip beside the query box; each chip's × removes it. The hidden input carries a JSON array of the selected values.
+
+- **Props:**
+  - `label` (string) — Label above the field.
+  - `description` (string) — Help text (hidden while there is an error).
+  - `error` (string) — Error text; marks the query box invalid and the field red.
+  - `placeholder` (string, default `Add…`) — Query box placeholder.
+  - `name` (string) — Form name of the hidden value input (a JSON array).
+  - `value` (array, default `[]`, bindable (`bind:value`)) — The selected values. Livewire: wire:model (lands on the hidden input, a JSON array); Svelte: bind:value.
+- **Snippets:** `children` — The <autocomplete.option>s.
+- **Events:** `onchange` (string[]) — The selection changed.
+- Choosing an option that is already a chip removes it again; the list stays open for the next one.
+- The listbox floats with fixed positioning, so it escapes cards and forms that clip overflow.
+- bind:value holds the array; other attributes (name, data-*) land on the hidden input.
+```svelte
+<Pillbox label="Disciplines" bind:value={disciplines} placeholder="Add a discipline…">
+    <Autocomplete.Option value="design">Product design</Autocomplete.Option>
+    <Autocomplete.Option value="saas">SaaS engineering</Autocomplete.Option>
+</Pillbox>
+```
+
 ### `Otp`
 
 One-time-code input: a row of single-character boxes backed by one hidden input that carries the code. Supports paste (spread across the boxes), arrow keys and backspace.
@@ -558,6 +581,26 @@ One-time-code input: a row of single-character boxes backed by one hidden input 
 - name, disabled and every attribute except class land on the hidden input; disabled also disables the boxes.
 ```svelte
 <Otp length={6} name="code" label="Verification code" bind:value={code} />
+```
+
+### `FileUpload`
+
+Dropzone file input: a dashed zone (a <label> wrapping a visually hidden native <input type="file">) that opens the picker on click and takes dropped files, then lists the picked files by name and size. Field chrome: label, description, error.
+
+- **Props:**
+  - `label` (string) — Field label.
+  - `description` (string) — Help text under the zone.
+  - `error` (string) — Error text; turns the zone red and marks the input invalid.
+  - `multiple` (boolean, default `false`) — Accept several files.
+  - `helper` (string) — The line before "browse"; defaults to "Drag a file here, or" ("Drag files here, or" with multiple).
+  - `files` (array, default `[]`, bindable (`bind:files`)) — Svelte: bind:files — the picked File objects, in order (empty to clear the input).
+- **Events:** `onfiles` (File[]) — Files were picked or dropped.
+- The zone is a <label> around a visually hidden native input: clicking it opens the picker, a dropped file is assigned to the input and a change event is dispatched, and the picked files are listed by name and size. The look and the drag, has-files, error and disabled states are the same in both runtimes; what happens to the files differs.
+- No backend protocol: the component hands you the File objects. bind:files (File[]) or onfiles(files); post them yourself — with Inertia, put them on a useForm field (form.attachment = files[0]) and form.post() sends FormData. Setting files = [] clears the input.
+- Other attributes (name, accept, required, …) land on the native input, so it also posts with a plain <form> (enctype="multipart/form-data").
+```svelte
+<FileUpload label="Attachment" description="PDF or PNG, up to 10 MB." accept=".pdf,.png" bind:files={attachments} error={form.errors.attachment} />
+<!-- Inertia: form.attachment = attachments[0]; form.post(url) sends it as FormData -->
 ```
 
 ### `Segmented`
@@ -633,7 +676,9 @@ A numeric figure: a mono label, the value in Fraunces with tabular numerals, and
 </div>
 ```
 
-### `Money`
+### `money` family
+
+#### `Money`
 
 Formats a minor-unit amount (øre/cents) in tabular numerals. Known codes (DKK/EUR/USD/GBP/SEK/NOK) carry symbol, position and separators; override any piece, or pass an unknown code (trailing symbol). suffix renders a muted per-unit tail (e.g. "/ hour").
 
@@ -650,6 +695,44 @@ Formats a minor-unit amount (øre/cents) in tabular numerals. Known codes (DKK/E
 - Both runtimes format with the same rules (the core's formatMoney, PHP number_format semantics), so a server render and a client render agree.
 ```svelte
 <Money minor={rate.amountMinor} currency={rate.currency} suffix="/ hour" />
+```
+
+#### `MoneyInput`
+
+Amount field entered in major units with an inline currency switcher: a small dropdown button (code + chevron) sits inside the same field, not a separate toggle. The amount is emitted in MINOR units (×100, rounded; a comma counts as the decimal point); the currency binds separately. App logic (the currency enum, minor/major rules for exotic currencies) stays in your app.
+
+- **Props:**
+  - `label` (string) — Field label.
+  - `value` (number, bindable (`bind:value`)) — The amount in MINOR units (øre / cents). Livewire: the initial amount, emitted onto the forwarded wire:model; Svelte: bind:value.
+  - `placeholder` (string) — Amount placeholder; defaults to "0".
+  - `currency` (string, default `DKK`, bindable (`bind:currency`)) — The selected currency code. Svelte: bind:currency.
+  - `currencies` (object) — The switcher's currencies; defaults to DKK / EUR / USD. A label that differs from its code shows beside it.
+  - `currencyName` (string) — Form name of the hidden currency input; defaults to currencyModel, else "currency".
+- **Events:** `onchange` (number | null) — The amount changed (minor units, null when empty).; `oncurrency` (string) — The currency changed.
+- Amounts stay app data in minor units: never pass or read a formatted string. Display amounts with money.
+- bind:value (minor units) and bind:currency; other attributes land on the field.
+```svelte
+<MoneyInput label="Hourly rate" bind:value={rate.amountMinor} bind:currency={rate.currency} />
+```
+
+### `AssigneePicker`
+
+The assignee's avatar (or a dashed "unassigned" affordance) that opens a client-side searchable people list: "Unassigned" and every member with their initials avatar. Choosing one hands its id (null for Unassigned) to your code, so one component drops into any context: a board card, a subtask, a task modal.
+
+- **Props:**
+  - `user` (object) — The current assignee (id + name), or null.
+  - `members` (array, default `[]`) — The assignable people (id + name each).
+  - `size` (`xs` · `sm` · `base` · `lg`, default `xs`) — Avatar size (the unassigned affordance is 32px at sm, 24px otherwise).
+  - `showName` (boolean, default `false`) — Show the assignee's name (or "Assign") beside the avatar.
+  - `label` (string) — Accessible label of the trigger; defaults to "Assignee".
+  - `inline` (boolean, default `false`) — Render the panel absolutely inside the picker instead of on <body>: use it inside a native <dialog> (the top layer).
+- **Events:** `onselect` (string | number | null) — A person (or Unassigned) was chosen.
+- Re-check membership on the server in whatever the choice calls; the list is filtered on the client.
+- By default the panel is placed on <body> with fixed positioning, so it escapes a draggable card and a board's overflow clipping; pass inline inside a native <dialog>, where content placed on <body> paints behind the top layer.
+- The search box and the list are only built while the panel is open, so many closed pickers stay cheap.
+- onselect receives the chosen id (null for Unassigned); every other attribute lands on the trigger.
+```svelte
+<AssigneePicker user={task.assignee} {members} onselect={(id) => assignTask(task.id, id)} />
 ```
 
 ### `Tooltip`
@@ -1415,6 +1498,55 @@ Tiny smooth hand-drawn sparkline in a 200×40 viewBox with a dot on the latest v
 </div>
 ```
 
+### `command` family
+
+#### `Command`
+
+Command palette (⌘K / Ctrl-K): a dialog with a query box filtering <command.item>s. Arrow keys move, Enter runs the active command, Escape closes. Open it with the shortcut, a modal.trigger with its name, or a sigta-modal-show window event.
+
+- **Props:**
+  - `name` (string, default `command`) — Name that modal.trigger and the sigta-modal-show / sigta-modal-hide window events address.
+  - `placeholder` (string, default `Type a command…`) — Query box placeholder.
+  - `shortcut` (boolean, default `true`) — Open on ⌘K / Ctrl-K anywhere on the page.
+  - `open` (boolean, default `false`, bindable (`bind:open`)) — Svelte: bind:open to open and close it.
+- **Snippets:** `children` — The <command.item>s.
+- One palette per page: with shortcut on (the default) ⌘K / Ctrl-K opens it from anywhere.
+- Open it by name like a modal: modal.trigger name="command", or a sigta-modal-show window event { name }; sigta-modal-hide closes it.
+- The query filters the items by their text; the list keeps every item while the query is empty.
+- bind:open opens and closes it; the shortcut and the window events work too.
+```svelte
+<Modal.Trigger name="command"><Button>Open command palette</Button></Modal.Trigger>
+
+<Command>
+    <Command.Item icon="file-plus" kbd="⌘N" onclick={newProject}>New project</Command.Item>
+    <Command.Item href="/settings" icon="settings">Settings</Command.Item>
+</Command>
+```
+
+#### `Command.Item`
+
+One command of a command palette: an optional icon, the label and a key hint. A link with href, else a button; choosing it (a click or Enter) closes the palette.
+
+- **Props:**
+  - `icon` (string) — Leading icon name.
+  - `kbd` (string) — Key hint on the right, e.g. "⌘N".
+  - `value` (string) — Written into data-value for your own handlers.
+  - `href` (string) — Renders an <a> instead of a <button>.
+- **Snippets:** `children` — The command's text.
+- Run the command with your own click handler (or href); the palette closes on its own.
+- onclick and every other attribute land on the <a> / <button>.
+```svelte
+<script>
+    import { Command } from '@sigta-hq/svelte';
+</script>
+
+<Command name="kit-command-items">
+    <Command.Item icon="file-plus" kbd="⌘N" value="new">New project</Command.Item>
+    <Command.Item href="#top" icon="settings">Settings</Command.Item>
+    <Command.Item>Sign out</Command.Item>
+</Command>
+```
+
 ### `Calendar`
 
 Standalone Mon-first month grid: a mono month caption between chevrons, weekday initials and 42 square day buttons (six weeks, spilling into the months around). Reactive month navigation, full keyboard support, min/max bounds. The shared engine behind the date-picker. Emits calendar-change.
@@ -1482,7 +1614,190 @@ Text input + clock-icon button opening a listbox of times every step minutes bet
 <TimePicker label="Start time" bind:value={start} step={15} min="09:00" max="17:00" />
 ```
 
+### `DurationInput`
+
+A single duration field that reads as a compact "1h59m" label and, on click, becomes an editable "HH:MM" input (e.g. "01:59"). On blur or Enter it parses the clock back to whole minutes (forgiving: "H:MM", "HH:MM", or a bare minute count) and emits them; Escape cancels.
+
+- **Props:**
+  - `label` (string) — Field label.
+  - `value` (number, bindable (`bind:value`)) — Whole minutes (null or 0 reads as no value). Livewire: the initial minutes, emitted onto the forwarded wire:model; Svelte: bind:value.
+  - `placeholder` (string) — Shown while there is no value; defaults to "0m".
+- **Events:** `onchange` (number | null) — A committed edit (whole minutes, null when cleared).
+- For a read-only duration use duration; for a value that counts up live, elapsed-clock.
+- bind:value holds whole minutes (null when cleared); other attributes land on the field.
+```svelte
+<DurationInput label="Estimate" bind:value={task.estimateMinutes} />
+```
+
+### `carousel` family
+
+#### `Carousel`
+
+A scroll-snap track with prev/next chevrons and clickable dots. The active slide is derived from the scroll position, so a swipe, the arrows and the dots stay in sync; the arrows disable at the ends.
+
+- **Props:**
+  - `label` (string) — Names the carousel region ("Selected work").
+- **Snippets:** `children` — The carousel.slides.
+- The dots are generated from the slide count once the page runs; smooth scrolling is skipped under prefers-reduced-motion.
+- For several slides per view, give each carousel.slide a basis (basis="basis-1/2 md:basis-1/3").
+```svelte
+<Carousel label="Selected work">
+    <Carousel.Slide>…</Carousel.Slide>
+    <Carousel.Slide>…</Carousel.Slide>
+</Carousel>
+```
+
+#### `Carousel.Slide`
+
+One slide of a carousel: snaps to the start of the track. Full width by default; pass a width utility as basis for multi-per-view layouts.
+
+- **Props:**
+  - `basis` (string, default `w-full`) — The slide's width as a utility class: basis-4/5, w-1/2, basis-1/2 md:basis-1/3. Anything but the default replaces the full width.
+- **Snippets:** `children` — The slide's content.
+- basis is a class: it lands on the slide beside your own class.
+```svelte
+<Carousel.Slide basis="basis-1/2 md:basis-1/3">…</Carousel.Slide>
+```
+
+### `Composer`
+
+Chat composer: an auto-growing textarea (up to six rows) between a leading slot (attach, by default) and a send button. Enter sends, Shift+Enter inserts a newline; sending hands the trimmed text over and clears the field.
+
+- **Props:**
+  - `placeholder` (string, default `Write a message…`) — Textarea placeholder.
+  - `name` (string) — Form name of the textarea.
+  - `value` (string, default ``, bindable (`bind:value`)) — The text. Livewire: wire:model (lands on the textarea); Svelte: bind:value.
+- **Snippets:** `leading` — Replaces the attach button (a mention or emoji button, …).
+- **Events:** `onsubmit` ({ text: string } (Svelte: onsubmit(text))) — A message was sent (Enter or the send button); the field clears.
+- Sending dispatches a bubbling sigta-composer-submit event { text } from the textarea (the window hears it too) and clears the field.
+- The textarea grows with its text up to six rows, then scrolls.
+- onsubmit(text) on every send; bind:value for the draft. Other attributes land on the textarea.
+- Replace the attach button with {#snippet leading()}…{/snippet}.
+```svelte
+<Composer placeholder="Message the studio…" onsubmit={(text) => send(text)} />
+```
+
 ## Layout (structural scaffolds)
+
+### `shell` family
+
+#### `Shell`
+
+App shell grid: sidebar + main. An embeddable rounded frame on raised paper by default; full for a full-viewport app. An optional header row spans both columns above them.
+
+- **Props:**
+  - `full` (boolean, default `false`) — true → full-viewport app (no frame); default → embeddable rounded frame with a hairline border.
+- **Snippets:** `header` — Optional: a shell.header, the full-width row above the sidebar and main.; `sidebar` — The shell.sidebar (the nav rail / drawer).; `children` — The main column: a shell.main.
+- full=true → full-viewport app; default → embeddable rounded frame (min 440px tall, overflow clipped).
+- header is optional. With it the header row spans both columns above the sidebar and main, carries the brand, actions and (on a phone) the burger, and the sidebar is navigation alone. A shell without header is unchanged.
+- Snippets: header (optional, a <Shell.Header>), sidebar (a <Shell.Sidebar>), and children for the main (a <Shell.Main>).
+```svelte
+<Shell full>
+    {#snippet header()}
+        <Shell.Header>
+            {#snippet brand()}<Brand />{/snippet}
+            {#snippet actions()}<Avatar name="Ada Lovelace" size="sm" />{/snippet}
+        </Shell.Header>
+    {/snippet}
+    {#snippet sidebar()}<Shell.Sidebar>…nav…</Shell.Sidebar>{/snippet}
+    <Shell.Main>…</Shell.Main>
+</Shell>
+```
+
+#### `Shell.Bar`
+
+The top bar of a page in the shell: heading + mono sub on the left, an actions slot (segmented, pills, buttons) on the right; wraps on narrow screens.
+
+- **Props:**
+  - `heading` (string) — The page heading.
+  - `sub` (string) — A mono line under the heading ("Q2 2026 · updated 6 min ago").
+- **Snippets:** `actions` — Controls on the right: a segmented range, pills, buttons.
+- Put it first in a shell.main.
+- The actions are a snippet: {#snippet actions()}…{/snippet}.
+```svelte
+<Shell.Bar heading="Overview" sub="Q2 2026 · updated 6 min ago">
+    {#snippet actions()}
+        <Segmented name="range" label="Range" options={{ '7d': '7d', '30d': '30d' }} checked="30d" />
+        <Pill variant="success">On track</Pill>
+    {/snippet}
+</Shell.Bar>
+```
+
+#### `Shell.Header`
+
+A full-width row above the shell's sidebar and main: brand on the left, actions on the right. Below the tablet breakpoint it is the phone's top bar and carries the burger that opens the sidebar drawer.
+
+- **Props:** none
+- **Snippets:** `brand` — The lockup on the left.; `actions` — Account menu, quick actions — on the right, before the burger.
+- Pass it in the shell's optional header slot: a full-width row above the sidebar and main, brand on the left, actions on the right. Below the tablet breakpoint it is the phone's top bar and carries the burger that opens the sidebar drawer (the sidebar then drops its own brand row, actions and burger, and is navigation alone). A shell without header is unchanged.
+- The sidebar owns the drawer's state: the burger sends a sigta-shell-toggle window event and mirrors the sigta-shell-nav { open } the sidebar reports back, so header and sidebar talk wherever they sit.
+- Snippets: brand and actions.
+```svelte
+<Shell full>
+    {#snippet header()}
+        <Shell.Header>
+            {#snippet brand()}<Brand />{/snippet}
+            {#snippet actions()}<Avatar name="Ada Lovelace" size="sm" />{/snippet}
+        </Shell.Header>
+    {/snippet}
+    {#snippet sidebar()}<Shell.Sidebar>…nav…</Shell.Sidebar>{/snippet}
+    <Shell.Main>…</Shell.Main>
+</Shell>
+```
+
+#### `Shell.Link`
+
+A nav link in the shell sidebar: mono, quiet graphite with an optional leading icon; inverts to ink when current.
+
+- **Props:**
+  - `icon` (string) — Leading icon name.
+  - `current` (boolean, default `false`) — The current page: inverts to ink and sets aria-current="page".
+  - `href` (string) — The link target.
+- **Snippets:** `children` — The label.
+- Put them in a shell.sidebar; mark the page you are on current.
+- Attributes (href, data-*, onclick) pass straight through to the <a>.
+```svelte
+<Shell.Link href="/" icon="layout-grid" current={page.url === '/'}>Overview</Shell.Link>
+```
+
+#### `Shell.Main`
+
+The shell's padded main content column: a stack of dashboard rows. Its bottom padding grows by a visible floating bar's footprint.
+
+- **Props:** none
+- **Snippets:** `children` — The page: a shell.bar, then rows.
+- Its bottom padding grows by a visible floating-bar's footprint (--sigta-floating-space); if your app scrolls a different element, add pb-[var(--sigta-floating-space,0px)] to it.
+```svelte
+<Shell.Main>
+    <Shell.Bar heading="Reports" />
+    …
+</Shell.Main>
+```
+
+#### `Shell.Sidebar`
+
+The shell's nav column on paper. A full rail on desktop; below the tablet breakpoint it becomes a top bar whose burger slides the nav in as a drawer over the page, with a scrim behind it.
+
+- **Props:**
+  - `open` (boolean, default `false`, bindable (`bind:open`)) — Svelte: bind:open — whether the drawer is open (below the tablet breakpoint; the rail ignores it).
+- **Snippets:** `children` — The nav: shell.links (and anything else that belongs in it).; `brand` — The lockup at the top of the rail.; `actions` — One or two icon-sized controls at the far end of the top row, hard against the burger; they stay visible while the nav is collapsed.
+- A full rail on desktop; below the tablet breakpoint it becomes a top bar whose burger slides the nav in as a drawer over the page, with a scrim behind it.
+- The open drawer is a modal dialog: focus is trapped in it, the page behind stops scrolling, and it closes on the scrim, on Escape and on its own close button. None of that applies to the desktop rail. Give the sidebar an aria-label to name both the landmark and the drawer (defaults to "App navigation").
+- actions sits at the far end of the top row, hard against the burger, and stays visible when the nav is collapsed. Use it for the one or two controls that must be reachable without opening the nav (a search or quick-action trigger); everything else belongs in the nav. Keep it to icon-sized controls: the row is as narrow as the rail on desktop.
+- Inside a shell with a header, the header carries the brand, actions and burger, so this row is dropped and the sidebar is navigation alone.
+- A sigta-shell-toggle window event toggles the drawer; the sidebar reports each change as a sigta-shell-nav window event { open }. The shell header's burger talks to it that way, so the two can sit anywhere on the page.
+- Works by itself; bind:open when your code opens or closes the drawer. It closes after an Inertia visit (inertia:navigate); in another router, set open = false after navigating.
+- Snippets: brand, actions, and children for the nav.
+```svelte
+<Shell.Sidebar aria-label="Main menu" bind:open={navOpen}>
+    {#snippet brand()}<Brand size="sm" glyphOnly /> Plumb{/snippet}
+    {#snippet actions()}
+        <Button variant="ghost" size="sm" aria-label="Quick actions"><Icon name="zap" size="sm" /></Button>
+    {/snippet}
+    <Shell.Link href="/" icon="layout-grid" current>Overview</Shell.Link>
+    <Shell.Link href="/reports" icon="clock">Reports</Shell.Link>
+</Shell.Sidebar>
+```
 
 ### `Panel`
 
@@ -1628,9 +1943,16 @@ Ink on paper: strokes draw, paper settles under a press, a finished thing is cro
 | `sigta-save-state` | `{name, state}` | `sigta.save()` / `sigta.saveState()` / your code | `<SaveState name>` |
 | `sigta-modal-show` | `{name}` | `Modal.Trigger` / your code | `<Modal name>` |
 | `sigta-modal-hide` | `{name}` | `Modal.Close` / your code | `<Modal name>` |
+| `onselect` | `string | number | null` | `<AssigneePicker>` | A person (or Unassigned) was chosen. |
 | `onchange` | `string | null` | `<Autocomplete>` | The value changed. |
 | `onchange` | `string | null` | `<Calendar>` | The selected day changed, YYYY-MM-DD. |
+| `onsubmit` | `{ text: string } (Svelte: onsubmit(text))` | `<Composer>` | A message was sent (Enter or the send button); the field clears. |
 | `onchange` | `string | null` | `<DatePicker>` | The date changed, YYYY-MM-DD (null when cleared). |
+| `onchange` | `number | null` | `<DurationInput>` | A committed edit (whole minutes, null when cleared). |
+| `onfiles` | `File[]` | `<FileUpload>` | Files were picked or dropped. |
 | `onchange` | `string | null` | `<Listbox>` | The value changed. |
+| `onchange` | `number | null` | `<MoneyInput>` | The amount changed (minor units, null when empty). |
+| `oncurrency` | `string` | `<MoneyInput>` | The currency changed. |
 | `bind:value, or oninput (dispatched on the hidden input)` | `string` | `<Otp>` | The code changed. |
+| `onchange` | `string[]` | `<Pillbox>` | The selection changed. |
 | `onchange` | `string | null` | `<TimePicker>` | The time changed, HH:MM (null when cleared). |

@@ -1,0 +1,41 @@
+/* Section: pricing — a section header over tiers side by side (stacked on a
+   phone). Each tier is a non-clipping panel, so a hand-note can overhang it:
+   a mono label, the title, a big figure with its suffix, graphite body
+   paragraphs. The aside fills the column beside a single tier. */
+[data-sigta="section.pricing"] {
+    @apply max-w-(--sigta-maxw) mx-auto px-(--sigta-gutter) py-[clamp(40px,6vw,72px)];
+}
+[data-scope="section.pricing"][data-part="header"] {
+    @apply mb-[clamp(28px,4vw,52px)];
+}
+[data-scope="section.pricing"][data-part="tiers"] {
+    @apply grid gap-[clamp(18px,2.2vw,28px)] md:grid-cols-2;
+}
+/* Outranks the annot's own display, so it hides on a phone. */
+[data-scope="section.pricing"][data-part="note"] {
+    @apply absolute -top-3 right-[8%] max-sm:hidden;
+}
+[data-scope="section.pricing"][data-part="label"] {
+    @apply mb-[1.1rem] block font-mono text-[0.66rem] tracking-[0.14em] uppercase text-graphite;
+}
+/* Outranks the heading's own size. */
+[data-scope="section.pricing"][data-part="title"] {
+    @apply mb-4 text-[clamp(1.4rem,2.2vw,1.8rem)];
+}
+/* A wrapping flex row, not inline text: a suffix too long for the line drops
+   below the figure as one block with its own leading, instead of breaking
+   inside the figure's tall line box and stranding its last words. */
+[data-scope="section.pricing"][data-part="figure"] {
+    @apply mt-[0.4rem] mb-[1.2rem] flex flex-wrap items-baseline gap-x-[0.3em] gap-y-1 font-head font-medium text-[clamp(2rem,3.4vw,2.8rem)] tabular-nums;
+}
+[data-scope="section.pricing"][data-part="suffix"] {
+    @apply font-mono text-[0.85rem] font-normal leading-snug text-graphite;
+}
+[data-scope="section.pricing"][data-part="body"] {
+    @apply text-[0.98rem] leading-[1.6] text-graphite;
+
+    &:not(:last-child) { @apply mb-4; }
+}
+[data-scope="section.pricing"][data-part="aside"] {
+    @apply flex flex-col justify-center gap-4;
+}

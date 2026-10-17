@@ -32,6 +32,10 @@
             "types": "./dist/icons.d.ts",
             "default": "./dist/icons.js"
         },
+        "./sections": {
+            "types": "./dist/sections.d.ts",
+            "default": "./dist/sections.js"
+        },
         "./sigta.css": "./dist/css/sigta.css",
         "./core.css": "./dist/css/core.css",
         "./theme.css": "./dist/css/theme.css",

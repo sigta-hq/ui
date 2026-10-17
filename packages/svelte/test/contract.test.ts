@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse } from 'svelte/compiler';
+import { sections } from '../../contract/src/sections.ts';
 
 const root = join(__dirname, '../../..');
 const { components } = JSON.parse(readFileSync(join(root, 'packages/contract/manifest.json'), 'utf8'));
@@ -31,6 +32,9 @@ function destructuredProps(source: string): Destructured[] {
                         : right.type === 'Identifier' && right.name === 'undefined' ? undefined
                         : right.type === 'ArrayExpression' || right.type === 'ObjectExpression' ? JSON.parse(source.slice(right.start, right.end).replace(/'/g, '"').replace(/(\w+):/g, '"$1":'))
                         : right.type === 'UnaryExpression' && right.operator === '-' ? -right.argument.value
+                        // A section's default content, read from the data both runtimes share: sections.faq.items.
+                        : right.type === 'MemberExpression' && /^sections(\.\w+)+$/.test(source.slice(right.start, right.end))
+                            ? source.slice(right.start, right.end).split('.').slice(1).reduce((value: any, key) => value?.[key], sections)
                         : '<expression>';
                     out.push({ name, hasDefault: true, value: literal });
                 } else {

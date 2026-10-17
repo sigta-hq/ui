@@ -18,6 +18,10 @@
 
         <sigta:money-input label="Hourly rate" :value="$rate->amount_minor"
             wire:model="amountMinor" :currency="$currency" currency-model="currency" />
+
+    The parsing lives in sigtaMoneyInput (resources/js/sigta.js), on the core's
+    majorFromMinor / minorFromMajor (packages/core/src/format.ts); the initial
+    major text below is the same as majorFromMinor, in PHP.
 --}}
 @php
 $initialMinor = is_numeric($value) ? (int) $value : null;
@@ -29,35 +33,13 @@ $initialMajor = $initialMinor !== null
 $placeholderText = $placeholder ?? '0';
 $currencyOptions = $currencies ?: ['DKK' => 'DKK', 'EUR' => 'EUR', 'USD' => 'USD'];
 $currencyName ??= ($currencyModel ?? 'currency');
-
-$fieldClasses = 'flex items-stretch bg-surface border-[1.5px] border-line rounded-[5px] transition duration-150 ease-out focus-within:border-ink focus-within:shadow-[0_0_0_3px_color-mix(in_srgb,var(--sigta-fg)_8%,transparent)]';
+$amountId = 'sigta-'.\Illuminate\Support\Str::random(8);
 @endphp
 
-<x-sigta::field :label="$label" {{ $attributes->whereDoesntStartWith('wire:model') }}>
+<x-sigta::field :label="$label" :for="$amountId" {{ $attributes->whereDoesntStartWith('wire:model') }}>
     <div
         data-sigta="money-input"
-        class="{{ $fieldClasses }}"
-        x-data="{
-            major: @js($initialMajor),
-            currency: @js((string) $currency),
-            open: false,
-            currencies: @js($currencyOptions),
-            sync() {
-                const n = parseFloat(String(this.major).replace(',', '.'));
-                const minor = Number.isFinite(n) ? Math.round(n * 100) : '';
-                const el = this.$refs.total;
-                el.value = minor;
-                el.dispatchEvent(new Event('input', { bubbles: true }));
-            },
-            selectCurrency(code) {
-                this.currency = code;
-                const el = this.$refs.currency;
-                el.value = code;
-                el.dispatchEvent(new Event('input', { bubbles: true }));
-                this.open = false;
-            },
-        }"
-        x-init="sync()"
+        x-data="sigtaMoneyInput()"
         x-on:keydown.escape="open = false"
     >
         <input type="hidden" x-ref="total" value="{{ $initialMinor }}" {{ $attributes->whereStartsWith('wire:model') }} />
@@ -69,26 +51,31 @@ $fieldClasses = 'flex items-stretch bg-surface border-[1.5px] border-line rounde
 
         <input
             type="text"
+            id="{{ $amountId }}"
             inputmode="decimal"
+            value="{{ $initialMajor }}"
             x-model="major"
             x-on:input="sync()"
             placeholder="{{ $placeholderText }}"
-            class="min-w-0 flex-1 border-0 bg-transparent px-[0.8em] py-[0.62em] font-body text-[0.98rem] text-ink outline-none placeholder:text-graphite/70"
             aria-label="{{ trim(($label ? $label.' ' : '').__('amount')) }}"
             data-test="money-amount"
+            data-scope="money-input"
+            data-part="amount"
         />
 
-        <div class="relative shrink-0">
+        <div data-scope="money-input" data-part="switcher">
             <button
                 type="button"
                 x-on:click="open = ! open"
-                :aria-expanded="open"
+                aria-expanded="false"
+                x-bind:aria-expanded="open"
                 aria-haspopup="listbox"
                 aria-label="{{ __('Currency') }}"
-                class="flex h-full items-center gap-1 border-l border-line px-2.5 font-mono text-[0.72rem] tracking-[0.08em] text-graphite transition-colors hover:text-ink"
                 data-test="money-currency"
+                data-scope="money-input"
+                data-part="currency"
             >
-                <span x-text="currency"></span>
+                <span x-text="currency">{{ $currency }}</span>
                 <x-sigta::icon name="chevron-down" size="xs" />
             </button>
 
@@ -98,22 +85,26 @@ $fieldClasses = 'flex items-stretch bg-surface border-[1.5px] border-line rounde
                 x-transition.opacity.duration.100ms
                 x-on:click.outside="open = false"
                 role="listbox"
-                class="absolute right-0 top-full z-30 mt-1 min-w-[5rem] rounded-panel border border-line bg-surface-raised p-1 shadow-paper"
                 data-test="money-currency-menu"
+                data-scope="money-input"
+                data-part="menu"
             >
-                <template x-for="(currencyLabel, code) in currencies" :key="code">
+                @foreach ($currencyOptions as $code => $currencyLabel)
                     <button
                         type="button"
-                        x-on:click="selectCurrency(code)"
+                        x-on:click="selectCurrency({{ \Illuminate\Support\Js::from((string) $code) }})"
                         role="option"
-                        :aria-selected="code === currency"
-                        class="flex w-full items-center gap-2 rounded-base px-2.5 py-1.5 text-left font-mono text-[0.72rem] hover:bg-ink/5"
-                        :class="code === currency ? 'text-ink' : 'text-graphite'"
+                        aria-selected="{{ (string) $code === (string) $currency ? 'true' : 'false' }}"
+                        x-bind:aria-selected="currency === {{ \Illuminate\Support\Js::from((string) $code) }} ? 'true' : 'false'"
+                        data-scope="money-input"
+                        data-part="option"
                     >
-                        <span x-text="code"></span>
-                        <span class="text-graphite/70" x-show="currencyLabel !== code" x-text="currencyLabel"></span>
+                        <span>{{ $code }}</span>
+                        @if ((string) $currencyLabel !== (string) $code)
+                            <span data-scope="money-input" data-part="label">{{ $currencyLabel }}</span>
+                        @endif
                     </button>
-                </template>
+                @endforeach
             </div>
         </div>
     </div>

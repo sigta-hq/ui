@@ -44,6 +44,18 @@ import {
 } from '../../packages/core/src/index.ts';
 // The carousel's measuring, the composer's growth and the file upload's list.
 import { activeSlide, autosize, fileEntries, scrollToSlide } from '../../packages/core/src/index.ts';
+// The kanban board's drop placement and positions.
+import {
+    cardElement,
+    cardPosition,
+    columnElement,
+    columnPosition,
+    columnUnit,
+    KANBAN_COLUMN_MOVE_EVENT,
+    KANBAN_MOVE_EVENT,
+    placeCard,
+    placeColumn,
+} from '../../packages/core/src/index.ts';
 // The money input's and the duration input's parsing.
 import { durationDraft, durationLabel, durationMinutes, majorFromMinor, minorFromMajor, parseDuration } from '../../packages/core/src/index.ts';
 // The calendar, date picker and time picker's date and time logic.
@@ -769,6 +781,88 @@ document.addEventListener('alpine:init', () => {
             this.value = value || null;
             this.display = formatTime(this.value, this.format);
             this.commit();
+        },
+    }));
+
+    /* Kanban — native HTML5 drag and drop. The board owns only the transient
+       drag state, never the order: the dragged card (or column) moves in the
+       DOM while it is dragged, the board reports the drop as a
+       sigta-kanban-move / sigta-kanban-column-move event, and Livewire's next
+       morph puts the authoritative order back. Where things land comes from
+       the core, shared with the Svelte board. */
+    Alpine.data('sigtaKanban', () => ({
+        draggedId: null,
+        fromColumn: null,
+        overColumn: null,
+        draggedColumn: null,
+        draggedEl() {
+            return cardElement(this.$root, this.draggedId);
+        },
+        start(id, event) {
+            this.draggedId = id;
+            const body = event.target.closest('[data-kanban-body]');
+            this.fromColumn = body ? body.dataset.columnId : null;
+            if (event.dataTransfer) {
+                event.dataTransfer.effectAllowed = 'move';
+                try { event.dataTransfer.setData('text/plain', id); } catch (e) {}
+            }
+        },
+        end() {
+            this.draggedId = null;
+            this.fromColumn = null;
+            this.overColumn = null;
+        },
+        over(event, columnId) {
+            if (!this.draggedId) return;
+            if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+            this.overColumn = columnId;
+            const dragged = this.draggedEl();
+            if (dragged) placeCard(event.currentTarget, dragged, event.clientY);
+        },
+        drop(event, columnId) {
+            const body = event.currentTarget;
+            const dragged = this.draggedEl();
+            this.overColumn = null;
+            if (!dragged) return;
+            this.$dispatch(KANBAN_MOVE_EVENT, {
+                card: this.draggedId,
+                from: this.fromColumn,
+                to: columnId,
+                position: cardPosition(body, dragged),
+            });
+            this.end();
+        },
+        columnEl() {
+            return columnElement(this.$root, this.draggedColumn);
+        },
+        columnStart(id, event) {
+            this.draggedColumn = id;
+            if (event.dataTransfer) {
+                event.dataTransfer.effectAllowed = 'move';
+                try { event.dataTransfer.setData('text/plain', id); } catch (e) {}
+                const col = this.columnEl();
+                if (col) { try { event.dataTransfer.setDragImage(col, 24, 24); } catch (e) {} }
+            }
+            event.stopPropagation();
+        },
+        columnOver(event) {
+            if (!this.draggedColumn) return;
+            event.preventDefault();
+            if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+            const col = this.columnEl();
+            if (col) placeColumn(this.$root, columnUnit(this.$root, col), event.clientX);
+        },
+        columnDrop(event) {
+            if (!this.draggedColumn) return;
+            event.preventDefault();
+            const id = this.draggedColumn;
+            const col = this.columnEl();
+            const position = columnPosition(this.$root, col ? columnUnit(this.$root, col) : null);
+            this.columnEnd();
+            this.$dispatch(KANBAN_COLUMN_MOVE_EVENT, { column: id, position });
+        },
+        columnEnd() {
+            this.draggedColumn = null;
         },
     }));
 

@@ -18,9 +18,17 @@ it('renders a carousel region with snap slides', function () {
         ->toContain('aria-label="Selected work"')
         ->toContain('data-sigta="carousel.slide"')
         ->toContain('aria-roledescription="slide"')
-        ->toContain('snap-start')
+        ->toContain('x-data="sigtaCarousel"')
+        ->toContain('data-scope="carousel" data-part="track"')
         ->toContain('One')
-        ->toContain('Three');
+        ->toContain('Three')
+        ->not->toContain('class=');
+
+    // A snap-x track; each slide snaps to its start at full width.
+    expect(contractCss('carousel'))
+        ->toContain('@apply flex gap-4 overflow-x-auto snap-x snap-mandatory')
+        ->toContain('@apply snap-start shrink-0;')
+        ->toContain('&:not([data-basis="custom"]) { @apply w-full; }');
 
     // one group role per slide, plus the dots group
     expect(substr_count($html, 'aria-roledescription="slide"'))->toBe(3);
@@ -42,7 +50,20 @@ it('renders prev/next controls and clickable dots', function () {
         ->toContain('x-bind:disabled="atStart()"')   // disabled at ends
         ->toContain('x-bind:disabled="atEnd()"')
         ->toContain('x-for="i in count"')            // dots generated from count
-        ->toContain('aria-current');
+        ->toContain('aria-current')
+        ->toContain('data-part="dot"');
+
+    // The current slide's dot is filled.
+    expect(contractCss('carousel'))->toContain('&[aria-current="true"] { @apply bg-ink; }');
+});
+
+it('reads the active slide from the scroll position in the runtime', function () {
+    $runtime = file_get_contents(dirname(__DIR__, 2).'/resources/js/sigta.js');
+
+    expect($runtime)
+        ->toContain("Alpine.data('sigtaCarousel'")
+        ->toContain('sync() { this.active = activeSlide(this.$refs.track); }')
+        ->toContain('go(index) { scrollToSlide(this.$refs.track, index); }');
 });
 
 it('accepts a basis width for multi-per-view slides', function () {
@@ -50,6 +71,11 @@ it('accepts a basis width for multi-per-view slides', function () {
 
     expect($html)
         ->toContain('basis-1/2')
+        ->toContain('data-basis="custom"') // drops the default full width
         ->toContain('data-testid="s"')   // attribute forwarding
         ->toContain('Half');
+
+    expect(Blade::render('<x-sigta::carousel.slide>Full</x-sigta::carousel.slide>'))
+        ->not->toContain('data-basis')
+        ->not->toContain('class=');
 });

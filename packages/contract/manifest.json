@@ -191,6 +191,169 @@
       ]
     },
     {
+      "name": "assignee-picker",
+      "title": "Assignee picker",
+      "tier": "components",
+      "page": "assignee-picker",
+      "svelte": "AssigneePicker",
+      "description": "The assignee's avatar (or a dashed \"unassigned\" affordance) that opens a client-side searchable people list: \"Unassigned\" and every member with their initials avatar. Choosing one hands its id (null for Unassigned) to your code, so one component drops into any context: a board card, a subtask, a task modal.",
+      "aria": "The trigger is a <button> labelled by label (default \"Assignee\"); the panel holds a search box and one button per person. Escape and a click outside close it.",
+      "props": {
+        "user": {
+          "type": "object",
+          "default": null,
+          "shape": "{ id: string | number; name: string } | null",
+          "description": "The current assignee (id + name), or null.",
+          "blade": {
+            "accepts": "an Eloquent model or array with id and name"
+          }
+        },
+        "members": {
+          "type": "array",
+          "default": [],
+          "shape": "{ id: string | number; name: string }[]",
+          "description": "The assignable people (id + name each).",
+          "blade": {
+            "accepts": "any iterable (a Collection) of models or arrays with id and name"
+          }
+        },
+        "method": {
+          "type": "string",
+          "default": null,
+          "svelte": false,
+          "description": "Livewire method on the nearest component to call on select: method(...args, userId)."
+        },
+        "args": {
+          "type": "array",
+          "default": [],
+          "svelte": false,
+          "description": "Leading arguments passed before the chosen user id."
+        },
+        "size": {
+          "type": "enum",
+          "values": [
+            "xs",
+            "sm",
+            "base",
+            "lg"
+          ],
+          "default": "xs",
+          "description": "Avatar size (the unassigned affordance is 32px at sm, 24px otherwise)."
+        },
+        "showName": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show the assignee's name (or \"Assign\") beside the avatar."
+        },
+        "label": {
+          "type": "string",
+          "default": null,
+          "description": "Accessible label of the trigger; defaults to \"Assignee\"."
+        },
+        "inline": {
+          "type": "boolean",
+          "default": false,
+          "description": "Render the panel absolutely inside the picker instead of on <body>: use it inside a native <dialog> (the top layer)."
+        }
+      },
+      "parts": {
+        "trigger": {
+          "description": "The button; your attributes and class land here."
+        },
+        "placeholder": {
+          "description": "The dashed + circle shown while nobody is assigned."
+        },
+        "name": {
+          "description": "The assignee's name beside the avatar (showName)."
+        },
+        "panel": {
+          "description": "The dropdown with the search box and the people."
+        },
+        "search": {
+          "description": "The search box."
+        },
+        "list": {
+          "description": "The scrolling list of people."
+        },
+        "unassign": {
+          "description": "The \"Unassigned\" row."
+        },
+        "mark": {
+          "description": "The dashed × circle of the Unassigned row."
+        },
+        "option": {
+          "description": "A person's row: their avatar and name."
+        },
+        "label": {
+          "description": "A person's name in their row."
+        },
+        "empty": {
+          "description": "\"No people found.\" when the search matches nobody."
+        }
+      },
+      "states": {
+        "size": {
+          "attribute": "data-size",
+          "description": "On the placeholder: 32px at sm, 24px otherwise."
+        },
+        "inline": {
+          "attribute": "data-inline",
+          "description": "On the panel: positioned inside the picker."
+        }
+      },
+      "events": {
+        "select": {
+          "description": "A person (or Unassigned) was chosen.",
+          "blade": false,
+          "svelte": "onselect",
+          "detail": "string | number | null"
+        }
+      },
+      "uses": [
+        "avatar",
+        "icon"
+      ],
+      "usage": {
+        "livewire": "<sigta:assignee-picker :user=\"$task->assignee\" :members=\"$members\" method=\"assignTask\" :args=\"[$task->id]\" wire:key=\"assignee-{{ $task->assignee?->id }}\" />",
+        "svelte": "<AssigneePicker user={task.assignee} {members} onselect={(id) => assignTask(task.id, id)} />"
+      },
+      "notes": {
+        "shared": [
+          "Re-check membership on the server in whatever the choice calls; the list is filtered on the client.",
+          "By default the panel is placed on <body> with fixed positioning, so it escapes a draggable card and a board's overflow clipping; pass inline inside a native <dialog>, where content placed on <body> paints behind the top layer.",
+          "The search box and the list are only built while the panel is open, so many closed pickers stay cheap."
+        ],
+        "livewire": [
+          "On select it calls method(...args, userId) on the nearest Livewire component ($wire), so one component serves board cards, subtasks and the task modal: method=\"assignTask\" :args=\"[$task->id]\" calls assignTask($taskId, $userId).",
+          "Pass a value-keyed wire:key (by assignee id) so a reassign replaces the picker instead of leaving stale Alpine state; wire:key lands on the root, every other attribute on the trigger.",
+          "With inline, Livewire's morph keeps the panel: a panel placed on <body> would be stripped on re-render inside a dialog."
+        ],
+        "svelte": [
+          "onselect receives the chosen id (null for Unassigned); every other attribute lands on the trigger."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Unassigned & assigned"
+        },
+        {
+          "label": "Inline positioning (for a native dialog's top layer)"
+        },
+        {
+          "label": "Opened"
+        },
+        {
+          "label": "Searched"
+        },
+        {
+          "label": "Nobody found"
+        },
+        {
+          "label": "Closed with Escape"
+        }
+      ]
+    },
+    {
       "name": "autocomplete",
       "title": "Autocomplete",
       "tier": "components",
@@ -1044,6 +1207,133 @@
       ]
     },
     {
+      "name": "carousel",
+      "title": "Carousel",
+      "tier": "components",
+      "page": "carousel",
+      "svelte": "Carousel",
+      "description": "A scroll-snap track with prev/next chevrons and clickable dots. The active slide is derived from the scroll position, so a swipe, the arrows and the dots stay in sync; the arrows disable at the ends.",
+      "aria": "A region with aria-roledescription=\"carousel\" (named by label); each slide is a group with aria-roledescription=\"slide\"; the dots are a \"Slides\" group, the current one aria-current=\"true\".",
+      "props": {
+        "label": {
+          "type": "string",
+          "default": null,
+          "description": "Names the carousel region (\"Selected work\")."
+        }
+      },
+      "parts": {
+        "track": {
+          "description": "The scroll-snap track holding the slides (no visible scrollbar)."
+        },
+        "controls": {
+          "description": "The row of arrows and dots under the track."
+        },
+        "dots": {
+          "description": "The dots group, one per slide."
+        },
+        "dot": {
+          "description": "A dot; jumps to its slide."
+        }
+      },
+      "states": {
+        "current": {
+          "attribute": "aria-current",
+          "values": [
+            "true",
+            "false"
+          ],
+          "description": "On a dot: its slide is the active one."
+        },
+        "disabled": {
+          "attribute": "disabled",
+          "description": "On an arrow at its end of the track."
+        }
+      },
+      "slots": {
+        "default": {
+          "description": "The carousel.slides.",
+          "required": true
+        }
+      },
+      "uses": [
+        "carousel.slide",
+        "button",
+        "icon"
+      ],
+      "usage": {
+        "livewire": "<sigta:carousel label=\"Selected work\">\n    <sigta:carousel.slide>…</sigta:carousel.slide>\n    <sigta:carousel.slide>…</sigta:carousel.slide>\n</sigta:carousel>",
+        "svelte": "<Carousel label=\"Selected work\">\n    <Carousel.Slide>…</Carousel.Slide>\n    <Carousel.Slide>…</Carousel.Slide>\n</Carousel>"
+      },
+      "notes": {
+        "shared": [
+          "The dots are generated from the slide count once the page runs; smooth scrolling is skipped under prefers-reduced-motion.",
+          "For several slides per view, give each carousel.slide a basis (basis=\"basis-1/2 md:basis-1/3\")."
+        ]
+      },
+      "examples": [
+        {
+          "label": "One per view"
+        },
+        {
+          "label": "Multi per view (basis)"
+        },
+        {
+          "label": "Next moves one slide on"
+        },
+        {
+          "label": "A dot jumps to its slide; the scroll position sets the active dot"
+        },
+        {
+          "label": "Scrolled by hand to the end"
+        }
+      ]
+    },
+    {
+      "name": "carousel.slide",
+      "title": "Carousel slide",
+      "tier": "components",
+      "page": "carousel",
+      "svelte": "Carousel.Slide",
+      "description": "One slide of a carousel: snaps to the start of the track. Full width by default; pass a width utility as basis for multi-per-view layouts.",
+      "aria": "A group with aria-roledescription=\"slide\".",
+      "props": {
+        "basis": {
+          "type": "string",
+          "default": "w-full",
+          "description": "The slide's width as a utility class: basis-4/5, w-1/2, basis-1/2 md:basis-1/3. Anything but the default replaces the full width."
+        }
+      },
+      "states": {
+        "basis": {
+          "attribute": "data-basis",
+          "values": [
+            "custom"
+          ],
+          "description": "A basis other than the default is given; the slide drops its own full width for it."
+        }
+      },
+      "slots": {
+        "default": {
+          "description": "The slide's content.",
+          "required": true
+        }
+      },
+      "usage": {
+        "livewire": "<sigta:carousel.slide basis=\"basis-1/2 md:basis-1/3\">…</sigta:carousel.slide>",
+        "svelte": "<Carousel.Slide basis=\"basis-1/2 md:basis-1/3\">…</Carousel.Slide>"
+      },
+      "notes": {
+        "shared": [
+          "basis is a class: it lands on the slide beside your own class."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Four-fifths, so the next slide peeks in"
+        }
+      ]
+    },
+    {
       "name": "chart.bars",
       "title": "Bar chart",
       "tier": "components",
@@ -1272,6 +1562,205 @@
       ]
     },
     {
+      "name": "command",
+      "title": "Command",
+      "tier": "components",
+      "page": "command",
+      "svelte": "Command",
+      "description": "Command palette (⌘K / Ctrl-K): a dialog with a query box filtering <command.item>s. Arrow keys move, Enter runs the active command, Escape closes. Open it with the shortcut, a modal.trigger with its name, or a sigta-modal-show window event.",
+      "aria": "A native modal <dialog>; the query box is a combobox (list autocomplete, always expanded) over a listbox of options, the active one announced through aria-activedescendant.",
+      "props": {
+        "name": {
+          "type": "string",
+          "default": "command",
+          "description": "Name that modal.trigger and the sigta-modal-show / sigta-modal-hide window events address."
+        },
+        "placeholder": {
+          "type": "string",
+          "default": "Type a command…",
+          "description": "Query box placeholder."
+        },
+        "shortcut": {
+          "type": "boolean",
+          "default": true,
+          "description": "Open on ⌘K / Ctrl-K anywhere on the page."
+        },
+        "open": {
+          "type": "boolean",
+          "default": false,
+          "bindable": true,
+          "blade": false,
+          "description": "Svelte: bind:open to open and close it."
+        }
+      },
+      "parts": {
+        "dialog": {
+          "description": "The <dialog>; your attributes and class land here."
+        },
+        "search": {
+          "description": "The row holding the search icon, the query box and the esc hint."
+        },
+        "icon": {
+          "description": "The search icon."
+        },
+        "input": {
+          "description": "The query box (role=combobox)."
+        },
+        "esc": {
+          "description": "The \"esc\" key hint."
+        },
+        "list": {
+          "description": "The listbox of commands."
+        },
+        "empty": {
+          "description": "\"Nothing found\" when the query filters everything out."
+        }
+      },
+      "slots": {
+        "default": {
+          "description": "The <command.item>s.",
+          "required": true
+        }
+      },
+      "events": {
+        "show": {
+          "description": "Open a palette by name from anywhere.",
+          "blade": "sigta-modal-show",
+          "svelte": false,
+          "detail": "{ name?: string }"
+        },
+        "hide": {
+          "description": "Close a palette by name from anywhere.",
+          "blade": "sigta-modal-hide",
+          "svelte": false,
+          "detail": "{ name?: string }"
+        }
+      },
+      "uses": [
+        "command.item",
+        "icon",
+        "modal.trigger"
+      ],
+      "usage": {
+        "livewire": "<sigta:modal.trigger name=\"command\"><sigta:button>Open command palette</sigta:button></sigta:modal.trigger>\n\n<sigta:command>\n    <sigta:command.item icon=\"file-plus\" kbd=\"⌘N\" wire:click=\"newProject\">New project</sigta:command.item>\n    <sigta:command.item href=\"/settings\" icon=\"settings\">Settings</sigta:command.item>\n</sigta:command>",
+        "svelte": "<Modal.Trigger name=\"command\"><Button>Open command palette</Button></Modal.Trigger>\n\n<Command>\n    <Command.Item icon=\"file-plus\" kbd=\"⌘N\" onclick={newProject}>New project</Command.Item>\n    <Command.Item href=\"/settings\" icon=\"settings\">Settings</Command.Item>\n</Command>"
+      },
+      "notes": {
+        "shared": [
+          "One palette per page: with shortcut on (the default) ⌘K / Ctrl-K opens it from anywhere.",
+          "Open it by name like a modal: modal.trigger name=\"command\", or a sigta-modal-show window event { name }; sigta-modal-hide closes it.",
+          "The query filters the items by their text; the list keeps every item while the query is empty."
+        ],
+        "livewire": [
+          "Open it from PHP with $this->dispatch('sigta-modal-show', name: 'command')."
+        ],
+        "svelte": [
+          "bind:open opens and closes it; the shortcut and the window events work too."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Palette — press ⌘K / Ctrl-K, or the trigger"
+        },
+        {
+          "label": "Opened from the trigger"
+        },
+        {
+          "label": "Opened with Ctrl-K, moved with the arrow keys"
+        },
+        {
+          "label": "Typed to filter"
+        },
+        {
+          "label": "Nothing found"
+        },
+        {
+          "label": "Enter runs the active command and closes"
+        },
+        {
+          "label": "Escape closes"
+        },
+        {
+          "label": "Without the shortcut"
+        }
+      ]
+    },
+    {
+      "name": "command.item",
+      "title": "Command item",
+      "tier": "components",
+      "page": "command",
+      "svelte": "Command.Item",
+      "description": "One command of a command palette: an optional icon, the label and a key hint. A link with href, else a button; choosing it (a click or Enter) closes the palette.",
+      "aria": "role=\"option\"; the palette's query box points at the active one through aria-activedescendant.",
+      "props": {
+        "icon": {
+          "type": "string",
+          "default": null,
+          "description": "Leading icon name."
+        },
+        "kbd": {
+          "type": "string",
+          "default": null,
+          "description": "Key hint on the right, e.g. \"⌘N\"."
+        },
+        "value": {
+          "type": "string",
+          "default": null,
+          "description": "Written into data-value for your own handlers."
+        },
+        "href": {
+          "type": "string",
+          "default": null,
+          "native": true,
+          "description": "Renders an <a> instead of a <button>."
+        }
+      },
+      "parts": {
+        "icon": {
+          "description": "The leading icon."
+        },
+        "label": {
+          "description": "The text."
+        },
+        "kbd": {
+          "description": "The key hint."
+        }
+      },
+      "states": {
+        "active": {
+          "attribute": "data-active",
+          "description": "The keyboard/hover-active command, filled in ink."
+        }
+      },
+      "slots": {
+        "default": {
+          "description": "The command's text.",
+          "required": true
+        }
+      },
+      "uses": [
+        "command",
+        "icon"
+      ],
+      "notes": {
+        "shared": [
+          "Run the command with your own click handler (or href); the palette closes on its own."
+        ],
+        "livewire": [
+          "wire:click and every other attribute land on the <a> / <button>."
+        ],
+        "svelte": [
+          "onclick and every other attribute land on the <a> / <button>."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Inside a palette"
+        }
+      ]
+    },
+    {
       "name": "comment",
       "title": "Comment",
       "tier": "components",
@@ -1375,6 +1864,100 @@
         },
         {
           "label": "Without an avatar"
+        }
+      ]
+    },
+    {
+      "name": "composer",
+      "title": "Composer",
+      "tier": "components",
+      "page": "composer",
+      "svelte": "Composer",
+      "description": "Chat composer: an auto-growing textarea (up to six rows) between a leading slot (attach, by default) and a send button. Enter sends, Shift+Enter inserts a newline; sending hands the trimmed text over and clears the field.",
+      "aria": "A native <textarea> labelled \"Message\" (override with aria-label); the buttons are labelled \"Attach file\" and \"Send\", and Send is disabled while the text is blank.",
+      "props": {
+        "placeholder": {
+          "type": "string",
+          "default": "Write a message…",
+          "description": "Textarea placeholder."
+        },
+        "name": {
+          "type": "string",
+          "default": null,
+          "description": "Form name of the textarea."
+        },
+        "value": {
+          "type": "string",
+          "default": "",
+          "native": true,
+          "bindable": true,
+          "description": "The text. Livewire: wire:model (lands on the textarea); Svelte: bind:value."
+        }
+      },
+      "parts": {
+        "leading": {
+          "description": "Holds the leading control (the attach button, or your leading slot)."
+        },
+        "input": {
+          "description": "The textarea; your attributes land here."
+        },
+        "send": {
+          "description": "Holds the send button."
+        }
+      },
+      "slots": {
+        "leading": {
+          "description": "Replaces the attach button (a mention or emoji button, …)."
+        }
+      },
+      "events": {
+        "submit": {
+          "description": "A message was sent (Enter or the send button); the field clears.",
+          "blade": "sigta-composer-submit",
+          "svelte": "onsubmit",
+          "detail": "{ text: string } (Svelte: onsubmit(text))"
+        }
+      },
+      "uses": [
+        "button",
+        "icon"
+      ],
+      "usage": {
+        "livewire": "<sigta:composer placeholder=\"Message the studio…\" x-on:sigta-composer-submit=\"$wire.send($event.detail.text)\" />",
+        "svelte": "<Composer placeholder=\"Message the studio…\" onsubmit={(text) => send(text)} />"
+      },
+      "notes": {
+        "shared": [
+          "Sending dispatches a bubbling sigta-composer-submit event { text } from the textarea (the window hears it too) and clears the field.",
+          "The textarea grows with its text up to six rows, then scrolls."
+        ],
+        "livewire": [
+          "Attributes (name, wire:model, id, aria-*, x-on:sigta-composer-submit) forward onto the native textarea, so a listener on the component hears every send.",
+          "Replace the attach button with <x-slot:leading>…</x-slot:leading>."
+        ],
+        "svelte": [
+          "onsubmit(text) on every send; bind:value for the draft. Other attributes land on the textarea.",
+          "Replace the attach button with {#snippet leading()}…{/snippet}."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Default"
+        },
+        {
+          "label": "Custom leading slot"
+        },
+        {
+          "label": "Typing enables Send; the field grows with the text"
+        },
+        {
+          "label": "Grows to six rows, then scrolls"
+        },
+        {
+          "label": "Enter sends and clears the field"
+        },
+        {
+          "label": "The send button sends too"
         }
       ]
     },
@@ -1894,6 +2477,97 @@
       ]
     },
     {
+      "name": "duration-input",
+      "title": "Duration input",
+      "tier": "components",
+      "page": "duration-input",
+      "svelte": "DurationInput",
+      "description": "A single duration field that reads as a compact \"1h59m\" label and, on click, becomes an editable \"HH:MM\" input (e.g. \"01:59\"). On blur or Enter it parses the clock back to whole minutes (forgiving: \"H:MM\", \"HH:MM\", or a bare minute count) and emits them; Escape cancels.",
+      "aria": "The compact label is a <button>; the editor is a text input labelled \"<label> as hours and minutes, HH:MM\".",
+      "props": {
+        "label": {
+          "type": "string",
+          "default": null,
+          "description": "Field label."
+        },
+        "value": {
+          "type": "number",
+          "default": null,
+          "bindable": true,
+          "description": "Whole minutes (null or 0 reads as no value). Livewire: the initial minutes, emitted onto the forwarded wire:model; Svelte: bind:value."
+        },
+        "placeholder": {
+          "type": "string",
+          "default": null,
+          "description": "Shown while there is no value; defaults to \"0m\"."
+        }
+      },
+      "parts": {
+        "display": {
+          "description": "The compact label button."
+        },
+        "editor": {
+          "description": "The HH:MM text input."
+        }
+      },
+      "states": {
+        "empty": {
+          "attribute": "data-empty",
+          "description": "On the display while it shows the placeholder."
+        }
+      },
+      "events": {
+        "change": {
+          "description": "A committed edit (whole minutes, null when cleared).",
+          "blade": "input on the hidden input wire:model sits on",
+          "svelte": "onchange",
+          "detail": "number | null"
+        }
+      },
+      "uses": [
+        "field"
+      ],
+      "usage": {
+        "livewire": "<sigta:duration-input label=\"Estimate\" :value=\"$task->estimate_minutes\" wire:model=\"estimate\" wire:key=\"est-{{ $task->estimate_minutes }}\" />",
+        "svelte": "<DurationInput label=\"Estimate\" bind:value={task.estimateMinutes} />"
+      },
+      "notes": {
+        "shared": [
+          "For a read-only duration use duration; for a value that counts up live, elapsed-clock."
+        ],
+        "livewire": [
+          "The forwarded wire:model lands on a hidden input that carries whole minutes (empty when cleared); every other attribute lands on the field.",
+          "Give the field a value-keyed wire:key (wire:key=\"est-{{ $minutes }}\") so switching context or resetting after a save gives Alpine fresh state instead of a stale in-place value."
+        ],
+        "svelte": [
+          "bind:value holds whole minutes (null when cleared); other attributes land on the field."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Compact field — click to edit as HH:MM"
+        },
+        {
+          "label": "Forgiving parse, emits whole minutes"
+        },
+        {
+          "label": "Editing"
+        },
+        {
+          "label": "Typed H:MM, committed with Enter"
+        },
+        {
+          "label": "Bare minutes, committed on blur"
+        },
+        {
+          "label": "Escape cancels"
+        },
+        {
+          "label": "Cleared"
+        }
+      ]
+    },
+    {
       "name": "elapsed-clock",
       "title": "Elapsed clock",
       "tier": "elements",
@@ -2024,6 +2698,141 @@
         },
         {
           "label": "Error state"
+        }
+      ]
+    },
+    {
+      "name": "file-upload",
+      "title": "File upload",
+      "tier": "components",
+      "page": "file-upload",
+      "svelte": "FileUpload",
+      "description": "Dropzone file input: a dashed zone (a <label> wrapping a visually hidden native <input type=\"file\">) that opens the picker on click and takes dropped files, then lists the picked files by name and size. Field chrome: label, description, error.",
+      "aria": "A native <input type=\"file\"> inside its <label> zone, so the picker, keyboard focus (the zone shows the ring) and the label all work natively; aria-invalid with an error, aria-describedby for description and error.",
+      "props": {
+        "label": {
+          "type": "string",
+          "default": null,
+          "description": "Field label."
+        },
+        "description": {
+          "type": "string",
+          "default": null,
+          "description": "Help text under the zone."
+        },
+        "error": {
+          "type": "string",
+          "default": null,
+          "description": "Error text; turns the zone red and marks the input invalid."
+        },
+        "multiple": {
+          "type": "boolean",
+          "default": false,
+          "description": "Accept several files."
+        },
+        "helper": {
+          "type": "string",
+          "default": null,
+          "description": "The line before \"browse\"; defaults to \"Drag a file here, or\" (\"Drag files here, or\" with multiple)."
+        },
+        "files": {
+          "type": "array",
+          "default": [],
+          "bindable": true,
+          "blade": false,
+          "shape": "File[]",
+          "description": "Svelte: bind:files — the picked File objects, in order (empty to clear the input)."
+        }
+      },
+      "parts": {
+        "zone": {
+          "description": "The dashed dropzone (<label>)."
+        },
+        "input": {
+          "description": "The visually hidden native file input; your attributes land here."
+        },
+        "icon": {
+          "description": "The upload icon."
+        },
+        "helper": {
+          "description": "The helper line."
+        },
+        "browse": {
+          "description": "The \"browse\" chip."
+        },
+        "list": {
+          "description": "The picked files (hidden while there are none)."
+        },
+        "file": {
+          "description": "One picked file."
+        },
+        "name": {
+          "description": "Its name."
+        },
+        "size": {
+          "description": "Its size (\"1.5 KB\")."
+        }
+      },
+      "states": {
+        "dragging": {
+          "attribute": "data-dragging",
+          "description": "On the zone while files are dragged over it."
+        },
+        "invalid": {
+          "attribute": "data-invalid",
+          "description": "On the zone with an error (the input carries aria-invalid)."
+        },
+        "disabled": {
+          "attribute": "data-disabled",
+          "description": "On the zone when the input is disabled: dimmed and inert."
+        }
+      },
+      "events": {
+        "change": {
+          "description": "Files were picked or dropped.",
+          "blade": "change on the native input (wire:model uploads it)",
+          "svelte": "onfiles",
+          "detail": "File[]"
+        }
+      },
+      "uses": [
+        "field",
+        "icon"
+      ],
+      "usage": {
+        "livewire": "<sigta:file-upload label=\"Attachment\" description=\"PDF or PNG, up to 10 MB.\" accept=\".pdf,.png\" wire:model=\"attachment\" />",
+        "svelte": "<FileUpload label=\"Attachment\" description=\"PDF or PNG, up to 10 MB.\" accept=\".pdf,.png\" bind:files={attachments} error={form.errors.attachment} />\n<!-- Inertia: form.attachment = attachments[0]; form.post(url) sends it as FormData -->"
+      },
+      "notes": {
+        "shared": [
+          "The zone is a <label> around a visually hidden native input: clicking it opens the picker, a dropped file is assigned to the input and a change event is dispatched, and the picked files are listed by name and size. The look and the drag, has-files, error and disabled states are the same in both runtimes; what happens to the files differs."
+        ],
+        "livewire": [
+          "Every attribute (name, accept, wire:model, …) forwards onto the native input, so Livewire's temporary uploads (WithFileUploads + wire:model) work untouched, dropped files included."
+        ],
+        "svelte": [
+          "No backend protocol: the component hands you the File objects. bind:files (File[]) or onfiles(files); post them yourself — with Inertia, put them on a useForm field (form.attachment = files[0]) and form.post() sends FormData. Setting files = [] clears the input.",
+          "Other attributes (name, accept, required, …) land on the native input, so it also posts with a plain <form> (enctype=\"multipart/form-data\")."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Single file"
+        },
+        {
+          "label": "Multiple"
+        },
+        {
+          "label": "States"
+        },
+        {
+          "label": "Dragging over the zone"
+        },
+        {
+          "label": "Dropped files are listed"
+        },
+        {
+          "label": "With an error and a dropped file"
         }
       ]
     },
@@ -3004,6 +3813,137 @@
       ]
     },
     {
+      "name": "money-input",
+      "title": "Money input",
+      "tier": "components",
+      "page": "money",
+      "svelte": "MoneyInput",
+      "description": "Amount field entered in major units with an inline currency switcher: a small dropdown button (code + chevron) sits inside the same field, not a separate toggle. The amount is emitted in MINOR units (×100, rounded; a comma counts as the decimal point); the currency binds separately. App logic (the currency enum, minor/major rules for exotic currencies) stays in your app.",
+      "aria": "The amount is a text input labelled \"<label> amount\"; the switcher is a button (aria-haspopup=\"listbox\", labelled \"Currency\") over a listbox of currency options with aria-selected.",
+      "props": {
+        "label": {
+          "type": "string",
+          "default": null,
+          "description": "Field label."
+        },
+        "value": {
+          "type": "number",
+          "default": null,
+          "bindable": true,
+          "description": "The amount in MINOR units (øre / cents). Livewire: the initial amount, emitted onto the forwarded wire:model; Svelte: bind:value."
+        },
+        "placeholder": {
+          "type": "string",
+          "default": null,
+          "description": "Amount placeholder; defaults to \"0\"."
+        },
+        "currency": {
+          "type": "string",
+          "default": "DKK",
+          "bindable": true,
+          "description": "The selected currency code. Svelte: bind:currency."
+        },
+        "currencies": {
+          "type": "object",
+          "default": null,
+          "shape": "Record<string, string> — code ⇒ label",
+          "description": "The switcher's currencies; defaults to DKK / EUR / USD. A label that differs from its code shows beside it."
+        },
+        "currencyName": {
+          "type": "string",
+          "default": null,
+          "description": "Form name of the hidden currency input; defaults to currencyModel, else \"currency\"."
+        },
+        "currencyModel": {
+          "type": "string",
+          "default": null,
+          "svelte": false,
+          "description": "wire:model for the currency (through its hidden input)."
+        }
+      },
+      "parts": {
+        "amount": {
+          "description": "The amount text input."
+        },
+        "switcher": {
+          "description": "Positions the currency button and its menu."
+        },
+        "currency": {
+          "description": "The currency button: the code and a chevron."
+        },
+        "menu": {
+          "description": "The currency listbox."
+        },
+        "option": {
+          "description": "One currency."
+        },
+        "label": {
+          "description": "A currency's label, when it differs from its code."
+        }
+      },
+      "states": {
+        "open": {
+          "attribute": "aria-expanded",
+          "description": "On the currency button."
+        },
+        "selected": {
+          "attribute": "aria-selected",
+          "description": "On the chosen currency's option."
+        }
+      },
+      "events": {
+        "change": {
+          "description": "The amount changed (minor units, null when empty).",
+          "blade": "input on the hidden input wire:model sits on",
+          "svelte": "onchange",
+          "detail": "number | null"
+        },
+        "currency": {
+          "description": "The currency changed.",
+          "blade": "input on the hidden currency input (currencyModel)",
+          "svelte": "oncurrency",
+          "detail": "string"
+        }
+      },
+      "uses": [
+        "field",
+        "icon"
+      ],
+      "usage": {
+        "livewire": "<sigta:money-input label=\"Hourly rate\" :value=\"$rate->amount_minor\" wire:model=\"amountMinor\" :currency=\"$currency\" currency-model=\"currency\" />",
+        "svelte": "<MoneyInput label=\"Hourly rate\" bind:value={rate.amountMinor} bind:currency={rate.currency} />"
+      },
+      "notes": {
+        "shared": [
+          "Amounts stay app data in minor units: never pass or read a formatted string. Display amounts with money."
+        ],
+        "livewire": [
+          "The forwarded wire:model lands on a hidden input that carries the amount in minor units; every other attribute lands on the field.",
+          "The currency binds through its own hidden input: currency-model=\"currency\" puts wire:model on it."
+        ],
+        "svelte": [
+          "bind:value (minor units) and bind:currency; other attributes land on the field."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Money input — amount field + currency toggle"
+        },
+        {
+          "label": "Empty, with labelled currencies"
+        },
+        {
+          "label": "Currency switched"
+        },
+        {
+          "label": "Currency menu open"
+        },
+        {
+          "label": "An amount typed"
+        }
+      ]
+    },
+    {
       "name": "navbar",
       "title": "Navbar",
       "tier": "components",
@@ -3562,6 +4502,147 @@
         },
         {
           "label": "In context — table stage column"
+        }
+      ]
+    },
+    {
+      "name": "pillbox",
+      "title": "Pillbox",
+      "tier": "components",
+      "page": "pillbox",
+      "svelte": "Pillbox",
+      "description": "Multi-select combobox with removable chips: type to narrow the slotted <autocomplete.option>s, Enter or a click adds (or removes) the active one as a chip beside the query box; each chip's × removes it. The hidden input carries a JSON array of the selected values.",
+      "aria": "WAI-ARIA combobox (list autocomplete) with a multi-selectable listbox; each chip's remove button is labelled \"Remove …\".",
+      "props": {
+        "label": {
+          "type": "string",
+          "default": null,
+          "description": "Label above the field."
+        },
+        "description": {
+          "type": "string",
+          "default": null,
+          "description": "Help text (hidden while there is an error)."
+        },
+        "error": {
+          "type": "string",
+          "default": null,
+          "description": "Error text; marks the query box invalid and the field red."
+        },
+        "placeholder": {
+          "type": "string",
+          "default": "Add…",
+          "description": "Query box placeholder."
+        },
+        "name": {
+          "type": "string",
+          "default": null,
+          "description": "Form name of the hidden value input (a JSON array)."
+        },
+        "value": {
+          "type": "array",
+          "default": [],
+          "native": true,
+          "bindable": true,
+          "shape": "string[]",
+          "description": "The selected values. Livewire: wire:model (lands on the hidden input, a JSON array); Svelte: bind:value."
+        }
+      },
+      "parts": {
+        "label": {
+          "description": "The label."
+        },
+        "control": {
+          "description": "The bordered field holding the chips and the query box."
+        },
+        "chip": {
+          "description": "One selected value."
+        },
+        "remove": {
+          "description": "A chip's remove button."
+        },
+        "input": {
+          "description": "The query box (role=combobox)."
+        },
+        "listbox": {
+          "description": "The floating panel of options."
+        },
+        "empty": {
+          "description": "\"No matches.\" when the query filters everything out."
+        },
+        "description": {
+          "description": "Help text."
+        },
+        "error": {
+          "description": "Error text."
+        }
+      },
+      "states": {
+        "open": {
+          "attribute": "aria-expanded",
+          "description": "On the query box."
+        },
+        "invalid": {
+          "attribute": "aria-invalid",
+          "description": "On the query box, with an error; the control turns red."
+        }
+      },
+      "slots": {
+        "default": {
+          "description": "The <autocomplete.option>s.",
+          "required": true
+        }
+      },
+      "events": {
+        "change": {
+          "description": "The selection changed.",
+          "blade": "input / change on the hidden input (wire:model hears it)",
+          "svelte": "onchange",
+          "detail": "string[]"
+        }
+      },
+      "uses": [
+        "autocomplete.option",
+        "icon"
+      ],
+      "usage": {
+        "livewire": "<sigta:pillbox label=\"Disciplines\" wire:model=\"disciplines\" placeholder=\"Add a discipline…\">\n    <sigta:autocomplete.option value=\"design\">Product design</sigta:autocomplete.option>\n    <sigta:autocomplete.option value=\"saas\">SaaS engineering</sigta:autocomplete.option>\n</sigta:pillbox>",
+        "svelte": "<Pillbox label=\"Disciplines\" bind:value={disciplines} placeholder=\"Add a discipline…\">\n    <Autocomplete.Option value=\"design\">Product design</Autocomplete.Option>\n    <Autocomplete.Option value=\"saas\">SaaS engineering</Autocomplete.Option>\n</Pillbox>"
+      },
+      "notes": {
+        "shared": [
+          "Choosing an option that is already a chip removes it again; the list stays open for the next one.",
+          "The listbox floats with fixed positioning, so it escapes cards and forms that clip overflow."
+        ],
+        "livewire": [
+          "wire:model and every attribute except class and id land on the hidden input, whose value is a JSON array: decode it (or type the property as an array) on the server.",
+          "The chips start empty on every render: a Livewire value is not read back into them."
+        ],
+        "svelte": [
+          "bind:value holds the array; other attributes (name, data-*) land on the hidden input."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Multi-select with chips"
+        },
+        {
+          "label": "With description"
+        },
+        {
+          "label": "Error state"
+        },
+        {
+          "label": "Opened, typed to filter"
+        },
+        {
+          "label": "No matches"
+        },
+        {
+          "label": "Chips chosen with Enter and a click"
+        },
+        {
+          "label": "A chip removed"
         }
       ]
     },
@@ -4326,6 +5407,438 @@
       "examples": [
         {
           "label": "Solid and dashed"
+        }
+      ]
+    },
+    {
+      "name": "shell",
+      "title": "Shell",
+      "tier": "layout",
+      "page": "shell",
+      "svelte": "Shell",
+      "description": "App shell grid: sidebar + main. An embeddable rounded frame on raised paper by default; full for a full-viewport app. An optional header row spans both columns above them.",
+      "aria": "A <div> grid; the landmarks are its children (shell.sidebar is an <aside>, shell.header a <header>).",
+      "props": {
+        "full": {
+          "type": "boolean",
+          "default": false,
+          "description": "true → full-viewport app (no frame); default → embeddable rounded frame with a hairline border."
+        }
+      },
+      "states": {
+        "full": {
+          "attribute": "data-full",
+          "description": "Fills the viewport, no frame."
+        },
+        "header": {
+          "attribute": "data-header",
+          "description": "A header row is given: it spans both columns, and the sidebar drops its own brand row and burger."
+        }
+      },
+      "slots": {
+        "header": {
+          "description": "Optional: a shell.header, the full-width row above the sidebar and main."
+        },
+        "sidebar": {
+          "description": "The shell.sidebar (the nav rail / drawer)."
+        },
+        "default": {
+          "description": "The main column: a shell.main.",
+          "required": true
+        }
+      },
+      "uses": [
+        "shell.header",
+        "shell.sidebar",
+        "shell.main",
+        "shell.bar",
+        "shell.link"
+      ],
+      "usage": {
+        "livewire": "<sigta:shell full>\n    <x-slot:header>\n        <sigta:shell.header>\n            <x-slot:brand><sigta:brand /></x-slot:brand>\n            <x-slot:actions><sigta:avatar name=\"Ada Lovelace\" size=\"sm\" /></x-slot:actions>\n        </sigta:shell.header>\n    </x-slot:header>\n    <x-slot:sidebar><sigta:shell.sidebar>…nav…</sigta:shell.sidebar></x-slot:sidebar>\n    <sigta:shell.main>…</sigta:shell.main>\n</sigta:shell>",
+        "svelte": "<Shell full>\n    {#snippet header()}\n        <Shell.Header>\n            {#snippet brand()}<Brand />{/snippet}\n            {#snippet actions()}<Avatar name=\"Ada Lovelace\" size=\"sm\" />{/snippet}\n        </Shell.Header>\n    {/snippet}\n    {#snippet sidebar()}<Shell.Sidebar>…nav…</Shell.Sidebar>{/snippet}\n    <Shell.Main>…</Shell.Main>\n</Shell>"
+      },
+      "notes": {
+        "shared": [
+          "full=true → full-viewport app; default → embeddable rounded frame (min 440px tall, overflow clipped).",
+          "header is optional. With it the header row spans both columns above the sidebar and main, carries the brand, actions and (on a phone) the burger, and the sidebar is navigation alone. A shell without header is unchanged."
+        ],
+        "livewire": [
+          "Slots: <x-slot:header> (optional, a <sigta:shell.header>), <x-slot:sidebar> (a <sigta:shell.sidebar>), and the default slot for the main (a <sigta:shell.main>)."
+        ],
+        "svelte": [
+          "Snippets: header (optional, a <Shell.Header>), sidebar (a <Shell.Sidebar>), and children for the main (a <Shell.Main>)."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Embedded app frame — sidebar, bar, main (narrow the viewport: the burger slides the nav in as a drawer)"
+        },
+        {
+          "label": "Sidebar actions (stay reachable while the nav is collapsed)"
+        },
+        {
+          "label": "Header row (brand and account across the top; the sidebar is navigation alone, and on a phone the burger lives in the header)"
+        },
+        {
+          "label": "Full viewport"
+        }
+      ]
+    },
+    {
+      "name": "shell.bar",
+      "title": "Shell bar",
+      "tier": "layout",
+      "page": "shell",
+      "svelte": "Shell.Bar",
+      "description": "The top bar of a page in the shell: heading + mono sub on the left, an actions slot (segmented, pills, buttons) on the right; wraps on narrow screens.",
+      "aria": "A <header>; the heading is an <h3>.",
+      "props": {
+        "heading": {
+          "type": "string",
+          "default": null,
+          "description": "The page heading."
+        },
+        "sub": {
+          "type": "string",
+          "default": null,
+          "description": "A mono line under the heading (\"Q2 2026 · updated 6 min ago\")."
+        }
+      },
+      "parts": {
+        "start": {
+          "description": "The heading and sub, stacked."
+        },
+        "heading": {
+          "description": "The heading."
+        },
+        "sub": {
+          "description": "The mono sub line."
+        },
+        "actions": {
+          "description": "The actions on the right."
+        }
+      },
+      "slots": {
+        "actions": {
+          "description": "Controls on the right: a segmented range, pills, buttons."
+        }
+      },
+      "usage": {
+        "livewire": "<sigta:shell.bar heading=\"Overview\" sub=\"Q2 2026 · updated 6 min ago\">\n    <x-slot:actions>\n        <sigta:segmented name=\"range\" label=\"Range\" :options=\"['7d' => '7d', '30d' => '30d']\" checked=\"30d\" />\n        <sigta:pill variant=\"success\">On track</sigta:pill>\n    </x-slot:actions>\n</sigta:shell.bar>",
+        "svelte": "<Shell.Bar heading=\"Overview\" sub=\"Q2 2026 · updated 6 min ago\">\n    {#snippet actions()}\n        <Segmented name=\"range\" label=\"Range\" options={{ '7d': '7d', '30d': '30d' }} checked=\"30d\" />\n        <Pill variant=\"success\">On track</Pill>\n    {/snippet}\n</Shell.Bar>"
+      },
+      "notes": {
+        "shared": [
+          "Put it first in a shell.main."
+        ],
+        "livewire": [
+          "The actions are a named slot: <x-slot:actions>."
+        ],
+        "svelte": [
+          "The actions are a snippet: {#snippet actions()}…{/snippet}."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Heading, sub and actions"
+        },
+        {
+          "label": "Bar — heading only, actions only"
+        }
+      ]
+    },
+    {
+      "name": "shell.header",
+      "title": "Shell header",
+      "tier": "layout",
+      "page": "shell",
+      "svelte": "Shell.Header",
+      "description": "A full-width row above the shell's sidebar and main: brand on the left, actions on the right. Below the tablet breakpoint it is the phone's top bar and carries the burger that opens the sidebar drawer.",
+      "aria": "A <header>; the burger is labelled \"Toggle navigation\" and mirrors the drawer in aria-expanded.",
+      "props": {},
+      "parts": {
+        "brand": {
+          "description": "The brand lockup."
+        },
+        "end": {
+          "description": "The actions + burger cluster on the right."
+        },
+        "toggle": {
+          "description": "The burger (phones only)."
+        }
+      },
+      "states": {
+        "expanded": {
+          "attribute": "aria-expanded",
+          "description": "On the burger: the sidebar drawer is open."
+        }
+      },
+      "slots": {
+        "brand": {
+          "description": "The lockup on the left."
+        },
+        "actions": {
+          "description": "Account menu, quick actions — on the right, before the burger."
+        }
+      },
+      "events": {
+        "toggle": {
+          "description": "The burger asks the sidebar to toggle its drawer.",
+          "blade": "sigta-shell-toggle",
+          "svelte": false,
+          "detail": "{}"
+        }
+      },
+      "uses": [
+        "shell",
+        "shell.sidebar",
+        "icon"
+      ],
+      "usage": {
+        "livewire": "<sigta:shell full>\n    <x-slot:header>\n        <sigta:shell.header>\n            <x-slot:brand><sigta:brand /></x-slot:brand>\n            <x-slot:actions><sigta:avatar name=\"Ada Lovelace\" size=\"sm\" /></x-slot:actions>\n        </sigta:shell.header>\n    </x-slot:header>\n    <x-slot:sidebar><sigta:shell.sidebar>…nav…</sigta:shell.sidebar></x-slot:sidebar>\n    <sigta:shell.main>…</sigta:shell.main>\n</sigta:shell>",
+        "svelte": "<Shell full>\n    {#snippet header()}\n        <Shell.Header>\n            {#snippet brand()}<Brand />{/snippet}\n            {#snippet actions()}<Avatar name=\"Ada Lovelace\" size=\"sm\" />{/snippet}\n        </Shell.Header>\n    {/snippet}\n    {#snippet sidebar()}<Shell.Sidebar>…nav…</Shell.Sidebar>{/snippet}\n    <Shell.Main>…</Shell.Main>\n</Shell>"
+      },
+      "notes": {
+        "shared": [
+          "Pass it in the shell's optional header slot: a full-width row above the sidebar and main, brand on the left, actions on the right. Below the tablet breakpoint it is the phone's top bar and carries the burger that opens the sidebar drawer (the sidebar then drops its own brand row, actions and burger, and is navigation alone). A shell without header is unchanged.",
+          "The sidebar owns the drawer's state: the burger sends a sigta-shell-toggle window event and mirrors the sigta-shell-nav { open } the sidebar reports back, so header and sidebar talk wherever they sit."
+        ],
+        "livewire": [
+          "Slots: <x-slot:brand> and <x-slot:actions>."
+        ],
+        "svelte": [
+          "Snippets: brand and actions."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Header row above the sidebar and main"
+        },
+        {
+          "label": "Its burger opens the sidebar drawer and mirrors it"
+        }
+      ]
+    },
+    {
+      "name": "shell.link",
+      "title": "Shell link",
+      "tier": "layout",
+      "page": "shell",
+      "svelte": "Shell.Link",
+      "description": "A nav link in the shell sidebar: mono, quiet graphite with an optional leading icon; inverts to ink when current.",
+      "aria": "An <a>; the current one carries aria-current=\"page\".",
+      "props": {
+        "icon": {
+          "type": "string",
+          "default": null,
+          "description": "Leading icon name."
+        },
+        "current": {
+          "type": "boolean",
+          "default": false,
+          "description": "The current page: inverts to ink and sets aria-current=\"page\"."
+        },
+        "href": {
+          "type": "string",
+          "default": null,
+          "native": true,
+          "description": "The link target."
+        }
+      },
+      "parts": {
+        "icon": {
+          "description": "The leading icon."
+        }
+      },
+      "states": {
+        "current": {
+          "attribute": "aria-current",
+          "values": [
+            "page"
+          ],
+          "description": "The current page."
+        }
+      },
+      "slots": {
+        "default": {
+          "description": "The label.",
+          "required": true
+        }
+      },
+      "usage": {
+        "livewire": "<sigta:shell.link href=\"/\" icon=\"layout-grid\" :current=\"request()->is('/')\" wire:navigate>Overview</sigta:shell.link>",
+        "svelte": "<Shell.Link href=\"/\" icon=\"layout-grid\" current={page.url === '/'}>Overview</Shell.Link>"
+      },
+      "notes": {
+        "shared": [
+          "Put them in a shell.sidebar; mark the page you are on current."
+        ],
+        "livewire": [
+          "Attributes (href, wire:navigate, …) forward onto the <a>."
+        ],
+        "svelte": [
+          "Attributes (href, data-*, onclick) pass straight through to the <a>."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Current, plain and without an icon"
+        },
+        {
+          "label": "Hover"
+        }
+      ]
+    },
+    {
+      "name": "shell.main",
+      "title": "Shell main",
+      "tier": "layout",
+      "page": "shell",
+      "svelte": "Shell.Main",
+      "description": "The shell's padded main content column: a stack of dashboard rows. Its bottom padding grows by a visible floating bar's footprint.",
+      "aria": "A <div>; wrap your page content in <main> yourself when the shell is the page.",
+      "props": {},
+      "slots": {
+        "default": {
+          "description": "The page: a shell.bar, then rows.",
+          "required": true
+        }
+      },
+      "usage": {
+        "livewire": "<sigta:shell.main>\n    <sigta:shell.bar heading=\"Reports\" />\n    …\n</sigta:shell.main>",
+        "svelte": "<Shell.Main>\n    <Shell.Bar heading=\"Reports\" />\n    …\n</Shell.Main>"
+      },
+      "notes": {
+        "shared": [
+          "Its bottom padding grows by a visible floating-bar's footprint (--sigta-floating-space); if your app scrolls a different element, add pb-[var(--sigta-floating-space,0px)] to it."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Padded column of rows"
+        }
+      ]
+    },
+    {
+      "name": "shell.sidebar",
+      "title": "Shell sidebar",
+      "tier": "layout",
+      "page": "shell",
+      "svelte": "Shell.Sidebar",
+      "description": "The shell's nav column on paper. A full rail on desktop; below the tablet breakpoint it becomes a top bar whose burger slides the nav in as a drawer over the page, with a scrim behind it.",
+      "aria": "An <aside> landmark named by its aria-label (\"App navigation\" by default). The open drawer is a modal dialog (role=\"dialog\", aria-modal=\"true\") with a focus trap; the burger carries aria-expanded and aria-controls.",
+      "props": {
+        "open": {
+          "type": "boolean",
+          "default": false,
+          "bindable": true,
+          "blade": false,
+          "description": "Svelte: bind:open — whether the drawer is open (below the tablet breakpoint; the rail ignores it)."
+        }
+      },
+      "parts": {
+        "top": {
+          "description": "The top row: brand, then the actions + burger cluster (dropped under a shell header)."
+        },
+        "brand": {
+          "description": "The brand lockup."
+        },
+        "end": {
+          "description": "The actions + burger cluster at the far end of the top row."
+        },
+        "toggle": {
+          "description": "The burger (phones only)."
+        },
+        "scrim": {
+          "description": "Dims the page behind the open drawer; tapping it closes the drawer."
+        },
+        "nav": {
+          "description": "The nav body: the rail's column on desktop, the drawer below the breakpoint."
+        },
+        "dismiss": {
+          "description": "The drawer's own close row (phones only)."
+        },
+        "close": {
+          "description": "The drawer's close button."
+        }
+      },
+      "states": {
+        "expanded": {
+          "attribute": "aria-expanded",
+          "description": "On the burger: the drawer is open."
+        },
+        "dialog": {
+          "attribute": "aria-modal",
+          "description": "On the nav while it is an open drawer (with role=\"dialog\")."
+        }
+      },
+      "slots": {
+        "default": {
+          "description": "The nav: shell.links (and anything else that belongs in it).",
+          "required": true
+        },
+        "brand": {
+          "description": "The lockup at the top of the rail."
+        },
+        "actions": {
+          "description": "One or two icon-sized controls at the far end of the top row, hard against the burger; they stay visible while the nav is collapsed."
+        }
+      },
+      "events": {
+        "toggle": {
+          "description": "Toggles the drawer from anywhere (the shell header's burger sends it).",
+          "blade": "sigta-shell-toggle",
+          "svelte": false,
+          "detail": "{}"
+        },
+        "nav": {
+          "description": "The drawer opened or closed (the shell header's burger mirrors it).",
+          "blade": "sigta-shell-nav",
+          "svelte": false,
+          "detail": "{ open: boolean }"
+        }
+      },
+      "uses": [
+        "shell.link",
+        "icon"
+      ],
+      "usage": {
+        "livewire": "<sigta:shell.sidebar aria-label=\"Main menu\">\n    <x-slot:brand><sigta:brand size=\"sm\" glyph-only /> Plumb</x-slot:brand>\n    <x-slot:actions>\n        <sigta:button variant=\"ghost\" size=\"sm\" aria-label=\"Quick actions\"><sigta:icon name=\"zap\" size=\"sm\" /></sigta:button>\n    </x-slot:actions>\n    <sigta:shell.link href=\"/\" icon=\"layout-grid\" current>Overview</sigta:shell.link>\n    <sigta:shell.link href=\"/reports\" icon=\"clock\">Reports</sigta:shell.link>\n</sigta:shell.sidebar>",
+        "svelte": "<Shell.Sidebar aria-label=\"Main menu\" bind:open={navOpen}>\n    {#snippet brand()}<Brand size=\"sm\" glyphOnly /> Plumb{/snippet}\n    {#snippet actions()}\n        <Button variant=\"ghost\" size=\"sm\" aria-label=\"Quick actions\"><Icon name=\"zap\" size=\"sm\" /></Button>\n    {/snippet}\n    <Shell.Link href=\"/\" icon=\"layout-grid\" current>Overview</Shell.Link>\n    <Shell.Link href=\"/reports\" icon=\"clock\">Reports</Shell.Link>\n</Shell.Sidebar>"
+      },
+      "notes": {
+        "shared": [
+          "A full rail on desktop; below the tablet breakpoint it becomes a top bar whose burger slides the nav in as a drawer over the page, with a scrim behind it.",
+          "The open drawer is a modal dialog: focus is trapped in it, the page behind stops scrolling, and it closes on the scrim, on Escape and on its own close button. None of that applies to the desktop rail. Give the sidebar an aria-label to name both the landmark and the drawer (defaults to \"App navigation\").",
+          "actions sits at the far end of the top row, hard against the burger, and stays visible when the nav is collapsed. Use it for the one or two controls that must be reachable without opening the nav (a search or quick-action trigger); everything else belongs in the nav. Keep it to icon-sized controls: the row is as narrow as the rail on desktop.",
+          "Inside a shell with a header, the header carries the brand, actions and burger, so this row is dropped and the sidebar is navigation alone.",
+          "A sigta-shell-toggle window event toggles the drawer; the sidebar reports each change as a sigta-shell-nav window event { open }. The shell header's burger talks to it that way, so the two can sit anywhere on the page."
+        ],
+        "livewire": [
+          "Alpine-driven, no wiring needed. The drawer also closes after a wire:navigate visit.",
+          "Slots: <x-slot:brand>, <x-slot:actions>, and the default slot for the nav."
+        ],
+        "svelte": [
+          "Works by itself; bind:open when your code opens or closes the drawer. It closes after an Inertia visit (inertia:navigate); in another router, set open = false after navigating.",
+          "Snippets: brand, actions, and children for the nav."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Brand, actions and nav"
+        },
+        {
+          "label": "Named by its aria-label"
+        },
+        {
+          "label": "Drawer opened by the toggle event"
+        },
+        {
+          "label": "Burger toggles it, Escape closes it"
+        },
+        {
+          "label": "Closed from the drawer's own close button"
         }
       ]
     },

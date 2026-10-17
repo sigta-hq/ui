@@ -1,0 +1,42 @@
+{
+    "columns": [
+        {
+            "heading": "Navigation",
+            "links": [
+                {
+                    "label": "Kan du genkende det?",
+                    "href": "#genkend"
+                },
+                {
+                    "label": "Sådan hjælper vi",
+                    "href": "#hjaelp"
+                },
+                {
+                    "label": "Priser",
+                    "href": "#priser"
+                },
+                {
+                    "label": "Om Sigta",
+                    "href": "#om"
+                }
+            ]
+        },
+        {
+            "heading": "Kontakt",
+            "links": [
+                {
+                    "label": "Book en intro-samtale",
+                    "href": "https://calendly.com/sf-sigta/30min"
+                },
+                {
+                    "label": "sf@sigta.dk",
+                    "href": "mailto:sf@sigta.dk"
+                },
+                {
+                    "label": "LinkedIn",
+                    "href": "https://www.linkedin.com/in/soeren-frisk/"
+                }
+            ]
+        }
+    ]
+}

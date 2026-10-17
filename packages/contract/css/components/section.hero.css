@@ -1,0 +1,33 @@
+/* Section: hero — the copy column (eyebrow, display heading, lede, two
+   calls to action, a row of inline figures) beside the visual; the columns
+   sit side by side from lg and stack below it. */
+[data-sigta="section.hero"] {
+    @apply max-w-(--sigta-maxw) mx-auto px-(--sigta-gutter) pt-[clamp(48px,8vw,110px)] pb-[clamp(40px,6vw,80px)];
+}
+[data-scope="section.hero"][data-part="grid"] {
+    @apply grid items-center gap-[clamp(32px,5vw,72px)] lg:grid-cols-[1.15fr_0.85fr];
+}
+[data-scope="section.hero"][data-part="eyebrow"] {
+    @apply mb-[1.2rem];
+}
+[data-scope="section.hero"][data-part="lede"] {
+    @apply max-w-[36ch] mt-[1.6rem] mb-[2.2rem];
+}
+[data-scope="section.hero"][data-part="actions"] {
+    @apply flex flex-wrap items-center gap-[0.9rem];
+}
+/* The primary button's arrow nudges forward while the button is hovered. */
+[data-scope="section.hero"][data-part="arrow"] {
+    @apply transition-transform duration-[180ms] ease-out;
+}
+@media (hover: hover) {
+    [data-sigta="button"]:hover [data-scope="section.hero"][data-part="arrow"] {
+        @apply translate-x-[3px];
+    }
+}
+[data-scope="section.hero"][data-part="stats"] {
+    @apply mt-[2.6rem] flex flex-wrap gap-[2.2rem];
+}
+[data-scope="section.hero"][data-part="visual"] {
+    @apply relative text-ink;
+}

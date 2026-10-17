@@ -1,0 +1,27 @@
+{
+    "tiers": [
+        {
+            "label": "Spor 1 · Timepris",
+            "title": "Klassisk: én lav, fast timepris",
+            "figure": "800 kr.",
+            "figureSuffix": "/ time, ekskl. moms",
+            "mark": true,
+            "body": [
+                "Én timepris. Ingen tillæg, ingen seniorrater, ingen overraskelser. Prisen er bevidst lavere end hos de store konsulenthuse, fordi et partnerskab fungerer bedst, når fokus er på at bygge og ikke på at diskutere, hvem der betaler for hvad.",
+                "Nogle gange går tingene godt, andre gange skal noget laves om. Den lave timepris gør, at vi kan begge dele uden dårlig stemning."
+            ]
+        },
+        {
+            "label": "Spor 2 · Fast månedspris",
+            "title": "Skræddersyet software som abonnement",
+            "figure": "Fast pris",
+            "figureSuffix": "/ måned, aftalt på forhånd",
+            "mark": false,
+            "annot": "som SaaS, bare jeres eget",
+            "body": [
+                "Den nye måde at få software på: Vi bygger et værktøj eller en platform tilpasset jer, og I betaler en fast månedlig pris, som var det et SaaS-abonnement.",
+                "Startinvesteringen er en brøkdel af et klassisk udviklingsprojekt, og drift og vedligehold er regnet med. Softwaren bliver ved med at virke, og I ved præcis, hvad den koster."
+            ]
+        }
+    ]
+}

@@ -12,6 +12,7 @@ export default defineConfig({
         alias: [
             { find: /^@sigta-hq\/core$/, replacement: source('../core/src/index.ts') },
             { find: /^@sigta-hq\/contract\/icons$/, replacement: source('../contract/src/icons.ts') },
+            { find: /^@sigta-hq\/contract\/sections$/, replacement: source('../contract/src/sections.ts') },
         ],
     },
     test: {
