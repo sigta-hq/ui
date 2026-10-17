@@ -1,4 +1,4 @@
-/* Sigta UI — Livewire runtime. Built by scripts/build-livewire.js from resources/js/sigta.js and packages/core/src; do not edit. sources:b556bf26347d380fa9682965dfafb9b51db0337a */
+/* Sigta UI — Livewire runtime. Built by scripts/build-livewire.js from resources/js/sigta.js and packages/core/src; do not edit. sources:a100dadca35ec28c2e03d15ef8922e569225f4be */
 (() => {
   // packages/core/src/env.ts
   var isBrowser = () => typeof window !== "undefined" && typeof document !== "undefined";
@@ -674,6 +674,197 @@
     document.documentElement.style.removeProperty(FLOATING_SPACE);
   }
 
+  // packages/core/src/calendar.ts
+  var MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var SHORT_MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var pad2 = (n) => String(n).padStart(2, "0");
+  function utc(year, month, day) {
+    const date = /* @__PURE__ */ new Date(0);
+    date.setUTCFullYear(year, month - 1, day);
+    return date;
+  }
+  var fromUtc = (date) => `${String(date.getUTCFullYear()).padStart(4, "0")}-${pad2(date.getUTCMonth() + 1)}-${pad2(date.getUTCDate())}`;
+  function isoDate(year, month, day) {
+    return fromUtc(utc(year, month, day));
+  }
+  function parseIso(iso) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso ?? ""));
+    if (!match) return null;
+    const [year, month, day] = [Number(match[1]), Number(match[2]), Number(match[3])];
+    return isoDate(year, month, day) === iso ? { year, month, day } : null;
+  }
+  function todayIso(now = Date.now()) {
+    const date = now instanceof Date ? now : new Date(now);
+    return `${String(date.getFullYear()).padStart(4, "0")}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+  }
+  function daysInMonth(year, month) {
+    return utc(year, month + 1, 0).getUTCDate();
+  }
+  function addDays(iso, days) {
+    const p = parseIso(iso);
+    return p ? isoDate(p.year, p.month, p.day + days) : iso;
+  }
+  function addMonths(iso, months) {
+    const p = parseIso(iso);
+    if (!p) return iso;
+    const target = shiftMonth(p, months);
+    return isoDate(target.year, target.month, Math.min(p.day, daysInMonth(target.year, target.month)));
+  }
+  function shiftMonth(view, delta) {
+    const index = view.year * 12 + (view.month - 1) + delta;
+    return { year: Math.floor(index / 12), month: (index % 12 + 12) % 12 + 1 };
+  }
+  function weekdayIndex(iso) {
+    const p = parseIso(iso);
+    return p ? (utc(p.year, p.month, p.day).getUTCDay() + 6) % 7 : 0;
+  }
+  function isOutOfRange(iso, min, max) {
+    return !!min && iso < min || !!max && iso > max;
+  }
+  function monthOf(iso) {
+    const p = parseIso(iso);
+    return p ? { year: p.year, month: p.month } : { year: 1970, month: 1 };
+  }
+  function monthTitle(year, month) {
+    return `${MONTH_NAMES[month - 1]} ${year}`;
+  }
+  function dayLabel(iso) {
+    const p = parseIso(iso);
+    return p ? `${p.day} ${MONTH_NAMES[p.month - 1]} ${p.year}` : "";
+  }
+  function formatDate(iso) {
+    const p = parseIso(iso);
+    return p ? `${p.day} ${SHORT_MONTH_NAMES[p.month - 1]} ${p.year}` : "";
+  }
+  function parseDate(text) {
+    const typed = String(text ?? "").trim();
+    if (!typed) return "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(typed)) return parseIso(typed) ? typed : null;
+    const ts = Date.parse(typed);
+    return Number.isNaN(ts) ? null : todayIso(ts);
+  }
+  function monthGrid(year, month, { selected = null, min = null, max = null, today = null } = {}) {
+    const offset = weekdayIndex(isoDate(year, month, 1));
+    const cells = [];
+    for (let i = 0; i < 42; i++) {
+      const date = isoDate(year, month, 1 - offset + i);
+      const p = parseIso(date);
+      cells.push({
+        date,
+        day: p.day,
+        outside: p.month !== month || p.year !== year,
+        disabled: isOutOfRange(date, min, max),
+        selected: selected === date,
+        today: today === date,
+        label: dayLabel(date)
+      });
+    }
+    return cells;
+  }
+  function canShowPrev(view, min) {
+    return !min || isoDate(view.year, view.month, 0) >= min;
+  }
+  function canShowNext(view, max) {
+    return !max || isoDate(view.year, view.month + 1, 1) <= max;
+  }
+  function initialFocus(view, { selected = null, min = null, max = null, today = null } = {}) {
+    const inView = (iso) => {
+      const p = parseIso(iso);
+      return !!p && p.year === view.year && p.month === view.month && !isOutOfRange(iso, min, max);
+    };
+    if (inView(selected)) return selected;
+    if (inView(today)) return today;
+    for (let day = 1, last = daysInMonth(view.year, view.month); day <= last; day++) {
+      const iso = isoDate(view.year, view.month, day);
+      if (!isOutOfRange(iso, min, max)) return iso;
+    }
+    return isoDate(view.year, view.month, 1);
+  }
+  function keyTarget(focused, key) {
+    switch (key) {
+      case "ArrowLeft":
+        return addDays(focused, -1);
+      case "ArrowRight":
+        return addDays(focused, 1);
+      case "ArrowUp":
+        return addDays(focused, -7);
+      case "ArrowDown":
+        return addDays(focused, 7);
+      case "Home":
+        return addDays(focused, -weekdayIndex(focused));
+      case "End":
+        return addDays(focused, 6 - weekdayIndex(focused));
+      case "PageUp":
+        return addMonths(focused, -1);
+      case "PageDown":
+        return addMonths(focused, 1);
+      default:
+        return null;
+    }
+  }
+
+  // packages/core/src/time.ts
+  var pad22 = (n) => String(n).padStart(2, "0");
+  var int = (text) => {
+    const n = Number.parseInt(String(text ?? ""), 10);
+    return Number.isFinite(n) ? n : 0;
+  };
+  function timeToMinutes(value) {
+    const [h, m] = String(value).split(":");
+    return int(h) * 60 + int(m);
+  }
+  function minutesToTime(minutes) {
+    return `${pad22(Math.floor(minutes / 60))}:${pad22(minutes % 60)}`;
+  }
+  function formatTime(value, format = "24") {
+    if (!value) return "";
+    const [h, m] = String(value).split(":").map(int);
+    if (String(format) === "12") return `${h % 12 || 12}:${pad22(m)} ${h < 12 ? "AM" : "PM"}`;
+    return `${pad22(h)}:${pad22(m)}`;
+  }
+  function parseTime(text) {
+    const typed = String(text ?? "").trim();
+    if (!typed) return "";
+    const match = /^(\d{1,2}):(\d{2})\s*(am|pm)?$/i.exec(typed);
+    if (!match) return null;
+    let h = Number(match[1]);
+    const m = Number(match[2]);
+    const meridiem = match[3]?.toLowerCase();
+    if (meridiem) {
+      if (h === 12) h = 0;
+      if (meridiem === "pm") h += 12;
+    }
+    return h < 24 && m < 60 ? `${pad22(h)}:${pad22(m)}` : null;
+  }
+  function isTimeOutOfRange(value, min, max) {
+    const minutes = timeToMinutes(value);
+    return !!min && minutes < timeToMinutes(min) || !!max && minutes > timeToMinutes(max);
+  }
+  function timeStep(step2) {
+    return Math.max(1, Math.trunc(Number(step2 ?? 30)) || 0);
+  }
+  function timeOptions({ min = null, max = null, step: step2 = 30, format = "24" } = {}) {
+    const every = timeStep(step2);
+    const start = min ? timeToMinutes(min) : 0;
+    const end = max ? timeToMinutes(max) : 23 * 60 + 59;
+    const options = [];
+    for (let minutes = start; minutes <= end; minutes += every) {
+      const value = minutesToTime(minutes);
+      options.push({ value, label: formatTime(value, format ?? "24") });
+    }
+    return options;
+  }
+  function moveActive(index, delta, count) {
+    if (count <= 0) return -1;
+    if (index < 0) return 0;
+    return ((index + delta) % count + count) % count;
+  }
+  function activeFor(options, value) {
+    if (!options.length) return -1;
+    const index = options.findIndex((option) => option.value === value);
+    return index >= 0 ? index : 0;
+  }
+
   // resources/js/sigta.js
   var dropped = /* @__PURE__ */ new WeakSet();
   var complete2 = (target, commit = null, options = {}) => {
@@ -1025,6 +1216,185 @@
       },
       destroy() {
         this.stop?.();
+      }
+    }));
+    const calendarGrids = /* @__PURE__ */ new Map();
+    const calendarGrid = (year, month, bounds) => {
+      const key = [year, month, bounds.selected, bounds.min, bounds.max, bounds.today].join("|");
+      if (!calendarGrids.has(key)) {
+        if (calendarGrids.size > 64) calendarGrids.clear();
+        calendarGrids.set(key, monthGrid(year, month, bounds));
+      }
+      return calendarGrids.get(key);
+    };
+    Alpine.data("sigtaCalendar", (config = {}) => ({
+      viewYear: config.year,
+      viewMonth: config.month,
+      selected: config.value ?? null,
+      focused: config.focused,
+      min: config.min ?? null,
+      max: config.max ?? null,
+      today: config.today ?? null,
+      get view() {
+        return { year: this.viewYear, month: this.viewMonth };
+      },
+      bounds() {
+        return { selected: this.selected, min: this.min, max: this.max, today: this.today ?? todayIso() };
+      },
+      get title() {
+        return monthTitle(this.viewYear, this.viewMonth);
+      },
+      get canPrev() {
+        return canShowPrev(this.view, this.min);
+      },
+      get canNext() {
+        return canShowNext(this.view, this.max);
+      },
+      get cells() {
+        return calendarGrid(this.viewYear, this.viewMonth, this.bounds());
+      },
+      isDisabled(iso) {
+        return isOutOfRange(iso, this.min, this.max);
+      },
+      goTo(iso) {
+        const { year, month } = monthOf(iso);
+        this.viewYear = year;
+        this.viewMonth = month;
+      },
+      showMonth(delta) {
+        const { year, month } = shiftMonth(this.view, delta);
+        this.viewYear = year;
+        this.viewMonth = month;
+        this.focused = initialFocus(this.view, this.bounds());
+      },
+      prevMonth() {
+        if (this.canPrev) this.showMonth(-1);
+      },
+      nextMonth() {
+        if (this.canNext) this.showMonth(1);
+      },
+      select(iso) {
+        if (this.isDisabled(iso)) return;
+        this.selected = iso;
+        this.goTo(iso);
+        this.focused = iso;
+        this.$nextTick(() => this.sync());
+      },
+      // A value set from outside (the date picker's typed date), shown as a server-rendered one would be.
+      setValue(iso) {
+        this.selected = iso || null;
+        if (this.selected) this.goTo(this.selected);
+        this.focused = initialFocus(this.view, this.bounds());
+      },
+      sync() {
+        const el = this.$refs.value;
+        if (el) {
+          el.value = this.selected ?? "";
+          el.dispatchEvent(new Event("input", { bubbles: true }));
+          el.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        this.$dispatch("calendar-change", { value: this.selected, label: formatDate(this.selected) });
+      },
+      focusDate(iso) {
+        this.focused = iso;
+        this.goTo(iso);
+        this.$nextTick(() => this.$refs.grid.querySelector(`[data-date="${iso}"]`)?.focus());
+      },
+      // Arrows, Home / End and PageUp / PageDown move the focus (WAI-ARIA date grid); a day out of range is refused.
+      key(event) {
+        const target = keyTarget(this.focused, event.key);
+        if (target === null) return;
+        event.preventDefault();
+        if (!this.isDisabled(target)) this.focusDate(target);
+      }
+    }));
+    Alpine.data("sigtaDatePicker", (config = {}) => ({
+      value: config.value ?? null,
+      display: formatDate(config.value),
+      min: config.min ?? null,
+      max: config.max ?? null,
+      commit() {
+        const hidden = this.$refs.hidden;
+        hidden.value = this.value ?? "";
+        hidden.dispatchEvent(new Event("input", { bubbles: true }));
+        hidden.dispatchEvent(new Event("change", { bubbles: true }));
+      },
+      // A day picked in the calendar (its calendar-change).
+      pick(detail) {
+        this.value = detail.value;
+        this.display = detail.label;
+        this.commit();
+      },
+      // The text field changed: a date in range is taken (and shown in the calendar), anything else reverts.
+      typed() {
+        const iso = parseDate(this.display);
+        if (iso === null || iso && isOutOfRange(iso, this.min, this.max)) {
+          this.display = formatDate(this.value);
+        } else {
+          this.value = iso || null;
+          this.display = formatDate(this.value);
+          const calendar = this.$root.querySelector('[data-sigta="calendar"]');
+          if (calendar) Alpine.$data(calendar).setValue(this.value);
+        }
+        this.commit();
+      }
+    }));
+    Alpine.data("sigtaTimePicker", (config = {}) => ({
+      open: false,
+      value: config.value ?? null,
+      display: formatTime(config.value, config.format),
+      format: String(config.format ?? "24"),
+      min: config.min ?? null,
+      max: config.max ?? null,
+      opts: timeOptions(config),
+      activeIndex: -1,
+      toggle() {
+        this.open ? this.close() : this.openList();
+      },
+      openList() {
+        this.open = true;
+        this.$nextTick(() => this.setActive(activeFor(this.opts, this.value)));
+      },
+      close(focus = false) {
+        this.open = false;
+        this.activeIndex = -1;
+        if (focus) this.$refs.input.focus();
+      },
+      setActive(index) {
+        if (index < 0) return;
+        this.activeIndex = index;
+        this.$nextTick(() => this.$refs.list?.children[this.activeIndex]?.scrollIntoView({ block: "nearest" }));
+      },
+      move(delta) {
+        if (!this.open) return this.openList();
+        this.setActive(moveActive(this.activeIndex, delta, this.opts.length));
+      },
+      chooseActive() {
+        const option = this.opts[this.activeIndex];
+        if (option) this.choose(option.value, option.label);
+      },
+      choose(value, label) {
+        this.value = value;
+        this.display = label;
+        this.commit();
+        this.close(true);
+      },
+      commit() {
+        const hidden = this.$refs.hidden;
+        hidden.value = this.value ?? "";
+        hidden.dispatchEvent(new Event("input", { bubbles: true }));
+        hidden.dispatchEvent(new Event("change", { bubbles: true }));
+      },
+      // The text field changed: a time in range is taken, an emptied field clears, anything else reverts.
+      typed() {
+        const value = parseTime(this.display);
+        if (value === null || value && isTimeOutOfRange(value, this.min, this.max)) {
+          this.display = formatTime(this.value, this.format);
+          return;
+        }
+        this.value = value || null;
+        this.display = formatTime(this.value, this.format);
+        this.commit();
       }
     }));
     observeLoaders();

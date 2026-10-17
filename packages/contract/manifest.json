@@ -3519,9 +3519,12 @@
             "failed"
           ],
           "default": "idle",
-          "description": "The state it shows (anything else reads as idle). Livewire: the initial state; Svelte: drive it here (bind:state also follows the events).",
+          "description": "The state it shows (anything else reads as idle).",
+          "blade": {
+            "note": "The initial state; after that it follows target and the events."
+          },
           "svelte": {
-            "note": "Bindable: bind:state follows the sigta-save-state events too."
+            "note": "Drive it here; bind:state also follows the sigta-save-state events."
           }
         },
         "align": {
@@ -3604,7 +3607,7 @@
       ],
       "usage": {
         "livewire": "<sigta:save-state target=\"title, body\" idle=\"All changes saved\" />\n<sigta:input wire:model.live.debounce.500ms=\"title\" />\n\n<header class=\"flex items-center justify-between\">\n    <sigta:heading>Draft</sigta:heading>\n    <sigta:save-state target=\"save\" align=\"end\" />   {{-- flush right, words grow leftward --}}\n</header>\n\n<sigta:save-state name=\"profile\" />\n{{-- any promise: resolve = saved, reject = failed (fetch only rejects on network errors, so throw on !response.ok) --}}\n<sigta:textarea x-on:input.debounce.700ms=\"$sigta.save(saveProfile(), 'profile')\" />",
-        "svelte": "<script>\n    import { Heading, SaveState, Textarea, sigta } from '@sigta-hq/svelte';\n\n    let state = $state('idle');\n</script>\n\n<header class=\"flex items-center justify-between\">\n    <Heading>Draft</Heading>\n    <SaveState bind:state align=\"end\" />   <!-- flush right, words grow leftward -->\n</header>\n\n<SaveState name=\"profile\" idle=\"All changes saved\" />\n<!-- any promise: resolve = saved, reject = failed (fetch only rejects on network errors, so throw on !response.ok) -->\n<Textarea oninput={() => sigta.save(saveProfile(), 'profile')} />"
+        "svelte": "<script>\n    import { Heading, SaveState, Textarea, sigta } from '@sigta-hq/svelte';\n\n    let draft = $state('idle');\n</script>\n\n<header class=\"flex items-center justify-between\">\n    <Heading>Draft</Heading>\n    <SaveState bind:state={draft} align=\"end\" />   <!-- flush right, words grow leftward -->\n</header>\n\n<SaveState name=\"profile\" idle=\"All changes saved\" />\n<!-- any promise: resolve = saved, reject = failed (fetch only rejects on network errors, so throw on !response.ok) -->\n<Textarea oninput={() => sigta.save(saveProfile(), 'profile')} />"
       },
       "notes": {
         "shared": [

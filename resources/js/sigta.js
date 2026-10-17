@@ -42,6 +42,27 @@ import {
     step,
     toastDuration,
 } from '../../packages/core/src/index.ts';
+// The calendar, date picker and time picker's date and time logic.
+import {
+    activeFor,
+    canShowNext,
+    canShowPrev,
+    formatDate,
+    formatTime,
+    initialFocus,
+    isOutOfRange,
+    isTimeOutOfRange,
+    keyTarget,
+    monthGrid,
+    monthOf,
+    monthTitle,
+    moveActive,
+    parseDate,
+    parseTime,
+    shiftMonth,
+    timeOptions,
+    todayIso,
+} from '../../packages/core/src/index.ts';
 
 // Rows the server dropped in a morph but that were kept on screen to leave.
 const dropped = new WeakSet();
@@ -430,6 +451,204 @@ document.addEventListener('alpine:init', () => {
         },
         destroy() {
             this.stop?.();
+        },
+    }));
+
+    /* Calendar — the Monday-first month grid over 42 server-rendered day
+       buttons (the count never changes, so a morph never adds or drops one).
+       The view, the tab stop and the selection start from the server render
+       (config); the date math is the core's, shared with the Svelte twin.
+       `today` is the pinned today prop, else the browser's own date. The
+       grid is a pure function of its inputs, so one is built per change
+       (memoized) rather than once per day button binding. */
+    const calendarGrids = new Map();
+    const calendarGrid = (year, month, bounds) => {
+        const key = [year, month, bounds.selected, bounds.min, bounds.max, bounds.today].join('|');
+        if (!calendarGrids.has(key)) {
+            if (calendarGrids.size > 64) calendarGrids.clear();
+            calendarGrids.set(key, monthGrid(year, month, bounds));
+        }
+        return calendarGrids.get(key);
+    };
+
+    Alpine.data('sigtaCalendar', (config = {}) => ({
+        viewYear: config.year,
+        viewMonth: config.month,
+        selected: config.value ?? null,
+        focused: config.focused,
+        min: config.min ?? null,
+        max: config.max ?? null,
+        today: config.today ?? null,
+        get view() {
+            return { year: this.viewYear, month: this.viewMonth };
+        },
+        bounds() {
+            return { selected: this.selected, min: this.min, max: this.max, today: this.today ?? todayIso() };
+        },
+        get title() {
+            return monthTitle(this.viewYear, this.viewMonth);
+        },
+        get canPrev() {
+            return canShowPrev(this.view, this.min);
+        },
+        get canNext() {
+            return canShowNext(this.view, this.max);
+        },
+        get cells() {
+            return calendarGrid(this.viewYear, this.viewMonth, this.bounds());
+        },
+        isDisabled(iso) {
+            return isOutOfRange(iso, this.min, this.max);
+        },
+        goTo(iso) {
+            const { year, month } = monthOf(iso);
+            this.viewYear = year;
+            this.viewMonth = month;
+        },
+        showMonth(delta) {
+            const { year, month } = shiftMonth(this.view, delta);
+            this.viewYear = year;
+            this.viewMonth = month;
+            this.focused = initialFocus(this.view, this.bounds());
+        },
+        prevMonth() {
+            if (this.canPrev) this.showMonth(-1);
+        },
+        nextMonth() {
+            if (this.canNext) this.showMonth(1);
+        },
+        select(iso) {
+            if (this.isDisabled(iso)) return;
+            this.selected = iso;
+            this.goTo(iso);
+            this.focused = iso;
+            this.$nextTick(() => this.sync());
+        },
+        // A value set from outside (the date picker's typed date), shown as a server-rendered one would be.
+        setValue(iso) {
+            this.selected = iso || null;
+            if (this.selected) this.goTo(this.selected);
+            this.focused = initialFocus(this.view, this.bounds());
+        },
+        sync() {
+            const el = this.$refs.value;
+            if (el) {
+                el.value = this.selected ?? '';
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            this.$dispatch('calendar-change', { value: this.selected, label: formatDate(this.selected) });
+        },
+        focusDate(iso) {
+            this.focused = iso;
+            this.goTo(iso);
+            this.$nextTick(() => this.$refs.grid.querySelector(`[data-date="${iso}"]`)?.focus());
+        },
+        // Arrows, Home / End and PageUp / PageDown move the focus (WAI-ARIA date grid); a day out of range is refused.
+        key(event) {
+            const target = keyTarget(this.focused, event.key);
+            if (target === null) return;
+            event.preventDefault();
+            if (!this.isDisabled(target)) this.focusDate(target);
+        },
+    }));
+
+    /* Date picker — the typed text and the Y-m-d value around a calendar in
+       an anchored panel (open / close is sigtaDropdown's, one scope in).
+       Typed dates are parsed by the core and must fall within min / max; the
+       hidden input carries name / wire:model and hears input + change. */
+    Alpine.data('sigtaDatePicker', (config = {}) => ({
+        value: config.value ?? null,
+        display: formatDate(config.value),
+        min: config.min ?? null,
+        max: config.max ?? null,
+        commit() {
+            const hidden = this.$refs.hidden;
+            hidden.value = this.value ?? '';
+            hidden.dispatchEvent(new Event('input', { bubbles: true }));
+            hidden.dispatchEvent(new Event('change', { bubbles: true }));
+        },
+        // A day picked in the calendar (its calendar-change).
+        pick(detail) {
+            this.value = detail.value;
+            this.display = detail.label;
+            this.commit();
+        },
+        // The text field changed: a date in range is taken (and shown in the calendar), anything else reverts.
+        typed() {
+            const iso = parseDate(this.display);
+            if (iso === null || (iso && isOutOfRange(iso, this.min, this.max))) {
+                this.display = formatDate(this.value);
+            } else {
+                this.value = iso || null;
+                this.display = formatDate(this.value);
+                const calendar = this.$root.querySelector('[data-sigta="calendar"]');
+                if (calendar) Alpine.$data(calendar).setValue(this.value);
+            }
+            this.commit();
+        },
+    }));
+
+    /* Time picker — a combobox over a listbox of times every `step` minutes
+       between min and max (the core's list, the same the server rendered).
+       The value is HH:MM (24h) whatever the label format; typed times are
+       parsed by the core and must fall within min / max. */
+    Alpine.data('sigtaTimePicker', (config = {}) => ({
+        open: false,
+        value: config.value ?? null,
+        display: formatTime(config.value, config.format),
+        format: String(config.format ?? '24'),
+        min: config.min ?? null,
+        max: config.max ?? null,
+        opts: timeOptions(config),
+        activeIndex: -1,
+        toggle() {
+            this.open ? this.close() : this.openList();
+        },
+        openList() {
+            this.open = true;
+            this.$nextTick(() => this.setActive(activeFor(this.opts, this.value)));
+        },
+        close(focus = false) {
+            this.open = false;
+            this.activeIndex = -1;
+            if (focus) this.$refs.input.focus();
+        },
+        setActive(index) {
+            if (index < 0) return;
+            this.activeIndex = index;
+            this.$nextTick(() => this.$refs.list?.children[this.activeIndex]?.scrollIntoView({ block: 'nearest' }));
+        },
+        move(delta) {
+            if (!this.open) return this.openList();
+            this.setActive(moveActive(this.activeIndex, delta, this.opts.length));
+        },
+        chooseActive() {
+            const option = this.opts[this.activeIndex];
+            if (option) this.choose(option.value, option.label);
+        },
+        choose(value, label) {
+            this.value = value;
+            this.display = label;
+            this.commit();
+            this.close(true);
+        },
+        commit() {
+            const hidden = this.$refs.hidden;
+            hidden.value = this.value ?? '';
+            hidden.dispatchEvent(new Event('input', { bubbles: true }));
+            hidden.dispatchEvent(new Event('change', { bubbles: true }));
+        },
+        // The text field changed: a time in range is taken, an emptied field clears, anything else reverts.
+        typed() {
+            const value = parseTime(this.display);
+            if (value === null || (value && isTimeOutOfRange(value, this.min, this.max))) {
+                this.display = formatTime(this.value, this.format);
+                return;
+            }
+            this.value = value || null;
+            this.display = formatTime(this.value, this.format);
+            this.commit();
         },
     }));
 

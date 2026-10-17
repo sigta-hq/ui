@@ -1,0 +1,39 @@
+/* Calendar — a Monday-first month grid on raised paper: a mono caption
+   between chevrons, weekday initials, square day buttons in tabular mono.
+   The selected day is inked, today wears a soft ink ring, a day out of
+   range fades. Days spilling over from the months around look like the
+   month's own. */
+[data-sigta="calendar"] {
+    @apply inline-flex flex-col gap-2 bg-surface-raised border border-line rounded-panel shadow-paper p-3 w-[17.5rem] select-none;
+}
+[data-scope="calendar"][data-part="header"] {
+    @apply flex items-center justify-between;
+}
+[data-scope="calendar"]:is([data-part="prev"], [data-part="next"]) {
+    @apply inline-flex items-center justify-center size-8 rounded-base border border-transparent text-ink transition duration-150 ease-out hover:bg-ink/5 disabled:opacity-40 disabled:pointer-events-none;
+}
+[data-scope="calendar"][data-part="title"] {
+    @apply font-mono text-[0.72rem] tracking-[0.14em] uppercase text-ink;
+}
+[data-scope="calendar"][data-part="weekdays"] {
+    @apply grid grid-cols-7;
+}
+[data-scope="calendar"][data-part="weekday"] {
+    @apply flex items-center justify-center py-1 font-mono text-[0.6rem] tracking-[0.1em] uppercase text-graphite;
+}
+[data-scope="calendar"][data-part="week"] {
+    @apply grid grid-cols-7 gap-0.5;
+}
+[data-scope="calendar"][data-part="day"] {
+    @apply relative flex items-center justify-center aspect-square w-full rounded-base font-mono text-[0.78rem] tabular-nums text-ink transition duration-150 ease-out focus:outline-none disabled:opacity-40 disabled:pointer-events-none;
+
+    &:not([aria-selected="true"], :disabled) {
+        @apply hover:bg-ink/5;
+    }
+    &[aria-current="date"]:not([aria-selected="true"]) {
+        @apply border border-ink/50;
+    }
+    &[aria-selected="true"] {
+        @apply bg-ink text-surface;
+    }
+}

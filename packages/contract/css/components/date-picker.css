@@ -1,0 +1,21 @@
+/* Date picker — the input's paper field with a calendar button tucked into
+   its right padding; the calendar drops below on its own raised paper and
+   settles in with sigta-menu-in (dropdown.css). */
+[data-sigta="date-picker"],
+[data-scope="date-picker"]:is([data-part="anchor"], [data-part="trigger"]) {
+    @apply relative;
+}
+[data-scope="date-picker"][data-part="input"] {
+    @apply w-full font-body text-[0.98rem] text-ink bg-surface placeholder:text-graphite/70 border-[1.5px] border-line rounded-[5px] px-[0.8em] py-[0.62em] pr-[2.6em] transition duration-150 ease-out focus:outline-none focus:border-ink focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--sigta-fg)_8%,transparent)] disabled:opacity-40 disabled:pointer-events-none;
+
+    &[aria-invalid="true"] {
+        @apply border-danger focus:border-ink;
+    }
+}
+[data-scope="date-picker"][data-part="toggle"] {
+    @apply absolute inset-y-0 right-0 flex items-center px-[0.75em] text-graphite hover:text-ink transition duration-150 ease-out disabled:opacity-40 disabled:pointer-events-none;
+}
+[data-scope="date-picker"][data-part="panel"] {
+    @apply absolute top-full left-0 mt-2 z-50;
+    animation: sigta-menu-in 150ms cubic-bezier(0, 0, 0.2, 1);
+}

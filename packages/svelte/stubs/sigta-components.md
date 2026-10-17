@@ -860,7 +860,7 @@ The compass stands in for "Saving…": it draws while a save is in flight (the w
 
 - **Props:**
   - `name` (string) — The name sigta-save-state events address; unnamed ones hear unnamed events.
-  - `state` (`idle` · `dirty` · `saving` · `saved` · `failed`, default `idle`) — The state it shows (anything else reads as idle). Livewire: the initial state; Svelte: drive it here (bind:state also follows the events). Bindable: bind:state follows the sigta-save-state events too.
+  - `state` (`idle` · `dirty` · `saving` · `saved` · `failed`, default `idle`) — The state it shows (anything else reads as idle). Drive it here; bind:state also follows the sigta-save-state events.
   - `align` (`start` · `end`, default `start`) — end puts the compass on the right and right-aligns the words — for the right end of a bar.
   - `idle` (string) — Text shown at rest ("All changes saved"); none by default.
   - `dirty` (string, default `Unsaved changes`) — Text while there are unsaved changes.
@@ -878,12 +878,12 @@ The compass stands in for "Saving…": it draws while a save is in flight (the w
 <script>
     import { Heading, SaveState, Textarea, sigta } from '@sigta-hq/svelte';
 
-    let state = $state('idle');
+    let draft = $state('idle');
 </script>
 
 <header class="flex items-center justify-between">
     <Heading>Draft</Heading>
-    <SaveState bind:state align="end" />   <!-- flush right, words grow leftward -->
+    <SaveState bind:state={draft} align="end" />   <!-- flush right, words grow leftward -->
 </header>
 
 <SaveState name="profile" idle="All changes saved" />

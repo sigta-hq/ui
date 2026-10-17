@@ -13,3 +13,5 @@ export * from './classes.ts';
 export * from './chart.ts';
 export * from './pagination.ts';
 export * from './floating-bar.ts';
+export * from './calendar.ts';
+export * from './time.ts';
