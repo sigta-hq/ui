@@ -76,7 +76,10 @@ export async function startHarness(fixtures, bladeHtml, svelteHtml) {
                 const module = `/.conformance/harness-${process.pid}/${fileId(fixture.id)}.svelte`;
                 const html = page('', `<main id="fixture">${svelteHtml[fixture.id]}</main>
 <script type="module">import Fixture from '${module}'; import { hydrate } from 'svelte'; hydrate(Fixture, { target: document.getElementById('fixture') }); window.__hydrated = true;</script>`);
-                return send(await vite.transformIndexHtml(url.pathname, html));
+                // No hot reload here: drop Vite's client, which would only try to
+                // open a socket (and several harnesses may run at once).
+                const transformed = await vite.transformIndexHtml(url.pathname, html);
+                return send(transformed.replace(/<script type="module" src="[^"]*\/@vite\/client"><\/script>\s*/g, ''));
             }
             vite.middlewares(req, res, () => { res.writeHead(404); res.end('not found'); });
         } catch (error) {
