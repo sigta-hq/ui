@@ -30,4 +30,8 @@
     @apply md:hidden border-t border-line px-(--sigta-gutter) py-4 flex flex-col gap-3;
 
     [data-sigta="navbar"][data-collapse="lg"] > & { @apply flex lg:hidden; }
+
+    /* Folded away by the hidden attribute (Svelte), which a stylesheet's
+       display would otherwise outrank where no reset makes [hidden] win. */
+    &[hidden] { display: none !important; }
 }

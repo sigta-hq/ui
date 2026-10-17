@@ -45,7 +45,7 @@ export default defineComponent({
     },
     uses: ['navlink', 'button', 'icon'],
     notes: {
-        shared: ['Put navlinks in the default slot and mark the current page with current.'],
+        shared: ['The links are navlinks; mark the current page with current.'],
         livewire: ['Sticky translucent header; the burger menu is a small Alpine toggle. Slots: <x-slot:brand>, default (links), <x-slot:actions>; attributes on a slot tag land on its wrapper.'],
         svelte: ['Snippets: brand, children (the links), actions.'],
     },

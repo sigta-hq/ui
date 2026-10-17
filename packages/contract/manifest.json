@@ -74,8 +74,10 @@
           "type": "boolean",
           "default": false,
           "native": true,
-          "bindable": true,
-          "description": "Open on load. Livewire: the native open attribute (forwarded onto <details>); Svelte: open or bind:open."
+          "description": "Open on load: the native open attribute on the <details>.",
+          "svelte": {
+            "note": "bind:open follows it as the reader opens and closes it."
+          }
         }
       },
       "parts": {
@@ -402,6 +404,10 @@
           "default": "ink",
           "description": "Initials ground: ink fill, or a quiet hairline ground (line)."
         }
+      },
+      "usage": {
+        "livewire": "<sigta:avatar name=\"Søren Frisk\" />\n<sigta:avatar :src=\"$user->avatar_url\" :name=\"$user->name\" size=\"lg\" />\n<sigta:avatar name=\"Marginalia Team\" shape=\"square\" tone=\"line\" />",
+        "svelte": "<Avatar name=\"Søren Frisk\" />\n<Avatar src={user.avatarUrl} name={user.name} size=\"lg\" />\n<Avatar name=\"Marginalia Team\" shape=\"square\" tone=\"line\" />"
       },
       "notes": {
         "shared": [
@@ -863,6 +869,10 @@
           "description": "Media above the body (an SVG, an image, a skeleton), clipped to 16:9."
         }
       },
+      "usage": {
+        "livewire": "<sigta:card>\n    <x-slot:thumb><img src=\"/shots/marginalia.png\" alt=\"\" class=\"size-full object-cover\"></x-slot:thumb>\n    <sigta:heading level=\"3\">Marginalia</sigta:heading>\n    <sigta:text variant=\"muted\">A reading-and-notes app for teams.</sigta:text>\n</sigta:card>\n<sigta:card :hover=\"false\" class=\"p-5\">Static, with its own padding</sigta:card>",
+        "svelte": "<Card>\n    {#snippet thumb()}<img src=\"/shots/marginalia.png\" alt=\"\" class=\"size-full object-cover\" />{/snippet}\n    <Heading level={3}>Marginalia</Heading>\n    <Text variant=\"muted\">A reading-and-notes app for teams.</Text>\n</Card>\n<Card hover={false} class=\"p-5\">Static, with its own padding</Card>"
+      },
       "notes": {
         "shared": [
           "Its body has fluid padding. Pass any padding class on the card (p-5, sm:p-4) and it replaces the body padding instead of adding to it."
@@ -1251,13 +1261,13 @@
       ],
       "notes": {
         "shared": [
-          "The default slot is the surface; the menu slot holds the items (dropdown.item, dropdown.separator), which close the menu when chosen."
+          "The items are dropdown.item and dropdown.separator; an item closes the menu when chosen."
         ],
         "livewire": [
-          "<x-slot:menu> holds the items."
+          "The default slot is the surface; <x-slot:menu> holds the items."
         ],
         "svelte": [
-          "{#snippet menu()} holds the items."
+          "children is the surface; {#snippet menu()} holds the items."
         ]
       },
       "examples": [
@@ -1398,9 +1408,10 @@
       ],
       "notes": {
         "shared": [
-          "Use it (with dropdown.item) instead of a custom menu. The trigger goes in the trigger slot, the items in the default slot."
+          "Use it (with dropdown.item) instead of a custom menu."
         ],
         "livewire": [
+          "The trigger goes in <x-slot:trigger>, the items in the default slot.",
           "The sigtaDropdown Alpine component handles open / Escape / click outside / roving focus."
         ],
         "svelte": [
@@ -2106,6 +2117,9 @@
           "label": "States"
         },
         {
+          "label": "With an elapsed clock"
+        },
+        {
           "label": "Done reads 100%"
         }
       ]
@@ -2659,7 +2673,7 @@
       ],
       "notes": {
         "shared": [
-          "Put navlinks in the default slot and mark the current page with current."
+          "The links are navlinks; mark the current page with current."
         ],
         "livewire": [
           "Sticky translucent header; the burger menu is a small Alpine toggle. Slots: <x-slot:brand>, default (links), <x-slot:actions>; attributes on a slot tag land on its wrapper."
@@ -2851,11 +2865,11 @@
         "paginator": {
           "type": "object",
           "default": null,
-          "shape": "{ currentPage: number; lastPage?: number | null; hasMorePages?: boolean } — lastPage null (or absent) = total unknown: prev / next only, next while hasMorePages. A Laravel paginator's JSON (current_page, last_page, next_page_url) reads too.",
-          "description": "The page state, from a server paginator. Its links follow url.",
+          "shape": "{ currentPage: number; lastPage?: number | null; hasMorePages?: boolean } — or a Laravel paginator's JSON (current_page, last_page, next_page_url)",
+          "description": "The page state: { currentPage, lastPage?, hasMorePages? } (a Laravel paginator's JSON reads too). With no lastPage only prev / next show, next while hasMorePages; the links follow url.",
           "blade": {
-            "accepts": "a Laravel paginator (LengthAwarePaginator, or a simple Paginator: prev / next only) — its own urls are used",
-            "note": "Pass the paginator itself: :paginator=\"$users\"."
+            "accepts": "Illuminate\\Contracts\\Pagination\\Paginator",
+            "note": "Or the Laravel paginator itself (:paginator=\"$users\"), whose own urls are used; a simple paginator gives prev / next only."
           }
         },
         "pages": {
@@ -2873,7 +2887,8 @@
           "default": null,
           "description": "The page href pattern: \"?page=%d\", or a prefix the page number is appended to (\"?page=\"). Without it (and without a server paginator) the pages are buttons for you to wire up.",
           "blade": {
-            "accepts": "a Closure(int $page): string"
+            "accepts": "Closure(int $page): string",
+            "note": "Or a Closure(int $page): string."
           },
           "svelte": {
             "type": "string | ((page: number) => string)",
@@ -3031,7 +3046,7 @@
       "tier": "layout",
       "page": "paper",
       "svelte": "Paper",
-      "description": "Page-ground overlay (dot grid + paper grain), fixed behind the page and never in the way of a click. Place once, directly inside <body>.",
+      "description": "Page-ground overlay (dot grid + paper grain), fixed behind the page and never in the way of a click. Place it once per page.",
       "aria": "aria-hidden; pointer-events: none.",
       "props": {
         "dots": {
@@ -3111,6 +3126,10 @@
           "description": "The status label.",
           "required": true
         }
+      },
+      "usage": {
+        "livewire": "<sigta:pill variant=\"success\">Operational</sigta:pill>\n<sigta:pill variant=\"danger\">Degraded</sigta:pill>\n<sigta:pill>Paused</sigta:pill>",
+        "svelte": "<Pill variant=\"success\">Operational</Pill>\n<Pill variant=\"danger\">Degraded</Pill>\n<Pill>Paused</Pill>"
       },
       "notes": {
         "shared": [
@@ -3268,6 +3287,10 @@
       "uses": [
         "avatar"
       ],
+      "usage": {
+        "livewire": "<sigta:profile name=\"Ada Lovelace\" meta=\"Engineering · Halyard OS\" />\n<sigta:profile name=\"Nina Vale\" meta=\"Design\" :src=\"$user->avatar_url\" reverse />",
+        "svelte": "<Profile name=\"Ada Lovelace\" meta=\"Engineering · Halyard OS\" />\n<Profile name=\"Nina Vale\" meta=\"Design\" src={user.avatarUrl} reverse />"
+      },
       "examples": [
         {
           "label": "Profile — name + meta"
@@ -3865,6 +3888,10 @@
           "description": "Line style."
         }
       },
+      "usage": {
+        "livewire": "<sigta:separator />\n<sigta:separator variant=\"dashed\" />",
+        "svelte": "<Separator />\n<Separator variant=\"dashed\" />"
+      },
       "notes": {
         "livewire": [
           "Use it inside content; for a decorative divider between sections use <sigta:rule>."
@@ -3899,6 +3926,10 @@
           "default": "line",
           "description": "line (1rem), heading (2rem, two thirds wide), block (16:9) or circle (40px)."
         }
+      },
+      "usage": {
+        "livewire": "<sigta:skeleton variant=\"heading\" />\n<sigta:skeleton class=\"w-4/5\" />\n<sigta:skeleton variant=\"circle\" />",
+        "svelte": "<Skeleton variant=\"heading\" />\n<Skeleton class=\"w-4/5\" />\n<Skeleton variant=\"circle\" />"
       },
       "notes": {
         "shared": [

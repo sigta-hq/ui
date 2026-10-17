@@ -39,8 +39,11 @@ export default defineComponent({
     },
     uses: ['dropdown.item', 'dropdown.separator', 'button'],
     notes: {
-        shared: ['Use it (with dropdown.item) instead of a custom menu. The trigger goes in the trigger slot, the items in the default slot.'],
-        livewire: ['The sigtaDropdown Alpine component handles open / Escape / click outside / roving focus.'],
+        shared: ['Use it (with dropdown.item) instead of a custom menu.'],
+        livewire: [
+            'The trigger goes in <x-slot:trigger>, the items in the default slot.',
+            'The sigtaDropdown Alpine component handles open / Escape / click outside / roving focus.',
+        ],
         svelte: ['The trigger is a snippet: {#snippet trigger()}<Button>Options</Button>{/snippet}. bind:open to open or close it yourself.'],
     },
     examples: [

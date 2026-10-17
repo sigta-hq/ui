@@ -76,6 +76,15 @@ export default defineComponent({
             )],
         },
         {
+            label: 'With an elapsed clock',
+            conformance: 'browser',
+            tree: [el('div', { class: 'max-w-xl' },
+                c('job', { heading: 'Importing 1,204 contacts', value: 40, stage: 'Reading rows', since: '2026-10-16T09:00:00Z' }),
+            )],
+            // The clock reads "now": freezing it makes both runtimes show the same time.
+            interactions: [{ script: `Date.now = () => ${Date.parse('2026-10-16T09:12:34Z')}`, wait: 1300 }],
+        },
+        {
             label: 'Done reads 100%',
             tree: [el('div', { class: 'max-w-xl' }, c('job', { heading: 'Export', state: 'done', value: 80 }))],
         },

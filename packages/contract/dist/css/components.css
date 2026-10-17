@@ -2337,6 +2337,10 @@
     }
   }
 
+  [data-scope="navbar"][data-part="panel"][hidden] {
+    display: none !important;
+  }
+
   [data-sigta="navlink"] {
     font-family: var(--sigta-font-mono);
     --tw-tracking: .05em;

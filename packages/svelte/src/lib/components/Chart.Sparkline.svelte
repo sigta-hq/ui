@@ -6,7 +6,7 @@
     import type { SVGAttributes } from 'svelte/elements';
     import { sparkline } from '@sigta-hq/core';
 
-    interface Props extends SVGAttributes<SVGSVGElement> {
+    interface Props extends Omit<SVGAttributes<SVGSVGElement>, 'values'> {
         values?: number[];
         label?: string | null;
     }

@@ -68,7 +68,7 @@ const int = (value: unknown, fallback: number): number => {
 
 export interface PaginateOptions {
     /** The neutral paginator object (not clamped, like a server paginator). */
-    paginator?: (PageState & Record<string, unknown>) | Record<string, unknown> | null;
+    paginator?: PageState | Record<string, unknown> | null;
     /** Manual mode: the number of pages. */
     pages?: number | null;
     /** Manual mode: the current page (clamped to 1…pages). */

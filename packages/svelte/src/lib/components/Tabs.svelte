@@ -4,7 +4,7 @@
        selected on the server), else the first tab is chosen once mounted. */
     import type { Snippet } from 'svelte';
     import type { HTMLAttributes } from 'svelte/elements';
-    import { onMount } from 'svelte';
+    import { onMount, untrack } from 'svelte';
     import { step } from '@sigta-hq/core';
     import { setTabs, tabsIn } from '../runtime/tabs.js';
 
@@ -16,7 +16,8 @@
 
     let { default: initial = null, value = $bindable(null), children, ...rest }: Props = $props();
 
-    value ??= initial;
+    // `default` only seeds the active tab; bind:value carries it from there.
+    value ??= untrack(() => initial);
 
     let root: HTMLDivElement | undefined = $state();
 

@@ -114,14 +114,8 @@ Plain <hr> hairline, solid or dashed. Use inside content; use the rule for decor
   - `variant` (`solid` · `dashed`, default `solid`) — Line style.
 - Use it inside content; for a decorative divider between sections use <Rule>.
 ```svelte
-<script>
-    import { Separator } from '@sigta-hq/svelte';
-</script>
-
-<div class="flex flex-col gap-6">
-    <Separator />
-    <Separator variant="dashed" />
-</div>
+<Separator />
+<Separator variant="dashed" />
 ```
 
 #### `Text`
@@ -187,15 +181,9 @@ Status pill with a leading dot and a tinted background in the status colour: suc
 - **Snippets:** `children` — The status label.
 - Use it for a status (operational, at risk, paused); for a plain label use the badge.
 ```svelte
-<script>
-    import { Pill } from '@sigta-hq/svelte';
-</script>
-
-<div class="flex flex-wrap items-center gap-3">
-    <Pill variant="success">Operational</Pill>
-    <Pill variant="danger">Degraded</Pill>
-    <Pill>Paused</Pill>
-</div>
+<Pill variant="success">Operational</Pill>
+<Pill variant="danger">Degraded</Pill>
+<Pill>Paused</Pill>
 ```
 
 ### `Avatar`
@@ -211,16 +199,9 @@ A person or team: their portrait, or mono initials from the first two words of t
   - `tone` (`ink` · `line`, default `ink`) — Initials ground: ink fill, or a quiet hairline ground (line).
 - Use it instead of an <img class="rounded-full …">. Beside a visible name (a profile, a list row), pass aria-hidden="true" so the name is not read twice.
 ```svelte
-<script>
-    import { Avatar } from '@sigta-hq/svelte';
-</script>
-
-<div class="flex flex-wrap items-center gap-4">
-    <Avatar name="Søren Frisk" size="xs" />
-    <Avatar name="Søren Frisk" size="sm" />
-    <Avatar name="Søren Frisk" />
-    <Avatar name="Søren Frisk" size="lg" />
-</div>
+<Avatar name="Søren Frisk" />
+<Avatar src={user.avatarUrl} name={user.name} size="lg" />
+<Avatar name="Marginalia Team" shape="square" tone="line" />
 ```
 
 ### `Icon`
@@ -386,17 +367,9 @@ Loading placeholder, aria-hidden: a pulsing hairline-tinted shape — a line, a 
   - `variant` (`line` · `heading` · `block` · `circle`, default `line`) — line (1rem), heading (2rem, two thirds wide), block (16:9) or circle (40px).
 - Content that replaces a skeleton can land with animate-sigta-settle (fade, rise, unblur).
 ```svelte
-<script>
-    import { Skeleton } from '@sigta-hq/svelte';
-</script>
-
-<div class="flex flex-col gap-4 max-w-md">
-    <Skeleton variant="heading" />
-    <Skeleton />
-    <Skeleton class="w-4/5" />
-    <Skeleton variant="block" />
-    <Skeleton variant="circle" />
-</div>
+<Skeleton variant="heading" />
+<Skeleton class="w-4/5" />
+<Skeleton variant="circle" />
 ```
 
 ### `elapsed-clock` family
@@ -456,17 +429,8 @@ Avatar + name + optional meta line (role, place, email). reverse mirrors the lay
   - `src` (string) — Portrait URL for the avatar.
   - `reverse` (boolean, default `false`) — Avatar on the right, text right-aligned.
 ```svelte
-<script>
-    import { Profile } from '@sigta-hq/svelte';
-</script>
-
-<div class="flex flex-col gap-5">
-    <Profile name="Søren Frisk" meta="Studio lead · Copenhagen" />
-    <Profile name="Ada Marsh" meta="Engineering · Halyard OS" src="data:image/svg+xml;utf8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 80 80%27%3E%3Crect width=%2780%27 height=%2780%27 fill=%27gainsboro%27/%3E%3Ccircle cx=%2740%27 cy=%2731%27 r=%2714%27 fill=%27dimgray%27/%3E%3Cpath d=%27M12 76c4-17 16-25 28-25s24 8 28 25z%27 fill=%27dimgray%27/%3E%3C/svg%3E" />
-    <div class="flex justify-end">
-        <Profile name="Nina Vale" meta="Design · Marginalia" reverse={true} />
-    </div>
-</div>
+<Profile name="Ada Lovelace" meta="Engineering · Halyard OS" />
+<Profile name="Nina Vale" meta="Design" src={user.avatarUrl} reverse />
 ```
 
 ### `Field`
@@ -597,53 +561,12 @@ Raised surface on a hairline with an optional thumb above a padded body. Lifts o
 - Its body has fluid padding. Pass any padding class on the card (p-5, sm:p-4) and it replaces the body padding instead of adding to it.
 - The thumb is a snippet: {#snippet thumb()}…{/snippet}.
 ```svelte
-<script>
-    import { Card } from '@sigta-hq/svelte';
-</script>
-
-<div class="grid gap-6 sm:grid-cols-2">
-    <Card>
-        {#snippet thumb()}
-            <svg viewBox="0 0 400 225" preserveAspectRatio="xMidYMid slice" class="absolute inset-0 size-full text-ink" aria-hidden="true">
-                <g stroke="var(--sigta-line)" stroke-width="1">
-                    <path d="M0 56 H400"></path>
-                    <path d="M0 112 H400"></path>
-                    <path d="M0 168 H400"></path>
-                </g>
-                <rect x="290" y="40" width="60" height="34" rx="3" fill="var(--sigta-accent)" opacity=".9"></rect>
-                <path d="M30 170 C90 160 110 120 170 110 S270 80 320 60 380 48 380 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
-                <circle cx="380" cy="48" r="5" fill="currentColor"></circle>
-            </svg>
-        {/snippet}
-        <div class="font-mono text-[0.7rem] tracking-[0.12em] uppercase text-graphite flex justify-between">
-            <span>Our product</span>
-            <span>SaaS · live</span>
-        </div>
-        <h3 class="font-head font-medium text-[1.5rem] mt-2 mb-1.5">Marginalia</h3>
-        <p class="text-graphite text-[0.96rem] m-0">A reading-and-notes app for teams — annotate any doc, search every margin.</p>
-    </Card>
-    <Card>
-        {#snippet thumb()}
-            <svg viewBox="0 0 400 225" preserveAspectRatio="xMidYMid slice" class="absolute inset-0 size-full text-ink" aria-hidden="true">
-                <g fill="currentColor" opacity=".85">
-                    <rect x="40" y="120" width="36" height="70" rx="3"></rect>
-                    <rect x="100" y="90" width="36" height="100" rx="3"></rect>
-                    <rect x="160" y="105" width="36" height="85" rx="3"></rect>
-                    <rect x="220" y="64" width="36" height="126" rx="3"></rect>
-                </g>
-                <rect x="280" y="80" width="36" height="110" rx="3" fill="var(--sigta-accent)"></rect>
-                <rect x="280" y="80" width="36" height="110" rx="3" fill="none" stroke="currentColor" stroke-width="2"></rect>
-                <path d="M58 110 118 80 178 96 238 56 298 70" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="2 6"></path>
-            </svg>
-        {/snippet}
-        <div class="font-mono text-[0.7rem] tracking-[0.12em] uppercase text-graphite flex justify-between">
-            <span>Our product</span>
-            <span>SaaS · live</span>
-        </div>
-        <h3 class="font-head font-medium text-[1.5rem] mt-2 mb-1.5">Plumb</h3>
-        <p class="text-graphite text-[0.96rem] m-0">Metrics without the dashboard fatigue. One honest number per question.</p>
-    </Card>
-</div>
+<Card>
+    {#snippet thumb()}<img src="/shots/marginalia.png" alt="" class="size-full object-cover" />{/snippet}
+    <Heading level={3}>Marginalia</Heading>
+    <Text variant="muted">A reading-and-notes app for teams.</Text>
+</Card>
+<Card hover={false} class="p-5">Static, with its own padding</Card>
 ```
 
 ### `Callout`
@@ -729,7 +652,7 @@ A menu button: its trigger opens a menu of dropdown.items on raised paper, below
   - `position` (`bottom-start` · `bottom-end` · `top-start` · `top-end`, default `bottom-start`) — Where the menu opens against the trigger; unknown values act as bottom-start.
   - `open` (boolean, default `false`, bindable (`bind:open`)) — Svelte: bind:open reads and sets whether the menu is open.
 - **Snippets:** `trigger` — What opens the menu, usually a button.; `children` — The dropdown.items and dropdown.separators.
-- Use it (with dropdown.item) instead of a custom menu. The trigger goes in the trigger slot, the items in the default slot.
+- Use it (with dropdown.item) instead of a custom menu.
 - The trigger is a snippet: {#snippet trigger()}<Button>Options</Button>{/snippet}. bind:open to open or close it yourself.
 ```svelte
 <script>
@@ -831,8 +754,8 @@ A right-click surface that opens a dropdown-styled menu at the pointer, kept cle
 
 - **Props:** none
 - **Snippets:** `children` — The surface that listens for the right-click.; `menu` — The dropdown.items.
-- The default slot is the surface; the menu slot holds the items (dropdown.item, dropdown.separator), which close the menu when chosen.
-- {#snippet menu()} holds the items.
+- The items are dropdown.item and dropdown.separator; an item closes the menu when chosen.
+- children is the surface; {#snippet menu()} holds the items.
 ```svelte
 <script>
     import { ContextMenu, Dropdown } from '@sigta-hq/svelte';
@@ -1127,7 +1050,7 @@ One question: a native <details>/<summary> on a hairline, the heading in the hea
 - **Props:**
   - `heading` (string, **required**) — The summary line (the question).
   - `name` (string) — The <details name>; defaults to the accordion's name. Items sharing a name open one at a time.
-  - `open` (boolean, default `false`, bindable (`bind:open`)) — Open on load. Livewire: the native open attribute (forwarded onto <details>); Svelte: open or bind:open.
+  - `open` (boolean, default `false`) — Open on load: the native open attribute on the <details>. bind:open follows it as the reader opens and closes it.
 - **Snippets:** `children` — The answer.
 - Every other attribute lands on the <details>.
 ```svelte
@@ -1198,7 +1121,7 @@ The sticky, translucent site header on a hairline: brand, links and actions. Bel
   - `target` (string) — Forwards onto the CTA like on a button (target="_blank" gets rel="noopener").
   - `collapse` (`md` · `lg`, default `md`) — The breakpoint below which the links fold behind the burger. Use lg when the links and a wide CTA do not fit on one line at tablet widths, so no link wraps onto two lines; the actions stay visible either way.
 - **Snippets:** `children` — The links (navlinks); rendered in the bar and again in the folded-out panel.; `brand` — The brand, at the start of the bar.; `actions` — Actions at the end of the bar (replaces the CTA props); stays visible on every width.
-- Put navlinks in the default slot and mark the current page with current.
+- The links are navlinks; mark the current page with current.
 - Snippets: brand, children (the links), actions.
 ```svelte
 <script>
@@ -1235,7 +1158,7 @@ A navigation link for the navbar: mono, graphite to ink, with an underline that 
 Page navigation in small mono squares: prev / next arrows that dim at either end, and the pages around the current one (1 … 4 5 6 … 10) with the current page in ink.
 
 - **Props:**
-  - `paginator` (object) — The page state, from a server paginator. Its links follow url.
+  - `paginator` (object) — The page state: { currentPage, lastPage?, hasMorePages? } (a Laravel paginator's JSON reads too). With no lastPage only prev / next show, next while hasMorePages; the links follow url.
   - `pages` (number) — Manual mode: the number of pages.
   - `current` (number, default `1`) — Manual mode: the current page (clamped to 1…pages).
   - `url` (string) — The page href pattern: "?page=%d", or a prefix the page number is appended to ("?page="). Without it (and without a server paginator) the pages are buttons for you to wire up. Or a function of the page.
@@ -1555,7 +1478,7 @@ A section's opening row: the heading on the left (with an optional eyebrow above
 
 ### `Paper`
 
-Page-ground overlay (dot grid + paper grain), fixed behind the page and never in the way of a click. Place once, directly inside <body>.
+Page-ground overlay (dot grid + paper grain), fixed behind the page and never in the way of a click. Place it once per page.
 
 - **Props:**
   - `dots` (boolean, default `true`) — The dot grid.

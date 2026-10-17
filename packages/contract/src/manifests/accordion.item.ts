@@ -12,7 +12,7 @@ export default defineComponent({
     props: {
         heading: { type: 'string', required: true, description: 'The summary line (the question).' },
         name: { type: 'string', default: null, description: 'The <details name>; defaults to the accordion\'s name. Items sharing a name open one at a time.' },
-        open: { type: 'boolean', default: false, native: true, bindable: true, description: 'Open on load. Livewire: the native open attribute (forwarded onto <details>); Svelte: open or bind:open.' },
+        open: { type: 'boolean', default: false, native: true, description: 'Open on load: the native open attribute on the <details>.', svelte: { note: 'bind:open follows it as the reader opens and closes it.' } },
     },
     parts: {
         summary: { description: 'The <summary> row with the heading and the "+".' },
