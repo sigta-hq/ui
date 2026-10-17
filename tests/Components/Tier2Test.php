@@ -320,4 +320,29 @@ it('renders a rich listbox with combobox semantics and hidden value input', func
 it('shows a listbox error state', function () {
     expect(Blade::render('<x-sigta::listbox label="C" error="Required" />'))
         ->toContain('aria-invalid="true"')->toContain('Required');
+
+    expect(contractCss('listbox'))->toContain('&[aria-invalid="true"] {')->toContain('@apply border-danger focus:border-ink;');
+});
+
+it('renders the listbox with contract parts', function () {
+    $html = Blade::render(<<<'BLADE'
+        <x-sigta::listbox label="Plan" value="studio" placeholder="Pick…" class="max-w-xs" id="plan">
+            <x-sigta::autocomplete.option value="studio">Studio</x-sigta::autocomplete.option>
+        </x-sigta::listbox>
+    BLADE);
+
+    expect($html)
+        ->not->toMatch('/class="(?!max-w-xs)/')
+        ->toMatch('/class="max-w-xs"[^>]*data-sigta="listbox"/s')         // class on the root
+        ->toMatch('/data-part="trigger"[^>]*id="plan"/s')                  // id on the trigger
+        ->toMatch('/data-empty=""[^>]*data-part="value"\s*>Pick…<\/span>/s')   // placeholder until Alpine starts
+        ->toContain('x-bind:data-empty="value ? null : \'\'"')
+        ->toContain('data-part="chevron"')
+        ->toMatch('/aria-expanded="false"\s+x-bind:aria-expanded="open"/')
+        ->toMatch('/<input\s+type="hidden"[^>]*value="studio"/s');
+
+    expect(contractCss('listbox'))
+        ->toContain('[aria-expanded="true"] > &')
+        ->toContain('@apply rotate-180;')
+        ->toContain('@apply font-mono text-[0.78rem] text-graphite;');
 });

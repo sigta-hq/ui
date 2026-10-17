@@ -1888,7 +1888,7 @@
         },
         "value": {
           "type": "string",
-          "default": "",
+          "default": null,
           "native": true,
           "bindable": true,
           "description": "The text. Livewire: wire:model (lands on the textarea); Svelte: bind:value."
@@ -1915,7 +1915,7 @@
           "description": "A message was sent (Enter or the send button); the field clears.",
           "blade": "sigta-composer-submit",
           "svelte": "onsubmit",
-          "detail": "{ text: string } (Svelte: onsubmit(text))"
+          "detail": "{ text: string }"
         }
       },
       "uses": [
@@ -1936,7 +1936,7 @@
           "Replace the attach button with <x-slot:leading>…</x-slot:leading>."
         ],
         "svelte": [
-          "onsubmit(text) on every send; bind:value for the draft. Other attributes land on the textarea.",
+          "onsubmit(text) on every send (it receives the text itself; the DOM event still carries { text }); bind:value for the draft. Other attributes land on the textarea.",
           "Replace the attach button with {#snippet leading()}…{/snippet}."
         ]
       },
@@ -2564,6 +2564,220 @@
         },
         {
           "label": "Cleared"
+        }
+      ]
+    },
+    {
+      "name": "editor",
+      "title": "Editor",
+      "tier": "components",
+      "page": "editor",
+      "svelte": "Editor",
+      "description": "Rich text editor (TipTap) on paper: a toolbar of square tools (bold, italic, strike, link, heading, lists, quote, code, a picture tool with uploads, undo and redo) over an editable page in the prose look. Stores HTML, or markdown with format=\"markdown\"; variant=\"inline\" is the always-editable, borderless-until-hover form for detail views.",
+      "aria": "The toolbar is role=\"toolbar\" (aria-label \"Formatting\", aria-controls the editable region); each tool is a labelled button with aria-pressed while its mark or block is at the caret; the upload indicator is a role=\"status\" live region. Links open with Cmd/Ctrl+K.",
+      "props": {
+        "label": {
+          "type": "string",
+          "default": null,
+          "description": "Label above the editor."
+        },
+        "description": {
+          "type": "string",
+          "default": null,
+          "description": "Help text under it."
+        },
+        "error": {
+          "type": "string",
+          "default": null,
+          "description": "Error text; turns the frame red."
+        },
+        "name": {
+          "type": "string",
+          "default": null,
+          "description": "Form name of the hidden value input; without an id, the editor's stable id derives from it."
+        },
+        "value": {
+          "type": "string",
+          "default": "",
+          "bindable": true,
+          "description": "The content, in the format.",
+          "blade": {
+            "note": "The initial content; wire:model on the component binds the hidden input."
+          },
+          "svelte": {
+            "note": "bind:value; a value set from outside replaces the content."
+          }
+        },
+        "format": {
+          "type": "enum",
+          "values": [
+            "html",
+            "markdown"
+          ],
+          "default": "html",
+          "description": "What the value holds: HTML, or markdown (single newlines are line breaks). Anything else is html."
+        },
+        "variant": {
+          "type": "enum",
+          "values": [
+            "default",
+            "inline"
+          ],
+          "default": "default",
+          "description": "default (framed, for forms) or inline (borderless until hover, toolbar only while editing; for detail views)."
+        },
+        "placeholder": {
+          "type": "string",
+          "default": "",
+          "description": "Shown in the empty editor."
+        },
+        "rows": {
+          "type": "number",
+          "default": null,
+          "description": "Least height in lines, like a textarea: 6 by default, 3 for inline."
+        },
+        "uploadUrl": {
+          "type": "string",
+          "default": null,
+          "description": "The host's picture endpoint: turns on the picture tool and image drop / paste."
+        },
+        "resolveUrl": {
+          "type": "string",
+          "default": null,
+          "description": "The host's link resolver: a pasted address of the page's own origin gets its title."
+        },
+        "uploadToken": {
+          "type": "string",
+          "default": null,
+          "blade": false,
+          "description": "The CSRF token sent with each upload as X-CSRF-TOKEN; defaults to the page's <meta name=\"csrf-token\">."
+        }
+      },
+      "parts": {
+        "toolbar": {
+          "description": "The toolbar row (below the text in the inline variant)."
+        },
+        "tool": {
+          "description": "A square tool button (formatting, undo, redo, and the link row's buttons)."
+        },
+        "separator": {
+          "description": "The hairline between the mark tools and the block tools."
+        },
+        "end": {
+          "description": "Undo, redo and the upload indicator, pushed to the right."
+        },
+        "uploading": {
+          "description": "The spinning indicator while pictures upload (role=\"status\")."
+        },
+        "link": {
+          "description": "The link row (also data-sigta=\"editor-link\"): the address, then apply, open and remove."
+        },
+        "link-input": {
+          "description": "The link address field."
+        },
+        "mount": {
+          "description": "Where TipTap mounts (the id the toolbar controls); its least height comes from rows (--sigta-editor-rows)."
+        },
+        "content": {
+          "description": "The editable element TipTap creates (class sigta-prose), filling the box so a click anywhere lands in the text."
+        },
+        "picker": {
+          "description": "The hidden file input behind the picture tool."
+        }
+      },
+      "states": {
+        "variant": {
+          "attribute": "data-variant",
+          "values": [
+            "default",
+            "inline"
+          ],
+          "description": "On the root."
+        },
+        "format": {
+          "attribute": "data-format",
+          "values": [
+            "html",
+            "markdown"
+          ],
+          "description": "On the root."
+        },
+        "invalid": {
+          "attribute": "data-invalid",
+          "description": "On the root, with an error."
+        },
+        "pressed": {
+          "attribute": "aria-pressed",
+          "description": "On a tool whose mark or block is at the caret (set once the editor runs)."
+        }
+      },
+      "events": {
+        "change": {
+          "description": "The content changed (serialized in the format; empty when the editor is).",
+          "blade": "input on the hidden input (wire:model hears it)",
+          "svelte": "bind:value",
+          "detail": "string"
+        },
+        "set": {
+          "description": "Replaces the content on purpose (restore a draft, switch records): dispatch it on the root with the new value as detail.",
+          "blade": "sigta-editor-set",
+          "svelte": "sigta-editor-set",
+          "detail": "string"
+        }
+      },
+      "uses": [
+        "field",
+        "icon"
+      ],
+      "usage": {
+        "livewire": "<sigta:editor name=\"body\" wire:model=\"body\" :value=\"$post->body\" label=\"Body\" />\n<sigta:editor format=\"markdown\" variant=\"inline\" placeholder=\"Add a description\" rows=\"3\" wire:model=\"description\" :value=\"$description\" />\n<sigta:editor format=\"markdown\" wire:model=\"body\" :value=\"$body\" :upload-url=\"route('images.store')\" :resolve-url=\"route('links.resolve')\" />",
+        "svelte": "<script>\n    import { Editor } from '@sigta-hq/svelte';\n\n    let body = $state('');\n    let description = $state('');\n</script>\n\n<Editor name=\"body\" label=\"Body\" bind:value={body} />\n<Editor format=\"markdown\" variant=\"inline\" placeholder=\"Add a description\" rows={3} bind:value={description} />\n<Editor format=\"markdown\" bind:value={body} uploadUrl=\"/images\" resolveUrl=\"/links/resolve\" />"
+      },
+      "notes": {
+        "shared": [
+          "Toolbar: bold, italic, strike, link, heading, bullet and numbered lists, quote, code block, plus a picture tool when an upload URL is set; undo and redo at the end.",
+          "Links: Cmd/Ctrl+K or the toolbar edits (with Open and Remove), Cmd/Ctrl+click follows; a plain click only places the caret, so editing is never interrupted.",
+          "format=\"markdown\" parses the value as markdown and writes markdown (single newlines are line breaks); otherwise it is HTML.",
+          "Pictures: with an upload URL, a dropped, pasted or picked image is posted there as multipart `file` with the CSRF token in X-CSRF-TOKEN; the endpoint answers JSON {url, name?} and the picture is inserted as an image node (`![name](url)` in markdown). A failed upload raises a warning toast and inserts nothing. Data URLs are refused.",
+          "Titled links: with a resolve URL, a pasted address on the page's own origin is linked at once, then GET <resolve-url>?url=… is asked for JSON {title, url?}; the link text becomes the title (and the href the returned url) when it answers, and stays the address when it does not. With text selected, a pasted address links the selection as before.",
+          "Both runtimes run the same TipTap editor (@sigta-hq/core/editor); the text has the prose look (.sigta-prose)."
+        ],
+        "livewire": [
+          "Requires @sigtaEditorScripts in the layout head (the editor is its own bundle, loaded only where it is used).",
+          "name and wire:model (and every attribute except class and id) land on a hidden input that the editor writes on every change. It never reads that input back, so Livewire re-renders cannot disturb typing; replace the content on purpose by dispatching sigta-editor-set on the root with the new value as detail.",
+          "Without an id, the id derives from name or wire:model (sigta-editor-<slug>), so re-renders keep the mounted editor; the editable region is wire:ignore.",
+          "upload-url / resolve-url name the endpoints; uploads carry the session's CSRF token."
+        ],
+        "svelte": [
+          "bind:value carries the content; a value set from outside replaces it, and sigta-editor-set on the root works as well.",
+          "uploadUrl / resolveUrl name the endpoints; uploads send uploadToken, or the page's <meta name=\"csrf-token\">, as X-CSRF-TOKEN.",
+          "TipTap is created on mount, so the server render is the toolbar over an empty page. Other attributes (name, data-*, oninput) land on the hidden value input, which hears an input event on every change."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Rich text (TipTap)"
+        },
+        {
+          "label": "Markdown (stored as markdown, edited visually)"
+        },
+        {
+          "label": "Inline (always editable, toolbar while editing)"
+        },
+        {
+          "label": "Pictures and titled links (host endpoints)"
+        },
+        {
+          "label": "Empty + error state"
+        },
+        {
+          "label": "Typing, then bold"
+        },
+        {
+          "label": "Linking the selection"
+        },
+        {
+          "label": "Inline, editing"
         }
       ]
     },
@@ -3228,6 +3442,231 @@
       ]
     },
     {
+      "name": "kanban",
+      "title": "Kanban",
+      "tier": "components",
+      "page": "kanban",
+      "svelte": "Kanban",
+      "description": "Native HTML5 drag-and-drop board of kanban.columns holding kanban.cards. Dragging a card between (or within) columns reports { card, from, to, position }; sortable columns report { column, position } when dragged along the board.",
+      "aria": "Columns are labelled lists (role=\"list\") of focusable cards (role=\"listitem\", aria-roledescription=\"draggable\"); a sortable column's grip handle is a labelled button. A keyboard move menu is out of scope.",
+      "props": {},
+      "slots": {
+        "default": {
+          "description": "The kanban.columns (optionally each in a wrapper of your own, e.g. one carrying wire:key).",
+          "required": true
+        }
+      },
+      "events": {
+        "move": {
+          "description": "A card was dropped: its id, the column it came from, the column it landed in and its 0-based position among that column's cards. The DOM event bubbles to the board and window.",
+          "blade": "sigta-kanban-move",
+          "svelte": "onmove",
+          "detail": "{ card: string, from: string, to: string, position: number }"
+        },
+        "columnMove": {
+          "description": "A sortable column was dropped: its id and its 0-based position among the board's columns. The DOM event bubbles to the board and window.",
+          "blade": "sigta-kanban-column-move",
+          "svelte": "oncolumnmove",
+          "detail": "{ column: string, position: number }"
+        }
+      },
+      "uses": [
+        "kanban.column",
+        "kanban.card"
+      ],
+      "usage": {
+        "livewire": "<sigta:kanban\n    x-on:sigta-kanban-move=\"$wire.moveCard($event.detail)\"\n    x-on:sigta-kanban-column-move=\"$wire.moveColumn($event.detail)\">\n    @foreach ($columns as $column)\n        <sigta:kanban.column :id=\"$column->key\" :label=\"$column->name\" sortable wire:key=\"column-{{ $column->key }}\">\n            @foreach ($column->cards as $card)\n                <sigta:kanban.card :id=\"$card->key\" wire:key=\"card-{{ $card->key }}\">{{ $card->title }}</sigta:kanban.card>\n            @endforeach\n        </sigta:kanban.column>\n    @endforeach\n</sigta:kanban>",
+        "svelte": "<script>\n    import { Kanban } from '@sigta-hq/svelte';\n\n    let columns = $state([\n        { id: 'todo', label: 'To do', cards: [{ id: 'plumb', title: 'Plumb — one-number widget' }] },\n        { id: 'doing', label: 'Doing', cards: [] },\n    ]);\n\n    function move({ card, from, to, position }) {\n        const source = columns.find((column) => column.id === from).cards;\n        const [item] = source.splice(source.findIndex((c) => c.id === card), 1);\n        columns.find((column) => column.id === to).cards.splice(position, 0, item);\n    }\n\n    function moveColumn({ column, position }) {\n        const [item] = columns.splice(columns.findIndex((c) => c.id === column), 1);\n        columns.splice(position, 0, item);\n    }\n</script>\n\n<Kanban onmove={move} oncolumnmove={moveColumn}>\n    {#each columns as column (column.id)}\n        <Kanban.Column id={column.id} label={column.label} sortable>\n            {#each column.cards as card (card.id)}\n                <Kanban.Card id={card.id}>{card.title}</Kanban.Card>\n            {/each}\n        </Kanban.Column>\n    {/each}\n</Kanban>"
+      },
+      "notes": {
+        "shared": [
+          "Native drag and drop, no library. While dragging, the card moves in the page to where it will land (before the first card whose middle is below the pointer; columns by the pointer passing a column's middle), and the drop reports it.",
+          "The board never keeps the order: persist the move and render the new order from your data."
+        ],
+        "livewire": [
+          "Listen for sigta-kanban-move / sigta-kanban-column-move on the board (x-on:…) or on window, and persist in your component; its next morph reconciles the board to the order it renders. Without a backend the optimistic move stands.",
+          "Only transient drag state lives in Alpine (the runtime's sigtaKanban, so @sigtaScripts is required), never the list order, so morphs stay clean on a keyed, model-bound board: give columns and cards wire:key."
+        ],
+        "svelte": [
+          "onmove / oncolumnmove carry the same detail as the DOM events, which the board dispatches too. Render columns and cards with keyed {#each} blocks from your lists and move the item in the callback: the dropped element is put back first, so your lists re-render from a clean DOM. Without a change, the optimistic move stands, as in the Livewire runtime."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Board"
+        },
+        {
+          "label": "Empty column"
+        },
+        {
+          "label": "Drag a card to another column"
+        },
+        {
+          "label": "Drag a card down its own column"
+        },
+        {
+          "label": "Sortable columns: drag one to the front"
+        }
+      ]
+    },
+    {
+      "name": "kanban.card",
+      "title": "Kanban card",
+      "tier": "components",
+      "page": "kanban",
+      "svelte": "Kanban.Card",
+      "description": "A draggable card on raised paper inside a kanban.column: lifts on hover and focus, fades while it is dragged.",
+      "aria": "role=\"listitem\", focusable (tabindex=\"0\") and announced with aria-roledescription=\"draggable\"; draggable=\"true\" for native drag and drop.",
+      "props": {
+        "id": {
+          "type": "string",
+          "default": null,
+          "description": "Identifies the card in sigta-kanban-move / onmove (card); generated when not given."
+        }
+      },
+      "states": {
+        "dragging": {
+          "attribute": "data-dragging",
+          "description": "While the card is dragged.",
+          "conformance": false
+        }
+      },
+      "slots": {
+        "default": {
+          "description": "The card's content.",
+          "required": true
+        }
+      },
+      "usage": {
+        "livewire": "<sigta:kanban.card :id=\"$task->key\" wire:key=\"card-{{ $task->key }}\">{{ $task->title }}</sigta:kanban.card>",
+        "svelte": "<Kanban.Card id={task.id}>{task.title}</Kanban.Card>"
+      },
+      "notes": {
+        "shared": [
+          "The card carries the group class, so group-hover utilities in its content (a button that shows on hover) react to hovering the card.",
+          "Your class lands on the card and wins over its own look."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Cards with your own content"
+        },
+        {
+          "label": "Hover lifts a card"
+        }
+      ]
+    },
+    {
+      "name": "kanban.column",
+      "title": "Kanban column",
+      "tier": "components",
+      "page": "kanban",
+      "svelte": "Kanban.Column",
+      "description": "One column of a kanban: a mono header (label, optional actions, a count badge pinned right) over a dashed drop zone of kanban.cards that inks while a card is dragged over it.",
+      "aria": "The body is a list (role=\"list\") named by the string aria (or label), so slotted header markup never leaks into the accessible name; a sortable column's grip is a button labelled \"Reorder <name>\".",
+      "props": {
+        "label": {
+          "type": "string",
+          "default": null,
+          "description": "The header label (mono, uppercase); also the body's accessible name unless aria is given."
+        },
+        "id": {
+          "type": "string",
+          "default": null,
+          "description": "Identifies the column in the move events (from, to, column); generated when not given."
+        },
+        "count": {
+          "type": "number",
+          "default": null,
+          "description": "The number in the count badge; defaults to the number of cards inside."
+        },
+        "aria": {
+          "type": "string",
+          "default": null,
+          "description": "The body's accessible name, when it should differ from the visible label (defaults to label)."
+        },
+        "sortable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Grows a grip handle at the start of the header that drags the column along the board (only the handle starts a column drag)."
+        }
+      },
+      "parts": {
+        "header": {
+          "description": "The header row."
+        },
+        "handle": {
+          "description": "The grip handle of a sortable column (also data-sigta=\"kanban.column-handle\")."
+        },
+        "label": {
+          "description": "The visible label (when no heading slot is given)."
+        },
+        "heading": {
+          "description": "Wraps the heading slot in place of the label."
+        },
+        "end": {
+          "description": "The actions and the count badge, pinned to the right of the header."
+        },
+        "body": {
+          "description": "The drop zone and list of cards (data-kanban-body, data-column-id)."
+        }
+      },
+      "states": {
+        "over": {
+          "attribute": "data-over",
+          "description": "On the body while a card is dragged over it.",
+          "conformance": false
+        },
+        "dragging": {
+          "attribute": "data-col-dragging",
+          "description": "On a sortable column while it is dragged.",
+          "conformance": false
+        }
+      },
+      "slots": {
+        "default": {
+          "description": "The kanban.cards."
+        },
+        "heading": {
+          "description": "Replaces the visible label with your own control (e.g. an inline-rename input); the count and actions stay put."
+        },
+        "actions": {
+          "description": "Header controls (a menu, a delete button) to the left of the count, which stays pinned to the right."
+        }
+      },
+      "uses": [
+        "badge",
+        "icon",
+        "kanban.card"
+      ],
+      "usage": {
+        "livewire": "<sigta:kanban.column id=\"todo\" label=\"To do\" sortable>\n    <x-slot:actions>\n        <sigta:button variant=\"ghost\" size=\"sm\" aria-label=\"Column menu\"><sigta:icon name=\"ellipsis-vertical\" size=\"sm\" /></sigta:button>\n    </x-slot:actions>\n    <sigta:kanban.card id=\"plumb\">Plumb — one-number widget</sigta:kanban.card>\n</sigta:kanban.column>",
+        "svelte": "<Kanban.Column id=\"todo\" label=\"To do\" sortable>\n    {#snippet actions()}\n        <Button variant=\"ghost\" size=\"sm\" aria-label=\"Column menu\"><Icon name=\"ellipsis-vertical\" size=\"sm\" /></Button>\n    {/snippet}\n    <Kanban.Card id=\"plumb\">Plumb — one-number widget</Kanban.Card>\n</Kanban.Column>"
+      },
+      "notes": {
+        "shared": [
+          "Use it inside a kanban. The body's aria-label comes from the string label / aria, never from the heading slot."
+        ],
+        "livewire": [
+          "Without count, the badge counts the kanban.cards rendered in the slot."
+        ],
+        "svelte": [
+          "Without count, the badge counts the Kanban.Cards inside (the server render included). Passing count={column.cards.length} is just as good."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Column header actions (menu beside the count)"
+        },
+        {
+          "label": "Editable column name (heading slot)"
+        },
+        {
+          "label": "Body name from aria, explicit count"
+        }
+      ]
+    },
+    {
       "name": "label",
       "title": "Label",
       "tier": "elements",
@@ -3304,7 +3743,7 @@
           "type": "string",
           "default": null,
           "bindable": true,
-          "description": "The chosen value (an option's value). Livewire: the initial value, wire:model on the component binds it (lands on the hidden input); Svelte: bind:value."
+          "description": "The chosen value (an option's value). Livewire: pass the current value (:value) for the trigger to show it, and wire:model (it lands on the hidden input) to receive choices; Svelte: bind:value."
         }
       },
       "parts": {
@@ -3841,7 +4280,10 @@
           "type": "string",
           "default": "DKK",
           "bindable": true,
-          "description": "The selected currency code. Svelte: bind:currency."
+          "description": "The selected currency code. Svelte: bind:currency.",
+          "blade": {
+            "note": "Livewire binds it with currency-model, not wire:model (wire:model is the amount)."
+          }
         },
         "currencies": {
           "type": "object",
@@ -5196,6 +5638,920 @@
         },
         {
           "label": "With optional eyebrow"
+        }
+      ]
+    },
+    {
+      "name": "section.about",
+      "title": "Section · About",
+      "tier": "sections",
+      "page": "about",
+      "svelte": "Section.About",
+      "description": "The \"Om Sigta\" block: a device-framed portrait beside a text column (eyebrow, heading, graphite paragraphs); the columns stack on a phone. Without a portrait it shows an SVG placeholder with a hand-note.",
+      "aria": "A <section>; the heading is an <h2>, the placeholder portrait an <svg role=\"img\"> with a label.",
+      "props": {
+        "eyebrow": {
+          "type": "string",
+          "default": "Om Sigta · Manden bag",
+          "description": "Mono kicker above the heading; empty to leave it out."
+        },
+        "heading": {
+          "type": "string",
+          "default": "Jeg hedder Søren, og jeg taler begge sprog.",
+          "description": "The heading (an h2 at the xl size)."
+        },
+        "paragraphs": {
+          "type": "array",
+          "default": [
+            "Jeg har bygget software i 14 år og har siddet på begge sider af bordet: som udvikleren, der byggede løsningen, og som rådgiveren, der skulle vurdere den.",
+            "Min filosofi for softwareudvikling er enkel: find det gode fundament, hold fast i den simple løsning, og optimér, når vi ved, at det virker.",
+            "Jeg har været med til at udvikle store projekter, der bruges i mange lande, bygget integrationer i store virksomheder, og truffet de gode teknologivalg som CTO hos Donor Network.",
+            "Min hverdag ligger hos Donor Network. Sigta er min mulighed for at hjælpe flere på samme måde."
+          ],
+          "shape": "string[]",
+          "description": "The body paragraphs (a list of strings), in graphite at a 52ch measure. Defaults to the four brand paragraphs."
+        }
+      },
+      "parts": {
+        "wrap": {
+          "description": "The centred page-width wrap."
+        },
+        "grid": {
+          "description": "The two columns (portrait 0.8fr, text 1.2fr from md; stacked below)."
+        },
+        "portrait": {
+          "description": "The portrait column (positions the hand-note)."
+        },
+        "frame": {
+          "description": "The default device frame around the placeholder."
+        },
+        "image": {
+          "description": "The placeholder SVG."
+        },
+        "note": {
+          "description": "The hand-note under the placeholder (an annot)."
+        },
+        "eyebrow": {
+          "description": "The eyebrow."
+        },
+        "heading": {
+          "description": "The heading."
+        },
+        "paragraph": {
+          "description": "Each body paragraph."
+        }
+      },
+      "slots": {
+        "portrait": {
+          "description": "Your own framed portrait; replaces the placeholder and its hand-note."
+        }
+      },
+      "uses": [
+        "eyebrow",
+        "heading",
+        "annot"
+      ],
+      "usage": {
+        "livewire": "<sigta:section.about />\n<sigta:section.about eyebrow=\"Om studiet · Holdet bag\" heading=\"Vi er et lille studie med store idéer.\" :paragraphs=\"['Vi bygger software, der holder.']\">\n    <x-slot:portrait><img src=\"/team.jpg\" alt=\"Holdet\" class=\"rounded-frame border border-line shadow-paper\"></x-slot:portrait>\n</sigta:section.about>",
+        "svelte": "<Section.About />\n<Section.About eyebrow=\"Om studiet · Holdet bag\" heading=\"Vi er et lille studie med store idéer.\" paragraphs={['Vi bygger software, der holder.']}>\n    {#snippet portrait()}<img src=\"/team.jpg\" alt=\"Holdet\" class=\"rounded-frame border border-line shadow-paper\" />{/snippet}\n</Section.About>"
+      },
+      "notes": {
+        "shared": [
+          "Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.",
+          "The default portrait is an SVG placeholder (the real photo lives in the site, not the package); pass the portrait slot to drop in a real framed image."
+        ],
+        "livewire": [
+          "The portrait is a named slot: <x-slot:portrait>…</x-slot:portrait>."
+        ],
+        "svelte": [
+          "The portrait is a snippet: {#snippet portrait()}…{/snippet}."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Om Sigta — zero-config (SVG portrait placeholder)"
+        },
+        {
+          "label": "Custom copy + your own framed portrait"
+        }
+      ]
+    },
+    {
+      "name": "section.cta",
+      "title": "Section · CTA",
+      "tier": "sections",
+      "page": "cta",
+      "svelte": "Section.Cta",
+      "description": "The closing call to action: a dark ink band (rounded frame) with a centred heading, a muted lede and the inverse / ghost-inverse button pair; an accent hand-note overhangs the top-right corner on wider screens.",
+      "aria": "A <section>; the heading is an <h2>, the actions are links.",
+      "props": {
+        "heading": {
+          "type": "string",
+          "default": "Skal vi tage en snak, før du skriver under på noget?",
+          "description": "The heading."
+        },
+        "lede": {
+          "type": "string",
+          "default": "En intro-samtale koster ingenting og forpligter ikke. Medbring gerne det tilbud, du er i tvivl om.",
+          "description": "The muted line under the heading; empty to leave it out."
+        },
+        "primaryLabel": {
+          "type": "string",
+          "default": "Book en intro-samtale",
+          "description": "The primary button (paper fill, with a trailing arrow)."
+        },
+        "primaryHref": {
+          "type": "string",
+          "default": "https://calendly.com/sf-sigta/30min",
+          "description": "Where the primary button goes."
+        },
+        "target": {
+          "type": "string",
+          "default": null,
+          "description": "The primary link's target (\"_blank\" opens a new tab and adds rel=\"noopener\"). None by default."
+        },
+        "secondaryLabel": {
+          "type": "string",
+          "default": "Skriv en mail",
+          "description": "The secondary button (hairline outline)."
+        },
+        "secondaryHref": {
+          "type": "string",
+          "default": "mailto:sf@sigta.dk",
+          "description": "Where the secondary button goes."
+        },
+        "secondaryTarget": {
+          "type": "string",
+          "default": null,
+          "description": "The secondary link's target."
+        },
+        "annotation": {
+          "type": "string",
+          "default": "lad os tegne det op ↘",
+          "description": "The accent hand-note on the band's corner (hidden on a phone); empty to leave it out."
+        }
+      },
+      "parts": {
+        "wrap": {
+          "description": "The centred page-width wrap."
+        },
+        "band": {
+          "description": "The dark ink band."
+        },
+        "note": {
+          "description": "The accent hand-note (an annot)."
+        },
+        "heading": {
+          "description": "The <h2>."
+        },
+        "lede": {
+          "description": "The muted line."
+        },
+        "actions": {
+          "description": "The button row."
+        },
+        "arrow": {
+          "description": "The primary button's arrow; it nudges forward on hover."
+        }
+      },
+      "uses": [
+        "button",
+        "annot"
+      ],
+      "usage": {
+        "livewire": "<sigta:section.cta />\n<sigta:section.cta target=\"_blank\" />\n<sigta:section.cta heading=\"Klar til at komme videre?\" primary-label=\"Book et møde\" primary-href=\"/book\" annotation=\"lige her ↘\" />",
+        "svelte": "<Section.Cta />\n<Section.Cta target=\"_blank\" />\n<Section.Cta heading=\"Klar til at komme videre?\" primaryLabel=\"Book et møde\" primaryHref=\"/book\" annotation=\"lige her ↘\" />"
+      },
+      "notes": {
+        "shared": [
+          "Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.",
+          "The dark band uses the inverse surface and the inverse / ghost-inverse button variants — never override its colours."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Ink CTA band — zero-config (inverse + ghost-inverse buttons)"
+        },
+        {
+          "label": "Custom copy + links"
+        }
+      ]
+    },
+    {
+      "name": "section.faq",
+      "title": "Section · FAQ",
+      "tier": "sections",
+      "page": "faq",
+      "svelte": "Section.Faq",
+      "description": "Questions and answers: a section header over a single-open accordion at a reading measure. Ships the seven brand questions.",
+      "aria": "A <section>; the entries are native <details>/<summary> (the accordion), grouped by name so one is open at a time.",
+      "props": {
+        "heading": {
+          "type": "string",
+          "default": "Spørgsmål, vi ofte får.",
+          "description": "The section heading."
+        },
+        "lede": {
+          "type": "string",
+          "default": "Og de ærlige svar. Mangler dit, så spørg løs på intro-samtalen.",
+          "description": "The lede beside the heading."
+        },
+        "name": {
+          "type": "string",
+          "default": "faq",
+          "description": "The accordion group name: the browser keeps one entry open at a time. Give each FAQ on a page its own."
+        },
+        "items": {
+          "type": "array",
+          "default": [
+            {
+              "q": "Hvad koster det?",
+              "a": "Én fast timepris: 800 kr./time ekskl. moms. Ingen minimumskøb, og intro-samtalen er gratis. For skræddersyede værktøjer aftaler vi en fast månedspris, før vi går i gang."
+            },
+            {
+              "q": "Hvor meget tid skal vi bruge?",
+              "a": "Det afhænger af opgaven. Nogle kunder bruger et par timer om måneden til sparring, andre mere i perioder. Vi skalerer op og ned efter behov."
+            },
+            {
+              "q": "Hvad er en tech-partner?",
+              "a": "En fast partner, der dækker hele spektret fra rådgivning og sparring til hands-on udvikling. For mange virksomheder fungerer det som en teknisk direktør på deltid, internationalt kaldet en fractional CTO, men samarbejdet former sig efter jeres behov."
+            },
+            {
+              "q": "Har vi overhovedet brug for en tech-partner?",
+              "a": "Måske ikke. Det er også et svar, du kan få hos os. Intro-samtalen er netop til at finde ud af, om det giver mening for jer."
+            },
+            {
+              "q": "Vi har allerede udviklere. Giver det så mening?",
+              "a": "Ja. Udviklere og teknisk ledelse er to forskellige jobs. Dygtige udviklere fortjener en, der sætter retning, prioriterer og holder arkitekturen sund."
+            },
+            {
+              "q": "Hvad med fortrolighed?",
+              "a": "NDA er standard. Alt, hvad vi ser og hører, bliver mellem os."
+            },
+            {
+              "q": "Er vi bundet af noget?",
+              "a": "Nej. Timepris-samarbejdet kan stoppes når som helst. For værktøjer til fast månedspris aftaler vi vilkårene på forhånd, så der ikke er overraskelser."
+            }
+          ],
+          "shape": "{ q: string; a: string }[]",
+          "description": "The entries, a list of { q, a }: the question and its answer. Defaults to the seven brand questions."
+        }
+      },
+      "parts": {
+        "wrap": {
+          "description": "The centred page-width wrap."
+        },
+        "header": {
+          "description": "The section header."
+        },
+        "accordion": {
+          "description": "The accordion, centred at 760px."
+        }
+      },
+      "uses": [
+        "section-header",
+        "accordion",
+        "accordion.item"
+      ],
+      "usage": {
+        "livewire": "<sigta:section.faq />\n<sigta:section.faq :items=\"$faqs\" />   {{-- [['q' => …, 'a' => …], …] --}}",
+        "svelte": "<Section.Faq />\n<Section.Faq items={faqs} />   <!-- [{ q, a }, …] -->"
+      },
+      "notes": {
+        "shared": [
+          "Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Spørgsmål — zero-config (7 default entries, single-open)"
+        },
+        {
+          "label": "Custom heading + your own entries"
+        },
+        {
+          "label": "Opening an entry"
+        }
+      ]
+    },
+    {
+      "name": "section.features",
+      "title": "Section · Features",
+      "tier": "sections",
+      "page": "features",
+      "svelte": "Section.Features",
+      "description": "What you offer: a section header over a tile grid of services, each with a mono number, an ink icon, a title and graphite text. Ships the four \"Sådan hjælper vi\" services.",
+      "aria": "A <section>; each service is a tile (<article>) with an <h3>. Icons are decorative.",
+      "props": {
+        "eyebrow": {
+          "type": "string",
+          "default": null,
+          "description": "Mono kicker above the heading."
+        },
+        "heading": {
+          "type": "string",
+          "default": "Sådan hjælper vi.",
+          "description": "The section heading."
+        },
+        "lede": {
+          "type": "string",
+          "default": "Fire måder at bruge en tech-partner på. De fleste samarbejder starter med én og vokser derfra.",
+          "description": "The lede beside the heading."
+        },
+        "cols": {
+          "type": "number",
+          "default": 4,
+          "description": "Columns on a wide screen: 2, 3 or 4 (collapsing 4 → 2 → 1, 3 → 1, 2 → 1)."
+        },
+        "items": {
+          "type": "array",
+          "default": null,
+          "shape": "{ num?: string; icon?: string; title?: string; text?: string }[]",
+          "description": "The services, a list of { num, icon, title, text } (each optional); icon is inline <svg…> markup or an icon name. Without items: the four brand services."
+        }
+      },
+      "parts": {
+        "header": {
+          "description": "The section header."
+        },
+        "tile": {
+          "description": "Each service tile."
+        },
+        "icon": {
+          "description": "The icon holder (ink, pushed to the top of the tile)."
+        },
+        "glyph": {
+          "description": "A named icon, drawn at 34px like the inline SVGs."
+        },
+        "title": {
+          "description": "The service title (an h3)."
+        },
+        "text": {
+          "description": "The service text."
+        }
+      },
+      "uses": [
+        "section-header",
+        "tile-grid",
+        "tile-grid.tile",
+        "heading",
+        "icon"
+      ],
+      "usage": {
+        "livewire": "<sigta:section.features />\n<sigta:section.features heading=\"Vores ydelser\" :cols=\"3\" :items=\"[\n    ['num' => '01', 'icon' => 'compass', 'title' => 'Retning', 'text' => 'Strategi og roadmap.'],\n    ['num' => '02', 'icon' => 'code', 'title' => 'Udvikling', 'text' => 'Vi skriver koden.'],\n    ['num' => '03', 'icon' => 'shield-check', 'title' => 'Drift', 'text' => 'Den bliver ved med at virke.'],\n]\" />",
+        "svelte": "<Section.Features />\n<Section.Features heading=\"Vores ydelser\" cols={3} items={[\n    { num: '01', icon: 'compass', title: 'Retning', text: 'Strategi og roadmap.' },\n    { num: '02', icon: 'code', title: 'Udvikling', text: 'Vi skriver koden.' },\n    { num: '03', icon: 'shield-check', title: 'Drift', text: 'Den bliver ved med at virke.' },\n]} />"
+      },
+      "notes": {
+        "shared": [
+          "Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.",
+          "An item's icon is either inline <svg…> markup (currentColor strokes) or the name of an icon from the set."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Zero-config (brand defaults)"
+        },
+        {
+          "label": "Own services in three columns, with named icons"
+        }
+      ]
+    },
+    {
+      "name": "section.footer",
+      "title": "Section · Footer",
+      "tier": "sections",
+      "page": "footer",
+      "svelte": "Section.Footer",
+      "description": "The site footer: the brand and a tagline, columns of links under mono headings, and a dashed signoff line; on a hairline. Columns stack on a phone and sit in one row on a desk.",
+      "aria": "A <footer> landmark (contentinfo); each column is a heading over a <ul> of links.",
+      "props": {
+        "tagline": {
+          "type": "string",
+          "default": "Sigta er tech-partneren for virksomheder uden egen teknisk ledelse: hjælp, rådgivning og udvikling.",
+          "description": "The line under the brand; empty to leave it out."
+        },
+        "signoff": {
+          "type": "string",
+          "default": "© 2026 Sigta · CVR 45530760",
+          "description": "The mono line under the dashed rule; empty to leave it out."
+        },
+        "columns": {
+          "type": "array",
+          "default": [
+            {
+              "heading": "Navigation",
+              "links": [
+                {
+                  "label": "Kan du genkende det?",
+                  "href": "#genkend"
+                },
+                {
+                  "label": "Sådan hjælper vi",
+                  "href": "#hjaelp"
+                },
+                {
+                  "label": "Priser",
+                  "href": "#priser"
+                },
+                {
+                  "label": "Om Sigta",
+                  "href": "#om"
+                }
+              ]
+            },
+            {
+              "heading": "Kontakt",
+              "links": [
+                {
+                  "label": "Book en intro-samtale",
+                  "href": "https://calendly.com/sf-sigta/30min"
+                },
+                {
+                  "label": "sf@sigta.dk",
+                  "href": "mailto:sf@sigta.dk"
+                },
+                {
+                  "label": "LinkedIn",
+                  "href": "https://www.linkedin.com/in/soeren-frisk/"
+                }
+              ]
+            }
+          ],
+          "shape": "{ heading: string; links: { label: string; href: string }[] }[]",
+          "description": "The link columns, a list of { heading, links: [{ label, href }] }. Defaults to the brand Navigation and Kontakt columns."
+        }
+      },
+      "parts": {
+        "wrap": {
+          "description": "The centred page-width wrap."
+        },
+        "grid": {
+          "description": "The brand column and the link columns."
+        },
+        "tagline": {
+          "description": "The tagline."
+        },
+        "heading": {
+          "description": "A column heading (an h4)."
+        },
+        "links": {
+          "description": "A column's list of links."
+        },
+        "link": {
+          "description": "Each link; underlined on hover."
+        },
+        "signoff": {
+          "description": "The signoff line."
+        }
+      },
+      "uses": [
+        "brand"
+      ],
+      "usage": {
+        "livewire": "<sigta:section.footer />\n<sigta:section.footer tagline=\"Et lille studie, der bygger holdbar software.\" signoff=\"© 2026 Dit Firma\" :columns=\"[\n    ['heading' => 'Produkt', 'links' => [['label' => 'Priser', 'href' => '#priser']]],\n]\" />",
+        "svelte": "<Section.Footer />\n<Section.Footer tagline=\"Et lille studie, der bygger holdbar software.\" signoff=\"© 2026 Dit Firma\" columns={[\n    { heading: 'Produkt', links: [{ label: 'Priser', href: '#priser' }] },\n]} />"
+      },
+      "notes": {
+        "shared": [
+          "Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.",
+          "The root is a <footer> landmark rather than a <section>; it carries the same data-sigta hook."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Site footer — zero-config (brand, nav columns, signoff)"
+        },
+        {
+          "label": "Custom tagline + columns"
+        }
+      ]
+    },
+    {
+      "name": "section.hero",
+      "title": "Section · Hero",
+      "tier": "sections",
+      "page": "hero",
+      "svelte": "Section.Hero",
+      "description": "The page opener: eyebrow, a display heading (with a highlighter mark), a lede, two calls to action and a row of inline figures, beside a visual (default: a hand-drawn sea chart). Two columns from lg; stacked below.",
+      "aria": "A <section>; the heading is the page's <h1>. The default visual is an <svg role=\"img\"> with a label.",
+      "props": {
+        "eyebrow": {
+          "type": "string",
+          "default": "Tech-partner · Hjælp, rådgivning og udvikling",
+          "description": "Mono kicker above the heading; empty to leave it out."
+        },
+        "heading": {
+          "type": "string",
+          "default": null,
+          "description": "The heading as a string (HTML allowed). Without it (and without the default slot) the brand line renders: \"Teknologi, oversat til forretning. Og tilbage igen.\" with a mark."
+        },
+        "lede": {
+          "type": "string",
+          "default": "Sigta er den tech-partner, du kan få: hjælp, rådgivning og udvikling til virksomheder, der ikke har deres egen tekniske ledelse. Vi taler begge sprog, forretning og teknik.",
+          "description": "The lede; empty to leave it out."
+        },
+        "primaryLabel": {
+          "type": "string",
+          "default": "Book en intro-samtale",
+          "description": "The ink call to action (with a trailing arrow); empty to leave it out."
+        },
+        "primaryHref": {
+          "type": "string",
+          "default": "https://calendly.com/sf-sigta/30min",
+          "description": "Where the primary call to action goes."
+        },
+        "target": {
+          "type": "string",
+          "default": "_blank",
+          "description": "The primary link's target: a new tab by default (with rel=\"noopener\")."
+        },
+        "secondaryLabel": {
+          "type": "string",
+          "default": "Se hvordan vi arbejder",
+          "description": "The outline call to action; empty to leave it out."
+        },
+        "secondaryHref": {
+          "type": "string",
+          "default": "#hjaelp",
+          "description": "Where the secondary call to action goes."
+        },
+        "secondaryTarget": {
+          "type": "string",
+          "default": null,
+          "description": "The secondary link's target."
+        },
+        "stats": {
+          "type": "array",
+          "default": null,
+          "shape": "{ value: string; label: string }[]",
+          "description": "The inline figures under the actions, a list of { value, label }. Without stats: the three brand figures; an empty list leaves the row out."
+        }
+      },
+      "parts": {
+        "grid": {
+          "description": "The copy column and the visual (1.15fr / 0.85fr from lg)."
+        },
+        "eyebrow": {
+          "description": "The eyebrow."
+        },
+        "lede": {
+          "description": "The lede."
+        },
+        "actions": {
+          "description": "The call-to-action row."
+        },
+        "arrow": {
+          "description": "The primary call to action's arrow; it nudges forward on hover."
+        },
+        "stats": {
+          "description": "The row of inline figures."
+        },
+        "visual": {
+          "description": "The visual column."
+        }
+      },
+      "slots": {
+        "default": {
+          "description": "The heading as rich content (author a mark in it); wins over the heading prop."
+        },
+        "visual": {
+          "description": "Your own visual; replaces the sea chart."
+        }
+      },
+      "uses": [
+        "eyebrow",
+        "heading",
+        "mark",
+        "text",
+        "button",
+        "stat"
+      ],
+      "usage": {
+        "livewire": "<sigta:section.hero />\n<sigta:section.hero heading=\"We build software that ships.\" />\n<sigta:section.hero :stats=\"[['value' => '40+', 'label' => 'projekter']]\">\n    Software, der <sigta:mark>holder</sigta:mark>.\n    <x-slot:visual><img src=\"/hero.png\" alt=\"\"></x-slot:visual>\n</sigta:section.hero>",
+        "svelte": "<Section.Hero />\n<Section.Hero heading=\"We build software that ships.\" />\n<Section.Hero stats={[{ value: '40+', label: 'projekter' }]}>\n    Software, der <Mark>holder</Mark>.\n    {#snippet visual()}<img src=\"/hero.png\" alt=\"\" />{/snippet}\n</Section.Hero>"
+      },
+      "notes": {
+        "shared": [
+          "Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.",
+          "The heading comes from the default slot (rich content, author a mark there), else the heading prop (a string, HTML allowed), else the brand line."
+        ],
+        "livewire": [
+          "The visual is a named slot: <x-slot:visual>…</x-slot:visual>; the heading is the default slot."
+        ],
+        "svelte": [
+          "The visual is a snippet: {#snippet visual()}…{/snippet}; the heading is the children."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Zero-config (brand defaults)"
+        },
+        {
+          "label": "Own heading, copy, figures and visual"
+        },
+        {
+          "label": "Rich heading through the default slot"
+        }
+      ]
+    },
+    {
+      "name": "section.pricing",
+      "title": "Section · Pricing",
+      "tier": "sections",
+      "page": "pricing",
+      "svelte": "Section.Pricing",
+      "description": "How you charge: a section header over tiers side by side (stacked on a phone). Each tier is a non-clipping panel — so a hand-note can overhang it — with a mono label, a title, a big figure (optionally marked) with its suffix, and body paragraphs. Ships the two brand tracks.",
+      "aria": "A <section>; each tier's title is an <h3>.",
+      "props": {
+        "heading": {
+          "type": "string",
+          "default": "To måder at samarbejde på.",
+          "description": "The section heading."
+        },
+        "lede": {
+          "type": "string",
+          "default": "Én filosofi bag begge: du skal altid vide, hvad du betaler for.",
+          "description": "The lede beside the heading."
+        },
+        "tiers": {
+          "type": "array",
+          "default": null,
+          "shape": "{ label?: string; title?: string; figure?: string; figureSuffix?: string; mark?: boolean; annot?: string; body?: string[] }[]",
+          "description": "The tiers, a list of { label, title, figure, figureSuffix, mark, annot, body } (each optional; body is a list of paragraphs). mark highlights the figure; annot hangs a hand-note over the panel's top edge (hidden on a phone). Without tiers: the two brand tracks."
+        }
+      },
+      "parts": {
+        "header": {
+          "description": "The section header."
+        },
+        "tiers": {
+          "description": "The grid of tiers (two columns from md)."
+        },
+        "note": {
+          "description": "A tier's overhanging hand-note (an annot)."
+        },
+        "label": {
+          "description": "A tier's mono label."
+        },
+        "title": {
+          "description": "A tier's title (an h3)."
+        },
+        "figure": {
+          "description": "The figure row: the figure and its suffix, wrapping as whole blocks."
+        },
+        "suffix": {
+          "description": "The mono suffix after the figure."
+        },
+        "body": {
+          "description": "Each body paragraph."
+        },
+        "aside": {
+          "description": "The aside beside the tiers."
+        }
+      },
+      "slots": {
+        "aside": {
+          "description": "Fills the second column beside a single tier, e.g. a call to book for a reader still deciding."
+        }
+      },
+      "uses": [
+        "section-header",
+        "panel",
+        "heading",
+        "mark",
+        "annot"
+      ],
+      "usage": {
+        "livewire": "<sigta:section.pricing />\n<sigta:section.pricing heading=\"Én fast pris.\" :tiers=\"[\n    ['title' => 'Teknisk vurdering', 'figure' => '60.000 kr.', 'figureSuffix' => 'ekskl. moms', 'mark' => true, 'body' => ['Halvdelen ved opstart.']],\n]\">\n    <x-slot:aside>\n        <p>I tvivl? Det finder vi ud af på 30 minutter.</p>\n        <sigta:button variant=\"cta\" href=\"/book\" class=\"self-start\">Book en samtale</sigta:button>\n    </x-slot:aside>\n</sigta:section.pricing>",
+        "svelte": "<Section.Pricing />\n<Section.Pricing heading=\"Én fast pris.\" tiers={[\n    { title: 'Teknisk vurdering', figure: '60.000 kr.', figureSuffix: 'ekskl. moms', mark: true, body: ['Halvdelen ved opstart.'] },\n]}>\n    {#snippet aside()}\n        <p>I tvivl? Det finder vi ud af på 30 minutter.</p>\n        <Button variant=\"cta\" href=\"/book\" class=\"self-start\">Book en samtale</Button>\n    {/snippet}\n</Section.Pricing>"
+      },
+      "notes": {
+        "shared": [
+          "Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.",
+          "A long figure suffix drops below the figure as one block rather than breaking inside the figure's line."
+        ],
+        "livewire": [
+          "The aside is a named slot: <x-slot:aside>…</x-slot:aside>. Attributes on the slot tag (class, id) land on the aside wrapper, a centred column."
+        ],
+        "svelte": [
+          "The aside is a snippet: {#snippet aside()}…{/snippet}, rendered in a centred column beside the tiers."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Zero-config (brand defaults)"
+        },
+        {
+          "label": "A long figure suffix drops below the figure as one block"
+        },
+        {
+          "label": "One tier with the aside slot beside it"
+        }
+      ]
+    },
+    {
+      "name": "section.proof",
+      "title": "Section · Proof",
+      "tier": "sections",
+      "page": "proof",
+      "svelte": "Section.Proof",
+      "description": "A centred proof strip between hairlines: an inline years figure and the client names as mono placeholder wordmarks (the real logo files live in the site, not the package).",
+      "aria": "A <section> labelled \"Erfaring og kunder\".",
+      "props": {
+        "yearsValue": {
+          "type": "string",
+          "default": "14 år",
+          "description": "The figure."
+        },
+        "yearsLabel": {
+          "type": "string",
+          "default": "erfaring med software",
+          "description": "The label under the figure."
+        },
+        "logos": {
+          "type": "array",
+          "default": [
+            "Park Styling",
+            "Jelling Musikfestival"
+          ],
+          "shape": "string[]",
+          "description": "The client names (a list of strings), set as mono wordmarks."
+        }
+      },
+      "parts": {
+        "wrap": {
+          "description": "The centred page-width wrap."
+        },
+        "strip": {
+          "description": "The strip between hairlines."
+        },
+        "stat": {
+          "description": "The years figure (an inline stat)."
+        },
+        "logo": {
+          "description": "Each client wordmark."
+        }
+      },
+      "uses": [
+        "stat"
+      ],
+      "usage": {
+        "livewire": "<sigta:section.proof />\n<sigta:section.proof years-value=\"20 år\" years-label=\"i branchen\" :logos=\"['Acme A/S', 'Foobar ApS']\" />",
+        "svelte": "<Section.Proof />\n<Section.Proof yearsValue=\"20 år\" yearsLabel=\"i branchen\" logos={['Acme A/S', 'Foobar ApS']} />"
+      },
+      "notes": {
+        "shared": [
+          "Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Proof strip — zero-config (years stat + placeholder logos)"
+        },
+        {
+          "label": "Custom years + logos"
+        }
+      ]
+    },
+    {
+      "name": "section.quote",
+      "title": "Section · Quote",
+      "tier": "sections",
+      "page": "quote",
+      "svelte": "Section.Quote",
+      "description": "A centred pull-quote in big light Fraunces italic, curly-quoted, over a mono cite; generous rhythm above and below.",
+      "aria": "A <section> with a <blockquote>.",
+      "props": {
+        "quote": {
+          "type": "string",
+          "default": "Du behøver ikke forstå koden for at træffe gode beslutninger. Du skal bare kende én, der gør.",
+          "description": "The quote, without quotation marks (the section adds them)."
+        },
+        "cite": {
+          "type": "string",
+          "default": "Sådan arbejder Sigta",
+          "description": "The mono line under the quote; empty to leave it out."
+        }
+      },
+      "parts": {
+        "wrap": {
+          "description": "The centred page-width wrap."
+        },
+        "quote": {
+          "description": "The <blockquote>."
+        },
+        "cite": {
+          "description": "The cite line."
+        }
+      },
+      "usage": {
+        "livewire": "<sigta:section.quote />\n<sigta:section.quote quote=\"Godt håndværk taler for sig selv.\" cite=\"Sigtas arbejdsfilosofi\" />",
+        "svelte": "<Section.Quote />\n<Section.Quote quote=\"Godt håndværk taler for sig selv.\" cite=\"Sigtas arbejdsfilosofi\" />"
+      },
+      "notes": {
+        "shared": [
+          "Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Pull-quote — zero-config"
+        },
+        {
+          "label": "Custom quote + cite"
+        }
+      ]
+    },
+    {
+      "name": "section.recognition",
+      "title": "Section · Recognition",
+      "tier": "sections",
+      "page": "recognition",
+      "svelte": "Section.Recognition",
+      "description": "The \"Kan du genkende det?\" block: a section header over a two-column tile grid of scene/answer cards (the scene a quote in Fraunces italic, the answer led by an arrow), then a closing line and a call to action. Ships the four brand situations.",
+      "aria": "A <section>; each card is a tile (<article>).",
+      "props": {
+        "heading": {
+          "type": "string",
+          "default": "Kan du genkende det?",
+          "description": "The section heading."
+        },
+        "lede": {
+          "type": "string",
+          "default": "Fire situationer, hvor det hjælper at have en teknisk stemme på sin egen side af bordet.",
+          "description": "The lede beside the heading."
+        },
+        "items": {
+          "type": "array",
+          "default": null,
+          "shape": "{ num?: string; scene?: string; answer?: string }[]",
+          "description": "The cards, a list of { num, scene, answer }: a mono kicker, the scene (a quote) and the answer. Without items: the four brand situations."
+        },
+        "closingText": {
+          "type": "string",
+          "default": "Hvis bare ét af dem rammer, så lad os tage en kop kaffe.",
+          "description": "The line under the grid; empty to leave it out."
+        },
+        "ctaLabel": {
+          "type": "string",
+          "default": "Book en intro-samtale",
+          "description": "The call to action beside the closing line (with a trailing arrow); empty to leave it out."
+        },
+        "ctaHref": {
+          "type": "string",
+          "default": "https://calendly.com/sf-sigta/30min",
+          "description": "Where the call to action goes."
+        },
+        "target": {
+          "type": "string",
+          "default": "_blank",
+          "description": "The call to action's target: a new tab by default (with rel=\"noopener\")."
+        }
+      },
+      "parts": {
+        "header": {
+          "description": "The section header."
+        },
+        "tile": {
+          "description": "Each card."
+        },
+        "scene": {
+          "description": "The scene, a quote in Fraunces italic."
+        },
+        "answer": {
+          "description": "The answer, led by a mono arrow."
+        },
+        "outro": {
+          "description": "The closing row under the grid."
+        },
+        "closing": {
+          "description": "The closing line."
+        },
+        "arrow": {
+          "description": "The call to action's arrow; it nudges forward on hover."
+        }
+      },
+      "uses": [
+        "section-header",
+        "tile-grid",
+        "tile-grid.tile",
+        "button"
+      ],
+      "usage": {
+        "livewire": "<sigta:section.recognition />\n<sigta:section.recognition heading=\"Lyder det bekendt?\" closing-text=\"Ring til os.\" cta-label=\"Skriv en mail\" cta-href=\"mailto:hej@eksempel.dk\" :items=\"[\n    ['num' => '01 · Tilbuddet', 'scene' => '\"Er prisen rimelig?\"', 'answer' => 'Vi læser det med dig.'],\n]\" />",
+        "svelte": "<Section.Recognition />\n<Section.Recognition heading=\"Lyder det bekendt?\" closingText=\"Ring til os.\" ctaLabel=\"Skriv en mail\" ctaHref=\"mailto:hej@eksempel.dk\" items={[\n    { num: '01 · Tilbuddet', scene: '\"Er prisen rimelig?\"', answer: 'Vi læser det med dig.' },\n]} />"
+      },
+      "notes": {
+        "shared": [
+          "Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Zero-config (brand defaults)"
+        },
+        {
+          "label": "Own cards, closing line and call to action"
         }
       ]
     },

@@ -41,7 +41,7 @@
         newChat() {
             this.messages = [];
             this.activeId = null;
-            this.$nextTick(() => this.$refs.composerInput?.focus());
+            this.$nextTick(() => this.$root.querySelector('[data-sigta=composer] textarea')?.focus());
         },
 
         send(text) {
@@ -216,7 +216,6 @@
                 <div class="mx-auto w-full max-w-3xl">
                     <x-sigta::composer
                         placeholder="Message Sigta…"
-                        x-ref="composerInput"
                         x-on:sigta-composer-submit="send($event.detail.text)"
                     />
                     <p class="mt-2 text-center font-mono text-[0.62rem] text-graphite">Sigta can make mistakes. Responses here are a canned demo.</p>

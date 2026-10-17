@@ -1,4 +1,4 @@
-/* Sigta UI — Livewire runtime. Built by scripts/build-livewire.js from resources/js/sigta.js and packages/core/src; do not edit. sources:7d51d44aac0625e9ad09542e0942a95c1033eabb */
+/* Sigta UI — Livewire runtime. Built by scripts/build-livewire.js from resources/js/sigta.js and packages/core/src; do not edit. sources:ae91bbee7be80908291872ed315be986de4d5152 */
 (() => {
   // packages/core/src/env.ts
   var isBrowser = () => typeof window !== "undefined" && typeof document !== "undefined";
@@ -1394,6 +1394,7 @@
         });
       },
       commit() {
+        if (!this.editing) return;
         const total = parseDuration(this.draft);
         this.minutes = total > 0 ? total : null;
         const el = this.$refs.total;

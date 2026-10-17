@@ -14,7 +14,7 @@ export default defineComponent({
         heading: { type: 'string', default: 'Spørgsmål, vi ofte får.', description: 'The section heading.' },
         lede: { type: 'string', default: 'Og de ærlige svar. Mangler dit, så spørg løs på intro-samtalen.', description: 'The lede beside the heading.' },
         name: { type: 'string', default: 'faq', description: 'The accordion group name: the browser keeps one entry open at a time. Give each FAQ on a page its own.' },
-        items: { type: 'array', default: sections.faq.items, shape: '{ q: string; a: string }[]', description: 'The entries: question (q) and answer (a). Defaults to the seven brand questions.' },
+        items: { type: 'array', default: sections.faq.items, shape: '{ q: string; a: string }[]', description: 'The entries, a list of { q, a }: the question and its answer. Defaults to the seven brand questions.' },
     },
     parts: {
         wrap: { description: 'The centred page-width wrap.' },
@@ -30,7 +30,7 @@ export default defineComponent({
     },
     notes: {
         shared: [
-            'Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece. Key props: heading, lede, name, items.',
+            'Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.',
         ],
     },
     examples: [

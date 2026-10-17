@@ -23,6 +23,28 @@ it('renders with zero props: root marker + default Danish copy', function () {
         ->toContain('04');
 });
 
+it('renders the default services both runtimes share', function () {
+    $html = Blade::render('<x-sigta::section.features />');
+
+    foreach (\Sigta\Ui\Sections::get('features', 'items') as $item) {
+        expect($html)
+            ->toContain(e($item['title']))
+            ->toContain(e($item['text']))
+            ->toContain($item['icon']);
+    }
+});
+
+it('draws a named icon at the inline icons\' size', function () {
+    $html = Blade::render('<x-sigta::section.features :items="$items" />', [
+        'items' => [['num' => '01', 'icon' => 'compass', 'title' => 'Retning']],
+    ]);
+
+    expect($html)->toMatch('/<svg data-sigta="icon"[^>]*data-part="glyph"/');
+    expect(contractCss('section.features'))
+        ->toContain('[data-scope="section.features"][data-part="glyph"] {')
+        ->toContain('@apply size-[34px];');
+});
+
 it('defaults to a four-column grid', function () {
     expect(Blade::render('<x-sigta::section.features />'))->toContain('data-sigta="tile-grid" data-cols="4"');
 });

@@ -13,7 +13,7 @@ export default defineComponent({
         label: { type: 'string', default: null, description: 'Field label.' },
         value: { type: 'number', default: null, bindable: true, description: 'The amount in MINOR units (øre / cents). Livewire: the initial amount, emitted onto the forwarded wire:model; Svelte: bind:value.' },
         placeholder: { type: 'string', default: null, description: 'Amount placeholder; defaults to "0".' },
-        currency: { type: 'string', default: 'DKK', bindable: true, description: 'The selected currency code. Svelte: bind:currency.' },
+        currency: { type: 'string', default: 'DKK', bindable: true, description: 'The selected currency code. Svelte: bind:currency.', blade: { note: 'Livewire binds it with currency-model, not wire:model (wire:model is the amount).' } },
         currencies: { type: 'object', default: null, shape: 'Record<string, string> — code ⇒ label', description: 'The switcher\'s currencies; defaults to DKK / EUR / USD. A label that differs from its code shows beside it.' },
         currencyName: { type: 'string', default: null, description: 'Form name of the hidden currency input; defaults to currencyModel, else "currency".' },
         currencyModel: { type: 'string', default: null, svelte: false, description: 'wire:model for the currency (through its hidden input).' },

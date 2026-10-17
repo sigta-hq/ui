@@ -15,12 +15,12 @@
     interface Props extends Omit<HTMLTextareaAttributes, 'value' | 'onsubmit'> {
         placeholder?: string;
         name?: string | null;
-        value?: string;
+        value?: string | null;
         onsubmit?: (text: string) => void;
         leading?: Snippet;
     }
 
-    let { placeholder = 'Write a message…', name = null, value = $bindable(''), onsubmit, leading, id, oninput, onkeydown, ...rest }: Props = $props();
+    let { placeholder = 'Write a message…', name = null, value = $bindable(), onsubmit, leading, id, oninput, onkeydown, ...rest }: Props = $props();
 
     const MAX_ROWS = 6;
     const uid = $props.id();
@@ -42,7 +42,7 @@
         resize();
     }
 
-    const input_ = (event: Event & { currentTarget: EventTarget & HTMLTextAreaElement }) => {
+    const typed = (event: Event & { currentTarget: EventTarget & HTMLTextAreaElement }) => {
         resize();
         oninput?.(event as Parameters<NonNullable<typeof oninput>>[0]);
     };
@@ -75,7 +75,7 @@
     <textarea
         bind:this={input}
         bind:value
-        oninput={input_}
+        oninput={typed}
         onkeydown={keydown}
         rows="1"
         {placeholder}

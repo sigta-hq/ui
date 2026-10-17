@@ -529,7 +529,7 @@ Rich single select: a button trigger showing the current choice opens a floating
   - `error` (string) — Error text; marks the trigger invalid.
   - `placeholder` (string, default `Select…`) — Shown on the trigger while nothing is chosen.
   - `name` (string) — Form name of the hidden value input.
-  - `value` (string, bindable (`bind:value`)) — The chosen value (an option's value). Livewire: the initial value, wire:model on the component binds it (lands on the hidden input); Svelte: bind:value.
+  - `value` (string, bindable (`bind:value`)) — The chosen value (an option's value). Livewire: pass the current value (:value) for the trigger to show it, and wire:model (it lands on the hidden input) to receive choices; Svelte: bind:value.
 - **Snippets:** `children` — The <autocomplete.option>s.
 - **Events:** `onchange` (string | null) — The value changed.
 - Use it for a rich single choice; a plain list of strings is better as a native select, a long searchable one as autocomplete.
@@ -1659,6 +1659,85 @@ One slide of a carousel: snaps to the start of the track. Full width by default;
 <Carousel.Slide basis="basis-1/2 md:basis-1/3">…</Carousel.Slide>
 ```
 
+### `kanban` family
+
+#### `Kanban`
+
+Native HTML5 drag-and-drop board of kanban.columns holding kanban.cards. Dragging a card between (or within) columns reports { card, from, to, position }; sortable columns report { column, position } when dragged along the board.
+
+- **Props:** none
+- **Snippets:** `children` — The kanban.columns (optionally each in a wrapper of your own, e.g. one carrying wire:key).
+- **Events:** `onmove` ({ card: string, from: string, to: string, position: number }) — A card was dropped: its id, the column it came from, the column it landed in and its 0-based position among that column's cards. The DOM event bubbles to the board and window.; `oncolumnmove` ({ column: string, position: number }) — A sortable column was dropped: its id and its 0-based position among the board's columns. The DOM event bubbles to the board and window.
+- Native drag and drop, no library. While dragging, the card moves in the page to where it will land (before the first card whose middle is below the pointer; columns by the pointer passing a column's middle), and the drop reports it.
+- The board never keeps the order: persist the move and render the new order from your data.
+- onmove / oncolumnmove carry the same detail as the DOM events, which the board dispatches too. Render columns and cards with keyed {#each} blocks from your lists and move the item in the callback: the dropped element is put back first, so your lists re-render from a clean DOM. Without a change, the optimistic move stands, as in the Livewire runtime.
+```svelte
+<script>
+    import { Kanban } from '@sigta-hq/svelte';
+
+    let columns = $state([
+        { id: 'todo', label: 'To do', cards: [{ id: 'plumb', title: 'Plumb — one-number widget' }] },
+        { id: 'doing', label: 'Doing', cards: [] },
+    ]);
+
+    function move({ card, from, to, position }) {
+        const source = columns.find((column) => column.id === from).cards;
+        const [item] = source.splice(source.findIndex((c) => c.id === card), 1);
+        columns.find((column) => column.id === to).cards.splice(position, 0, item);
+    }
+
+    function moveColumn({ column, position }) {
+        const [item] = columns.splice(columns.findIndex((c) => c.id === column), 1);
+        columns.splice(position, 0, item);
+    }
+</script>
+
+<Kanban onmove={move} oncolumnmove={moveColumn}>
+    {#each columns as column (column.id)}
+        <Kanban.Column id={column.id} label={column.label} sortable>
+            {#each column.cards as card (card.id)}
+                <Kanban.Card id={card.id}>{card.title}</Kanban.Card>
+            {/each}
+        </Kanban.Column>
+    {/each}
+</Kanban>
+```
+
+#### `Kanban.Card`
+
+A draggable card on raised paper inside a kanban.column: lifts on hover and focus, fades while it is dragged.
+
+- **Props:**
+  - `id` (string) — Identifies the card in sigta-kanban-move / onmove (card); generated when not given.
+- **Snippets:** `children` — The card's content.
+- The card carries the group class, so group-hover utilities in its content (a button that shows on hover) react to hovering the card.
+- Your class lands on the card and wins over its own look.
+```svelte
+<Kanban.Card id={task.id}>{task.title}</Kanban.Card>
+```
+
+#### `Kanban.Column`
+
+One column of a kanban: a mono header (label, optional actions, a count badge pinned right) over a dashed drop zone of kanban.cards that inks while a card is dragged over it.
+
+- **Props:**
+  - `label` (string) — The header label (mono, uppercase); also the body's accessible name unless aria is given.
+  - `id` (string) — Identifies the column in the move events (from, to, column); generated when not given.
+  - `count` (number) — The number in the count badge; defaults to the number of cards inside.
+  - `aria` (string) — The body's accessible name, when it should differ from the visible label (defaults to label).
+  - `sortable` (boolean, default `false`) — Grows a grip handle at the start of the header that drags the column along the board (only the handle starts a column drag).
+- **Snippets:** `children` — The kanban.cards.; `heading` — Replaces the visible label with your own control (e.g. an inline-rename input); the count and actions stay put.; `actions` — Header controls (a menu, a delete button) to the left of the count, which stays pinned to the right.
+- Use it inside a kanban. The body's aria-label comes from the string label / aria, never from the heading slot.
+- Without count, the badge counts the Kanban.Cards inside (the server render included). Passing count={column.cards.length} is just as good.
+```svelte
+<Kanban.Column id="todo" label="To do" sortable>
+    {#snippet actions()}
+        <Button variant="ghost" size="sm" aria-label="Column menu"><Icon name="ellipsis-vertical" size="sm" /></Button>
+    {/snippet}
+    <Kanban.Card id="plumb">Plumb — one-number widget</Kanban.Card>
+</Kanban.Column>
+```
+
 ### `Composer`
 
 Chat composer: an auto-growing textarea (up to six rows) between a leading slot (attach, by default) and a send button. Enter sends, Shift+Enter inserts a newline; sending hands the trimmed text over and clears the field.
@@ -1666,15 +1745,55 @@ Chat composer: an auto-growing textarea (up to six rows) between a leading slot 
 - **Props:**
   - `placeholder` (string, default `Write a message…`) — Textarea placeholder.
   - `name` (string) — Form name of the textarea.
-  - `value` (string, default ``, bindable (`bind:value`)) — The text. Livewire: wire:model (lands on the textarea); Svelte: bind:value.
+  - `value` (string, bindable (`bind:value`)) — The text. Livewire: wire:model (lands on the textarea); Svelte: bind:value.
 - **Snippets:** `leading` — Replaces the attach button (a mention or emoji button, …).
-- **Events:** `onsubmit` ({ text: string } (Svelte: onsubmit(text))) — A message was sent (Enter or the send button); the field clears.
+- **Events:** `onsubmit` ({ text: string }) — A message was sent (Enter or the send button); the field clears.
 - Sending dispatches a bubbling sigta-composer-submit event { text } from the textarea (the window hears it too) and clears the field.
 - The textarea grows with its text up to six rows, then scrolls.
-- onsubmit(text) on every send; bind:value for the draft. Other attributes land on the textarea.
+- onsubmit(text) on every send (it receives the text itself; the DOM event still carries { text }); bind:value for the draft. Other attributes land on the textarea.
 - Replace the attach button with {#snippet leading()}…{/snippet}.
 ```svelte
 <Composer placeholder="Message the studio…" onsubmit={(text) => send(text)} />
+```
+
+### `Editor`
+
+Rich text editor (TipTap) on paper: a toolbar of square tools (bold, italic, strike, link, heading, lists, quote, code, a picture tool with uploads, undo and redo) over an editable page in the prose look. Stores HTML, or markdown with format="markdown"; variant="inline" is the always-editable, borderless-until-hover form for detail views.
+
+- **Props:**
+  - `label` (string) — Label above the editor.
+  - `description` (string) — Help text under it.
+  - `error` (string) — Error text; turns the frame red.
+  - `name` (string) — Form name of the hidden value input; without an id, the editor's stable id derives from it.
+  - `value` (string, default ``, bindable (`bind:value`)) — The content, in the format. bind:value; a value set from outside replaces the content.
+  - `format` (`html` · `markdown`, default `html`) — What the value holds: HTML, or markdown (single newlines are line breaks). Anything else is html.
+  - `variant` (`default` · `inline`, default `default`) — default (framed, for forms) or inline (borderless until hover, toolbar only while editing; for detail views).
+  - `placeholder` (string, default ``) — Shown in the empty editor.
+  - `rows` (number) — Least height in lines, like a textarea: 6 by default, 3 for inline.
+  - `uploadUrl` (string) — The host's picture endpoint: turns on the picture tool and image drop / paste.
+  - `resolveUrl` (string) — The host's link resolver: a pasted address of the page's own origin gets its title.
+  - `uploadToken` (string) — The CSRF token sent with each upload as X-CSRF-TOKEN; defaults to the page's <meta name="csrf-token">.
+- **Events:** `bind:value` (string) — The content changed (serialized in the format; empty when the editor is).; `sigta-editor-set` (string) — Replaces the content on purpose (restore a draft, switch records): dispatch it on the root with the new value as detail.
+- Toolbar: bold, italic, strike, link, heading, bullet and numbered lists, quote, code block, plus a picture tool when an upload URL is set; undo and redo at the end.
+- Links: Cmd/Ctrl+K or the toolbar edits (with Open and Remove), Cmd/Ctrl+click follows; a plain click only places the caret, so editing is never interrupted.
+- format="markdown" parses the value as markdown and writes markdown (single newlines are line breaks); otherwise it is HTML.
+- Pictures: with an upload URL, a dropped, pasted or picked image is posted there as multipart `file` with the CSRF token in X-CSRF-TOKEN; the endpoint answers JSON {url, name?} and the picture is inserted as an image node (`![name](url)` in markdown). A failed upload raises a warning toast and inserts nothing. Data URLs are refused.
+- Titled links: with a resolve URL, a pasted address on the page's own origin is linked at once, then GET <resolve-url>?url=… is asked for JSON {title, url?}; the link text becomes the title (and the href the returned url) when it answers, and stays the address when it does not. With text selected, a pasted address links the selection as before.
+- Both runtimes run the same TipTap editor (@sigta-hq/core/editor); the text has the prose look (.sigta-prose).
+- bind:value carries the content; a value set from outside replaces it, and sigta-editor-set on the root works as well.
+- uploadUrl / resolveUrl name the endpoints; uploads send uploadToken, or the page's <meta name="csrf-token">, as X-CSRF-TOKEN.
+- TipTap is created on mount, so the server render is the toolbar over an empty page. Other attributes (name, data-*, oninput) land on the hidden value input, which hears an input event on every change.
+```svelte
+<script>
+    import { Editor } from '@sigta-hq/svelte';
+
+    let body = $state('');
+    let description = $state('');
+</script>
+
+<Editor name="body" label="Body" bind:value={body} />
+<Editor format="markdown" variant="inline" placeholder="Add a description" rows={3} bind:value={description} />
+<Editor format="markdown" bind:value={body} uploadUrl="/images" resolveUrl="/links/resolve" />
 ```
 
 ## Layout (structural scaffolds)
@@ -1898,6 +2017,201 @@ Page-ground overlay (dot grid + paper grain), fixed behind the page and never in
 {@render children()}
 ```
 
+## Sections (content-shaped page regions)
+
+### `Section.Hero`
+
+The page opener: eyebrow, a display heading (with a highlighter mark), a lede, two calls to action and a row of inline figures, beside a visual (default: a hand-drawn sea chart). Two columns from lg; stacked below.
+
+- **Props:**
+  - `eyebrow` (string, default `Tech-partner · Hjælp, rådgivning og udvikling`) — Mono kicker above the heading; empty to leave it out.
+  - `heading` (string) — The heading as a string (HTML allowed). Without it (and without the default slot) the brand line renders: "Teknologi, oversat til forretning. Og tilbage igen." with a mark.
+  - `lede` (string, default `Sigta er den tech-partner, du kan få: hjælp, rådgivning og udvikling til virksomheder, der ikke har deres egen tekniske ledelse. Vi taler begge sprog, forretning og teknik.`) — The lede; empty to leave it out.
+  - `primaryLabel` (string, default `Book en intro-samtale`) — The ink call to action (with a trailing arrow); empty to leave it out.
+  - `primaryHref` (string, default `https://calendly.com/sf-sigta/30min`) — Where the primary call to action goes.
+  - `target` (string, default `_blank`) — The primary link's target: a new tab by default (with rel="noopener").
+  - `secondaryLabel` (string, default `Se hvordan vi arbejder`) — The outline call to action; empty to leave it out.
+  - `secondaryHref` (string, default `#hjaelp`) — Where the secondary call to action goes.
+  - `secondaryTarget` (string) — The secondary link's target.
+  - `stats` (array) — The inline figures under the actions, a list of { value, label }. Without stats: the three brand figures; an empty list leaves the row out.
+- **Snippets:** `children` — The heading as rich content (author a mark in it); wins over the heading prop.; `visual` — Your own visual; replaces the sea chart.
+- Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
+- The heading comes from the default slot (rich content, author a mark there), else the heading prop (a string, HTML allowed), else the brand line.
+- The visual is a snippet: {#snippet visual()}…{/snippet}; the heading is the children.
+```svelte
+<Section.Hero />
+<Section.Hero heading="We build software that ships." />
+<Section.Hero stats={[{ value: '40+', label: 'projekter' }]}>
+    Software, der <Mark>holder</Mark>.
+    {#snippet visual()}<img src="/hero.png" alt="" />{/snippet}
+</Section.Hero>
+```
+
+### `Section.Features`
+
+What you offer: a section header over a tile grid of services, each with a mono number, an ink icon, a title and graphite text. Ships the four "Sådan hjælper vi" services.
+
+- **Props:**
+  - `eyebrow` (string) — Mono kicker above the heading.
+  - `heading` (string, default `Sådan hjælper vi.`) — The section heading.
+  - `lede` (string, default `Fire måder at bruge en tech-partner på. De fleste samarbejder starter med én og vokser derfra.`) — The lede beside the heading.
+  - `cols` (number, default `4`) — Columns on a wide screen: 2, 3 or 4 (collapsing 4 → 2 → 1, 3 → 1, 2 → 1).
+  - `items` (array) — The services, a list of { num, icon, title, text } (each optional); icon is inline <svg…> markup or an icon name. Without items: the four brand services.
+- Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
+- An item's icon is either inline <svg…> markup (currentColor strokes) or the name of an icon from the set.
+```svelte
+<Section.Features />
+<Section.Features heading="Vores ydelser" cols={3} items={[
+    { num: '01', icon: 'compass', title: 'Retning', text: 'Strategi og roadmap.' },
+    { num: '02', icon: 'code', title: 'Udvikling', text: 'Vi skriver koden.' },
+    { num: '03', icon: 'shield-check', title: 'Drift', text: 'Den bliver ved med at virke.' },
+]} />
+```
+
+### `Section.Recognition`
+
+The "Kan du genkende det?" block: a section header over a two-column tile grid of scene/answer cards (the scene a quote in Fraunces italic, the answer led by an arrow), then a closing line and a call to action. Ships the four brand situations.
+
+- **Props:**
+  - `heading` (string, default `Kan du genkende det?`) — The section heading.
+  - `lede` (string, default `Fire situationer, hvor det hjælper at have en teknisk stemme på sin egen side af bordet.`) — The lede beside the heading.
+  - `items` (array) — The cards, a list of { num, scene, answer }: a mono kicker, the scene (a quote) and the answer. Without items: the four brand situations.
+  - `closingText` (string, default `Hvis bare ét af dem rammer, så lad os tage en kop kaffe.`) — The line under the grid; empty to leave it out.
+  - `ctaLabel` (string, default `Book en intro-samtale`) — The call to action beside the closing line (with a trailing arrow); empty to leave it out.
+  - `ctaHref` (string, default `https://calendly.com/sf-sigta/30min`) — Where the call to action goes.
+  - `target` (string, default `_blank`) — The call to action's target: a new tab by default (with rel="noopener").
+- Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
+```svelte
+<Section.Recognition />
+<Section.Recognition heading="Lyder det bekendt?" closingText="Ring til os." ctaLabel="Skriv en mail" ctaHref="mailto:hej@eksempel.dk" items={[
+    { num: '01 · Tilbuddet', scene: '"Er prisen rimelig?"', answer: 'Vi læser det med dig.' },
+]} />
+```
+
+### `Section.Pricing`
+
+How you charge: a section header over tiers side by side (stacked on a phone). Each tier is a non-clipping panel — so a hand-note can overhang it — with a mono label, a title, a big figure (optionally marked) with its suffix, and body paragraphs. Ships the two brand tracks.
+
+- **Props:**
+  - `heading` (string, default `To måder at samarbejde på.`) — The section heading.
+  - `lede` (string, default `Én filosofi bag begge: du skal altid vide, hvad du betaler for.`) — The lede beside the heading.
+  - `tiers` (array) — The tiers, a list of { label, title, figure, figureSuffix, mark, annot, body } (each optional; body is a list of paragraphs). mark highlights the figure; annot hangs a hand-note over the panel's top edge (hidden on a phone). Without tiers: the two brand tracks.
+- **Snippets:** `aside` — Fills the second column beside a single tier, e.g. a call to book for a reader still deciding.
+- Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
+- A long figure suffix drops below the figure as one block rather than breaking inside the figure's line.
+- The aside is a snippet: {#snippet aside()}…{/snippet}, rendered in a centred column beside the tiers.
+```svelte
+<Section.Pricing />
+<Section.Pricing heading="Én fast pris." tiers={[
+    { title: 'Teknisk vurdering', figure: '60.000 kr.', figureSuffix: 'ekskl. moms', mark: true, body: ['Halvdelen ved opstart.'] },
+]}>
+    {#snippet aside()}
+        <p>I tvivl? Det finder vi ud af på 30 minutter.</p>
+        <Button variant="cta" href="/book" class="self-start">Book en samtale</Button>
+    {/snippet}
+</Section.Pricing>
+```
+
+### `Section.About`
+
+The "Om Sigta" block: a device-framed portrait beside a text column (eyebrow, heading, graphite paragraphs); the columns stack on a phone. Without a portrait it shows an SVG placeholder with a hand-note.
+
+- **Props:**
+  - `eyebrow` (string, default `Om Sigta · Manden bag`) — Mono kicker above the heading; empty to leave it out.
+  - `heading` (string, default `Jeg hedder Søren, og jeg taler begge sprog.`) — The heading (an h2 at the xl size).
+  - `paragraphs` (array, default `["Jeg har bygget software i 14 år og har siddet på begge sider af bordet: som udvikleren, der byggede løsningen, og som rådgiveren, der skulle vurdere den.","Min filosofi for softwareudvikling er enkel: find det gode fundament, hold fast i den simple løsning, og optimér, når vi ved, at det virker.","Jeg har været med til at udvikle store projekter, der bruges i mange lande, bygget integrationer i store virksomheder, og truffet de gode teknologivalg som CTO hos Donor Network.","Min hverdag ligger hos Donor Network. Sigta er min mulighed for at hjælpe flere på samme måde."]`) — The body paragraphs (a list of strings), in graphite at a 52ch measure. Defaults to the four brand paragraphs.
+- **Snippets:** `portrait` — Your own framed portrait; replaces the placeholder and its hand-note.
+- Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
+- The default portrait is an SVG placeholder (the real photo lives in the site, not the package); pass the portrait slot to drop in a real framed image.
+- The portrait is a snippet: {#snippet portrait()}…{/snippet}.
+```svelte
+<Section.About />
+<Section.About eyebrow="Om studiet · Holdet bag" heading="Vi er et lille studie med store idéer." paragraphs={['Vi bygger software, der holder.']}>
+    {#snippet portrait()}<img src="/team.jpg" alt="Holdet" class="rounded-frame border border-line shadow-paper" />{/snippet}
+</Section.About>
+```
+
+### `Section.Faq`
+
+Questions and answers: a section header over a single-open accordion at a reading measure. Ships the seven brand questions.
+
+- **Props:**
+  - `heading` (string, default `Spørgsmål, vi ofte får.`) — The section heading.
+  - `lede` (string, default `Og de ærlige svar. Mangler dit, så spørg løs på intro-samtalen.`) — The lede beside the heading.
+  - `name` (string, default `faq`) — The accordion group name: the browser keeps one entry open at a time. Give each FAQ on a page its own.
+  - `items` (array, default `[{"q":"Hvad koster det?","a":"Én fast timepris: 800 kr./time ekskl. moms. Ingen minimumskøb, og intro-samtalen er gratis. For skræddersyede værktøjer aftaler vi en fast månedspris, før vi går i gang."},{"q":"Hvor meget tid skal vi bruge?","a":"Det afhænger af opgaven. Nogle kunder bruger et par timer om måneden til sparring, andre mere i perioder. Vi skalerer op og ned efter behov."},{"q":"Hvad er en tech-partner?","a":"En fast partner, der dækker hele spektret fra rådgivning og sparring til hands-on udvikling. For mange virksomheder fungerer det som en teknisk direktør på deltid, internationalt kaldet en fractional CTO, men samarbejdet former sig efter jeres behov."},{"q":"Har vi overhovedet brug for en tech-partner?","a":"Måske ikke. Det er også et svar, du kan få hos os. Intro-samtalen er netop til at finde ud af, om det giver mening for jer."},{"q":"Vi har allerede udviklere. Giver det så mening?","a":"Ja. Udviklere og teknisk ledelse er to forskellige jobs. Dygtige udviklere fortjener en, der sætter retning, prioriterer og holder arkitekturen sund."},{"q":"Hvad med fortrolighed?","a":"NDA er standard. Alt, hvad vi ser og hører, bliver mellem os."},{"q":"Er vi bundet af noget?","a":"Nej. Timepris-samarbejdet kan stoppes når som helst. For værktøjer til fast månedspris aftaler vi vilkårene på forhånd, så der ikke er overraskelser."}]`) — The entries, a list of { q, a }: the question and its answer. Defaults to the seven brand questions.
+- Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
+```svelte
+<Section.Faq />
+<Section.Faq items={faqs} />   <!-- [{ q, a }, …] -->
+```
+
+### `Section.Quote`
+
+A centred pull-quote in big light Fraunces italic, curly-quoted, over a mono cite; generous rhythm above and below.
+
+- **Props:**
+  - `quote` (string, default `Du behøver ikke forstå koden for at træffe gode beslutninger. Du skal bare kende én, der gør.`) — The quote, without quotation marks (the section adds them).
+  - `cite` (string, default `Sådan arbejder Sigta`) — The mono line under the quote; empty to leave it out.
+- Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
+```svelte
+<Section.Quote />
+<Section.Quote quote="Godt håndværk taler for sig selv." cite="Sigtas arbejdsfilosofi" />
+```
+
+### `Section.Proof`
+
+A centred proof strip between hairlines: an inline years figure and the client names as mono placeholder wordmarks (the real logo files live in the site, not the package).
+
+- **Props:**
+  - `yearsValue` (string, default `14 år`) — The figure.
+  - `yearsLabel` (string, default `erfaring med software`) — The label under the figure.
+  - `logos` (array, default `["Park Styling","Jelling Musikfestival"]`) — The client names (a list of strings), set as mono wordmarks.
+- Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
+```svelte
+<Section.Proof />
+<Section.Proof yearsValue="20 år" yearsLabel="i branchen" logos={['Acme A/S', 'Foobar ApS']} />
+```
+
+### `Section.Cta`
+
+The closing call to action: a dark ink band (rounded frame) with a centred heading, a muted lede and the inverse / ghost-inverse button pair; an accent hand-note overhangs the top-right corner on wider screens.
+
+- **Props:**
+  - `heading` (string, default `Skal vi tage en snak, før du skriver under på noget?`) — The heading.
+  - `lede` (string, default `En intro-samtale koster ingenting og forpligter ikke. Medbring gerne det tilbud, du er i tvivl om.`) — The muted line under the heading; empty to leave it out.
+  - `primaryLabel` (string, default `Book en intro-samtale`) — The primary button (paper fill, with a trailing arrow).
+  - `primaryHref` (string, default `https://calendly.com/sf-sigta/30min`) — Where the primary button goes.
+  - `target` (string) — The primary link's target ("_blank" opens a new tab and adds rel="noopener"). None by default.
+  - `secondaryLabel` (string, default `Skriv en mail`) — The secondary button (hairline outline).
+  - `secondaryHref` (string, default `mailto:sf@sigta.dk`) — Where the secondary button goes.
+  - `secondaryTarget` (string) — The secondary link's target.
+  - `annotation` (string, default `lad os tegne det op ↘`) — The accent hand-note on the band's corner (hidden on a phone); empty to leave it out.
+- Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
+- The dark band uses the inverse surface and the inverse / ghost-inverse button variants — never override its colours.
+```svelte
+<Section.Cta />
+<Section.Cta target="_blank" />
+<Section.Cta heading="Klar til at komme videre?" primaryLabel="Book et møde" primaryHref="/book" annotation="lige her ↘" />
+```
+
+### `Section.Footer`
+
+The site footer: the brand and a tagline, columns of links under mono headings, and a dashed signoff line; on a hairline. Columns stack on a phone and sit in one row on a desk.
+
+- **Props:**
+  - `tagline` (string, default `Sigta er tech-partneren for virksomheder uden egen teknisk ledelse: hjælp, rådgivning og udvikling.`) — The line under the brand; empty to leave it out.
+  - `signoff` (string, default `© 2026 Sigta · CVR 45530760`) — The mono line under the dashed rule; empty to leave it out.
+  - `columns` (array, default `[{"heading":"Navigation","links":[{"label":"Kan du genkende det?","href":"#genkend"},{"label":"Sådan hjælper vi","href":"#hjaelp"},{"label":"Priser","href":"#priser"},{"label":"Om Sigta","href":"#om"}]},{"heading":"Kontakt","links":[{"label":"Book en intro-samtale","href":"https://calendly.com/sf-sigta/30min"},{"label":"sf@sigta.dk","href":"mailto:sf@sigta.dk"},{"label":"LinkedIn","href":"https://www.linkedin.com/in/soeren-frisk/"}]}]`) — The link columns, a list of { heading, links: [{ label, href }] }. Defaults to the brand Navigation and Kontakt columns.
+- Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
+- The root is a <footer> landmark rather than a <section>; it carries the same data-sigta hook.
+```svelte
+<Section.Footer />
+<Section.Footer tagline="Et lille studie, der bygger holdbar software." signoff="© 2026 Dit Firma" columns={[
+    { heading: 'Produkt', links: [{ label: 'Priser', href: '#priser' }] },
+]} />
+```
+
 ---
 
 ## Motion (behaviours, not components)
@@ -1946,10 +2260,14 @@ Ink on paper: strokes draw, paper settles under a press, a finished thing is cro
 | `onselect` | `string | number | null` | `<AssigneePicker>` | A person (or Unassigned) was chosen. |
 | `onchange` | `string | null` | `<Autocomplete>` | The value changed. |
 | `onchange` | `string | null` | `<Calendar>` | The selected day changed, YYYY-MM-DD. |
-| `onsubmit` | `{ text: string } (Svelte: onsubmit(text))` | `<Composer>` | A message was sent (Enter or the send button); the field clears. |
+| `onsubmit` | `{ text: string }` | `<Composer>` | A message was sent (Enter or the send button); the field clears. |
 | `onchange` | `string | null` | `<DatePicker>` | The date changed, YYYY-MM-DD (null when cleared). |
 | `onchange` | `number | null` | `<DurationInput>` | A committed edit (whole minutes, null when cleared). |
+| `bind:value` | `string` | `<Editor>` | The content changed (serialized in the format; empty when the editor is). |
+| `sigta-editor-set` | `string` | `<Editor>` | Replaces the content on purpose (restore a draft, switch records): dispatch it on the root with the new value as detail. |
 | `onfiles` | `File[]` | `<FileUpload>` | Files were picked or dropped. |
+| `onmove` | `{ card: string, from: string, to: string, position: number }` | `<Kanban>` | A card was dropped: its id, the column it came from, the column it landed in and its 0-based position among that column's cards. The DOM event bubbles to the board and window. |
+| `oncolumnmove` | `{ column: string, position: number }` | `<Kanban>` | A sortable column was dropped: its id and its 0-based position among the board's columns. The DOM event bubbles to the board and window. |
 | `onchange` | `string | null` | `<Listbox>` | The value changed. |
 | `onchange` | `number | null` | `<MoneyInput>` | The amount changed (minor units, null when empty). |
 | `oncurrency` | `string` | `<MoneyInput>` | The currency changed. |

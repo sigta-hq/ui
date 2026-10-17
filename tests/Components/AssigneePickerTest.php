@@ -16,10 +16,45 @@ it('renders an unassigned trigger and a searchable dropdown', function () {
     expect($html)
         ->toContain('data-sigta="assignee-picker"')
         ->toContain('aria-label="Assignee"')
-        ->toContain('border-dashed')                 // dashed "add" affordance for no assignee
+        ->toContain('data-part="placeholder"')       // dashed "add" affordance for no assignee
         ->toContain('data-test="assignee-dropdown"')
         ->toContain('Search people')
         ->toContain('Unassigned');
+
+    expect(contractCss('assignee-picker'))->toContain('border-dashed');
+});
+
+it('renders contract parts instead of design classes', function () {
+    $html = Blade::render('<x-sigta::assignee-picker :members="$members" size="sm" />', ['members' => members()]);
+
+    expect($html)
+        ->not->toContain('class=')
+        ->toMatch('/data-scope="assignee-picker"\\s+data-part="trigger"/')
+        ->toMatch('/data-part="placeholder"\\s+data-size="sm"/')   // 32px affordance at sm
+        ->toContain('data-part="panel"')
+        ->toContain('data-part="search"')
+        ->toContain('data-part="unassign"')
+        ->toContain('data-part="option"')
+        ->toContain('data-part="empty"');
+
+    expect(contractCss('assignee-picker'))
+        ->toContain('&[data-size="sm"] { @apply size-8; }')
+        ->toContain('@apply z-50 w-64 rounded-panel');
+});
+
+it('draws each member with the avatar initials', function () {
+    $html = Blade::render('<x-sigta::assignee-picker :members="$members" />', ['members' => members()]);
+
+    expect($html)
+        ->toContain('data-sigta="avatar"')
+        ->toContain('x-text="initials(m.name)"')
+        ->toContain('data-size="xs"');
+});
+
+it('lands a consumer class on the trigger', function () {
+    $html = Blade::render('<x-sigta::assignee-picker :members="[]" class="ml-2" />');
+
+    expect($html)->toMatch('/<button[^>]*data-part="trigger"[^>]*class="ml-2"/s');
 });
 
 it('embeds the member list for client-side filtering', function () {
@@ -57,7 +92,10 @@ it('teleports the panel to body by default and inlines it when :inline', functio
     $inline = Blade::render('<x-sigta::assignee-picker :members="$members" inline />', ['members' => members()]);
     expect($inline)
         ->not->toContain('x-teleport="body"')
-        ->toContain('absolute left-0 top-full');
+        ->toContain('data-inline=""');
+    expect($teleport)->not->toContain('data-inline');
+
+    expect(contractCss('assignee-picker'))->toContain('&[data-inline] { @apply absolute left-0 top-full mt-1; }');
 });
 
 it('forwards a value-keyed wire:key onto the root, not the trigger label', function () {

@@ -13,7 +13,7 @@ it('renders with zero props: root marker + default Danish copy', function () {
         // composes section-header + two non-clipping panels
         ->toContain('data-sigta="section-header"')
         ->toContain('data-sigta="panel"')
-        ->toContain('md:grid-cols-2')
+        ->toContain('data-scope="section.pricing" data-part="tiers"')
         // both tiers
         ->toContain('Spor 1 · Timepris')
         ->toContain('Klassisk: én lav, fast timepris')
@@ -26,6 +26,24 @@ it('renders with zero props: root marker + default Danish copy', function () {
         // overhanging annot on the second panel
         ->toContain('data-sigta="annot"')
         ->toContain('som SaaS, bare jeres eget');
+
+    expect(contractCss('section.pricing'))
+        ->toContain('@apply grid gap-[clamp(18px,2.2vw,28px)] md:grid-cols-2;')
+        // the annot overhangs the non-clipping panel, hidden on a phone
+        ->toContain('@apply absolute -top-3 right-[8%] max-sm:hidden;');
+});
+
+it('renders the default tiers both runtimes share', function () {
+    $html = Blade::render('<x-sigta::section.pricing />');
+
+    foreach (\Sigta\Ui\Sections::get('pricing', 'tiers') as $tier) {
+        expect($html)
+            ->toContain(e($tier['title']))
+            ->toContain(e($tier['figureSuffix']));
+        foreach ($tier['body'] as $paragraph) {
+            expect($html)->toContain(e($paragraph));
+        }
+    }
 });
 
 it('lets an override prop win over the default heading', function () {
@@ -71,9 +89,22 @@ it('sets the figure suffix as its own wrapping block, not inline in the figure l
     );
 
     expect($html)
-        ->toContain('flex flex-wrap items-baseline')
+        ->toContain('data-scope="section.pricing" data-part="figure"')
         ->toContain('<span>40.000 kr.</span>')
-        ->toContain('<small class="font-mono text-[0.85rem] font-normal leading-snug text-graphite">+ 20.000 kr. til sparring</small>');
+        ->toContain('<small data-scope="section.pricing" data-part="suffix">+ 20.000 kr. til sparring</small>');
+
+    expect(contractCss('section.pricing'))
+        ->toContain('flex flex-wrap items-baseline')
+        ->toContain('[data-scope="section.pricing"][data-part="suffix"] {')
+        ->toContain('@apply font-mono text-[0.85rem] font-normal leading-snug text-graphite;');
+});
+
+it('spaces the body paragraphs, all but the last', function () {
+    expect(Blade::render('<x-sigta::section.pricing />'))->toContain('data-scope="section.pricing" data-part="body"');
+
+    expect(contractCss('section.pricing'))
+        ->toContain('@apply text-[0.98rem] leading-[1.6] text-graphite;')
+        ->toContain('&:not(:last-child) { @apply mb-4; }');
 });
 
 it('renders the aside slot beside the tiers in the same grid', function () {
@@ -86,7 +117,9 @@ it('renders the aside slot beside the tiers in the same grid', function () {
     expect($html)
         ->toContain('Projektpris')
         ->toContain('I tvivl? Book en samtale.')
-        ->toContain('class="flex flex-col justify-center gap-4 text-center"');
+        ->toContain('<div data-scope="section.pricing" data-part="aside" class="text-center">');
+
+    expect(contractCss('section.pricing'))->toContain('@apply flex flex-col justify-center gap-4;');
 
     expect(strpos($html, 'I tvivl?'))->toBeGreaterThan(strpos($html, 'Projektpris'));
     expect(substr_count($html, 'data-sigta="panel"'))->toBe(1);
@@ -95,7 +128,7 @@ it('renders the aside slot beside the tiers in the same grid', function () {
 it('renders no aside without the slot', function () {
     $html = Blade::render('<x-sigta::section.pricing />');
 
-    expect($html)->not->toContain('flex flex-col justify-center gap-4');
+    expect($html)->not->toContain('data-part="aside"');
 });
 
 it('forwards arbitrary attributes onto the section root', function () {

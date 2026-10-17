@@ -37,6 +37,9 @@
     }
 
     function commit() {
+        // Hiding the focused editor (Escape, or Enter's own commit) blurs it:
+        // that blur must not commit again, or Escape would save.
+        if (!editing) return;
         const total = parseDuration(draft);
         value = total > 0 ? total : null;
         editing = false;

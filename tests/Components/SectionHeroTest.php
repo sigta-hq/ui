@@ -23,6 +23,23 @@ it('renders with zero props: root marker + default Danish copy', function () {
         ->toContain('sikker havn');
 });
 
+it('renders the default figures both runtimes share, in a two-column grid', function () {
+    $html = Blade::render('<x-sigta::section.hero />');
+
+    foreach (\Sigta\Ui\Sections::get('hero', 'stats') as $stat) {
+        expect($html)
+            ->toContain('<span data-scope="stat" data-part="value">'.e($stat['value']).'</span>')
+            ->toContain('<span data-scope="stat" data-part="label">'.e($stat['label']).'</span>');
+    }
+
+    expect($html)->toContain('data-scope="section.hero" data-part="grid"');
+    expect(contractCss('section.hero'))->toContain('@apply grid items-center gap-[clamp(32px,5vw,72px)] lg:grid-cols-[1.15fr_0.85fr];');
+});
+
+it('leaves the figure row out for an empty :stats', function () {
+    expect(Blade::render('<x-sigta::section.hero :stats="[]" />'))->not->toContain('data-part="stats"');
+});
+
 it('lets an override prop win over the default heading', function () {
     $html = Blade::render('<x-sigta::section.hero heading="Vi bygger fremtiden" />');
 

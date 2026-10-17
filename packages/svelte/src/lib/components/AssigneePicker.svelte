@@ -25,7 +25,7 @@
         onselect?: (id: Person['id'] | null) => void;
     }
 
-    let { user = null, members = [], size = 'xs', showName = false, label = null, inline = false, onselect, ...rest }: Props = $props();
+    let { user = null, members = [], size = 'xs', showName = false, label = null, inline = false, onselect, onclick, ...rest }: Props = $props();
 
     let open = $state(false);
     let q = $state('');
@@ -46,7 +46,8 @@
         return query ? members.filter((m) => String(m.name).toLowerCase().includes(query)) : members;
     });
 
-    async function toggle(event: MouseEvent) {
+    async function toggle(event: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }) {
+        onclick?.(event);
         event.stopPropagation();
         if (open) { open = false; return; }
         if (!inline && trigger) {

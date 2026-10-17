@@ -38,8 +38,10 @@ it('renders the pillbox panel as a fixed, anchored floater', function () {
     expect($html)
         ->toContain('x-ref="anchor"')
         ->toContain('x-ref="panel"')
-        ->toContain('class="fixed z-50')
-        ->not->toContain('absolute top-full inset-x-0');
+        ->toContain('data-scope="pillbox"')
+        ->toContain('data-part="listbox"');
+
+    expect(contractCss('pillbox'))->toContain('@apply fixed z-50')->not->toContain('absolute top-full inset-x-0');
 });
 
 it('prevents mousedown on options so selection registers before blur closes the panel', function () {
@@ -62,6 +64,8 @@ it('renders the listbox panel as a fixed, anchored floater', function () {
     expect($html)
         ->toContain('x-ref="anchor"')
         ->toContain('x-ref="panel"')
-        ->toContain('class="fixed z-50')
-        ->not->toContain('absolute top-full inset-x-0');
+        ->toContain('data-scope="listbox"')
+        ->toContain('data-part="listbox"');
+
+    expect(contractCss('listbox'))->toContain('@apply fixed z-50')->not->toContain('absolute top-full inset-x-0');
 });

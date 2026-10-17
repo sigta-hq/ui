@@ -9,9 +9,11 @@ it('renders the default pull-quote and cite', function () {
         ->toContain('data-sigta="section.quote"')
         ->toContain('Du behøver ikke forstå koden for at træffe gode beslutninger. Du skal bare kende én, der gør.')
         ->toContain('Sådan arbejder Sigta')
-        ->toContain('<blockquote')
-        ->toContain('font-head')
-        ->toContain('italic');
+        ->toContain('<blockquote data-scope="section.quote" data-part="quote">');
+
+    expect(contractCss('section.quote'))
+        ->toContain('[data-scope="section.quote"][data-part="quote"] {')
+        ->toMatch('/@apply [^;]*font-head font-light italic/');
 });
 
 it('lets the quote and cite props win', function () {

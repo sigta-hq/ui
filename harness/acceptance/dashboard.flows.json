@@ -1,0 +1,17 @@
+[
+    {
+        "id": "range",
+        "label": "switch the range",
+        "steps": [
+            { "click": "[data-sigta=segmented] label:has-text('QTD')" }
+        ]
+    },
+    {
+        "id": "phone-nav",
+        "label": "open the navigation on a phone",
+        "viewports": [{ "width": 390, "height": 844 }],
+        "steps": [
+            { "click": "[aria-label='Toggle navigation'] >> visible=true", "wait": 500 }
+        ]
+    }
+]

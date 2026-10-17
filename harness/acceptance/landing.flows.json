@@ -1,0 +1,18 @@
+[
+    {
+        "id": "faq",
+        "label": "open a question in the FAQ",
+        "steps": [
+            { "script": "document.getElementById('faq').scrollIntoView()" },
+            { "click": "#faq summary >> nth=1", "wait": 500 }
+        ]
+    },
+    {
+        "id": "phone-nav",
+        "label": "open the menu on a phone",
+        "viewports": [{ "width": 390, "height": 844 }],
+        "steps": [
+            { "click": "[data-sigta=navbar] button >> visible=true", "wait": 500 }
+        ]
+    }
+]

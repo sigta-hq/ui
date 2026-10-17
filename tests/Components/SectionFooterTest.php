@@ -16,6 +16,21 @@ it('renders the brand, default tagline, nav columns and signoff', function () {
         ->toContain('© 2026 Sigta · CVR 45530760');
 });
 
+it('renders the default columns both runtimes share', function () {
+    $html = Blade::render('<x-sigta::section.footer />');
+
+    foreach (\Sigta\Ui\Sections::get('footer', 'columns') as $column) {
+        expect($html)->toContain('<h4 data-scope="section.footer" data-part="heading">'.e($column['heading']).'</h4>');
+        foreach ($column['links'] as $link) {
+            expect($html)->toContain('<a href="'.e($link['href']).'" data-scope="section.footer" data-part="link">'.e($link['label']).'</a>');
+        }
+    }
+
+    expect(contractCss('section.footer'))
+        ->toContain('@apply grid gap-8 sm:grid-cols-2 md:grid-cols-[1.5fr_1fr_1fr];')
+        ->toContain('border-t border-dashed border-line');
+});
+
 it('lets the tagline and signoff props win', function () {
     $html = Blade::render('<x-sigta::section.footer tagline="Egen tagline." signoff="© 2030 Andet" />');
 

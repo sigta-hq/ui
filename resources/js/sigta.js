@@ -456,6 +456,9 @@ document.addEventListener('alpine:init', () => {
             this.$nextTick(() => { this.$refs.editor.focus(); this.$refs.editor.select(); });
         },
         commit() {
+            // Hiding the focused editor (Escape, or Enter's own commit) blurs
+            // it: that blur must not commit again, or Escape would save.
+            if (!this.editing) return;
             const total = parseDuration(this.draft);
             this.minutes = total > 0 ? total : null;
             const el = this.$refs.total;

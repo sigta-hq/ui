@@ -40,7 +40,7 @@ export default defineComponent({
     },
     notes: {
         shared: [
-            'Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece. Key props: heading, lede, primaryLabel, primaryHref, target, secondaryLabel, secondaryHref, secondaryTarget, annotation.',
+            'Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.',
             'The dark band uses the inverse surface and the inverse / ghost-inverse button variants — never override its colours.',
         ],
     },

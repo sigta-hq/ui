@@ -17,7 +17,7 @@ export default defineComponent({
         error: { type: 'string', default: null, description: 'Error text; marks the trigger invalid.' },
         placeholder: { type: 'string', default: 'Select…', description: 'Shown on the trigger while nothing is chosen.' },
         name: { type: 'string', default: null, description: 'Form name of the hidden value input.' },
-        value: { type: 'string', default: null, bindable: true, description: 'The chosen value (an option\'s value). Livewire: the initial value, wire:model on the component binds it (lands on the hidden input); Svelte: bind:value.' },
+        value: { type: 'string', default: null, bindable: true, description: 'The chosen value (an option\'s value). Livewire: pass the current value (:value) for the trigger to show it, and wire:model (it lands on the hidden input) to receive choices; Svelte: bind:value.' },
     },
     parts: {
         trigger: { description: 'The button (role=combobox) in the field chrome; your id lands here.' },

@@ -7,7 +7,7 @@
     'logos' => ['Park Styling', 'Jelling Musikfestival'],
 ])
 
-<section data-sigta="section.proof" {{ $attributes }} aria-label="Erfaring og kunder">
+<section data-sigta="section.proof" {{ $attributes->merge(['aria-label' => 'Erfaring og kunder']) }}>
     <div data-scope="section.proof" data-part="wrap">
         <div data-scope="section.proof" data-part="strip">
             <x-sigta::stat variant="inline" :value="$yearsValue" :label="$yearsLabel" data-scope="section.proof" data-part="stat" />

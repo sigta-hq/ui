@@ -59,11 +59,25 @@ export function collectFixtures(filter = []) {
             const name = file.slice(0, -'.blade.php'.length);
             const svelteFile = join(acceptance, `${name}.svelte`);
             if (!existsSync(svelteFile)) continue;
+            const page = {
+                component: 'acceptance', browserOnly: true, imports: null,
+                blade: readFileSync(join(acceptance, file), 'utf8'), svelte: readFileSync(svelteFile, 'utf8'),
+            };
             fixtures.push({
-                id: `acceptance--${name}`, component: 'acceptance', label: `${name} page`, browserOnly: true, interactions: [],
+                ...page, id: `acceptance--${name}`, label: `${name} page`, interactions: [],
                 viewports: [{ width: 1280, height: 900 }, { width: 390, height: 844 }],
-                blade: readFileSync(join(acceptance, file), 'utf8'), svelte: readFileSync(svelteFile, 'utf8'), imports: null,
             });
+            // <page>.flows.json: what a visitor does on the page, step by step
+            // (the example interaction vocabulary). Each flow is played in both
+            // runtimes and the page it leaves behind is compared.
+            const flowsFile = join(acceptance, `${name}.flows.json`);
+            if (!existsSync(flowsFile)) continue;
+            for (const flow of JSON.parse(readFileSync(flowsFile, 'utf8'))) {
+                fixtures.push({
+                    ...page, id: `acceptance--${name}--${flow.id}`, label: `${name} page: ${flow.label}`,
+                    interactions: flow.steps, viewports: flow.viewports ?? [{ width: 1280, height: 900 }],
+                });
+            }
         }
     }
     return fixtures;
@@ -207,6 +221,21 @@ async function settleText(page) {
     });
 }
 
+// Plays an example's interactions (or an acceptance flow) on a loaded page.
+async function perform(page, steps, label, errors) {
+    for (const step of steps) try {
+        if (step.focus) await page.focus(step.focus);
+        if (step.hover) await page.hover(step.hover);
+        if (step.click) await page.click(step.click);
+        if (step.fill) await page.fill(step.fill[0], step.fill[1]);
+        if (step.script) await page.evaluate(step.script);
+        for (const key of [step.press ?? []].flat()) await page.keyboard.press(key);
+        await page.waitForTimeout(step.wait ?? 350);
+    } catch (error) {
+        errors.push(`${label}: interaction ${JSON.stringify(step)} failed — ${error.message.split('\n')[0]}`);
+    }
+}
+
 // Loads each fixture in both runtimes with their scripts running, then
 // compares the live DOM and a screenshot: what a visitor actually sees.
 async function inBrowser(fixtures, blade, svelte) {
@@ -237,17 +266,7 @@ async function inBrowser(fixtures, blade, svelte) {
                 await page.evaluate(() => document.fonts.ready);
                 await page.waitForTimeout(250);
                 if (fixture.interactions.length) {
-                    for (const step of fixture.interactions) try {
-                        if (step.focus) await page.focus(step.focus);
-                        if (step.hover) await page.hover(step.hover);
-                        if (step.click) await page.click(step.click);
-                        if (step.fill) await page.fill(step.fill[0], step.fill[1]);
-                        if (step.script) await page.evaluate(step.script);
-                        for (const key of [step.press ?? []].flat()) await page.keyboard.press(key);
-                        await page.waitForTimeout(step.wait ?? 350);
-                    } catch (error) {
-                        errors.push(`${runtime}: interaction ${JSON.stringify(step)} failed — ${error.message.split('\n')[0]}`);
-                    }
+                    await perform(page, fixture.interactions, runtime, errors);
                     // Open dialogs and floating panels leave the fixture's box.
                     doms[runtime] = await page.locator('#fixture').innerHTML();
                     await settleText(page);
@@ -290,6 +309,7 @@ async function wholePage(context, harness, fixture, PNG, pixelmatch) {
             if (runtime === 'svelte') await page.waitForFunction(() => window.__hydrated === true, null, { timeout: 10000 }).catch(() => errors.push('svelte: never hydrated'));
             await page.evaluate(() => document.fonts.ready);
             await page.waitForTimeout(400);
+            await perform(page, fixture.interactions, `${runtime}@${viewport.width}`, errors);
             doms[runtime] ??= await page.locator('#fixture').innerHTML();
             await settleText(page);
             taken[runtime] = PNG.sync.read(await page.screenshot({ fullPage: true }));

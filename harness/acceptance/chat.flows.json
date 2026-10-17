@@ -1,0 +1,55 @@
+[
+    {
+        "id": "suggestion",
+        "label": "send a suggestion and get the canned reply",
+        "steps": [
+            {
+                "click": "button:has-text('Draft a launch note')",
+                "wait": 1600
+            }
+        ]
+    },
+    {
+        "id": "typed",
+        "label": "type a message and send it with Enter",
+        "steps": [
+            {
+                "fill": [
+                    "[data-sigta=composer] textarea",
+                    "Name three colours"
+                ]
+            },
+            {
+                "press": "Enter",
+                "wait": 300
+            }
+        ]
+    },
+    {
+        "id": "model",
+        "label": "pick a model, then reopen the picker",
+        "steps": [
+            {
+                "click": "header [data-sigta=dropdown] button"
+            },
+            {
+                "click": "[role=menuitem]:has-text('Sigta Haiku')"
+            },
+            {
+                "click": "header [data-sigta=dropdown] button"
+            }
+        ]
+    },
+    {
+        "id": "history",
+        "label": "open a past conversation, then the account menu",
+        "steps": [
+            {
+                "click": "nav button:has-text('Draft the Q3 changelog')"
+            },
+            {
+                "click": "aside [data-sigta=dropdown] > button, aside [data-sigta=dropdown] [data-part=trigger] button"
+            }
+        ]
+    }
+]

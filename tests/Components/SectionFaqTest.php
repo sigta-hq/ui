@@ -19,6 +19,28 @@ it('renders with default Danish heading and the seven FAQ entries', function () 
     expect(substr_count($html, 'data-sigta="accordion.item"'))->toBe(7);
 });
 
+it('renders the default entries both runtimes share', function () {
+    $html = Blade::render('<x-sigta::section.faq />');
+    $items = \Sigta\Ui\Sections::get('faq', 'items');
+
+    foreach ($items as $item) {
+        expect($html)
+            ->toContain(e($item['q']))
+            ->toContain('<p>'.e($item['a']).'</p>');
+    }
+    expect(substr_count($html, 'data-sigta="accordion.item"'))->toBe(count($items));
+});
+
+it('centres the accordion at a reading measure under the header', function () {
+    expect(Blade::render('<x-sigta::section.faq />'))
+        ->toMatch('/data-sigta="section-header"[^>]*data-part="header"/')
+        ->toMatch('/data-sigta="accordion"[^>]*data-part="accordion"/');
+
+    expect(contractCss('section.faq'))
+        ->toContain('[data-scope="section.faq"][data-part="header"] {')
+        ->toContain('@apply mx-auto max-w-[760px];');
+});
+
 it('names the accordion group so it is single-open', function () {
     $html = Blade::render('<x-sigta::section.faq />');
 

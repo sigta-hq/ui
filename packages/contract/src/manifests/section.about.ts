@@ -13,7 +13,7 @@ export default defineComponent({
     props: {
         eyebrow: { type: 'string', default: 'Om Sigta · Manden bag', description: 'Mono kicker above the heading; empty to leave it out.' },
         heading: { type: 'string', default: 'Jeg hedder Søren, og jeg taler begge sprog.', description: 'The heading (an h2 at the xl size).' },
-        paragraphs: { type: 'array', default: sections.about.paragraphs, shape: 'string[]', description: 'The body paragraphs, in graphite at a 52ch measure. Defaults to the four brand paragraphs.' },
+        paragraphs: { type: 'array', default: sections.about.paragraphs, shape: 'string[]', description: 'The body paragraphs (a list of strings), in graphite at a 52ch measure. Defaults to the four brand paragraphs.' },
     },
     parts: {
         wrap: { description: 'The centred page-width wrap.' },
@@ -42,7 +42,7 @@ export default defineComponent({
     },
     notes: {
         shared: [
-            'Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece. Key props: eyebrow, heading, paragraphs; the portrait slot.',
+            'Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.',
             'The default portrait is an SVG placeholder (the real photo lives in the site, not the package); pass the portrait slot to drop in a real framed image.',
         ],
         livewire: ['The portrait is a named slot: <x-slot:portrait>…</x-slot:portrait>.'],

@@ -24,6 +24,20 @@ it('renders with zero props: root marker + default Danish copy', function () {
         ->toContain('Book en intro-samtale');
 });
 
+it('renders the default cards both runtimes share', function () {
+    $html = Blade::render('<x-sigta::section.recognition />');
+
+    foreach (\Sigta\Ui\Sections::get('recognition', 'items') as $item) {
+        expect($html)
+            ->toContain('<span data-scope="tile" data-part="num">'.e($item['num']).'</span>')
+            ->toContain('<p data-scope="section.recognition" data-part="scene">'.e($item['scene']).'</p>')
+            ->toContain('<p data-scope="section.recognition" data-part="answer">'.e($item['answer']).'</p>');
+    }
+
+    // the answer is led by a mono arrow
+    expect(contractCss('section.recognition'))->toContain("before:content-['→'] before:shrink-0 before:font-mono before:text-ink");
+});
+
 it('lets an override prop win over the default heading', function () {
     $html = Blade::render('<x-sigta::section.recognition heading="Lyder det bekendt?" />');
 

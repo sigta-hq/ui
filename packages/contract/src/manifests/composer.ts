@@ -12,7 +12,7 @@ export default defineComponent({
     props: {
         placeholder: { type: 'string', default: 'Write a message…', description: 'Textarea placeholder.' },
         name: { type: 'string', default: null, description: 'Form name of the textarea.' },
-        value: { type: 'string', default: '', native: true, bindable: true, description: 'The text. Livewire: wire:model (lands on the textarea); Svelte: bind:value.' },
+        value: { type: 'string', default: null, native: true, bindable: true, description: 'The text. Livewire: wire:model (lands on the textarea); Svelte: bind:value.' },
     },
     parts: {
         leading: { description: 'Holds the leading control (the attach button, or your leading slot).' },
@@ -23,7 +23,7 @@ export default defineComponent({
         leading: { description: 'Replaces the attach button (a mention or emoji button, …).' },
     },
     events: {
-        submit: { description: 'A message was sent (Enter or the send button); the field clears.', blade: 'sigta-composer-submit', svelte: 'onsubmit', detail: '{ text: string } (Svelte: onsubmit(text))' },
+        submit: { description: 'A message was sent (Enter or the send button); the field clears.', blade: 'sigta-composer-submit', svelte: 'onsubmit', detail: '{ text: string }' },
     },
     uses: ['button', 'icon'],
     usage: {
@@ -40,7 +40,7 @@ export default defineComponent({
             'Replace the attach button with <x-slot:leading>…</x-slot:leading>.',
         ],
         svelte: [
-            'onsubmit(text) on every send; bind:value for the draft. Other attributes land on the textarea.',
+            'onsubmit(text) on every send (it receives the text itself; the DOM event still carries { text }); bind:value for the draft. Other attributes land on the textarea.',
             'Replace the attach button with {#snippet leading()}…{/snippet}.',
         ],
     },

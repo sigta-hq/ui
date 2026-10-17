@@ -12,8 +12,12 @@ it('renders the default ink band copy and both buttons', function () {
         ->toContain('Book en intro-samtale')
         ->toContain('Skriv en mail')
         ->toContain('lad os tegne det op ↘')
-        ->toContain('bg-inverse')
-        ->toContain('text-inverse-fg');
+        ->toContain('data-scope="section.cta" data-part="band"');
+
+    expect(contractCss('section.cta'))
+        ->toContain('[data-scope="section.cta"][data-part="band"] {')
+        ->toContain('@apply relative overflow-hidden rounded-frame bg-inverse p-[clamp(34px,6vw,72px)] text-center text-inverse-fg;')
+        ->toContain('text-inverse-fg-muted');
 });
 
 it('styles the dark band via button variants, not !-overrides', function () {
@@ -25,6 +29,8 @@ it('styles the dark band via button variants, not !-overrides', function () {
         ->toContain('data-variant="inverse"')
         ->toContain('data-variant="ghost-inverse"')
         ->not->toContain('!');
+
+    expect(contractCss('section.cta'))->not->toContain('!');
 });
 
 it('lets the heading and label/href props win', function () {

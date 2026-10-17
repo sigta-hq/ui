@@ -3,6 +3,7 @@
        (bind:value), with an inline currency switcher (bind:currency). Hidden
        inputs carry both for plain form posts, as in the Livewire runtime. */
     import type { HTMLAttributes } from 'svelte/elements';
+    import { untrack } from 'svelte';
     import { majorFromMinor, minorFromMajor } from '@sigta-hq/core';
     import { Presence } from '../runtime/presence.svelte.js';
     import Field from './Field.svelte';
@@ -27,10 +28,13 @@
 
     // The text field holds major units; value follows it in minor units.
     let major = $state(majorFromMinor(value));
-    // A value set from outside (a reset, a loaded record) reaches the field.
+    // A value set from outside (a reset, a loaded record) reaches the field;
+    // typing only changes value, so it never rewrites what is being typed.
     $effect.pre(() => {
-        const next = value;
-        if (next !== (minorFromMajor(major) ?? null)) major = majorFromMinor(next);
+        const next = value ?? null;
+        untrack(() => {
+            if (next !== minorFromMajor(major)) major = majorFromMinor(next);
+        });
     });
     const typed = () => {
         value = minorFromMajor(major);
