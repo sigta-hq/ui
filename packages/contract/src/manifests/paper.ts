@@ -7,7 +7,7 @@ export default defineComponent({
     tier: 'layout',
     page: 'paper',
     svelte: 'Paper',
-    description: 'Page-ground overlay (dot grid + paper grain), fixed behind the page and never in the way of a click. Place once, directly inside <body>.',
+    description: 'Page-ground overlay (dot grid + paper grain), fixed behind the page and never in the way of a click. Place it once per page.',
     aria: 'aria-hidden; pointer-events: none.',
     props: {
         dots: { type: 'boolean', default: true, description: 'The dot grid.' },

@@ -12,6 +12,10 @@ export default defineComponent({
     props: {
         variant: { type: 'enum', values: ['solid', 'dashed'], default: 'solid', description: 'Line style.' },
     },
+    usage: {
+        livewire: '<sigta:separator />\n<sigta:separator variant="dashed" />',
+        svelte: '<Separator />\n<Separator variant="dashed" />',
+    },
     notes: {
         livewire: ['Use it inside content; for a decorative divider between sections use <sigta:rule>.'],
         svelte: ['Use it inside content; for a decorative divider between sections use <Rule>.'],

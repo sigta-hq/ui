@@ -26,6 +26,20 @@ export default defineComponent({
         default: { description: 'The body.', required: true },
         thumb: { description: 'Media above the body (an SVG, an image, a skeleton), clipped to 16:9.' },
     },
+    usage: {
+        livewire: `<sigta:card>
+    <x-slot:thumb><img src="/shots/marginalia.png" alt="" class="size-full object-cover"></x-slot:thumb>
+    <sigta:heading level="3">Marginalia</sigta:heading>
+    <sigta:text variant="muted">A reading-and-notes app for teams.</sigta:text>
+</sigta:card>
+<sigta:card :hover="false" class="p-5">Static, with its own padding</sigta:card>`,
+        svelte: `<Card>
+    {#snippet thumb()}<img src="/shots/marginalia.png" alt="" class="size-full object-cover" />{/snippet}
+    <Heading level={3}>Marginalia</Heading>
+    <Text variant="muted">A reading-and-notes app for teams.</Text>
+</Card>
+<Card hover={false} class="p-5">Static, with its own padding</Card>`,
+    },
     notes: {
         shared: [
             'Its body has fluid padding. Pass any padding class on the card (p-5, sm:p-4) and it replaces the body padding instead of adding to it.',

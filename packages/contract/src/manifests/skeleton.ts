@@ -12,6 +12,10 @@ export default defineComponent({
     props: {
         variant: { type: 'enum', values: ['line', 'heading', 'block', 'circle'], default: 'line', description: 'line (1rem), heading (2rem, two thirds wide), block (16:9) or circle (40px).' },
     },
+    usage: {
+        livewire: '<sigta:skeleton variant="heading" />\n<sigta:skeleton class="w-4/5" />\n<sigta:skeleton variant="circle" />',
+        svelte: '<Skeleton variant="heading" />\n<Skeleton class="w-4/5" />\n<Skeleton variant="circle" />',
+    },
     notes: {
         shared: ['Content that replaces a skeleton can land with animate-sigta-settle (fade, rise, unblur).'],
     },

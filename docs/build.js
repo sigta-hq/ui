@@ -42,8 +42,16 @@ const groups = Object.entries(catalog)
     .filter(([key]) => key !== 'docs')
     .map(([, group]) => ({ label: group.label, pages: group.items.filter((slug) => byPage.has(slug)) }))
     .filter((group) => group.pages.length);
+// A page the catalog does not list joins the group of its tier.
+for (const slug of byPage.keys()) {
+    if (groups.some((g) => g.pages.includes(slug))) continue;
+    const tier = byPage.get(slug)[0].tier;
+    const label = catalog[tier]?.label ?? tier;
+    let group = groups.find((g) => g.label === label);
+    if (!group) groups.push(group = { label, pages: [] });
+    group.pages.push(slug);
+}
 const pageOrder = groups.flatMap((g) => g.pages);
-for (const slug of byPage.keys()) if (!pageOrder.includes(slug)) pageOrder.push(slug);
 
 const guides = readdirSync(join(docs, 'guides')).filter((f) => f.endsWith('.md')).map((file) => {
     const text = readFileSync(join(docs, 'guides', file), 'utf8');

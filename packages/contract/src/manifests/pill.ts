@@ -16,6 +16,10 @@ export default defineComponent({
         dot: { description: 'The leading dot, in the current colour.' },
     },
     slots: { default: { description: 'The status label.', required: true } },
+    usage: {
+        livewire: '<sigta:pill variant="success">Operational</sigta:pill>\n<sigta:pill variant="danger">Degraded</sigta:pill>\n<sigta:pill>Paused</sigta:pill>',
+        svelte: '<Pill variant="success">Operational</Pill>\n<Pill variant="danger">Degraded</Pill>\n<Pill>Paused</Pill>',
+    },
     notes: {
         shared: ['Use it for a status (operational, at risk, paused); for a plain label use the badge.'],
     },

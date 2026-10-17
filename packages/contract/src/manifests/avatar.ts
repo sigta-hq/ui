@@ -20,6 +20,10 @@ export default defineComponent({
         size: { type: 'enum', values: ['xs', 'sm', 'base', 'lg'], default: 'base', description: 'xs 24px, sm 32px, base 40px, lg 56px.' },
         tone: { type: 'enum', values: ['ink', 'line'], default: 'ink', description: 'Initials ground: ink fill, or a quiet hairline ground (line).' },
     },
+    usage: {
+        livewire: '<sigta:avatar name="Søren Frisk" />\n<sigta:avatar :src="$user->avatar_url" :name="$user->name" size="lg" />\n<sigta:avatar name="Marginalia Team" shape="square" tone="line" />',
+        svelte: '<Avatar name="Søren Frisk" />\n<Avatar src={user.avatarUrl} name={user.name} size="lg" />\n<Avatar name="Marginalia Team" shape="square" tone="line" />',
+    },
     notes: {
         shared: [
             'Use it instead of an <img class="rounded-full …">. Beside a visible name (a profile, a list row), pass aria-hidden="true" so the name is not read twice.',

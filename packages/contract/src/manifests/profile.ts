@@ -25,6 +25,10 @@ export default defineComponent({
         reverse: { attribute: 'data-reverse', description: 'Mirrored.' },
     },
     uses: ['avatar'],
+    usage: {
+        livewire: '<sigta:profile name="Ada Lovelace" meta="Engineering · Halyard OS" />\n<sigta:profile name="Nina Vale" meta="Design" :src="$user->avatar_url" reverse />',
+        svelte: '<Profile name="Ada Lovelace" meta="Engineering · Halyard OS" />\n<Profile name="Nina Vale" meta="Design" src={user.avatarUrl} reverse />',
+    },
     examples: [
         {
             label: 'Profile — name + meta',

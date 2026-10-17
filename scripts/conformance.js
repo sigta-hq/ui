@@ -175,6 +175,22 @@ function diff(a, b) {
 }
 
 /* -------- browser mode ------------------------------------------------------ */
+// Chromium lays each text node out on a 1/64px grid, so the same words split
+// into two nodes (Svelte renders slot text as its own node, Blade often glues
+// it to the template's) can shift a glyph by a fraction of a pixel. Before a
+// screenshot, both runtimes' text is put back into whole nodes.
+async function settleText(page) {
+    await page.evaluate(() => {
+        const root = document.getElementById('fixture');
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_COMMENT);
+        const comments = [];
+        while (walker.nextNode()) comments.push(walker.currentNode);
+        comments.forEach((node) => node.remove());
+        document.body.normalize();
+        return root;
+    });
+}
+
 // Loads each fixture in both runtimes with their scripts running, then
 // compares the live DOM and a screenshot: what a visitor actually sees.
 async function inBrowser(fixtures, blade, svelte) {
@@ -214,9 +230,11 @@ async function inBrowser(fixtures, blade, svelte) {
                     }
                     // Open dialogs and floating panels leave the fixture's box.
                     doms[runtime] = await page.locator('#fixture').innerHTML();
+                    await settleText(page);
                     shots[runtime] = PNG.sync.read(await page.screenshot());
                 } else {
                     doms[runtime] = await page.locator('#fixture').innerHTML();
+                    await settleText(page);
                     shots[runtime] = PNG.sync.read(await page.locator('#fixture').screenshot());
                 }
                 await page.close();

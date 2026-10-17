@@ -18,7 +18,7 @@ for (const file of readdirSync(before).filter((f) => f.endsWith('.png')).sort())
         continue;
     }
     const diff = new PNG({ width: a.width, height: a.height });
-    const changed = pixelmatch(a.data, b.data, diff.data, a.width, a.height, { threshold: 0.1 });
+    const changed = pixelmatch(a.data, b.data, diff.data, a.width, a.height, { threshold: 0.02 });
     if (changed > 0) {
         writeFileSync(join(diffs, file), PNG.sync.write(diff));
         rows.push([file, `${changed} px`]);

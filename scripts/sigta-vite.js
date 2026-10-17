@@ -26,7 +26,7 @@ export async function createSigtaVite(options = {}) {
         logLevel: 'error',
         plugins: [sveltePlugin()],
         resolve: { alias: sourceAliases },
-        server: { middlewareMode: true, hmr: false, watch: null },
+        server: { middlewareMode: true, hmr: false, ws: false, watch: null },
         appType: 'custom',
         optimizeDeps: { noDiscovery: true, include: [] },
         ...options,
