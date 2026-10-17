@@ -21,7 +21,7 @@ export default defineComponent({
     aria: 'The trigger wrapper has aria-haspopup="dialog" and aria-expanded; the panel is a non-modal role="dialog". Escape closes it and returns focus to the trigger; a click outside or focus leaving closes it.',
     props: {
         position: { type: 'enum', values: ['bottom-start', 'bottom-end', 'top-start', 'top-end'], default: 'bottom-start', description: 'Where the panel opens against the trigger; unknown values act as bottom-start.' },
-        open: { type: 'boolean', default: false, bindable: true, blade: false, description: 'Svelte: bind:open reads and sets whether it is open.' },
+        open: { type: 'boolean', default: false, bindable: true, blade: false, description: 'bind:open reads and sets whether it is open.' },
     },
     parts: {
         trigger: { description: 'Wraps the trigger slot; carries aria-haspopup and aria-expanded.' },
@@ -37,8 +37,9 @@ export default defineComponent({
     },
     uses: ['dropdown', 'button'],
     notes: {
-        shared: ['Use dropdown for a list of actions; popover for anything else (a share box, a small form).'],
-        svelte: ['The trigger is a snippet; bind:open to open or close it yourself.'],
+        shared: ['Use {{tag:dropdown}} for a list of actions; popover for anything else (a share box, a small form).'],
+        livewire: ['The trigger goes in <x-slot:trigger> (required); the content is the default slot.'],
+        svelte: ['The trigger is a snippet (required); the content is the children. bind:open to open or close it yourself.'],
     },
     examples: [
         { label: 'Free-form panel', tree: [share()] },

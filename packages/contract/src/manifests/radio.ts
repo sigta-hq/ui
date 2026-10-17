@@ -11,9 +11,9 @@ export default defineComponent({
     aria: 'Native <input type="radio">; wrapped in its <label> when labelled. Group radios by name (in a field or fieldset).',
     props: {
         label: { type: 'string', default: null, description: 'Label text beside the box.' },
-        checked: { type: 'boolean', default: false, native: true, description: 'Chosen. Livewire: wire:model on each radio of the group, or checked.' },
+        checked: { type: 'boolean', default: false, native: true, description: 'Chosen.', blade: { note: 'Or put wire:model on each radio of the group.' }, svelte: { note: 'For a radio outside a group; with bind:group, the radio whose value matches is chosen.' } },
         value: { type: 'string', default: null, native: true, description: 'The value this radio stands for.' },
-        group: { type: 'string', default: null, bindable: true, blade: false, description: 'Svelte: bind:group={choice} on each radio of the group; the radio whose value matches is chosen.' },
+        group: { type: 'string', default: null, bindable: true, blade: false, description: 'bind:group={choice} on each radio of the group; the radio whose value matches is chosen.' },
     },
     parts: {
         control: { description: 'The <input> inside a labelled radio (the bare input is the root).' },
@@ -28,7 +28,7 @@ export default defineComponent({
     notes: {
         shared: [
             'Use it instead of <input type="radio"> with classes. Same wrapper behavior as checkbox.',
-            'For a compact strip of mutually exclusive options use segmented.',
+            'For a compact strip of mutually exclusive options use {{tag:segmented}}.',
         ],
         livewire: ['wire:model and every attribute except class land on the native <input>; class lands on the label row.'],
         svelte: ['bind:group={choice} with a value per radio; without a group, checked sets it.'],

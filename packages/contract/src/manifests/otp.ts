@@ -15,7 +15,7 @@ export default defineComponent({
         description: { type: 'string', default: null, description: 'Help text.' },
         error: { type: 'string', default: null, description: 'Error text; marks every box invalid.' },
         autofocus: { type: 'boolean', default: false, description: 'Focus the first box on load.' },
-        value: { type: 'string', default: null, native: true, bindable: true, description: 'The code. Livewire: wire:model (lands on the hidden input); Svelte: bind:value.' },
+        value: { type: 'string', default: null, native: true, bindable: true, description: 'The code.', blade: { note: 'wire:model lands on the hidden input.' } },
     },
     parts: {
         box: { description: 'One single-character box.' },

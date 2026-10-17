@@ -11,7 +11,7 @@ export default defineComponent({
     aria: 'Native <input type="checkbox" role="switch">, visually hidden inside its <label>; the track is aria-hidden.',
     props: {
         label: { type: 'string', default: null, description: 'Label text beside the track; without it pass aria-label.' },
-        checked: { type: 'boolean', default: false, native: true, bindable: true, description: 'On. Livewire: wire:model or checked; Svelte: bind:checked.' },
+        checked: { type: 'boolean', default: false, native: true, bindable: true, description: 'On.', blade: { note: 'wire:model, or checked for the initial state.' } },
     },
     parts: {
         input: { description: 'The visually hidden native checkbox.' },

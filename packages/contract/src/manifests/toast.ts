@@ -29,7 +29,7 @@ export default defineComponent({
     },
     events: {
         toast: {
-            description: 'Raise a toast: { text, heading?, variant?, duration? (ms, 0 = stay), link? { text, href, target, rel, download, navigate }, action? { text, event, detail } | { text, onClick }, key? (replaces the toast with the same key) }.',
+            description: 'Raise a toast: { text, heading?, variant?, duration? (ms, 0 = stay), link? { text, href, target, rel, download }, action? { text, event, detail } | { text, onClick }, key? (replaces the toast with the same key) }.',
             blade: 'sigta-toast (window) — Sigta::toast() from PHP, $sigta.toast() in Alpine, window.Sigta.toast()',
             svelte: 'sigta.toast() (import { sigta } from \'@sigta-hq/svelte\'), window.Sigta.toast(), or the Inertia page prop sigta.toasts',
             detail: 'ToastDetail',
@@ -41,31 +41,35 @@ export default defineComponent({
     <sigta:toast />
 @endpersist
 
-{{-- PHP --}}
+{{-- PHP, in a Livewire action (use Sigta\\Ui\\Facades\\Sigta;) --}}
 Sigta::toast('Your changes have been saved.');
 Sigta::toast(heading: 'Changes saved.', text: 'You can always update this in your settings.', variant: 'success', duration: 5000, link: ['text' => 'View settings', 'href' => '/settings', 'navigate' => true]);`,
-        svelte: `<!-- root layout -->
-<Toast />
+        svelte: `<script>
+    import { Button, sigta } from '@sigta-hq/svelte';
 
-<script>
-    import { sigta } from '@sigta-hq/svelte';
-    sigta.toast('Your changes have been saved.');
-    sigta.toast({ heading: 'Changes saved.', text: 'You can always update this in your settings.', variant: 'success', duration: 5000, link: { text: 'View settings', href: '/settings' } });
-</script>`,
+    async function save() {
+        await saveSettings();
+        sigta.toast('Your changes have been saved.');
+        // or: sigta.toast({ heading: 'Changes saved.', text: 'You can always update this in your settings.', variant: 'success', duration: 5000, link: { text: 'View settings', href: '/settings' } });
+    }
+</script>
+
+<!-- <Toast /> sits once in the root layout; raise toasts from anywhere on the client -->
+<Button onclick={save}>Save</Button>`,
     },
     notes: {
         shared: [
             'Variants: success, warning, danger, info.',
             'An action (e.g. Undo after a completion) adds a button that fires its event — or runs onClick from JS — and closes the toast. A key replaces the showing toast with the same key instead of stacking another.','Mount it once per layout, near the end of <body>.', 'Use a key to replace rather than stack (ticking off five items leaves one toast).'],
         livewire: [
-            'From Alpine: $sigta.toast(\'Saved\') or $sigta.toast({ heading: \'…\', variant: \'warning\' }); from JS: window.Sigta.toast(…); low level: $this->dispatch(\'sigta-toast\', heading: \'Saved\', variant: \'success\').',
-            'action: [\'text\' => \'Undo\', \'event\' => \'task-reopen\', \'detail\' => [\'id\' => $id]] fires through Livewire, so an #[On(\'task-reopen\')] method receives $id.',
-            'From PHP: Sigta::toast(\'Saved\') or Sigta::toast(heading: \'…\', variant: \'success\', action: [\'text\' => \'Undo\', \'event\' => \'task-reopen\', \'detail\' => [\'id\' => 5]]). An action\'s event goes through Livewire, so #[On] listeners hear it.',
+            'From Livewire (preferred): Sigta::toast(\'Saved\') or Sigta::toast(heading: \'Changes saved.\', text: \'…\', variant: \'success\', duration: 5000, link: [\'text\' => \'View settings\', \'href\' => \'/settings\', \'navigate\' => true]) — use Sigta\\Ui\\Facades\\Sigta. A link with \'navigate\' => true follows it with wire:navigate.',
+            'An action — action: [\'text\' => \'Undo\', \'event\' => \'task-reopen\', \'detail\' => [\'id\' => $id]] — fires its event through Livewire, so an #[On(\'task-reopen\')] method receives $id.',
+            'From Alpine: $sigta.toast(\'Saved\') or $sigta.toast({ heading: \'…\', variant: \'warning\' }); from JS: window.Sigta.toast(…); low level (still supported): $this->dispatch(\'sigta-toast\', heading: \'Saved\', variant: \'success\').',
             'With wire:navigate, wrap it in @persist(\'toast\') so toasts survive page transitions.',
         ],
         svelte: [
-            'import { sigta } from \'@sigta-hq/svelte\'; sigta.toast(\'Saved\', { variant: \'success\' }).',
-            'From any backend through Inertia: return { sigta: { toasts: [{ text, variant }] } } in the page props and use the inertia subpath.',
+            'Raise one from anywhere on the client: import { sigta } from \'@sigta-hq/svelte\', then sigta.toast(\'Saved\', { variant: \'success\' }) or sigta.toast({ heading, text, variant, … }). An action is { text: \'Undo\', onClick } (or { text, event, detail } to fire a window event).',
+            'From any backend through Inertia: put { sigta: { toasts: [{ text, variant }] } } in the page props and call connectInertia() from @sigta-hq/svelte/inertia once (see sigta-ui.md).',
         ],
     },
     examples: [

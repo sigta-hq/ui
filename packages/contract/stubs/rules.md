@@ -62,7 +62,11 @@ raw HTML tag with Tailwind utility classes.
 | Toggle | {{tag:switch}} | custom toggle markup |
 | Range slider | {{tag:slider}} | `<input type="range" class="…">` |
 | Field wrapper | {{tag:field}} | hand-rolled label/error markup |
-| Icon | {{tag:icon}} | `<svg>` / any icon library |
+<!-- @livewire -->
+| Icon | `<sigta:icon name="…">` | `<svg>` / any icon library |
+<!-- @svelte -->
+| Icon | `<Icon name="…">` | `<svg>` / any icon library |
+<!-- @end -->
 | Badge / status pill | {{tag:badge}} / {{tag:pill}} | `<span class="rounded-full …">` |
 | Alert / status box | {{tag:callout}} | `<div role="alert" class="…">` |
 | Modal | {{tag:modal}} + {{tag:modal.trigger}} | custom dialog markup |
@@ -75,9 +79,17 @@ raw HTML tag with Tailwind utility classes.
 | Body text variant | {{tag:text}} | `<p class="text-…">` |
 | Avatar | {{tag:avatar}} | `<img class="rounded-full …">` |
 | Loading indicator / spinner | {{tag:loader}} | a spinner SVG, `animate-spin`, "Loading…" text |
-| "Saving…" / "Saved" indicator | {{tag:save-state}} | hand-written status text |
+<!-- @livewire -->
+| "Saving…" / "Saved" indicator | {{tag:save-state}} | hand-written status text, `wire:loading` spans |
+<!-- @svelte -->
+| "Saving…" / "Saved" indicator | {{tag:save-state}} | hand-written status text, `{#if saving}` spans |
+<!-- @end -->
 | Background job / queue progress | {{tag:job}} | a progress bar + text assembled by hand |
-| A count that changes (unread, open) | {{tag:count}} | a bare number in a badge |
+<!-- @livewire -->
+| A count that changes (unread, open) | {{tag:count}} | a bare `{{ $n }}` in a badge |
+<!-- @svelte -->
+| A count that changes (unread, open) | {{tag:count}} | a bare `{n}` in a badge |
+<!-- @end -->
 
 For the complete list with props and variants, read **`sigta-components.md`**.
 
@@ -100,10 +112,16 @@ layer.**
 
 ### 3. Never import another icon library
 
-Use {{tag:icon}} (Lucide under the hood, one pinned set). Do not add Heroicons,
-Phosphor, Feather, lucide-svelte or any other icon set. If a needed icon is
-missing from Lucide, say so in a comment rather than substituting another
-library.
+<!-- @livewire -->
+Use `<sigta:icon name="…">` (Lucide under the hood, one pinned set). Do not
+add Heroicons, Phosphor, Feather, or any other icon set.
+<!-- @svelte -->
+Use `<Icon name="…">` (Lucide under the hood, one pinned set). Do not add
+Heroicons, Phosphor, Feather, `lucide-svelte` or any other icon set — not even
+Lucide's own package: `<Icon>` already carries the set at the brand stroke.
+<!-- @end -->
+If a needed icon is missing from Lucide, say so in a comment rather than
+substituting another library.
 
 ### 4. Foundation must be wired before components work
 
@@ -114,6 +132,9 @@ The app's CSS entry must import Sigta:
 @import "tailwindcss";
 @import "../../vendor/sigta/ui/resources/css/sigta.css";
 ```
+
+The component stylesheet ships prebuilt, so no `@source` line is needed for
+Sigta's own views (an existing one is harmless; leave it).
 
 The layout `<head>` must include (after Livewire styles):
 
@@ -139,6 +160,8 @@ in the root layout:
 <!-- the root layout -->
 <script>
     import { Toast } from '@sigta-hq/svelte';
+
+    let { children } = $props();
 </script>
 
 {@render children()}
@@ -183,7 +206,7 @@ the UI feel unfinished. Work out every state before you place one:
   by hand, and never swap a button's label for "Saving…" or for the loader.
 - **Pin the compass to the side that stays put; the words grow away from
   it.** Against a right edge (the end of a toolbar, a `justify-between`
-  header, the last table cell) use the save state with `align="end"`, or put a
+  header, the last table cell) use {{tag:save-state}} with `align="end"`, or put a
   hand-built loader after its text and right-align the text. Anything between
   the loader and the edge it hangs from will push it. In a centred group both
   ends move, so reserve the words' room (next rule).
@@ -330,8 +353,8 @@ Props follow conventional Livewire naming. Common ones across many components:
 swallow them. Don't add `wire:ignore` unless truly necessary.
 <!-- @end -->
 <!-- @svelte -->
-Prop names, variant values and slot names are the same as in the Livewire
-runtime: `variant`, `size`, `icon`, `label`, `description`, `error`,
+Prop names, variant values and slot names are shared by every Sigta runtime:
+`variant`, `size`, `icon`, `label`, `description`, `error`,
 `placeholder`, `heading`, `name`, `href`. Multi-word props are camelCase
 (`primaryLabel`). Two-way state uses `bind:` (`bind:value`, `bind:checked`,
 `bind:open`); events are callback props (`onchange`, `onmove`, `onsubmit`);
@@ -351,7 +374,7 @@ rather than building custom wiring:
 - `sigta-save-state` `{name, state}` → drives the `<sigta:save-state name="…">` with that name. Prefer `$sigta.save(promise, name)`.
 - `sigta-modal-show` / `sigta-modal-hide` `{name}` → open/close a modal
 - `sigta-composer-submit` `{text}` → composer sent a message
-- `sigta-kanban-move` `{card, from, to, position}` → card dragged on the board
+- `sigta-kanban-move` `{card, from, to, position}` → card dragged on the board; `sigta-kanban-column-move` `{column, position}` → a sortable column dragged along it
 <!-- @end -->
 <!-- @svelte -->
 - `sigta-toast` `{heading, text, variant, duration, link, action, key}` → shows a toast (`<Toast />` mounted once). Prefer `sigta.toast()` (`import { sigta } from '@sigta-hq/svelte'`) or `window.Sigta.toast()`.
@@ -404,12 +427,15 @@ toasts and celebrations, so any backend (Laravel, Go, …) can raise them:
 import { connectInertia } from '@sigta-hq/svelte/inertia';
 connectInertia();
 ```
+
+`connectInertia({ saveState: 'page' })` also drives `<SaveState name="page">`
+from every non-GET visit: saving, then saved, or failed on validation errors.
 <!-- @end -->
 
 ## When to extend vs. when to ask
 
 If the design calls for something no Sigta component covers, **prefer composing
-existing components** (a card containing a button + a badge) over writing
-bespoke markup. If composition can't satisfy the need, leave a clear comment
-saying what's missing and why — do not silently introduce a parallel
-component vocabulary.
+existing components** (a {{tag:card}} containing a {{tag:button}} + a
+{{tag:badge}}) over writing bespoke markup. If composition can't satisfy the
+need, leave a clear comment saying what's missing and why — do not silently
+introduce a parallel component vocabulary.

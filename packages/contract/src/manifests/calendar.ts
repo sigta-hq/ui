@@ -19,8 +19,8 @@ export default defineComponent({
             type: 'date',
             default: null,
             bindable: true,
-            description: 'The selected day, YYYY-MM-DD; the calendar opens on its month. Livewire: wire:model (lands on the hidden input); Svelte: bind:value.',
-            blade: { accepts: 'string|\\DateTimeInterface (Carbon)', note: 'A Carbon/DateTimeInterface is read as its Y-m-d day.' },
+            description: 'The selected day, YYYY-MM-DD; the calendar opens on its month.',
+            blade: { accepts: 'string|\\DateTimeInterface (Carbon)', note: 'wire:model lands on the hidden input. A Carbon/DateTimeInterface is read as its Y-m-d day.' },
         },
         min: { type: 'date', default: null, description: 'First selectable day, YYYY-MM-DD; earlier days are disabled and the month before is out of reach.' },
         max: { type: 'date', default: null, description: 'Last selectable day, YYYY-MM-DD; later days are disabled and the month after is out of reach.' },
@@ -77,7 +77,7 @@ export default defineComponent({
         ],
         svelte: [
             'bind:value (YYYY-MM-DD) and onchange(value); name and other attributes land on the hidden input for plain form posts. A value set from outside shows its month.',
-            'Picking a day also dispatches a bubbling calendar-change DOM event with { value, label }, as the Livewire runtime does.',
+            'Picking a day also dispatches a bubbling calendar-change DOM event with { value, label }: the ISO date and "9 Jul 2026".',
         ],
     },
     examples: [

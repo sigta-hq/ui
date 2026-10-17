@@ -10,19 +10,30 @@ of its family (`<Dropdown.Item>`, `<Tabs.Panel>`, `<Section.Hero>`): import the
 family (`import { Dropdown } from '@sigta-hq/svelte'`).
 
 Two-way props are bindable (`bind:value`), events are callback props
-(`onchange`), named slots are snippets of the same name. Unknown attributes
+(`onchange`), named slots are snippets of the same name and the default slot
+is `children` (prose says "slot" for both). Unknown attributes
 (`name`, `id`, `aria-*`, `data-*`) forward to the native element. Props marked
 **required** have no default.
+
+Prose names other components by their contract name, which maps to the import
+mechanically: `dropdown.item` is `<Dropdown.Item>`, `save-state` is
+`<SaveState>`, `tile-grid.tile` is `<TileGrid.Tile>`.
+
+A *family* heading groups the components one kit page shows together (it is
+not always a namespace: `<Duration>` sits with `<ElapsedClock>`). Each
+entry gives the props with their types and defaults, then slots, events,
+accessibility and usage notes, and an example.
 
 ## Elements (indivisible blocks)
 
 ### `Count`
 
-A number that bumps when it changes — rising as it grows, dropping as it shrinks — whether a morph, an x-text, a Svelte update or a plain write changes it. For unread badges and "12 open" headings. Tabular numerals.
+A number that bumps when it changes — rising as it grows, dropping as it shrinks — whatever changes it (a re-render, a script, a plain DOM write). For unread badges and "12 open" headings. Tabular numerals.
 
 - **Props:**
   - `value` (number) — The number; falls back to the slot (children) when unset. Zero is a value.
-- **Snippets:** `children` — The number, when value is unset (an x-text target in Alpine).
+- **Snippets:** `children` — The number, when value is unset.
+- **Accessibility:** A plain <span>; the number is its text.
 - Use it for a count that changes (unread, open) instead of a bare number in a badge.
 - The bump is a script animation from the shared core; with reduced motion the number just changes.
 - Pass the reactive number as value; the component watches its own text, so any update bumps it.
@@ -42,6 +53,7 @@ Handwritten margin annotation (Caveat), slightly rotated. Decorative by default:
   - `muted` (boolean, default `false`) — Back-compat for tone="muted"; tone wins when both are given.
   - `decorative` (boolean, default `true`) — Hides it from assistive technology (aria-hidden).
 - **Snippets:** `children` — The note.
+- **Accessibility:** aria-hidden while decorative (the default); set decorative to false when the note carries meaning.
 - A hand-drawn flourish: use it beside content as a margin note, sparingly. Position it with classes (absolute -top-3 right-[8%]) on a panel, which does not clip it.
 ```svelte
 <Annot tone="accent">lad os tegne det op ↘</Annot>
@@ -55,6 +67,7 @@ The SIGTA wordmark + glyph lockup. currentColor throughout, so a text colour on 
   - `name` (string, default `SIGTA`) — The wordmark text.
   - `glyphOnly` (boolean, default `false`) — Only the glyph, no wordmark.
   - `size` (`sm` · `base` · `lg`, default `base`) — Glyph 22 / 30 / 38px with a matching wordmark.
+- **Accessibility:** The glyph is decorative (aria-hidden); the wordmark is text. A glyph-only brand in a link needs the link labelled.
 - Recolour it with a text utility on the brand itself (class="text-inverse-fg" on a dark band); never hard-code a colour.
 ```svelte
 <Brand size="lg" />
@@ -66,6 +79,7 @@ Mono uppercase kicker with a leading dash rule. Sits above section headings.
 
 - **Props:** none
 - **Snippets:** `children` — The kicker text.
+- **Accessibility:** A <p>; the dash is a pseudo-element.
 ```svelte
 <Eyebrow>01 · Install</Eyebrow>
 ```
@@ -77,8 +91,10 @@ A Fraunces heading at the brand scale. The level picks the tag (h1–h6) and a d
 - **Props:**
   - `level` (number, default `2`) — Heading level 1–6 (the tag).
   - `size` (`display` · `xl` · `lg` · `base` · `sm`) — The look; defaults by level (1 → xl, 2 → lg, 3 → base, else sm).
-- **Snippets:** `children` — The heading text; a <sigta:mark> can highlight a word.
+- **Snippets:** `children` — The heading text; a mark can highlight a word or two.
+- **Accessibility:** Native h1–h6; keep levels in document order and pick the look with size.
 - Use it instead of styling <h1>–<h6> by hand. The semantic level drives the default size; override the look with size.
+- A `<Mark>` inside it highlights a word or two — one per view.
 ```svelte
 <Heading level={1} size="display">Page title</Heading>
 ```
@@ -89,6 +105,7 @@ Highlighter swipe behind a word or two: a slightly skewed accent stroke drawn un
 
 - **Props:** none
 - **Snippets:** `children` — The word or two to highlight.
+- **Accessibility:** A plain <span>; the swipe is a pseudo-element, so the text reads as it is.
 - Use sparingly — one mark per view. Accent (highlighter yellow) is scarce: status highlights only, never large fills.
 - It does not wrap (white-space: nowrap); keep it to a word or two inside a heading or a sentence.
 ```svelte
@@ -101,7 +118,8 @@ The brand's hand-drawn squiggle divider: an inline SVG hairline in currentColor.
 
 - **Props:**
   - `variant` (number, default `1`) — Which of the three hand-drawn squiggle paths: 1, 2 or 3 (other numbers wrap round).
-- Use it between page sections; inside content, a plain separator is the quieter choice.
+- **Accessibility:** Decorative: aria-hidden.
+- Use it between page sections; inside content, a plain `<Separator>` (an <hr>) is the quieter choice.
 ```svelte
 <Rule variant={2} />
 ```
@@ -112,6 +130,7 @@ Plain <hr> hairline, solid or dashed. Use inside content; use the rule for decor
 
 - **Props:**
   - `variant` (`solid` · `dashed`, default `solid`) — Line style.
+- **Accessibility:** Native <hr> (role separator).
 - Use it inside content; for a decorative divider between sections use <Rule>.
 ```svelte
 <Separator />
@@ -125,6 +144,7 @@ Body copy in Newsreader: the default body, a lede, muted secondary text, a mono 
 - **Props:**
   - `variant` (`body` · `lede` · `muted` · `caption` · `hand`, default `body`) — body, lede (intro), muted, caption (mono), hand (Caveat).
 - **Snippets:** `children` — The text.
+- **Accessibility:** A <p>.
 - Use it instead of a <p> with text utilities. lede = large intro; muted = graphite secondary; caption = small mono; hand = Caveat handwriting.
 ```svelte
 <Text variant="muted">Secondary detail.</Text>
@@ -137,10 +157,11 @@ The action control: ink fill, outline, ghost and danger variants, a dark-band pa
 - **Props:**
   - `variant` (`primary` · `secondary` · `ghost` · `cta` · `danger` · `inverse` · `ghost-inverse`, default `secondary`) — primary/cta = ink fill; secondary = ink outline; ghost = borderless; danger = red fill; inverse / ghost-inverse = paper fill / hairline outline for dark bands.
   - `size` (`sm` · `base`, default `base`) — Control size.
-  - `loading` (boolean) — Busy state. Livewire infers it from wire:click / wire:submit / type="submit" and shows the compass once the action outlasts a beat; true shows it now, false never. Svelte: pass the in-flight flag (loading={form.processing}); the compass appears once it outlasts a beat.
+  - `loading` (boolean) — Busy state: true shows the compass (at once when the button renders busy, after a beat when it turns busy); false never shows it. Pass the in-flight flag (loading={form.processing}).
   - `href` (string) — Renders an <a> with the button look (a null or empty href stays a <button>). target="_blank" gets rel="noopener" unless rel is given.
   - `type` (`button` · `submit` · `reset`, default `button`) — The native button type. A submit button carries the busy markup automatically.
 - **Snippets:** `children` — The label; icons go inline (leading or trailing).
+- **Accessibility:** Native <button>; <a> when href is set.
 - Renders <a> when href is set, else <button>. Lifts on hover, settles back onto the paper while pressed, springs back on release.
 - Use variant="cta" with a trailing arrow-right icon for the main call to action.
 - On a dark band (bg-inverse) use variant="inverse" and "ghost-inverse" — never override colours.
@@ -165,6 +186,7 @@ Small mono pill with a 1.5px border: an ink outline, a solid ink fill, or the ac
 - **Props:**
   - `variant` (`outline` · `solid` · `accent`, default `outline`) — outline (ink border), solid (ink fill) or accent (highlighter, sparingly).
 - **Snippets:** `children` — The label.
+- **Accessibility:** A <span>.
 - Use it instead of a <span class="rounded-full …">. For a status with a coloured dot (live, failed, paused) use the pill.
 - A number that changes (unread, open) belongs in <Count>, not a bare number in a badge.
 ```svelte
@@ -179,6 +201,7 @@ Status pill with a leading dot and a tinted background in the status colour: suc
 - **Props:**
   - `variant` (`neutral` · `success` · `danger`, default `neutral`) — The status colour (neutral is graphite).
 - **Snippets:** `children` — The status label.
+- **Accessibility:** The dot is decorative (aria-hidden); the label carries the status.
 - Use it for a status (operational, at risk, paused); for a plain label use the badge.
 ```svelte
 <Pill variant="success">Operational</Pill>
@@ -197,6 +220,7 @@ A person or team: their portrait, or mono initials from the first two words of t
   - `shape` (`circle` · `square`, default `circle`) — circle, or square (rounded-base) for teams and workspaces.
   - `size` (`xs` · `sm` · `base` · `lg`, default `base`) — xs 24px, sm 32px, base 40px, lg 56px.
   - `tone` (`ink` · `line`, default `ink`) — Initials ground: ink fill, or a quiet hairline ground (line).
+- **Accessibility:** <img> with alt (alt ?? name) when src is set. Initials are role="img" labelled with alt ?? name, or aria-hidden without a name; passing aria-hidden leaves both to you (beside a visible name).
 - Use it instead of an <img class="rounded-full …">. Beside a visible name (a profile, a list row), pass aria-hidden="true" so the name is not read twice.
 ```svelte
 <Avatar name="Søren Frisk" />
@@ -211,8 +235,8 @@ A Lucide icon from the pinned set both runtimes share, at the brand stroke weigh
 - **Props:**
   - `name` (string, **required**) — Lucide icon name, e.g. arrow-right, check, x, calendar.
   - `size` (`xs` · `sm` · `base` · `lg`, default `base`) — xs 14px, sm 16px, base 20px, lg 24px.
-- Never import another icon library; every icon comes from <sigta:icon> / <Icon>. If an icon is missing from Lucide, say so in a comment rather than substituting another set.
-- aria-hidden by default; pass aria-label (and aria-hidden="false") for a meaningful icon.
+- **Accessibility:** aria-hidden by default; pass aria-label and aria-hidden="false" for a meaningful icon.
+- Never import another icon library; every icon comes from `<Icon>`. If an icon is missing from Lucide, say so in a comment rather than substituting another set.
 ```svelte
 <Icon name="arrow-right" size="sm" />
 ```
@@ -227,7 +251,8 @@ A native text input in the field chrome: label, description, error and an option
   - `error` (string) — Error text; marks the input invalid.
   - `icon` (string) — Leading icon name.
   - `type` (string, default `text`) — Native input type (text, email, password, number, date, …).
-  - `value` (string, bindable (`bind:value`)) — The value. Livewire: wire:model on the component; Svelte: bind:value.
+  - `value` (string, bindable (`bind:value`)) — The value.
+- **Accessibility:** Native <input>; aria-invalid with an error, aria-describedby for description and error.
 - Use it instead of a raw <input>; it wraps itself in the field chrome.
 - bind:value for two-way binding; name, placeholder, required … pass straight through to the <input>.
 ```svelte
@@ -243,8 +268,8 @@ A native <textarea> in the field chrome: label, description and error, resizable
   - `description` (string) — Help text.
   - `error` (string) — Error text; marks the textarea invalid.
   - `rows` (number, default `4`) — Visible text lines.
-  - `value` (string, bindable (`bind:value`)) — The text. Livewire: wire:model, or the slot / a value attribute for the initial text; Svelte: bind:value.
-- **Snippets:** `children` — Blade only: the initial text (Svelte uses value).
+  - `value` (string, bindable (`bind:value`)) — The text.
+- **Accessibility:** Native <textarea>; aria-invalid with an error, aria-describedby for description and error.
 - Use it instead of a raw <textarea> with classes; it wraps itself in the field chrome.
 - bind:value for two-way binding; name, placeholder, required … pass straight through to the <textarea>.
 ```svelte
@@ -257,10 +282,11 @@ A native checkbox whose tick is drawn as two pen strokes. With a label it render
 
 - **Props:**
   - `label` (string) — Label text beside the box.
-  - `checked` (boolean, default `false`, bindable (`bind:checked`)) — Livewire: wire:model or checked; Svelte: bind:checked.
+  - `checked` (boolean, default `false`, bindable (`bind:checked`)) — Ticked.
+- **Accessibility:** Native <input type="checkbox">; wrapped in its <label> when labelled.
 - Use it instead of <input type="checkbox"> with classes. Renders a <label> wrapper when label is set, the bare input otherwise.
 - The tick is drawn as two pen strokes when checked; the box gives a little under a press.
-- To complete a row with the full motion (tick, burst, strike, fold), call complete from its change handler in a [data-sigta-motion] list and mark the row's title with data-sigta-strike.
+- To complete a row with the full motion (tick, burst, strike, fold), call complete from its change handler in a [data-sigta-motion] list and mark the row's title with data-sigta-strike (see Motion at the end of this file).
 - <Checkbox onchange={(e) => sigta.complete(e.currentTarget, () => remove(task))} /> with out:leave on the row: the row folds, then the item leaves the list.
 ```svelte
 <script>
@@ -281,11 +307,12 @@ A native radio drawn as a round box that fills with ink around a paper dot. Rend
 
 - **Props:**
   - `label` (string) — Label text beside the box.
-  - `checked` (boolean, default `false`) — Chosen. Livewire: wire:model on each radio of the group, or checked.
+  - `checked` (boolean, default `false`) — Chosen. For a radio outside a group; with bind:group, the radio whose value matches is chosen.
   - `value` (string) — The value this radio stands for.
-  - `group` (string, bindable (`bind:group`)) — Svelte: bind:group={choice} on each radio of the group; the radio whose value matches is chosen.
+  - `group` (string, bindable (`bind:group`)) — bind:group={choice} on each radio of the group; the radio whose value matches is chosen.
+- **Accessibility:** Native <input type="radio">; wrapped in its <label> when labelled. Group radios by name (in a field or fieldset).
 - Use it instead of <input type="radio"> with classes. Same wrapper behavior as checkbox.
-- For a compact strip of mutually exclusive options use segmented.
+- For a compact strip of mutually exclusive options use `<Segmented>`.
 - bind:group={choice} with a value per radio; without a group, checked sets it.
 ```svelte
 <Radio name="density" value="comfortable" label="Comfortable density" bind:group={density} />
@@ -298,7 +325,8 @@ A role="switch" toggle: a real checkbox behind a pill track whose paper knob sli
 
 - **Props:**
   - `label` (string) — Label text beside the track; without it pass aria-label.
-  - `checked` (boolean, default `false`, bindable (`bind:checked`)) — On. Livewire: wire:model or checked; Svelte: bind:checked.
+  - `checked` (boolean, default `false`, bindable (`bind:checked`)) — On.
+- **Accessibility:** Native <input type="checkbox" role="switch">, visually hidden inside its <label>; the track is aria-hidden.
 - Use it instead of custom toggle markup. Without a visible label, pass aria-label.
 - bind:checked for the state; other attributes (name, disabled, onchange) land on the native <input>.
 ```svelte
@@ -314,7 +342,8 @@ Determinate or indeterminate progress bar: a hairline track filled in ink. A lab
   - `max` (number, default `100`) — The value that fills the bar.
   - `label` (string) — Header text; adds the header row with the rounded percentage.
   - `indeterminate` (boolean, default `false`) — Sweep a short bar across instead of filling; no percentage.
-- For long-running background work prefer job (or loader with a value), which carry the brand motion; use progress for a plain bar (uploads, steps).
+- **Accessibility:** role="progressbar" with aria-valuemin/max and aria-valuenow (omitted when indeterminate); aria-labelledby points at the label.
+- For long-running background work prefer `<Job>` (or `<Loader>` with a value), which carry the brand motion; use progress for a plain bar (uploads, steps).
 - The percentage is value / max, clamped to 0–100.
 ```svelte
 <Progress value={upload.percent} label="Uploading" />
@@ -325,17 +354,18 @@ Determinate or indeterminate progress bar: a hairline track filled in ink. A lab
 The Sigta compass: the brand mark as a loader. While it works the legs swing round and the pencil draws a circle; with a value the circle is drawn as far round as the work has come; done stands the mark complete and stamps; failed shakes it red. Never a generic spinner.
 
 - **Props:**
-  - `size` (`xs` · `sm` · `base` · `lg` · `xl`, default `base`) — xs 16px … xl 72px; small sizes draw a heavier pen.
-  - `variant` (`compass` · `sketch`, default `compass`) — compass turns; sketch draws the whole mark on a loop, for longer waits.
+  - `size` (`xs` · `sm` · `base` · `lg` · `xl`, default `base`) — xs 16px, sm 20px, base 28px, lg 44px, xl 72px; small sizes draw a heavier pen.
+  - `variant` (`compass` · `sketch`, default `compass`) — compass: the mark in use — the handle turns, the legs swing round each other and the pencil draws a circle on the paper, then lifts it; sketch: the whole mark draws itself on a loop, for longer waits.
   - `state` (`idle` · `queued` · `working` · `done` · `failed`, default `working`) — Unknown values fall back to working.
   - `value` (number) — Progress 0–100 (clamped); done fills it.
   - `label` (string) — Accessible name; defaults to the state (Working, Queued, Done, Failed, Ready).
   - `decorative` (boolean, default `false`) — Hide from assistive tech when a parent already announces the work.
+- **Accessibility:** role="progressbar" with aria-label (and aria-value* with a value); aria-hidden when decorative.
 - Use it wherever you would write "Loading…" or reach for a spinner.
 - States: queued (the compass standing, no arc yet, graphite), working, done (the mark complete with its arc and a small stamp), failed (shakes, danger), idle (the complete mark, graphite).
 - When a working loader turns done, the runtime lets it finish its turn, close the circle and raise it into the mark's arc before the stamp (with reduced motion it lands at once). currentColor throughout.
-- It never moves. Keep it rendered and change state rather than mounting it per request; if it must be hidden at rest, keep its box with class="invisible". Put it on the side of its text that stays put (after right-aligned text at a right edge) and reserve the text's room so a new word never pushes it.
-- Prefer save-state, a busy button or job, which hold their space already.
+- It never moves (sigta-ui.md, MUST 5). Keep it rendered and change state rather than mounting it per request; if it must be hidden at rest, keep its box with class="invisible". Put it on the side of its text that stays put (after right-aligned text at a right edge) and reserve the text's room so a new word never pushes it.
+- Prefer `<SaveState>`, a busy `<Button>` or `<Job>`, which hold their space already.
 - Never wrap it in {#if}; pass state (and value) from your data.
 ```svelte
 <Loader />
@@ -352,7 +382,8 @@ Brand-styled native range input in the field chrome: a hairline track and a rais
   - `description` (string) — Help text.
   - `error` (string) — Error text; rims the thumb in red.
   - `showValue` (boolean, default `false`) — Print the live value beside the track in mono.
-  - `value` (number, bindable (`bind:value`)) — The value. Livewire: wire:model or value; Svelte: bind:value.
+  - `value` (number, bindable (`bind:value`)) — The value.
+- **Accessibility:** Native <input type="range">; aria-invalid with an error, aria-describedby for description and error; the readout is an <output for>.
 - Use it instead of <input type="range"> with classes.
 - bind:value gives a number; min, max, step pass straight through to the <input>.
 ```svelte
@@ -365,6 +396,7 @@ Loading placeholder, aria-hidden: a pulsing hairline-tinted shape — a line, a 
 
 - **Props:**
   - `variant` (`line` · `heading` · `block` · `circle`, default `line`) — line (1rem), heading (2rem, two thirds wide), block (16:9) or circle (40px).
+- **Accessibility:** aria-hidden.
 - Content that replaces a skeleton can land with animate-sigta-settle (fade, rise, unblur).
 ```svelte
 <Skeleton variant="heading" />
@@ -381,7 +413,8 @@ Static duration display in tabular numerals: whole minutes as a compact "1h 15m"
 - **Props:**
   - `minutes` (number) — Whole minutes; null and negatives read as 0, fractions are truncated.
   - `format` (`compact` · `clock`, default `compact`) — compact (1h 15m) or clock (01:30). Unknown values fall back to compact.
-- For a value that counts up live use elapsed-clock.
+- **Accessibility:** A plain <span>; the duration is its text.
+- For a value that counts up live use `<ElapsedClock>`.
 - Both runtimes format with the same rules (the core's formatDuration), so a server render and a client render agree.
 ```svelte
 <Duration minutes={task.estimateMinutes} />
@@ -394,8 +427,9 @@ Live-ticking HH:MM:SS value counting up from since, in tabular numerals. Present
 
 - **Props:**
   - `since` (date) — The start instant as an ISO-8601 string; unset means now (the moment it mounts).
+- **Accessibility:** A plain <span>; the clock is its text.
 - Server-rendered as 00:00:00; it ticks once a second on the client. A start in the future reads 00:00:00.
-- For a static duration use duration.
+- For a static duration use `<Duration>`.
 - Pass since an ISO string (new Date().toISOString(), or what your backend sends).
 ```svelte
 <ElapsedClock since={entry.startedAt} class="text-lg" />
@@ -408,7 +442,8 @@ Mono uppercase form label. variant="inverse" re-colours it for a dark surface.
 - **Props:**
   - `variant` (`default` · `inverse`, default `default`) — inverse for a dark surface (inside an inverse panel).
 - **Snippets:** `children` — The label text.
-- inverse re-colours it for a dark surface (inside <sigta:panel variant="inverse"> / <Panel variant="inverse">).
+- **Accessibility:** Native <label>; point it at its control with for.
+- inverse re-colours it for a dark surface (inside a `<Panel>` with variant="inverse").
 ```svelte
 <script>
     import { Label } from '@sigta-hq/svelte';
@@ -428,6 +463,7 @@ Avatar + name + optional meta line (role, place, email). reverse mirrors the lay
   - `meta` (string) — A mono line under the name.
   - `src` (string) — Portrait URL for the avatar.
   - `reverse` (boolean, default `false`) — Avatar on the right, text right-aligned.
+- **Accessibility:** The avatar is aria-hidden: the name beside it is the text.
 ```svelte
 <Profile name="Ada Lovelace" meta="Engineering · Halyard OS" />
 <Profile name="Nina Vale" meta="Design" src={user.avatarUrl} reverse />
@@ -443,6 +479,7 @@ The chrome around a form control: a label, the control, then a description or an
   - `error` (string) — Error text below the control (replaces nothing; shown in red).
   - `for` (string) — Id of the control the label names; generated when omitted.
 - **Snippets:** `children` — The control.
+- **Accessibility:** The label points at the control (for); description and error ids are referenced by the control's aria-describedby.
 - With no label, description, error or attributes it renders the control alone, without a wrapper.
 - Use it when wrapping a custom control; Sigta form controls already wrap themselves.
 ```svelte
@@ -465,9 +502,10 @@ Native select with a chevron overlay, wrapped in the field chrome: label, descri
   - `label` (string) — Field label.
   - `description` (string) — Help text.
   - `error` (string) — Error text; marks the select invalid.
-  - `value` (string, bindable (`bind:value`)) — The chosen value. Livewire: wire:model on the component; Svelte: bind:value.
+  - `value` (string, bindable (`bind:value`)) — The chosen value.
 - **Snippets:** `children` — The native <option>s (and <optgroup>s).
-- Use it instead of a raw <select> with classes. For a searchable or rich single-select use listbox or autocomplete.
+- **Accessibility:** Native <select>; aria-invalid with an error, aria-describedby for description and error. The chevron is decorative.
+- Use it instead of a raw <select> with classes. For a searchable or rich single-select use `<Listbox>` or `<Autocomplete>`.
 - bind:value for two-way binding; name, required … pass straight through to the <select>.
 ```svelte
 <Select label="Engagement type" bind:value={type}>
@@ -480,7 +518,7 @@ Native select with a chevron overlay, wrapped in the field chrome: label, descri
 
 #### `Autocomplete`
 
-A filtering combobox: type to narrow the slotted options, move with the arrow keys, Enter to choose. The chosen value lives in a hidden input (name, wire:model) or bind:value.
+A filtering combobox: type to narrow the slotted options, move with the arrow keys, Enter to choose. The chosen value lives in a hidden input, so it also posts with a plain form.
 
 - **Props:**
   - `label` (string) — Label above the query box.
@@ -488,9 +526,11 @@ A filtering combobox: type to narrow the slotted options, move with the arrow ke
   - `error` (string) — Error text; marks the query box invalid.
   - `placeholder` (string) — Query box placeholder.
   - `name` (string) — Form name of the hidden value input.
-  - `value` (string, bindable (`bind:value`)) — The chosen value. Livewire: wire:model (lands on the hidden input); Svelte: bind:value.
-- **Snippets:** `children` — The <autocomplete.option>s.
-- **Events:** `onchange` (string | null) — The value changed.
+  - `value` (string, bindable (`bind:value`)) — The chosen value.
+- **Snippets:** `children` — The autocomplete.options.
+- **Events:**
+  - `onchange` (`string | null`) — The value changed.
+- **Accessibility:** WAI-ARIA combobox (list autocomplete) with a listbox; the active option is announced through aria-activedescendant.
 - The listbox floats with fixed positioning, so it escapes cards and forms that clip overflow.
 - bind:value; other attributes (name, data-*) land on the hidden value input.
 ```svelte
@@ -502,12 +542,14 @@ A filtering combobox: type to narrow the slotted options, move with the arrow ke
 
 #### `Autocomplete.Option`
 
-One option of an autocomplete. Its value defaults to its text; label is what the query box shows once it is chosen.
+One option row, shared by autocomplete, listbox and pillbox. Its value defaults to its text; label is what an autocomplete's query box shows once it is chosen.
 
 - **Props:**
   - `value` (string) — The value chosen (defaults to the text).
   - `label` (string) — Text written back into the query box (defaults to the text).
 - **Snippets:** `children` — The option text.
+- **Accessibility:** role="option" with aria-selected.
+- Put it inside `<Autocomplete>`, `<Listbox>` or `<Pillbox>`; each takes the same option rows.
 ```svelte
 <script>
     import { Autocomplete } from '@sigta-hq/svelte';
@@ -521,7 +563,7 @@ One option of an autocomplete. Its value defaults to its text; label is what the
 
 ### `Listbox`
 
-Rich single select: a button trigger showing the current choice opens a floating listbox of <autocomplete.option>s (the option row shared with autocomplete and pillbox). Arrow keys move, Enter chooses, Escape closes. The chosen value lives in a hidden input (name, wire:model) or bind:value.
+Rich single select: a button trigger showing the current choice opens a floating listbox of autocomplete.options (the option row shared with autocomplete and pillbox). Arrow keys move, Enter chooses, Escape closes. The chosen value lives in a hidden input, so it also posts with a plain form.
 
 - **Props:**
   - `label` (string) — Field label.
@@ -529,10 +571,12 @@ Rich single select: a button trigger showing the current choice opens a floating
   - `error` (string) — Error text; marks the trigger invalid.
   - `placeholder` (string, default `Select…`) — Shown on the trigger while nothing is chosen.
   - `name` (string) — Form name of the hidden value input.
-  - `value` (string, bindable (`bind:value`)) — The chosen value (an option's value). Livewire: pass the current value (:value) for the trigger to show it, and wire:model (it lands on the hidden input) to receive choices; Svelte: bind:value.
-- **Snippets:** `children` — The <autocomplete.option>s.
-- **Events:** `onchange` (string | null) — The value changed.
-- Use it for a rich single choice; a plain list of strings is better as a native select, a long searchable one as autocomplete.
+  - `value` (string, bindable (`bind:value`)) — The chosen value (an option's value).
+- **Snippets:** `children` — The autocomplete.options.
+- **Events:**
+  - `onchange` (`string | null`) — The value changed.
+- **Accessibility:** A button with role="combobox" and aria-haspopup="listbox" controls a listbox; the active option is announced through aria-activedescendant.
+- Use it for a rich single choice; a plain list of strings is better as a `<Select>`, a long searchable one as an `<Autocomplete>`.
 - The listbox floats with fixed positioning, so it escapes cards and forms that clip overflow.
 - The trigger shows the placeholder until the runtime starts, then the chosen option's text.
 - bind:value; class lands on the root, id on the trigger, other attributes (name, data-*) on the hidden value input.
@@ -545,7 +589,7 @@ Rich single select: a button trigger showing the current choice opens a floating
 
 ### `Pillbox`
 
-Multi-select combobox with removable chips: type to narrow the slotted <autocomplete.option>s, Enter or a click adds (or removes) the active one as a chip beside the query box; each chip's × removes it. The hidden input carries a JSON array of the selected values.
+Multi-select combobox with removable chips: type to narrow the slotted autocomplete.options, Enter or a click adds (or removes) the active one as a chip beside the query box; each chip's × removes it. The hidden input carries a JSON array of the selected values.
 
 - **Props:**
   - `label` (string) — Label above the field.
@@ -553,9 +597,11 @@ Multi-select combobox with removable chips: type to narrow the slotted <autocomp
   - `error` (string) — Error text; marks the query box invalid and the field red.
   - `placeholder` (string, default `Add…`) — Query box placeholder.
   - `name` (string) — Form name of the hidden value input (a JSON array).
-  - `value` (array, default `[]`, bindable (`bind:value`)) — The selected values. Livewire: wire:model (lands on the hidden input, a JSON array); Svelte: bind:value.
-- **Snippets:** `children` — The <autocomplete.option>s.
-- **Events:** `onchange` (string[]) — The selection changed.
+  - `value` (array, default `[]`, bindable (`bind:value`)) — The selected values.
+- **Snippets:** `children` — The autocomplete.options.
+- **Events:**
+  - `onchange` (`string[]`) — The selection changed.
+- **Accessibility:** WAI-ARIA combobox (list autocomplete) with a multi-selectable listbox; each chip's remove button is labelled "Remove …".
 - Choosing an option that is already a chip removes it again; the list stays open for the next one.
 - The listbox floats with fixed positioning, so it escapes cards and forms that clip overflow.
 - bind:value holds the array; other attributes (name, data-*) land on the hidden input.
@@ -576,8 +622,10 @@ One-time-code input: a row of single-character boxes backed by one hidden input 
   - `description` (string) — Help text.
   - `error` (string) — Error text; marks every box invalid.
   - `autofocus` (boolean, default `false`) — Focus the first box on load.
-  - `value` (string, bindable (`bind:value`)) — The code. Livewire: wire:model (lands on the hidden input); Svelte: bind:value.
-- **Events:** `bind:value, or oninput (dispatched on the hidden input)` (string) — The code changed.
+  - `value` (string, bindable (`bind:value`)) — The code.
+- **Events:**
+  - `bind:value, or oninput (dispatched on the hidden input)` (`string`) — The code changed.
+- **Accessibility:** Each box is a labelled text input ("Digit 1 of 6"); the field label points at the first box.
 - name, disabled and every attribute except class land on the hidden input; disabled also disables the boxes.
 ```svelte
 <Otp length={6} name="code" label="Verification code" bind:value={code} />
@@ -593,8 +641,10 @@ Dropzone file input: a dashed zone (a <label> wrapping a visually hidden native 
   - `error` (string) — Error text; turns the zone red and marks the input invalid.
   - `multiple` (boolean, default `false`) — Accept several files.
   - `helper` (string) — The line before "browse"; defaults to "Drag a file here, or" ("Drag files here, or" with multiple).
-  - `files` (array, default `[]`, bindable (`bind:files`)) — Svelte: bind:files — the picked File objects, in order (empty to clear the input).
-- **Events:** `onfiles` (File[]) — Files were picked or dropped.
+  - `files` (array, default `[]`, bindable (`bind:files`)) — bind:files — the picked File objects, in order (empty to clear the input).
+- **Events:**
+  - `onfiles` (`File[]`) — Files were picked or dropped.
+- **Accessibility:** A native <input type="file"> inside its <label> zone, so the picker, keyboard focus (the zone shows the ring) and the label all work natively; aria-invalid with an error, aria-describedby for description and error.
 - The zone is a <label> around a visually hidden native input: clicking it opens the picker, a dropped file is assigned to the input and a change event is dispatched, and the picked files are listed by name and size. The look and the drag, has-files, error and disabled states are the same in both runtimes; what happens to the files differs.
 - No backend protocol: the component hands you the File objects. bind:files (File[]) or onfiles(files); post them yourself — with Inertia, put them on a useForm field (form.attachment = files[0]) and form.post() sends FormData. Setting files = [] clears the input.
 - Other attributes (name, accept, required, …) land on the native input, so it also posts with a plain <form> (enctype="multipart/form-data").
@@ -611,8 +661,9 @@ A segmented control: a hairline strip of mono options, the chosen one filled in 
   - `name` (string, **required**) — The radios' shared name.
   - `options` (object, default `{}`) — The options, value ⇒ label.
   - `label` (string) — Accessible group name (a visually hidden legend).
-  - `checked` (string, bindable (`bind:checked`)) — The chosen value (compared as a string). Livewire: wire:model or checked; Svelte: bind:checked.
-- Use it for a short range of mutually exclusive views (7d / 30d / QTD); for a longer list use radio or select.
+  - `checked` (string, bindable (`bind:checked`)) — The chosen value (compared as a string).
+- **Accessibility:** A <fieldset> of native radios sharing a name; the label is its (visually hidden) <legend>.
+- Use it for a short range of mutually exclusive views (7d / 30d / QTD); for a longer list use `<Radio>` or `<Select>`.
 - bind:checked holds the chosen value; other attributes (onchange, disabled) land on each radio.
 ```svelte
 <Segmented name="range" label="Range" options={{ '7d': '7d', '30d': '30d', qtd: 'QTD' }} bind:checked={range} />
@@ -624,7 +675,10 @@ Raised surface on a hairline with an optional thumb above a padded body. Lifts o
 
 - **Props:**
   - `hover` (boolean, default `true`) — Lift with a paper shadow on hover (for a card that is or holds an action); false for a static card.
-- **Snippets:** `children` — The body.; `thumb` — Media above the body (an SVG, an image, a skeleton), clipped to 16:9.
+- **Snippets:**
+  - `children` — The body.
+  - `thumb` — Media above the body (an SVG, an image, a skeleton), clipped to 16:9.
+- **Accessibility:** A <div>; put the heading and any link inside.
 - Its body has fluid padding. Pass any padding class on the card (p-5, sm:p-4) and it replaces the body padding instead of adding to it.
 - The thumb is a snippet: {#snippet thumb()}…{/snippet}.
 ```svelte
@@ -645,6 +699,7 @@ Inline alert with a heavy left accent border; the icon and the ARIA role are pic
   - `icon` (string) — Icon name to use instead of the variant's.
   - `heading` (string) — A bold Fraunces lead-in before the text.
 - **Snippets:** `children` — The message.
+- **Accessibility:** role="status" (info, success) or role="alert" (danger); pass role to override. The icon is decorative.
 - Use it instead of a hand-styled <div role="alert">.
 ```svelte
 <Callout variant="success" heading="Deploy complete.">Plumb 2.4 is live.</Callout>
@@ -662,8 +717,9 @@ A numeric figure: a mono label, the value in Fraunces with tabular numerals, and
   - `variant` (`inline` · `panel`, default `panel`) — panel = boxed figure on paper (label above value); inline = bare hero-meta figure (value above label).
   - `tone` (`default` · `inverse`, default `default`) — inverse re-inks it for a dark surface.
 - **Snippets:** `children` — Extra content under the figure, typically a chart.sparkline (it inherits the value colour).
-- tone="inverse" darkens it for a dark surface: the panel variant gets a dark ground; the inline variant stays bare, to sit on a dark panel (panel variant="inverse"). Trend colours stay semantic in both tones.
-- Put a chart.sparkline in the slot for a trend line under the figure.
+- **Accessibility:** Plain text; the trend arrow is decorative (aria-hidden), so say the direction in the delta ("6.2% up").
+- tone="inverse" darkens it for a dark surface: the panel variant gets a dark ground; the inline variant stays bare, to sit on a dark `<Panel>` (variant="inverse"). Trend colours stay semantic in both tones.
+- Put a `<Chart.Sparkline>` in the slot for a trend line under the figure.
 ```svelte
 <script>
     import { Stat } from '@sigta-hq/svelte';
@@ -691,6 +747,7 @@ Formats a minor-unit amount (øre/cents) in tabular numerals. Known codes (DKK/E
   - `thousands` (string) — Override the mapped thousands separator.
   - `decimal` (string) — Override the mapped decimal separator.
   - `suffix` (string) — Muted per-unit tail, e.g. "/ hour".
+- **Accessibility:** A plain <span>; the amount is its text.
 - The amount and currency stay app data: pass minor units and an ISO code, never a preformatted string.
 - Both runtimes format with the same rules (the core's formatMoney, PHP number_format semantics), so a server render and a client render agree.
 ```svelte
@@ -703,13 +760,16 @@ Amount field entered in major units with an inline currency switcher: a small dr
 
 - **Props:**
   - `label` (string) — Field label.
-  - `value` (number, bindable (`bind:value`)) — The amount in MINOR units (øre / cents). Livewire: the initial amount, emitted onto the forwarded wire:model; Svelte: bind:value.
+  - `value` (number, bindable (`bind:value`)) — The amount in MINOR units (øre / cents).
   - `placeholder` (string) — Amount placeholder; defaults to "0".
-  - `currency` (string, default `DKK`, bindable (`bind:currency`)) — The selected currency code. Svelte: bind:currency.
+  - `currency` (string, default `DKK`, bindable (`bind:currency`)) — The selected currency code.
   - `currencies` (object) — The switcher's currencies; defaults to DKK / EUR / USD. A label that differs from its code shows beside it.
   - `currencyName` (string) — Form name of the hidden currency input; defaults to currencyModel, else "currency".
-- **Events:** `onchange` (number | null) — The amount changed (minor units, null when empty).; `oncurrency` (string) — The currency changed.
-- Amounts stay app data in minor units: never pass or read a formatted string. Display amounts with money.
+- **Events:**
+  - `onchange` (`number | null`) — The amount changed (minor units, null when empty).
+  - `oncurrency` (`string`) — The currency changed.
+- **Accessibility:** The amount is a text input labelled "<label> amount"; the switcher is a button (aria-haspopup="listbox", labelled "Currency") over a listbox of currency options with aria-selected.
+- Amounts stay app data in minor units: never pass or read a formatted string. Display amounts with `<Money>`.
 - bind:value (minor units) and bind:currency; other attributes land on the field.
 ```svelte
 <MoneyInput label="Hourly rate" bind:value={rate.amountMinor} bind:currency={rate.currency} />
@@ -726,7 +786,9 @@ The assignee's avatar (or a dashed "unassigned" affordance) that opens a client-
   - `showName` (boolean, default `false`) — Show the assignee's name (or "Assign") beside the avatar.
   - `label` (string) — Accessible label of the trigger; defaults to "Assignee".
   - `inline` (boolean, default `false`) — Render the panel absolutely inside the picker instead of on <body>: use it inside a native <dialog> (the top layer).
-- **Events:** `onselect` (string | number | null) — A person (or Unassigned) was chosen.
+- **Events:**
+  - `onselect` (`string | number | null`) — A person (or Unassigned) was chosen.
+- **Accessibility:** The trigger is a <button> labelled by label (default "Assignee"); the panel holds a search box and one button per person. Escape and a click outside close it.
 - Re-check membership on the server in whatever the choice calls; the list is filtered on the client.
 - By default the panel is placed on <body> with fixed positioning, so it escapes a draggable card and a board's overflow clipping; pass inline inside a native <dialog>, where content placed on <body> paints behind the top layer.
 - The search box and the list are only built while the panel is open, so many closed pickers stay cheap.
@@ -743,6 +805,7 @@ Ink bubble on hover/focus with a 150ms open delay; Escape dismisses it. The slot
   - `text` (string, **required**) — The bubble text.
   - `position` (`top` · `bottom` · `left` · `right`, default `top`) — Side of the trigger; unknown values sit on top.
 - **Snippets:** `children` — The trigger — usually a button.
+- **Accessibility:** The bubble is role="tooltip"; the trigger wrapper points at it with aria-describedby.
 - Use it instead of a title= attribute or a custom popover.
 - A tooltip only adds a hint: an icon-only trigger still needs its own aria-label.
 ```svelte
@@ -757,10 +820,13 @@ A menu button: its trigger opens a menu of dropdown.items on raised paper, below
 
 - **Props:**
   - `position` (`bottom-start` · `bottom-end` · `top-start` · `top-end`, default `bottom-start`) — Where the menu opens against the trigger; unknown values act as bottom-start.
-  - `open` (boolean, default `false`, bindable (`bind:open`)) — Svelte: bind:open reads and sets whether the menu is open.
-- **Snippets:** `trigger` — What opens the menu, usually a button.; `children` — The dropdown.items and dropdown.separators.
-- Use it (with dropdown.item) instead of a custom menu.
-- The trigger is a snippet: {#snippet trigger()}<Button>Options</Button>{/snippet}. bind:open to open or close it yourself.
+  - `open` (boolean, default `false`, bindable (`bind:open`)) — bind:open reads and sets whether the menu is open.
+- **Snippets:**
+  - `trigger` — What opens the menu, usually a button.
+  - `children` — The dropdown.items and dropdown.separators.
+- **Accessibility:** WAI-ARIA menu button: click, Enter / Space or ArrowDown on the trigger opens the menu on its first item (ArrowUp: the last); ArrowUp / ArrowDown wrap, Home / End jump; Escape closes it and returns focus to the trigger; Tab or a click outside closes it.
+- Use it (with `<Dropdown.Item>` and `<Dropdown.Separator>`) instead of a custom menu.
+- The trigger is a snippet ({#snippet trigger()}<Button>Options</Button>{/snippet}, required); the items are the children. bind:open to open or close it yourself.
 ```svelte
 <script>
     import { Button, Dropdown } from '@sigta-hq/svelte';
@@ -786,6 +852,7 @@ One menu row in mono: an optional icon, the label and a keyboard hint. Renders a
   - `kbd` (string) — A keyboard hint at the end of the row (⌘E).
   - `href` (string) — Renders an <a role="menuitem">; else a <button role="menuitem">.
 - **Snippets:** `children` — The label.
+- **Accessibility:** role="menuitem", out of the tab order (tabindex -1): the menu moves focus. aria-disabled="true" dims it and skips it.
 - Also the item of popover and context-menu: a button item closes whichever of them holds it.
 - A button item calls your onclick, then closes the menu.
 ```svelte
@@ -809,6 +876,7 @@ One menu row in mono: an optional icon, the label and a keyboard hint. Renders a
 A hairline <hr role="separator"> between groups of menu items.
 
 - **Props:** none
+- **Accessibility:** role="separator".
 ```svelte
 <script>
     import { Button, Dropdown } from '@sigta-hq/svelte';
@@ -830,10 +898,13 @@ A generic popover: the dropdown's placement and raised paper around free-form co
 
 - **Props:**
   - `position` (`bottom-start` · `bottom-end` · `top-start` · `top-end`, default `bottom-start`) — Where the panel opens against the trigger; unknown values act as bottom-start.
-  - `open` (boolean, default `false`, bindable (`bind:open`)) — Svelte: bind:open reads and sets whether it is open.
-- **Snippets:** `trigger` — What opens it, usually a button.; `children` — The content.
-- Use dropdown for a list of actions; popover for anything else (a share box, a small form).
-- The trigger is a snippet; bind:open to open or close it yourself.
+  - `open` (boolean, default `false`, bindable (`bind:open`)) — bind:open reads and sets whether it is open.
+- **Snippets:**
+  - `trigger` — What opens it, usually a button.
+  - `children` — The content.
+- **Accessibility:** The trigger wrapper has aria-haspopup="dialog" and aria-expanded; the panel is a non-modal role="dialog". Escape closes it and returns focus to the trigger; a click outside or focus leaving closes it.
+- Use `<Dropdown>` for a list of actions; popover for anything else (a share box, a small form).
+- The trigger is a snippet (required); the content is the children. bind:open to open or close it yourself.
 ```svelte
 <script>
     import { Button, Heading, Icon, Popover, Text } from '@sigta-hq/svelte';
@@ -860,8 +931,11 @@ A generic popover: the dropdown's placement and raised paper around free-form co
 A right-click surface that opens a dropdown-styled menu at the pointer, kept clear of the viewport edges. Reuses dropdown.item and dropdown.separator.
 
 - **Props:** none
-- **Snippets:** `children` — The surface that listens for the right-click.; `menu` — The dropdown.items.
-- The items are dropdown.item and dropdown.separator; an item closes the menu when chosen.
+- **Snippets:**
+  - `children` — The surface that listens for the right-click.
+  - `menu` — The dropdown.items.
+- **Accessibility:** role="menu" opened on contextmenu with focus on its first item; ArrowUp / ArrowDown wrap, Home / End jump; Escape or a click outside closes it.
+- The items are `<Dropdown.Item>` and `<Dropdown.Separator>`; an item closes the menu when chosen.
 - children is the surface; {#snippet menu()} holds the items.
 ```svelte
 <script>
@@ -892,11 +966,15 @@ A native <dialog> on paper over a blurred ink backdrop: focus trap and Esc for f
   - `heading` (string) — Heading row text (the close button sits beside it).
   - `dismissible` (boolean, default `true`) — Close button and backdrop click close it.
   - `fullscreen` (boolean) — Fill the screen below the tablet breakpoint; defaults to true for lg and xl.
-  - `open` (boolean, default `false`, bindable (`bind:open`)) — Svelte: bind:open to open and close it.
+  - `open` (boolean, default `false`, bindable (`bind:open`)) — bind:open to open and close it.
 - **Snippets:** `children` — The content.
+- **Accessibility:** Native <dialog> opened with showModal(); the close button is labelled "Close".
 - Use it instead of custom dialog markup.
-- Open by name with <sigta:modal.trigger name="…"> / <Modal.Trigger name="…">, or a sigta-modal-show window event { name }; close with modal.close or sigta-modal-hide.
-- bind:open is the idiomatic way; the window events work too, so triggers and Livewire-style events behave the same.
+- Open it by name: wrap the opener in `<Modal.Trigger>` with the same name, or dispatch a sigta-modal-show window event { name }; close it with `<Modal.Close>` or a sigta-modal-hide event.
+- Full screen on a phone: below the tablet breakpoint an lg or xl modal fills the screen edge to edge (no gutter, border or rounding) while sm and base stay centred cards, because a workspace needs the room and a confirmation does not. Pass fullscreen to force it on a small modal, or set it to false to keep a large one centred. Above the breakpoint every size is unchanged.
+- A full-screen modal lays its body out as a column with a full-height minimum, so a child marked flex-1 fills the screen exactly and taller content scrolls the dialog as usual.
+- With a heading the close button sits in the heading row; with no heading it floats in the top-right corner and no header band is reserved, so keep the top-right of your content clear for it.
+- bind:open is the idiomatic way to open and close it; `<Modal.Trigger>` / `<Modal.Close>` and the sigta-modal-show / sigta-modal-hide window events work too. To keep a large modal centred on a phone: fullscreen={false}.
 ```svelte
 <Modal.Trigger name="settings"><Button>Settings</Button></Modal.Trigger>
 <Modal name="settings" heading="Settings">…</Modal>
@@ -905,7 +983,7 @@ A native <dialog> on paper over a blurred ink backdrop: focus trap and Esc for f
 
 #### `Modal.Close`
 
-Closes the modal with the given name (any modal when unnamed) when its content is clicked.
+Closes the modal with the given name (any modal when unnamed) when its content is clicked: it dispatches a sigta-modal-hide window event with { name }.
 
 - **Props:**
   - `name` (string) — The modal to address.
@@ -922,7 +1000,7 @@ Closes the modal with the given name (any modal when unnamed) when its content i
 
 #### `Modal.Trigger`
 
-Opens the modal with the given name (any modal when unnamed) when its content is clicked.
+Opens the modal with the given name (any modal when unnamed) when its content is clicked: it dispatches a sigta-modal-show window event with { name }.
 
 - **Props:**
   - `name` (string) — The modal to address.
@@ -943,22 +1021,28 @@ The toast region: a fixed stack of paper notes with an inked edge in the variant
 
 - **Props:**
   - `position` (`bottom-end` · `bottom-start` · `top-end` · `top-start`, default `bottom-end`) — Corner of the viewport; bottom ones rise above a visible floating bar.
-- **Events:** `sigta.toast() (import { sigta } from '@sigta-hq/svelte'), window.Sigta.toast(), or the Inertia page prop sigta.toasts` (ToastDetail) — Raise a toast: { text, heading?, variant?, duration? (ms, 0 = stay), link? { text, href, target, rel, download, navigate }, action? { text, event, detail } | { text, onClick }, key? (replaces the toast with the same key) }.
+- **Events:**
+  - `sigta.toast() (import { sigta } from '@sigta-hq/svelte'), window.Sigta.toast(), or the Inertia page prop sigta.toasts` (`ToastDetail`) — Raise a toast: { text, heading?, variant?, duration? (ms, 0 = stay), link? { text, href, target, rel, download }, action? { text, event, detail } | { text, onClick }, key? (replaces the toast with the same key) }.
+- **Accessibility:** Each toast is role="status" (role="alert" when danger); the dismiss button is labelled.
 - Variants: success, warning, danger, info.
 - An action (e.g. Undo after a completion) adds a button that fires its event — or runs onClick from JS — and closes the toast. A key replaces the showing toast with the same key instead of stacking another.
 - Mount it once per layout, near the end of <body>.
 - Use a key to replace rather than stack (ticking off five items leaves one toast).
-- import { sigta } from '@sigta-hq/svelte'; sigta.toast('Saved', { variant: 'success' }).
-- From any backend through Inertia: return { sigta: { toasts: [{ text, variant }] } } in the page props and use the inertia subpath.
+- Raise one from anywhere on the client: import { sigta } from '@sigta-hq/svelte', then sigta.toast('Saved', { variant: 'success' }) or sigta.toast({ heading, text, variant, … }). An action is { text: 'Undo', onClick } (or { text, event, detail } to fire a window event).
+- From any backend through Inertia: put { sigta: { toasts: [{ text, variant }] } } in the page props and call connectInertia() from @sigta-hq/svelte/inertia once (see sigta-ui.md).
 ```svelte
-<!-- root layout -->
-<Toast />
-
 <script>
-    import { sigta } from '@sigta-hq/svelte';
-    sigta.toast('Your changes have been saved.');
-    sigta.toast({ heading: 'Changes saved.', text: 'You can always update this in your settings.', variant: 'success', duration: 5000, link: { text: 'View settings', href: '/settings' } });
+    import { Button, sigta } from '@sigta-hq/svelte';
+
+    async function save() {
+        await saveSettings();
+        sigta.toast('Your changes have been saved.');
+        // or: sigta.toast({ heading: 'Changes saved.', text: 'You can always update this in your settings.', variant: 'success', duration: 5000, link: { text: 'View settings', href: '/settings' } });
+    }
 </script>
+
+<!-- <Toast /> sits once in the root layout; raise toasts from anywhere on the client -->
+<Button onclick={save}>Save</Button>
 ```
 
 ### `SaveState`
@@ -974,12 +1058,13 @@ The compass stands in for "Saving…": it draws while a save is in flight (the w
   - `saving` (string, default `Saving…`) — Text while saving (for assistive tech, and shown under reduced motion).
   - `saved` (string, default `Saved`) — The handwritten word once saved.
   - `failed` (string, default `Not saved`) — Text when the save failed.
-- **Events:** `sigta-save-state (window) — sigta.save(promise, name), sigta.saveState(state, name), or connectInertia({ saveState: name })` ({ name: string | null, state: 'idle' | 'dirty' | 'saving' | 'saved' | 'failed' }) — Drives the save states with that name: { name, state }.
+- **Events:**
+  - `sigta-save-state (window) — sigta.save(promise, name), sigta.saveState(state, name), or connectInertia({ saveState: name })` (`{ name: string | null, state: 'idle' | 'dirty' | 'saving' | 'saved' | 'failed' }`) — Drives the save states with that name: { name, state }.
+- **Accessibility:** The labels sit in a role="status" polite live region; the compass is decorative.
 - Use it instead of any hand-written "Saving…" / "Saved" text or loading spans.
 - It never moves: all its labels share one cell, so it is as wide as its longest label whatever it is saying and the compass stays put. Use align="end" at the right end of a bar (a justify-between header, the end of a toolbar); the default start suits a left edge. The room is reserved for the longest label, so keep your own words close in length.
 - "Saved" holds for a moment, then it settles back to idle.
-- Anywhere: give it a name and drive it with save(promise, name) (saving → saved / failed) or saveState('dirty', name) for the unsaved-changes hint.
-- There is no wire:target to follow: drive it with state (bind:state), with sigta.save(promise, name) / sigta.saveState(state, name), or from Inertia visits with connectInertia({ saveState: name }) from @sigta-hq/svelte/inertia.
+- Drive it with state (bind:state); or give it a name and use sigta.save(promise, name) (saving → saved / failed) or sigta.saveState('dirty', name) for the unsaved-changes hint (import { sigta } from '@sigta-hq/svelte'); or follow Inertia visits with connectInertia({ saveState: name }) from @sigta-hq/svelte/inertia.
 - bind:state follows the events as well, so your code can read what it shows.
 ```svelte
 <script>
@@ -1009,7 +1094,10 @@ One piece of long-running work (an import, an export, a queue run): a large comp
   - `value` (number) — Progress 0–100; unset keeps the compass turning without progress. done reads 100.
   - `state` (`queued` · `working` · `done` · `failed`, default `working`) — queued, working (Running), done or failed; anything else reads as working.
   - `since` (date) — When the work started (ISO-8601): an elapsed clock ticks in the status line while it is queued or working.
-- **Snippets:** `children` — Extra content under the description.; `actions` — Controls at the right ("Retry", "Cancel").
+- **Snippets:**
+  - `children` — Extra content under the description.
+  - `actions` — Controls at the right ("Retry", "Cancel").
+- **Accessibility:** The compass is a progressbar named by the heading; the status word is a polite live region.
 - Use it for background work and queue progress instead of a progress bar and text assembled by hand.
 - It never moves: the compass keeps its place through every state and the percentage has a fixed width, so the heading beside it never shifts. Keep it rendered and change state; never mount it per state.
 - Its state is plain markup, so new props move it along; in a [data-sigta-motion] list a finished job that leaves the list folds away.
@@ -1030,6 +1118,7 @@ A dark pill pinned to the bottom centre of the viewport that slides up when show
   - `show` (boolean, default `false`) — Whether the bar is up.
   - `label` (string) — Names the bar as a region ("Running timer").
 - **Snippets:** `children` — The bar's content: a status dot, a title, a clock, a button.
+- **Accessibility:** With a label the bar is a named region (role="region").
 - Content is your slot. While it is up it sets --sigta-floating-space on <html>, which shell.main and the bottom toasts add to their bottom edge, so nothing ends up under it; if your app scrolls another element, add pb-[var(--sigta-floating-space,0px)] to it.
 - Drive show from your state; keep it in a layout that persists across page visits so it does not replay on every page.
 ```svelte
@@ -1044,8 +1133,9 @@ A tab group: a tabs.list of tabs.tabs over their tabs.panels, one panel shown at
 
 - **Props:**
   - `default` (string) — The tab active on load (rendered selected on the server); the first tab when unset.
-  - `value` (string, bindable (`bind:value`)) — Svelte: bind:value reads and sets the active tab's name.
+  - `value` (string, bindable (`bind:value`)) — bind:value reads and sets the active tab's name.
 - **Snippets:** `children` — A tabs.list and the tabs.panels.
+- **Accessibility:** WAI-ARIA tabs with automatic activation: Left / Right move between tabs (wrapping), Home / End jump to the ends; only the selected tab is in the tab order.
 - Use it instead of custom tab JS. A tab and its panel share a name; the ids (sigta-tab-<name>, sigta-panel-<name>) derive from it, so names are unique per page.
 - bind:value to read or switch the active tab; default only seeds it.
 ```svelte
@@ -1066,6 +1156,7 @@ The row of tabs on a hairline (role="tablist"), with arrow-key roving: Left / Ri
 - **Props:**
   - `label` (string, default `Tabs`) — The tablist's accessible name (aria-label).
 - **Snippets:** `children` — The tabs.tabs.
+- **Accessibility:** role="tablist" labelled by label.
 ```svelte
 <script>
     import { Tabs } from '@sigta-hq/svelte';
@@ -1088,6 +1179,7 @@ The panel of the tab with the same name (role="tabpanel"), shown while that tab 
 - **Props:**
   - `name` (string, **required**) — The tab it belongs to (its id: sigta-panel-<name>).
 - **Snippets:** `children` — The panel content.
+- **Accessibility:** role="tabpanel" labelled by its tab; focusable (tabindex 0).
 ```svelte
 <script>
     import { Tabs, Text } from '@sigta-hq/svelte';
@@ -1114,6 +1206,7 @@ One tab (role="tab"): a mono button, graphite until hovered, ink with an ink und
 - **Props:**
   - `name` (string, **required**) — Pairs the tab with its panel (and makes its id: sigta-tab-<name>).
 - **Snippets:** `children` — The tab label.
+- **Accessibility:** role="tab" with aria-selected and aria-controls; roving tabindex.
 ```svelte
 <script>
     import { Tabs } from '@sigta-hq/svelte';
@@ -1138,6 +1231,7 @@ A group of disclosure items (the FAQ look) on native <details>/<summary>. Its na
 - **Props:**
   - `name` (string) — Forwards to every item's <details name> for native exclusive-open; omit it for independent items.
 - **Snippets:** `children` — The accordion.items.
+- **Accessibility:** Native <details>/<summary> disclosure: Enter / Space toggle, announced as expanded / collapsed.
 - Use it (with accordion.item) for an accordion or FAQ instead of styling <details> by hand.
 - Items read the group's name from context; an item's own name wins.
 ```svelte
@@ -1159,6 +1253,7 @@ One question: a native <details>/<summary> on a hairline, the heading in the hea
   - `name` (string) — The <details name>; defaults to the accordion's name. Items sharing a name open one at a time.
   - `open` (boolean, default `false`) — Open on load: the native open attribute on the <details>. bind:open follows it as the reader opens and closes it.
 - **Snippets:** `children` — The answer.
+- **Accessibility:** Native <details>/<summary>.
 - Every other attribute lands on the <details>.
 ```svelte
 <script>
@@ -1183,6 +1278,7 @@ A breadcrumb trail: a <nav> around an ordered list of breadcrumbs.items in small
 
 - **Props:** none
 - **Snippets:** `children` — The breadcrumbs.items, first to current.
+- **Accessibility:** A <nav aria-label="Breadcrumb"> landmark around an <ol>; the current page carries aria-current="page".
 - Container only (<nav><ol>); attributes land on the <nav>, and an aria-label replaces "Breadcrumb".
 ```svelte
 <script>
@@ -1204,6 +1300,7 @@ One crumb: a graphite link that inks in on hover, or — with no href, or curren
   - `href` (string) — The crumb's link; without it the crumb is the current page.
   - `current` (boolean, default `false`) — Render as the current page even with an href.
 - **Snippets:** `children` — The crumb text.
+- **Accessibility:** A link, or a span with aria-current="page".
 - Attributes land on the link or the current span, not the <li>.
 ```svelte
 <script>
@@ -1227,8 +1324,12 @@ The sticky, translucent site header on a hairline: brand, links and actions. Bel
   - `ctaHref` (string) — The CTA's link; without it the CTA is a plain button.
   - `target` (string) — Forwards onto the CTA like on a button (target="_blank" gets rel="noopener").
   - `collapse` (`md` · `lg`, default `md`) — The breakpoint below which the links fold behind the burger. Use lg when the links and a wide CTA do not fit on one line at tablet widths, so no link wraps onto two lines; the actions stay visible either way.
-- **Snippets:** `children` — The links (navlinks); rendered in the bar and again in the folded-out panel.; `brand` — The brand, at the start of the bar.; `actions` — Actions at the end of the bar (replaces the CTA props); stays visible on every width.
-- The links are navlinks; mark the current page with current.
+- **Snippets:**
+  - `children` — The links (navlinks); rendered in the bar and again in the folded-out panel.
+  - `brand` — The brand, at the start of the bar.
+  - `actions` — Actions at the end of the bar (replaces the CTA props); stays visible on every width.
+- **Accessibility:** A <header> with a "Primary" <nav>; the burger is a button with aria-expanded and aria-controls pointing at the folded-out panel; Escape folds it away.
+- The links are `<Navlink>`s; mark the current page with current.
 - Snippets: brand, children (the links), actions.
 ```svelte
 <script>
@@ -1248,6 +1349,7 @@ A navigation link for the navbar: mono, graphite to ink, with an underline that 
   - `current` (boolean, default `false`) — The current page: ink, underline drawn, aria-current="page".
   - `href` (string) — The link target.
 - **Snippets:** `children` — The link text.
+- **Accessibility:** A link; aria-current="page" when current.
 ```svelte
 <script>
     import { Navlink } from '@sigta-hq/svelte';
@@ -1269,6 +1371,7 @@ Page navigation in small mono squares: prev / next arrows that dim at either end
   - `pages` (number) — Manual mode: the number of pages.
   - `current` (number, default `1`) — Manual mode: the current page (clamped to 1…pages).
   - `url` (string) — The page href pattern: "?page=%d", or a prefix the page number is appended to ("?page="). Without it (and without a server paginator) the pages are buttons for you to wire up. Or a function of the page.
+- **Accessibility:** A <nav aria-label="Pagination"> landmark; the current page carries aria-current="page", the others "Page n" labels.
 - Accepts a paginator or manual pages / current / url. Up to seven pages are all listed; beyond that, the first, the last and the pages either side of the current one, with ellipses between.
 - Pass a plain object — a Laravel paginator serialized by Inertia works as is (paginator={users}) — and url.
 ```svelte
@@ -1285,7 +1388,8 @@ Brand data table: mono uppercase caption and headers, hairline rows, tabular num
 - **Props:**
   - `caption` (string) — Mono uppercase caption above the table.
 - **Snippets:** `children` — A table.columns header row and table.rows.
-- Build it from table.columns (the <thead> row) with a table.column per header, and table.rows (the <tbody>) with table.row and table.cell.
+- **Accessibility:** A native <table>, captioned with <caption>; header cells are <th scope="col">.
+- Build it from `<Table.Columns>` (the <thead> row) with a `<Table.Column>` per header, and `<Table.Rows>` (the <tbody>) with `<Table.Row>` and `<Table.Cell>`.
 - Cells use tabular numerals, so figures line up; the last row draws no rule under it.
 - Attributes land on the <table>, not on the scrolling wrapper. Loop rows with a keyed {#each}.
 ```svelte
@@ -1309,6 +1413,7 @@ A body cell (<td>) over a hairline, in tabular numerals.
 
 - **Props:** none
 - **Snippets:** `children` — The cell content: text, a figure, a pill.
+- **Accessibility:** A native <td>.
 ```svelte
 <Table.Cell>$12,400</Table.Cell>
 ```
@@ -1319,6 +1424,7 @@ A header cell: <th scope="col"> in mono uppercase graphite over a hairline.
 
 - **Props:** none
 - **Snippets:** `children` — The column heading.
+- **Accessibility:** A native <th scope="col"> (pass scope to override).
 ```svelte
 <Table.Column>Revenue</Table.Column>
 ```
@@ -1329,6 +1435,7 @@ The header row of a table: a <thead> with one <tr> around the table.column cells
 
 - **Props:** none
 - **Snippets:** `children` — The table.column header cells.
+- **Accessibility:** A native <thead> holding one <tr>.
 ```svelte
 <Table.Columns>
     <Table.Column>Month</Table.Column>
@@ -1342,6 +1449,7 @@ One body row (<tr>) of table.cell cells.
 
 - **Props:** none
 - **Snippets:** `children` — The table.cell cells.
+- **Accessibility:** A native <tr>.
 ```svelte
 <Table.Row>
     <Table.Cell>{month.name}</Table.Cell>
@@ -1355,6 +1463,7 @@ The body of a table: a <tbody> around the table.row rows. Its last row draws no 
 
 - **Props:** none
 - **Snippets:** `children` — The table.row rows.
+- **Accessibility:** A native <tbody>.
 ```svelte
 <Table.Rows>
     {#each months as month (month.id)}
@@ -1371,6 +1480,7 @@ Vertical timeline: an ordered list with a hairline rail down the left and an ink
 
 - **Props:** none
 - **Snippets:** `children` — The timeline.item entries, oldest first.
+- **Accessibility:** A native <ol> of <li> entries.
 - Accent is scarce: give one entry (the milestone) variant="accent", not several.
 ```svelte
 <script>
@@ -1394,6 +1504,7 @@ One entry on the timeline: an ink dot on the rail, a mono meta line (a date), a 
   - `meta` (string) — Mono uppercase line above the heading, usually a date.
   - `variant` (`default` · `accent`, default `default`) — default = ink dot; accent = accent-filled dot with an ink ring, for the milestone.
 - **Snippets:** `children` — The body copy.
+- **Accessibility:** A native <li>; the dot is decorative (aria-hidden). The heading is an <h3>.
 ```svelte
 <script>
     import { Timeline } from '@sigta-hq/svelte';
@@ -1417,12 +1528,20 @@ One authored comment in a feed: an optional avatar, the author with a mono times
   - `avatar` (string) — Name (or initials) for a leading avatar; unset (with no src) = no avatar column.
   - `src` (string) — Avatar image URL (falls back to initials from avatar).
   - `editing` (boolean, default `false`) — Render the edit slot instead of the body.
-- **Snippets:** `children` — The comment body.; `actions` — Owner controls (edit / delete), at the right of the byline. Only rendered when given.; `edit` — The inline editor, shown instead of the body while editing.
-- Presentational: persistence, validation and who-may-edit auth stay in your app. Loop it for a feed; pair it with composer or a textarea form to add new ones.
+- **Snippets:**
+  - `children` — The comment body.
+  - `actions` — Owner controls (edit / delete), at the right of the byline. Only rendered when given.
+  - `edit` — The inline editor, shown instead of the body while editing.
+- **Accessibility:** An <article>; the avatar is labelled with the name it shows.
+- Presentational: persistence, validation and who-may-edit auth stay in your app. Loop it for a feed; pair it with `<Composer>` or a `<Textarea>` form to add new ones.
 - Pass meta a ready string ("2h ago", a date) — the component does not format time.
 - Pass the actions snippet only to the owner (actions={mine ? ownerActions : undefined}): a given snippet renders the actions column. Key the {#each} by id.
 ```svelte
 {#each comments as c (c.id)}
+    <!-- declared inside the {#each}, so it sees c -->
+    {#snippet ownerActions()}
+        <Button variant="ghost" size="sm" aria-label="Edit" onclick={() => startEditing(c)}><Icon name="pencil" size="sm" /></Button>
+    {/snippet}
     <Comment author={c.author?.name} meta={c.createdAgo} editing={editingId === c.id} actions={c.userId === me.id ? ownerActions : undefined}>
         {c.body}
         {#snippet edit()}
@@ -1430,10 +1549,6 @@ One authored comment in a feed: an optional avatar, the author with a mono times
         {/snippet}
     </Comment>
 {/each}
-
-{#snippet ownerActions()}
-    <Button variant="ghost" size="sm" aria-label="Edit" onclick={() => startEditing(c)}><Icon name="pencil" size="sm" /></Button>
-{/snippet}
 ```
 
 ### `chart` family
@@ -1449,6 +1564,7 @@ Hand-drawn bar chart: ink bars, an optional highlighter swipe behind one bar and
   - `trend` (boolean, default `false`) — Draw a dashed hand-drawn trend line across the bar tops.
   - `height` (number, default `160`) — Height of the 720-wide viewBox (at least 40); the chart scales to its container's width.
   - `label` (string) — Accessible name; makes the chart meaningful (role="img").
+- **Accessibility:** aria-hidden by default; with label the SVG is role="img" with that accessible name. The bar labels are decorative.
 - currentColor-driven: bars take the text colour (ink by default). The highlighter swipe is the accent, so highlight one bar, in one chart per view.
 - The geometry is computed the same way in both runtimes (@sigta-hq/core chart.ts), so the paths are identical.
 ```svelte
@@ -1464,6 +1580,7 @@ Hand-drawn line/area chart: a smooth ink line over a faded currentColor area and
   - `labels` (array) — Tick labels spread evenly under the chart (first … last); any number of them.
   - `height` (number, default `200`) — Height of the 720-wide viewBox (at least 40); the chart scales to its container's width.
   - `label` (string) — Accessible name; makes the chart meaningful (role="img").
+- **Accessibility:** aria-hidden by default; with label the SVG is role="img" with that accessible name. The tick labels are decorative.
 - currentColor-driven: the line and area take the text colour (ink by default); the halo is the accent, so keep one highlighted chart per view.
 - The geometry is computed the same way in both runtimes (@sigta-hq/core chart.ts), so the paths are identical.
 ```svelte
@@ -1477,8 +1594,9 @@ Tiny smooth hand-drawn sparkline in a 200×40 viewBox with a dot on the latest v
 - **Props:**
   - `values` (array, default `[]`) — The values, oldest first. One value draws just the dot; equal values draw a flat line.
   - `label` (string) — Accessible name; makes the sparkline meaningful (role="img") instead of decorative.
+- **Accessibility:** aria-hidden by default; with label it is role="img" with that accessible name.
 - Charts are hand-drawn inline SVG in currentColor: recolour one with a text colour on it or a parent (class="text-graphite"), never a hex.
-- It stretches to the width of its container; put it in a stat's slot for a trend under the figure.
+- It stretches to the width of its container; put it in a `<Stat>` for a trend under the figure.
 - The geometry is computed the same way in both runtimes (@sigta-hq/core chart.ts), so the paths are identical.
 ```svelte
 <script>
@@ -1502,16 +1620,17 @@ Tiny smooth hand-drawn sparkline in a 200×40 viewBox with a dot on the latest v
 
 #### `Command`
 
-Command palette (⌘K / Ctrl-K): a dialog with a query box filtering <command.item>s. Arrow keys move, Enter runs the active command, Escape closes. Open it with the shortcut, a modal.trigger with its name, or a sigta-modal-show window event.
+Command palette (⌘K / Ctrl-K): a dialog with a query box filtering command.items. Arrow keys move, Enter runs the active command, Escape closes. Open it with the shortcut, a modal.trigger with its name, or a sigta-modal-show window event.
 
 - **Props:**
   - `name` (string, default `command`) — Name that modal.trigger and the sigta-modal-show / sigta-modal-hide window events address.
   - `placeholder` (string, default `Type a command…`) — Query box placeholder.
   - `shortcut` (boolean, default `true`) — Open on ⌘K / Ctrl-K anywhere on the page.
-  - `open` (boolean, default `false`, bindable (`bind:open`)) — Svelte: bind:open to open and close it.
-- **Snippets:** `children` — The <command.item>s.
+  - `open` (boolean, default `false`, bindable (`bind:open`)) — bind:open to open and close it.
+- **Snippets:** `children` — The command.items.
+- **Accessibility:** A native modal <dialog>; the query box is a combobox (list autocomplete, always expanded) over a listbox of options, the active one announced through aria-activedescendant.
 - One palette per page: with shortcut on (the default) ⌘K / Ctrl-K opens it from anywhere.
-- Open it by name like a modal: modal.trigger name="command", or a sigta-modal-show window event { name }; sigta-modal-hide closes it.
+- Open it by name like a modal: `<Modal.Trigger>` with name="command", or a sigta-modal-show window event { name }; sigta-modal-hide closes it.
 - The query filters the items by their text; the list keeps every item while the query is empty.
 - bind:open opens and closes it; the shortcut and the window events work too.
 ```svelte
@@ -1533,6 +1652,7 @@ One command of a command palette: an optional icon, the label and a key hint. A 
   - `value` (string) — Written into data-value for your own handlers.
   - `href` (string) — Renders an <a> instead of a <button>.
 - **Snippets:** `children` — The command's text.
+- **Accessibility:** role="option"; the palette's query box points at the active one through aria-activedescendant.
 - Run the command with your own click handler (or href); the palette closes on its own.
 - onclick and every other attribute land on the <a> / <button>.
 ```svelte
@@ -1553,16 +1673,18 @@ Standalone Mon-first month grid: a mono month caption between chevrons, weekday 
 
 - **Props:**
   - `name` (string) — Form name of the hidden value input.
-  - `value` (date, bindable (`bind:value`)) — The selected day, YYYY-MM-DD; the calendar opens on its month. Livewire: wire:model (lands on the hidden input); Svelte: bind:value.
+  - `value` (date, bindable (`bind:value`)) — The selected day, YYYY-MM-DD; the calendar opens on its month.
   - `min` (date) — First selectable day, YYYY-MM-DD; earlier days are disabled and the month before is out of reach.
   - `max` (date) — Last selectable day, YYYY-MM-DD; later days are disabled and the month after is out of reach.
   - `today` (date) — The day marked as today, and opened on without a value, YYYY-MM-DD. Unset means the current date where it renders (the visitor's browser, once running). Pin it for a member's own time zone, or for tests and screenshots.
-- **Events:** `onchange` (string | null) — The selected day changed, YYYY-MM-DD.
+- **Events:**
+  - `onchange` (`string | null`) — The selected day changed, YYYY-MM-DD.
+- **Accessibility:** WAI-ARIA date grid: role=grid labelled by the month caption (aria-live), columnheaders with the full weekday names, each day a gridcell button with its full date as aria-label, aria-selected and aria-current="date" for today; one roving tab stop.
 - Keyboard: arrows move a day / a week, Home/End jump to the week's ends, PageUp/PageDown change month, Enter or Space picks. Only the active day is tabbable (roving tabindex); a day out of range takes no focus.
 - Days spill over from the months around (42 cells, always six weeks); picking one shows its month.
 - Labels are English (month names, Mo … Su).
 - bind:value (YYYY-MM-DD) and onchange(value); name and other attributes land on the hidden input for plain form posts. A value set from outside shows its month.
-- Picking a day also dispatches a bubbling calendar-change DOM event with { value, label }, as the Livewire runtime does.
+- Picking a day also dispatches a bubbling calendar-change DOM event with { value, label }: the ISO date and "9 Jul 2026".
 ```svelte
 <Calendar name="day" bind:value={day} min="2026-07-06" max="2026-07-24" />
 ```
@@ -1576,12 +1698,14 @@ Text input + calendar-icon button opening a calendar popover, in the field chrom
   - `description` (string) — Help text.
   - `error` (string) — Error text; marks the input invalid.
   - `name` (string) — Form name of the hidden value input.
-  - `value` (date, bindable (`bind:value`)) — The date, YYYY-MM-DD. Livewire: wire:model (lands on the hidden input); Svelte: bind:value.
+  - `value` (date, bindable (`bind:value`)) — The date, YYYY-MM-DD.
   - `min` (date) — First selectable day, YYYY-MM-DD (the calendar disables earlier days; a typed earlier date is refused).
   - `max` (date) — Last selectable day, YYYY-MM-DD (the calendar disables later days; a typed later date is refused).
   - `placeholder` (string, default `Select a date`) — Input placeholder.
   - `today` (date) — Passed to the calendar: the day marked as today, and opened on without a value. Unset means the current date.
-- **Events:** `onchange` (string | null) — The date changed, YYYY-MM-DD (null when cleared).
+- **Events:**
+  - `onchange` (`string | null`) — The date changed, YYYY-MM-DD (null when cleared).
+- **Accessibility:** The input is a combobox (aria-haspopup="dialog", aria-expanded) controlling a dialog labelled "Choose date" that holds the calendar's date grid; Escape closes it and returns focus to the input.
 - Typed dates: YYYY-MM-DD, or anything the browser reads ("9 Jul 2026", "July 9, 2026"); Enter or leaving the field takes it. A date outside min/max or no date at all reverts the field; an emptied field clears the value.
 - Open the calendar with the button or ArrowDown in the field; Escape, a click outside or focus leaving closes it. Picking a day closes it and returns focus to the field.
 - disabled disables the input, the button and the hidden input.
@@ -1599,13 +1723,15 @@ Text input + clock-icon button opening a listbox of times every step minutes bet
   - `description` (string) — Help text.
   - `error` (string) — Error text; marks the input invalid.
   - `name` (string) — Form name of the hidden value input.
-  - `value` (string, bindable (`bind:value`)) — The time, HH:MM (24h). Livewire: wire:model (lands on the hidden input); Svelte: bind:value.
+  - `value` (string, bindable (`bind:value`)) — The time, HH:MM (24h); "9:30" reads as 09:30.
   - `min` (string) — First time listed, HH:MM (default 00:00); a typed earlier time is refused.
   - `max` (string) — Last time listed at most, HH:MM (default 23:59); a typed later time is refused.
   - `step` (number, default `30`) — Minutes between listed times (at least 1).
   - `format` (`24` · `12`, default `24`) — Labels as 13:30 or 1:30 PM. The model stays 24h HH:MM regardless of display format.
   - `placeholder` (string, default `Select a time`) — Input placeholder.
-- **Events:** `onchange` (string | null) — The time changed, HH:MM (null when cleared).
+- **Events:**
+  - `onchange` (`string | null`) — The time changed, HH:MM (null when cleared).
+- **Accessibility:** The input is a combobox (aria-haspopup="listbox", aria-expanded) controlling a listbox of option buttons with aria-selected; arrow keys move the active option, Enter picks it, Escape closes the list.
 - Typed times: 14:45, 9:05 or 2:45 pm; Enter on the open list picks the active time, leaving the field takes a typed one. A time outside min/max or no time at all reverts the field; an emptied field clears the value. A typed time need not be on the step.
 - Click the field, the button, ArrowDown or Enter to open the list (on the chosen time, else the first); arrows wrap, Escape or focus leaving closes it.
 - disabled disables the input, the button and the hidden input.
@@ -1620,10 +1746,12 @@ A single duration field that reads as a compact "1h59m" label and, on click, bec
 
 - **Props:**
   - `label` (string) — Field label.
-  - `value` (number, bindable (`bind:value`)) — Whole minutes (null or 0 reads as no value). Livewire: the initial minutes, emitted onto the forwarded wire:model; Svelte: bind:value.
+  - `value` (number, bindable (`bind:value`)) — Whole minutes (null or 0 reads as no value).
   - `placeholder` (string) — Shown while there is no value; defaults to "0m".
-- **Events:** `onchange` (number | null) — A committed edit (whole minutes, null when cleared).
-- For a read-only duration use duration; for a value that counts up live, elapsed-clock.
+- **Events:**
+  - `onchange` (`number | null`) — A committed edit (whole minutes, null when cleared).
+- **Accessibility:** The compact label is a <button>; the editor is a text input labelled "<label> as hours and minutes, HH:MM".
+- For a read-only duration use `<Duration>`; for a value that counts up live, `<ElapsedClock>`.
 - bind:value holds whole minutes (null when cleared); other attributes land on the field.
 ```svelte
 <DurationInput label="Estimate" bind:value={task.estimateMinutes} />
@@ -1638,8 +1766,9 @@ A scroll-snap track with prev/next chevrons and clickable dots. The active slide
 - **Props:**
   - `label` (string) — Names the carousel region ("Selected work").
 - **Snippets:** `children` — The carousel.slides.
+- **Accessibility:** A region with aria-roledescription="carousel" (named by label); each slide is a group with aria-roledescription="slide"; the dots are a "Slides" group, the current one aria-current="true".
 - The dots are generated from the slide count once the page runs; smooth scrolling is skipped under prefers-reduced-motion.
-- For several slides per view, give each carousel.slide a basis (basis="basis-1/2 md:basis-1/3").
+- For several slides per view, give each `<Carousel.Slide>` a basis (basis="basis-1/2 md:basis-1/3").
 ```svelte
 <Carousel label="Selected work">
     <Carousel.Slide>…</Carousel.Slide>
@@ -1654,6 +1783,7 @@ One slide of a carousel: snaps to the start of the track. Full width by default;
 - **Props:**
   - `basis` (string, default `w-full`) — The slide's width as a utility class: basis-4/5, w-1/2, basis-1/2 md:basis-1/3. Anything but the default replaces the full width.
 - **Snippets:** `children` — The slide's content.
+- **Accessibility:** A group with aria-roledescription="slide".
 - basis is a class: it lands on the slide beside your own class.
 ```svelte
 <Carousel.Slide basis="basis-1/2 md:basis-1/3">…</Carousel.Slide>
@@ -1666,11 +1796,14 @@ One slide of a carousel: snaps to the start of the track. Full width by default;
 Native HTML5 drag-and-drop board of kanban.columns holding kanban.cards. Dragging a card between (or within) columns reports { card, from, to, position }; sortable columns report { column, position } when dragged along the board.
 
 - **Props:** none
-- **Snippets:** `children` — The kanban.columns (optionally each in a wrapper of your own, e.g. one carrying wire:key).
-- **Events:** `onmove` ({ card: string, from: string, to: string, position: number }) — A card was dropped: its id, the column it came from, the column it landed in and its 0-based position among that column's cards. The DOM event bubbles to the board and window.; `oncolumnmove` ({ column: string, position: number }) — A sortable column was dropped: its id and its 0-based position among the board's columns. The DOM event bubbles to the board and window.
+- **Snippets:** `children` — The kanban.columns (optionally each in a wrapper of your own).
+- **Events:**
+  - `onmove` (`{ card: string, from: string, to: string, position: number }`) — A card was dropped: its id, the column it came from, the column it landed in and its 0-based position among that column's cards. The DOM event bubbles to the board and window.
+  - `oncolumnmove` (`{ column: string, position: number }`) — A sortable column was dropped: its id and its 0-based position among the board's columns. The DOM event bubbles to the board and window.
+- **Accessibility:** Columns are labelled lists (role="list") of focusable cards (role="listitem", aria-roledescription="draggable"); a sortable column's grip handle is a labelled button. A keyboard move menu is out of scope.
 - Native drag and drop, no library. While dragging, the card moves in the page to where it will land (before the first card whose middle is below the pointer; columns by the pointer passing a column's middle), and the drop reports it.
 - The board never keeps the order: persist the move and render the new order from your data.
-- onmove / oncolumnmove carry the same detail as the DOM events, which the board dispatches too. Render columns and cards with keyed {#each} blocks from your lists and move the item in the callback: the dropped element is put back first, so your lists re-render from a clean DOM. Without a change, the optimistic move stands, as in the Livewire runtime.
+- onmove / oncolumnmove carry the same detail as the DOM events, which the board dispatches too. Render columns and cards with keyed {#each} blocks from your lists and move the item in the callback: the dropped element is put back first, so your lists re-render from a clean DOM. If the callback leaves your lists as they are, the optimistic move stands.
 ```svelte
 <script>
     import { Kanban } from '@sigta-hq/svelte';
@@ -1708,8 +1841,9 @@ Native HTML5 drag-and-drop board of kanban.columns holding kanban.cards. Draggin
 A draggable card on raised paper inside a kanban.column: lifts on hover and focus, fades while it is dragged.
 
 - **Props:**
-  - `id` (string) — Identifies the card in sigta-kanban-move / onmove (card); generated when not given.
+  - `id` (string) — Identifies the card in the move events (card); generated when not given.
 - **Snippets:** `children` — The card's content.
+- **Accessibility:** role="listitem", focusable (tabindex="0") and announced with aria-roledescription="draggable"; draggable="true" for native drag and drop.
 - The card carries the group class, so group-hover utilities in its content (a button that shows on hover) react to hovering the card.
 - Your class lands on the card and wins over its own look.
 ```svelte
@@ -1726,7 +1860,11 @@ One column of a kanban: a mono header (label, optional actions, a count badge pi
   - `count` (number) — The number in the count badge; defaults to the number of cards inside.
   - `aria` (string) — The body's accessible name, when it should differ from the visible label (defaults to label).
   - `sortable` (boolean, default `false`) — Grows a grip handle at the start of the header that drags the column along the board (only the handle starts a column drag).
-- **Snippets:** `children` — The kanban.cards.; `heading` — Replaces the visible label with your own control (e.g. an inline-rename input); the count and actions stay put.; `actions` — Header controls (a menu, a delete button) to the left of the count, which stays pinned to the right.
+- **Snippets:**
+  - `children` — The kanban.cards.
+  - `heading` — Replaces the visible label with your own control (e.g. an inline-rename input); the count and actions stay put.
+  - `actions` — Header controls (a menu, a delete button) to the left of the count, which stays pinned to the right.
+- **Accessibility:** The body is a list (role="list") named by the string aria (or label), so slotted header markup never leaks into the accessible name; a sortable column's grip is a button labelled "Reorder <name>".
 - Use it inside a kanban. The body's aria-label comes from the string label / aria, never from the heading slot.
 - Without count, the badge counts the Kanban.Cards inside (the server render included). Passing count={column.cards.length} is just as good.
 ```svelte
@@ -1745,9 +1883,11 @@ Chat composer: an auto-growing textarea (up to six rows) between a leading slot 
 - **Props:**
   - `placeholder` (string, default `Write a message…`) — Textarea placeholder.
   - `name` (string) — Form name of the textarea.
-  - `value` (string, bindable (`bind:value`)) — The text. Livewire: wire:model (lands on the textarea); Svelte: bind:value.
+  - `value` (string, bindable (`bind:value`)) — The draft text.
 - **Snippets:** `leading` — Replaces the attach button (a mention or emoji button, …).
-- **Events:** `onsubmit` ({ text: string }) — A message was sent (Enter or the send button); the field clears.
+- **Events:**
+  - `onsubmit` (`{ text: string }`) — A message was sent (Enter or the send button); the field clears.
+- **Accessibility:** A native <textarea> labelled "Message" (override with aria-label); the buttons are labelled "Attach file" and "Send", and Send is disabled while the text is blank.
 - Sending dispatches a bubbling sigta-composer-submit event { text } from the textarea (the window hears it too) and clears the field.
 - The textarea grows with its text up to six rows, then scrolls.
 - onsubmit(text) on every send (it receives the text itself; the DOM event still carries { text }); bind:value for the draft. Other attributes land on the textarea.
@@ -1773,7 +1913,10 @@ Rich text editor (TipTap) on paper: a toolbar of square tools (bold, italic, str
   - `uploadUrl` (string) — The host's picture endpoint: turns on the picture tool and image drop / paste.
   - `resolveUrl` (string) — The host's link resolver: a pasted address of the page's own origin gets its title.
   - `uploadToken` (string) — The CSRF token sent with each upload as X-CSRF-TOKEN; defaults to the page's <meta name="csrf-token">.
-- **Events:** `bind:value` (string) — The content changed (serialized in the format; empty when the editor is).; `sigta-editor-set` (string) — Replaces the content on purpose (restore a draft, switch records): dispatch it on the root with the new value as detail.
+- **Events:**
+  - `bind:value` (`string`) — The content changed (serialized in the format; empty when the editor is).
+  - `sigta-editor-set` (`string`) — Replaces the content on purpose (restore a draft, switch records): dispatch it on the root with the new value as detail.
+- **Accessibility:** The toolbar is role="toolbar" (aria-label "Formatting", aria-controls the editable region); each tool is a labelled button with aria-pressed while its mark or block is at the caret; the upload indicator is a role="status" live region. Links open with Cmd/Ctrl+K.
 - Toolbar: bold, italic, strike, link, heading, bullet and numbered lists, quote, code block, plus a picture tool when an upload URL is set; undo and redo at the end.
 - Links: Cmd/Ctrl+K or the toolbar edits (with Open and Remove), Cmd/Ctrl+click follows; a plain click only places the caret, so editing is never interrupted.
 - format="markdown" parses the value as markdown and writes markdown (single newlines are line breaks); otherwise it is HTML.
@@ -1806,7 +1949,11 @@ App shell grid: sidebar + main. An embeddable rounded frame on raised paper by d
 
 - **Props:**
   - `full` (boolean, default `false`) — true → full-viewport app (no frame); default → embeddable rounded frame with a hairline border.
-- **Snippets:** `header` — Optional: a shell.header, the full-width row above the sidebar and main.; `sidebar` — The shell.sidebar (the nav rail / drawer).; `children` — The main column: a shell.main.
+- **Snippets:**
+  - `header` — Optional: a shell.header, the full-width row above the sidebar and main.
+  - `sidebar` — The shell.sidebar (the nav rail / drawer).
+  - `children` — The main column: a shell.main.
+- **Accessibility:** A <div> grid; the landmarks are its children (shell.sidebar is an <aside>, shell.header a <header>).
 - full=true → full-viewport app; default → embeddable rounded frame (min 440px tall, overflow clipped).
 - header is optional. With it the header row spans both columns above the sidebar and main, carries the brand, actions and (on a phone) the burger, and the sidebar is navigation alone. A shell without header is unchanged.
 - Snippets: header (optional, a <Shell.Header>), sidebar (a <Shell.Sidebar>), and children for the main (a <Shell.Main>).
@@ -1831,6 +1978,7 @@ The top bar of a page in the shell: heading + mono sub on the left, an actions s
   - `heading` (string) — The page heading.
   - `sub` (string) — A mono line under the heading ("Q2 2026 · updated 6 min ago").
 - **Snippets:** `actions` — Controls on the right: a segmented range, pills, buttons.
+- **Accessibility:** A <header>; the heading is an <h3>.
 - Put it first in a shell.main.
 - The actions are a snippet: {#snippet actions()}…{/snippet}.
 ```svelte
@@ -1847,7 +1995,10 @@ The top bar of a page in the shell: heading + mono sub on the left, an actions s
 A full-width row above the shell's sidebar and main: brand on the left, actions on the right. Below the tablet breakpoint it is the phone's top bar and carries the burger that opens the sidebar drawer.
 
 - **Props:** none
-- **Snippets:** `brand` — The lockup on the left.; `actions` — Account menu, quick actions — on the right, before the burger.
+- **Snippets:**
+  - `brand` — The lockup on the left.
+  - `actions` — Account menu, quick actions — on the right, before the burger.
+- **Accessibility:** A <header>; the burger is labelled "Toggle navigation" and mirrors the drawer in aria-expanded.
 - Pass it in the shell's optional header slot: a full-width row above the sidebar and main, brand on the left, actions on the right. Below the tablet breakpoint it is the phone's top bar and carries the burger that opens the sidebar drawer (the sidebar then drops its own brand row, actions and burger, and is navigation alone). A shell without header is unchanged.
 - The sidebar owns the drawer's state: the burger sends a sigta-shell-toggle window event and mirrors the sigta-shell-nav { open } the sidebar reports back, so header and sidebar talk wherever they sit.
 - Snippets: brand and actions.
@@ -1873,6 +2024,7 @@ A nav link in the shell sidebar: mono, quiet graphite with an optional leading i
   - `current` (boolean, default `false`) — The current page: inverts to ink and sets aria-current="page".
   - `href` (string) — The link target.
 - **Snippets:** `children` — The label.
+- **Accessibility:** An <a>; the current one carries aria-current="page".
 - Put them in a shell.sidebar; mark the page you are on current.
 - Attributes (href, data-*, onclick) pass straight through to the <a>.
 ```svelte
@@ -1885,6 +2037,7 @@ The shell's padded main content column: a stack of dashboard rows. Its bottom pa
 
 - **Props:** none
 - **Snippets:** `children` — The page: a shell.bar, then rows.
+- **Accessibility:** A <div>; wrap your page content in <main> yourself when the shell is the page.
 - Its bottom padding grows by a visible floating-bar's footprint (--sigta-floating-space); if your app scrolls a different element, add pb-[var(--sigta-floating-space,0px)] to it.
 ```svelte
 <Shell.Main>
@@ -1898,8 +2051,12 @@ The shell's padded main content column: a stack of dashboard rows. Its bottom pa
 The shell's nav column on paper. A full rail on desktop; below the tablet breakpoint it becomes a top bar whose burger slides the nav in as a drawer over the page, with a scrim behind it.
 
 - **Props:**
-  - `open` (boolean, default `false`, bindable (`bind:open`)) — Svelte: bind:open — whether the drawer is open (below the tablet breakpoint; the rail ignores it).
-- **Snippets:** `children` — The nav: shell.links (and anything else that belongs in it).; `brand` — The lockup at the top of the rail.; `actions` — One or two icon-sized controls at the far end of the top row, hard against the burger; they stay visible while the nav is collapsed.
+  - `open` (boolean, default `false`, bindable (`bind:open`)) — bind:open — whether the drawer is open (below the tablet breakpoint; the rail ignores it).
+- **Snippets:**
+  - `children` — The nav: shell.links (and anything else that belongs in it).
+  - `brand` — The lockup at the top of the rail.
+  - `actions` — One or two icon-sized controls at the far end of the top row, hard against the burger; they stay visible while the nav is collapsed.
+- **Accessibility:** An <aside> landmark named by its aria-label ("App navigation" by default). The open drawer is a modal dialog (role="dialog", aria-modal="true") with a focus trap; the burger carries aria-expanded and aria-controls.
 - A full rail on desktop; below the tablet breakpoint it becomes a top bar whose burger slides the nav in as a drawer over the page, with a scrim behind it.
 - The open drawer is a modal dialog: focus is trapped in it, the page behind stops scrolling, and it closes on the scrim, on Escape and on its own close button. None of that applies to the desktop rail. Give the sidebar an aria-label to name both the landmark and the drawer (defaults to "App navigation").
 - actions sits at the far end of the top row, hard against the burger, and stays visible when the nav is collapsed. Use it for the one or two controls that must be reachable without opening the nav (a search or quick-action trigger); everything else belongs in the nav. Keep it to icon-sized controls: the row is as narrow as the rail on desktop.
@@ -1925,6 +2082,7 @@ Bordered surface without overflow-hidden — so overhanging annotations/badges s
 - **Props:**
   - `variant` (`default` · `inverse`, default `default`) — default (raised paper on a hairline) or inverse (dark ink band).
 - **Snippets:** `children` — The content; children stack as a flex column.
+- **Accessibility:** A <div>.
 - Default padding is fluid (24 to 40px). Pass any padding class (p-4, px-6, sm:p-5, !p-2) and it replaces the default entirely; without one, the default applies.
 - Children stack as a flex column, so gap-* spaces them and items-* / justify-* act on that column (items-center centres them horizontally). Pass a display class (flex, grid, block) and it replaces the stack entirely, so class="flex items-center justify-between" is a row; a direction class alone (flex-row) keeps the flex and turns it. Responsive classes (sm:flex-row) build on the stack.
 - variant="inverse" is a dark ink band; pair it with <Label variant="inverse"> and <Stat tone="inverse"> so nested chrome inverts too.
@@ -1944,6 +2102,7 @@ Hairline-gap grid of tiles: a 1px gap over a bg-line ground reads as thin divide
 - **Props:**
   - `cols` (number, default `3`) — Columns on a wide screen: 2, 3 or 4. They collapse on smaller screens — 4 → 2 → 1, 3 → 1, 2 → 1.
 - **Snippets:** `children` — The tile-grid.tile cells.
+- **Accessibility:** A <div> grid; each tile is an <article>.
 ```svelte
 <script>
     import { TileGrid } from '@sigta-hq/svelte';
@@ -1968,6 +2127,7 @@ One cell of a tile-grid: raised paper with generous padding and an optional mono
 - **Props:**
   - `num` (string) — Mono number (or kicker) on top: "01", "02 · Projektet skrider".
 - **Snippets:** `children` — The tile content.
+- **Accessibility:** An <article>.
 - Its root keeps data-sigta="tile" (the name it has always carried), so the parts are data-scope="tile".
 ```svelte
 <script>
@@ -1993,6 +2153,7 @@ A section's opening row: the heading on the left (with an optional eyebrow above
   - `eyebrow` (string) — Mono kicker above the heading.
   - `lede` (string) — The graphite lede on the right (or pass it as the slot).
 - **Snippets:** `children` — The lede, when the lede prop is not given.
+- **Accessibility:** The heading is an <h2>; the lede a <p>.
 ```svelte
 <script>
     import { SectionHeader } from '@sigta-hq/svelte';
@@ -2008,6 +2169,7 @@ Page-ground overlay (dot grid + paper grain), fixed behind the page and never in
 - **Props:**
   - `dots` (boolean, default `true`) — The dot grid.
   - `grain` (boolean, default `true`) — The paper grain (an SVG noise filter).
+- **Accessibility:** aria-hidden; pointer-events: none.
 - It is fixed to the viewport, behind everything: give the page content position: relative and a z-index above 0 (relative z-10) so it sits on the paper.
 - It takes no other attributes: it is the ground, not a styled box.
 - Place it once, in the root layout before the page content.
@@ -2034,7 +2196,10 @@ The page opener: eyebrow, a display heading (with a highlighter mark), a lede, t
   - `secondaryHref` (string, default `#hjaelp`) — Where the secondary call to action goes.
   - `secondaryTarget` (string) — The secondary link's target.
   - `stats` (array) — The inline figures under the actions, a list of { value, label }. Without stats: the three brand figures; an empty list leaves the row out.
-- **Snippets:** `children` — The heading as rich content (author a mark in it); wins over the heading prop.; `visual` — Your own visual; replaces the sea chart.
+- **Snippets:**
+  - `children` — The heading as rich content (author a mark in it); wins over the heading prop.
+  - `visual` — Your own visual; replaces the sea chart.
+- **Accessibility:** A <section>; the heading is the page's <h1>. The default visual is an <svg role="img"> with a label.
 - Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
 - The heading comes from the default slot (rich content, author a mark there), else the heading prop (a string, HTML allowed), else the brand line.
 - The visual is a snippet: {#snippet visual()}…{/snippet}; the heading is the children.
@@ -2057,6 +2222,7 @@ What you offer: a section header over a tile grid of services, each with a mono 
   - `lede` (string, default `Fire måder at bruge en tech-partner på. De fleste samarbejder starter med én og vokser derfra.`) — The lede beside the heading.
   - `cols` (number, default `4`) — Columns on a wide screen: 2, 3 or 4 (collapsing 4 → 2 → 1, 3 → 1, 2 → 1).
   - `items` (array) — The services, a list of { num, icon, title, text } (each optional); icon is inline <svg…> markup or an icon name. Without items: the four brand services.
+- **Accessibility:** A <section>; each service is a tile (<article>) with an <h3>. Icons are decorative.
 - Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
 - An item's icon is either inline <svg…> markup (currentColor strokes) or the name of an icon from the set.
 ```svelte
@@ -2080,6 +2246,7 @@ The "Kan du genkende det?" block: a section header over a two-column tile grid o
   - `ctaLabel` (string, default `Book en intro-samtale`) — The call to action beside the closing line (with a trailing arrow); empty to leave it out.
   - `ctaHref` (string, default `https://calendly.com/sf-sigta/30min`) — Where the call to action goes.
   - `target` (string, default `_blank`) — The call to action's target: a new tab by default (with rel="noopener").
+- **Accessibility:** A <section>; each card is a tile (<article>).
 - Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
 ```svelte
 <Section.Recognition />
@@ -2097,6 +2264,7 @@ How you charge: a section header over tiers side by side (stacked on a phone). E
   - `lede` (string, default `Én filosofi bag begge: du skal altid vide, hvad du betaler for.`) — The lede beside the heading.
   - `tiers` (array) — The tiers, a list of { label, title, figure, figureSuffix, mark, annot, body } (each optional; body is a list of paragraphs). mark highlights the figure; annot hangs a hand-note over the panel's top edge (hidden on a phone). Without tiers: the two brand tracks.
 - **Snippets:** `aside` — Fills the second column beside a single tier, e.g. a call to book for a reader still deciding.
+- **Accessibility:** A <section>; each tier's title is an <h3>.
 - Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
 - A long figure suffix drops below the figure as one block rather than breaking inside the figure's line.
 - The aside is a snippet: {#snippet aside()}…{/snippet}, rendered in a centred column beside the tiers.
@@ -2121,6 +2289,7 @@ The "Om Sigta" block: a device-framed portrait beside a text column (eyebrow, he
   - `heading` (string, default `Jeg hedder Søren, og jeg taler begge sprog.`) — The heading (an h2 at the xl size).
   - `paragraphs` (array, default `["Jeg har bygget software i 14 år og har siddet på begge sider af bordet: som udvikleren, der byggede løsningen, og som rådgiveren, der skulle vurdere den.","Min filosofi for softwareudvikling er enkel: find det gode fundament, hold fast i den simple løsning, og optimér, når vi ved, at det virker.","Jeg har været med til at udvikle store projekter, der bruges i mange lande, bygget integrationer i store virksomheder, og truffet de gode teknologivalg som CTO hos Donor Network.","Min hverdag ligger hos Donor Network. Sigta er min mulighed for at hjælpe flere på samme måde."]`) — The body paragraphs (a list of strings), in graphite at a 52ch measure. Defaults to the four brand paragraphs.
 - **Snippets:** `portrait` — Your own framed portrait; replaces the placeholder and its hand-note.
+- **Accessibility:** A <section>; the heading is an <h2>, the placeholder portrait an <svg role="img"> with a label.
 - Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
 - The default portrait is an SVG placeholder (the real photo lives in the site, not the package); pass the portrait slot to drop in a real framed image.
 - The portrait is a snippet: {#snippet portrait()}…{/snippet}.
@@ -2140,6 +2309,7 @@ Questions and answers: a section header over a single-open accordion at a readin
   - `lede` (string, default `Og de ærlige svar. Mangler dit, så spørg løs på intro-samtalen.`) — The lede beside the heading.
   - `name` (string, default `faq`) — The accordion group name: the browser keeps one entry open at a time. Give each FAQ on a page its own.
   - `items` (array, default `[{"q":"Hvad koster det?","a":"Én fast timepris: 800 kr./time ekskl. moms. Ingen minimumskøb, og intro-samtalen er gratis. For skræddersyede værktøjer aftaler vi en fast månedspris, før vi går i gang."},{"q":"Hvor meget tid skal vi bruge?","a":"Det afhænger af opgaven. Nogle kunder bruger et par timer om måneden til sparring, andre mere i perioder. Vi skalerer op og ned efter behov."},{"q":"Hvad er en tech-partner?","a":"En fast partner, der dækker hele spektret fra rådgivning og sparring til hands-on udvikling. For mange virksomheder fungerer det som en teknisk direktør på deltid, internationalt kaldet en fractional CTO, men samarbejdet former sig efter jeres behov."},{"q":"Har vi overhovedet brug for en tech-partner?","a":"Måske ikke. Det er også et svar, du kan få hos os. Intro-samtalen er netop til at finde ud af, om det giver mening for jer."},{"q":"Vi har allerede udviklere. Giver det så mening?","a":"Ja. Udviklere og teknisk ledelse er to forskellige jobs. Dygtige udviklere fortjener en, der sætter retning, prioriterer og holder arkitekturen sund."},{"q":"Hvad med fortrolighed?","a":"NDA er standard. Alt, hvad vi ser og hører, bliver mellem os."},{"q":"Er vi bundet af noget?","a":"Nej. Timepris-samarbejdet kan stoppes når som helst. For værktøjer til fast månedspris aftaler vi vilkårene på forhånd, så der ikke er overraskelser."}]`) — The entries, a list of { q, a }: the question and its answer. Defaults to the seven brand questions.
+- **Accessibility:** A <section>; the entries are native <details>/<summary> (the accordion), grouped by name so one is open at a time.
 - Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
 ```svelte
 <Section.Faq />
@@ -2153,6 +2323,7 @@ A centred pull-quote in big light Fraunces italic, curly-quoted, over a mono cit
 - **Props:**
   - `quote` (string, default `Du behøver ikke forstå koden for at træffe gode beslutninger. Du skal bare kende én, der gør.`) — The quote, without quotation marks (the section adds them).
   - `cite` (string, default `Sådan arbejder Sigta`) — The mono line under the quote; empty to leave it out.
+- **Accessibility:** A <section> with a <blockquote>.
 - Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
 ```svelte
 <Section.Quote />
@@ -2167,6 +2338,7 @@ A centred proof strip between hairlines: an inline years figure and the client n
   - `yearsValue` (string, default `14 år`) — The figure.
   - `yearsLabel` (string, default `erfaring med software`) — The label under the figure.
   - `logos` (array, default `["Park Styling","Jelling Musikfestival"]`) — The client names (a list of strings), set as mono wordmarks.
+- **Accessibility:** A <section> labelled "Erfaring og kunder".
 - Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
 ```svelte
 <Section.Proof />
@@ -2187,6 +2359,7 @@ The closing call to action: a dark ink band (rounded frame) with a centred headi
   - `secondaryHref` (string, default `mailto:sf@sigta.dk`) — Where the secondary button goes.
   - `secondaryTarget` (string) — The secondary link's target.
   - `annotation` (string, default `lad os tegne det op ↘`) — The accent hand-note on the band's corner (hidden on a phone); empty to leave it out.
+- **Accessibility:** A <section>; the heading is an <h2>, the actions are links.
 - Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
 - The dark band uses the inverse surface and the inverse / ghost-inverse button variants — never override its colours.
 ```svelte
@@ -2203,6 +2376,7 @@ The site footer: the brand and a tagline, columns of links under mono headings, 
   - `tagline` (string, default `Sigta er tech-partneren for virksomheder uden egen teknisk ledelse: hjælp, rådgivning og udvikling.`) — The line under the brand; empty to leave it out.
   - `signoff` (string, default `© 2026 Sigta · CVR 45530760`) — The mono line under the dashed rule; empty to leave it out.
   - `columns` (array, default `[{"heading":"Navigation","links":[{"label":"Kan du genkende det?","href":"#genkend"},{"label":"Sådan hjælper vi","href":"#hjaelp"},{"label":"Priser","href":"#priser"},{"label":"Om Sigta","href":"#om"}]},{"heading":"Kontakt","links":[{"label":"Book en intro-samtale","href":"https://calendly.com/sf-sigta/30min"},{"label":"sf@sigta.dk","href":"mailto:sf@sigta.dk"},{"label":"LinkedIn","href":"https://www.linkedin.com/in/soeren-frisk/"}]}]`) — The link columns, a list of { heading, links: [{ label, href }] }. Defaults to the brand Navigation and Kontakt columns.
+- **Accessibility:** A <footer> landmark (contentinfo); each column is a heading over a <ul> of links.
 - Brand-default Danish copy: it renders complete with no props, and every prop is optional and overrides one piece.
 - The root is a <footer> landmark rather than a <section>; it carries the same data-sigta hook.
 ```svelte
@@ -2255,22 +2429,26 @@ Ink on paper: strokes draw, paper settles under a press, a finished thing is cro
 | `sigta-toast` | `{heading, text, variant, duration, link, action, key}` | `sigta.toast()` / your code / Inertia `sigta.toasts` | `<Toast />` |
 | `sigta-celebrate` | `{level, text, target}` | `sigta.celebrate()` / your code / Inertia `sigta.celebrate` | the runtime |
 | `sigta-save-state` | `{name, state}` | `sigta.save()` / `sigta.saveState()` / your code | `<SaveState name>` |
-| `sigta-modal-show` | `{name}` | `Modal.Trigger` / your code | `<Modal name>` |
-| `sigta-modal-hide` | `{name}` | `Modal.Close` / your code | `<Modal name>` |
-| `onselect` | `string | number | null` | `<AssigneePicker>` | A person (or Unassigned) was chosen. |
-| `onchange` | `string | null` | `<Autocomplete>` | The value changed. |
-| `onchange` | `string | null` | `<Calendar>` | The selected day changed, YYYY-MM-DD. |
+| `sigta-modal-show` | `{name}` | `<Modal.Trigger>` / your code | `<Modal name>`, `<Command name>` |
+| `sigta-modal-hide` | `{name}` | `<Modal.Close>` / your code | `<Modal name>`, `<Command name>` |
+
+Component callbacks — a component's own events are callback props (the
+components that also dispatch a DOM event say so in their entry, and say when
+the callback receives less than the event's detail):
+
+| Callback prop | Detail | Component | What it means |
+|---|---|---|---|
+| `onselect` | `string \| number \| null` | `<AssigneePicker>` | A person (or Unassigned) was chosen. |
+| `onchange` | `string \| null` | `<Autocomplete>` | The value changed. |
+| `onchange` | `string \| null` | `<Calendar>` | The selected day changed, YYYY-MM-DD. |
 | `onsubmit` | `{ text: string }` | `<Composer>` | A message was sent (Enter or the send button); the field clears. |
-| `onchange` | `string | null` | `<DatePicker>` | The date changed, YYYY-MM-DD (null when cleared). |
-| `onchange` | `number | null` | `<DurationInput>` | A committed edit (whole minutes, null when cleared). |
-| `bind:value` | `string` | `<Editor>` | The content changed (serialized in the format; empty when the editor is). |
-| `sigta-editor-set` | `string` | `<Editor>` | Replaces the content on purpose (restore a draft, switch records): dispatch it on the root with the new value as detail. |
+| `onchange` | `string \| null` | `<DatePicker>` | The date changed, YYYY-MM-DD (null when cleared). |
+| `onchange` | `number \| null` | `<DurationInput>` | A committed edit (whole minutes, null when cleared). |
 | `onfiles` | `File[]` | `<FileUpload>` | Files were picked or dropped. |
 | `onmove` | `{ card: string, from: string, to: string, position: number }` | `<Kanban>` | A card was dropped: its id, the column it came from, the column it landed in and its 0-based position among that column's cards. The DOM event bubbles to the board and window. |
 | `oncolumnmove` | `{ column: string, position: number }` | `<Kanban>` | A sortable column was dropped: its id and its 0-based position among the board's columns. The DOM event bubbles to the board and window. |
-| `onchange` | `string | null` | `<Listbox>` | The value changed. |
-| `onchange` | `number | null` | `<MoneyInput>` | The amount changed (minor units, null when empty). |
+| `onchange` | `string \| null` | `<Listbox>` | The value changed. |
+| `onchange` | `number \| null` | `<MoneyInput>` | The amount changed (minor units, null when empty). |
 | `oncurrency` | `string` | `<MoneyInput>` | The currency changed. |
-| `bind:value, or oninput (dispatched on the hidden input)` | `string` | `<Otp>` | The code changed. |
 | `onchange` | `string[]` | `<Pillbox>` | The selection changed. |
-| `onchange` | `string | null` | `<TimePicker>` | The time changed, HH:MM (null when cleared). |
+| `onchange` | `string \| null` | `<TimePicker>` | The time changed, HH:MM (null when cleared). |

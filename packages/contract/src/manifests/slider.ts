@@ -14,7 +14,7 @@ export default defineComponent({
         description: { type: 'string', default: null, description: 'Help text.' },
         error: { type: 'string', default: null, description: 'Error text; rims the thumb in red.' },
         showValue: { type: 'boolean', default: false, description: 'Print the live value beside the track in mono.' },
-        value: { type: 'number', default: null, native: true, bindable: true, description: 'The value. Livewire: wire:model or value; Svelte: bind:value.' },
+        value: { type: 'number', default: null, native: true, bindable: true, description: 'The value.', blade: { note: 'wire:model, or value for the initial position.' } },
     },
     parts: {
         wrap: { description: 'Lines the input up with its readout (only with showValue).' },

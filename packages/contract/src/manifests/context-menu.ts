@@ -32,7 +32,7 @@ export default defineComponent({
     },
     uses: ['dropdown.item', 'dropdown.separator'],
     notes: {
-        shared: ['The items are dropdown.item and dropdown.separator; an item closes the menu when chosen.'],
+        shared: ['The items are {{tag:dropdown.item}} and {{tag:dropdown.separator}}; an item closes the menu when chosen.'],
         livewire: ['The default slot is the surface; <x-slot:menu> holds the items.'],
         svelte: ['children is the surface; {#snippet menu()} holds the items.'],
     },

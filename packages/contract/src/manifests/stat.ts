@@ -31,8 +31,8 @@ export default defineComponent({
     slots: { default: { description: 'Extra content under the figure, typically a chart.sparkline (it inherits the value colour).' } },
     notes: {
         shared: [
-            'tone="inverse" darkens it for a dark surface: the panel variant gets a dark ground; the inline variant stays bare, to sit on a dark panel (panel variant="inverse"). Trend colours stay semantic in both tones.',
-            'Put a chart.sparkline in the slot for a trend line under the figure.',
+            'tone="inverse" darkens it for a dark surface: the panel variant gets a dark ground; the inline variant stays bare, to sit on a dark {{tag:panel}} (variant="inverse"). Trend colours stay semantic in both tones.',
+            'Put a {{tag:chart.sparkline}} in the slot for a trend line under the figure.',
         ],
     },
     examples: [

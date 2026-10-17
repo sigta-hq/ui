@@ -43,21 +43,21 @@ export default defineComponent({
     @endif
 </x-sigta::comment>`,
         svelte: `{#each comments as c (c.id)}
+    <!-- declared inside the {#each}, so it sees c -->
+    {#snippet ownerActions()}
+        <Button variant="ghost" size="sm" aria-label="Edit" onclick={() => startEditing(c)}><Icon name="pencil" size="sm" /></Button>
+    {/snippet}
     <Comment author={c.author?.name} meta={c.createdAgo} editing={editingId === c.id} actions={c.userId === me.id ? ownerActions : undefined}>
         {c.body}
         {#snippet edit()}
             <Textarea bind:value={draft} rows={3} />
         {/snippet}
     </Comment>
-{/each}
-
-{#snippet ownerActions()}
-    <Button variant="ghost" size="sm" aria-label="Edit" onclick={() => startEditing(c)}><Icon name="pencil" size="sm" /></Button>
-{/snippet}`,
+{/each}`,
     },
     notes: {
         shared: [
-            'Presentational: persistence, validation and who-may-edit auth stay in your app. Loop it for a feed; pair it with composer or a textarea form to add new ones.',
+            'Presentational: persistence, validation and who-may-edit auth stay in your app. Loop it for a feed; pair it with {{tag:composer}} or a {{tag:textarea}} form to add new ones.',
             'Pass meta a ready string ("2h ago", a date) — the component does not format time.',
         ],
         livewire: ['Give each comment a wire:key. Wrap the actions slot in @if for the owner only: an empty <x-slot:actions> still renders the actions column.'],

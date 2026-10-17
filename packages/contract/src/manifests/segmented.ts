@@ -13,7 +13,7 @@ export default defineComponent({
         name: { type: 'string', required: true, description: 'The radios\' shared name.' },
         options: { type: 'object', default: {}, shape: 'Record<string, string> — value ⇒ label (a list uses its indexes as values)', description: 'The options, value ⇒ label.' },
         label: { type: 'string', default: null, description: 'Accessible group name (a visually hidden legend).' },
-        checked: { type: 'string', default: null, bindable: true, description: 'The chosen value (compared as a string). Livewire: wire:model or checked; Svelte: bind:checked.' },
+        checked: { type: 'string', default: null, bindable: true, description: 'The chosen value (compared as a string).', blade: { note: 'wire:model, or checked for the initial choice.' } },
     },
     parts: {
         legend: { description: 'The visually hidden group name.' },
@@ -28,7 +28,7 @@ export default defineComponent({
         svelte: `<Segmented name="range" label="Range" options={{ '7d': '7d', '30d': '30d', qtd: 'QTD' }} bind:checked={range} />`,
     },
     notes: {
-        shared: ['Use it for a short range of mutually exclusive views (7d / 30d / QTD); for a longer list use radio or select.'],
+        shared: ['Use it for a short range of mutually exclusive views (7d / 30d / QTD); for a longer list use {{tag:radio}} or {{tag:select}}.'],
         livewire: ['wire:model and every attribute except class land on each radio; class lands on the fieldset.'],
         svelte: ['bind:checked holds the chosen value; other attributes (onchange, disabled) land on each radio.'],
     },

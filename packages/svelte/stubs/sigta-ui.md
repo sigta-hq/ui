@@ -38,7 +38,7 @@ raw HTML tag with Tailwind utility classes.
 | Toggle | `<Switch>` | custom toggle markup |
 | Range slider | `<Slider>` | `<input type="range" class="…">` |
 | Field wrapper | `<Field>` | hand-rolled label/error markup |
-| Icon | `<Icon>` | `<svg>` / any icon library |
+| Icon | `<Icon name="…">` | `<svg>` / any icon library |
 | Badge / status pill | `<Badge>` / `<Pill>` | `<span class="rounded-full …">` |
 | Alert / status box | `<Callout>` | `<div role="alert" class="…">` |
 | Modal | `<Modal>` + `<Modal.Trigger>` | custom dialog markup |
@@ -51,9 +51,9 @@ raw HTML tag with Tailwind utility classes.
 | Body text variant | `<Text>` | `<p class="text-…">` |
 | Avatar | `<Avatar>` | `<img class="rounded-full …">` |
 | Loading indicator / spinner | `<Loader>` | a spinner SVG, `animate-spin`, "Loading…" text |
-| "Saving…" / "Saved" indicator | `<SaveState>` | hand-written status text |
+| "Saving…" / "Saved" indicator | `<SaveState>` | hand-written status text, `{#if saving}` spans |
 | Background job / queue progress | `<Job>` | a progress bar + text assembled by hand |
-| A count that changes (unread, open) | `<Count>` | a bare number in a badge |
+| A count that changes (unread, open) | `<Count>` | a bare `{n}` in a badge |
 
 For the complete list with props and variants, read **`sigta-components.md`**.
 
@@ -76,10 +76,11 @@ layer.**
 
 ### 3. Never import another icon library
 
-Use `<Icon>` (Lucide under the hood, one pinned set). Do not add Heroicons,
-Phosphor, Feather, lucide-svelte or any other icon set. If a needed icon is
-missing from Lucide, say so in a comment rather than substituting another
-library.
+Use `<Icon name="…">` (Lucide under the hood, one pinned set). Do not add
+Heroicons, Phosphor, Feather, `lucide-svelte` or any other icon set — not even
+Lucide's own package: `<Icon>` already carries the set at the brand stroke.
+If a needed icon is missing from Lucide, say so in a comment rather than
+substituting another library.
 
 ### 4. Foundation must be wired before components work
 
@@ -99,6 +100,8 @@ in the root layout:
 <!-- the root layout -->
 <script>
     import { Toast } from '@sigta-hq/svelte';
+
+    let { children } = $props();
 </script>
 
 {@render children()}
@@ -133,7 +136,7 @@ the UI feel unfinished. Work out every state before you place one:
   by hand, and never swap a button's label for "Saving…" or for the loader.
 - **Pin the compass to the side that stays put; the words grow away from
   it.** Against a right edge (the end of a toolbar, a `justify-between`
-  header, the last table cell) use the save state with `align="end"`, or put a
+  header, the last table cell) use `<SaveState>` with `align="end"`, or put a
   hand-built loader after its text and right-align the text. Anything between
   the loader and the edge it hangs from will push it. In a centred group both
   ends move, so reserve the words' room (next rule).
@@ -224,8 +227,8 @@ the UI feel unfinished. Work out every state before you place one:
 
 ## Component prop conventions
 
-Prop names, variant values and slot names are the same as in the Livewire
-runtime: `variant`, `size`, `icon`, `label`, `description`, `error`,
+Prop names, variant values and slot names are shared by every Sigta runtime:
+`variant`, `size`, `icon`, `label`, `description`, `error`,
 `placeholder`, `heading`, `name`, `href`. Multi-word props are camelCase
 (`primaryLabel`). Two-way state uses `bind:` (`bind:value`, `bind:checked`,
 `bind:open`); events are callback props (`onchange`, `onmove`, `onsubmit`);
@@ -273,10 +276,13 @@ import { connectInertia } from '@sigta-hq/svelte/inertia';
 connectInertia();
 ```
 
+`connectInertia({ saveState: 'page' })` also drives `<SaveState name="page">`
+from every non-GET visit: saving, then saved, or failed on validation errors.
+
 ## When to extend vs. when to ask
 
 If the design calls for something no Sigta component covers, **prefer composing
-existing components** (a card containing a button + a badge) over writing
-bespoke markup. If composition can't satisfy the need, leave a clear comment
-saying what's missing and why — do not silently introduce a parallel
-component vocabulary.
+existing components** (a `<Card>` containing a `<Button>` + a
+`<Badge>`) over writing bespoke markup. If composition can't satisfy the
+need, leave a clear comment saying what's missing and why — do not silently
+introduce a parallel component vocabulary.

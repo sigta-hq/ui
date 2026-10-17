@@ -21,7 +21,7 @@ export default defineComponent({
     },
     notes: {
         shared: [
-            'For a value that counts up live use elapsed-clock.',
+            'For a value that counts up live use {{tag:elapsed-clock}}.',
             'Both runtimes format with the same rules (the core\'s formatDuration), so a server render and a client render agree.',
         ],
     },

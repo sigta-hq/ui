@@ -7,7 +7,7 @@ export default defineComponent({
     tier: 'components',
     page: 'modal',
     svelte: 'Modal.Trigger',
-    description: 'Opens the modal with the given name (any modal when unnamed) when its content is clicked.',
+    description: 'Opens the modal with the given name (any modal when unnamed) when its content is clicked: it dispatches a sigta-modal-show window event with { name }.',
     props: {
         name: { type: 'string', default: null, description: 'The modal to address.' },
     },

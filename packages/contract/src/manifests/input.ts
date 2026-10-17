@@ -15,7 +15,7 @@ export default defineComponent({
         error: { type: 'string', default: null, description: 'Error text; marks the input invalid.' },
         icon: { type: 'string', default: null, description: 'Leading icon name.' },
         type: { type: 'string', default: 'text', description: 'Native input type (text, email, password, number, date, …).' },
-        value: { type: 'string', default: null, native: true, bindable: true, description: 'The value. Livewire: wire:model on the component; Svelte: bind:value.' },
+        value: { type: 'string', default: null, native: true, bindable: true, description: 'The value.' },
     },
     parts: {
         wrap: { description: 'Positions the leading icon (only with icon).' },

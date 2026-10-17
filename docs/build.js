@@ -16,7 +16,7 @@ import { marked } from 'marked';
 import { createSigtaVite, sourceAliases, sveltePlugin } from '../scripts/sigta-vite.js';
 import { manifests, registry } from '../packages/contract/src/manifests/index.ts';
 import { toBlade, toSvelte, svelteImports } from '../packages/contract/src/examples.ts';
-import { edition } from '../packages/contract/scripts/stubs.ts';
+import { edition, expandTags } from '../packages/contract/scripts/stubs.ts';
 
 const docs = dirname(fileURLToPath(import.meta.url));
 const root = join(docs, '..');
@@ -98,9 +98,12 @@ for (const example of examples) writeFileSync(join(work, 'examples', `${example.
 const ssr = await createSigtaVite({ root: work });
 const { render } = await ssr.ssrLoadModule('svelte/server');
 const svelteHtml = {};
-for (const example of examples) {
+for (const [index, example] of examples.entries()) {
     try {
-        svelteHtml[example.id] = render((await ssr.ssrLoadModule(join(work, 'examples', `${example.id}.svelte`))).default).body;
+        // Every demo is its own root, so $props.id() would start at s1 in
+        // each one: a per-demo prefix keeps ids unique on the page (hydrate
+        // reads them back from the server render).
+        svelteHtml[example.id] = render((await ssr.ssrLoadModule(join(work, 'examples', `${example.id}.svelte`))).default, { idPrefix: `d${index}` }).body;
     } catch (error) {
         svelteHtml[example.id] = `<p>Svelte render failed: ${error.message}</p>`;
     }
@@ -125,12 +128,14 @@ function apiOf(manifest, runtime) {
             name: spec.bindable && runtime === 'svelte' ? `bind:${shown}` : shown,
             type,
             default: spec.required ? 'required' : show(spec.default),
-            description: spec.description,
+            description: override?.note ? `${spec.description} ${override.note}` : spec.description,
         }];
     });
-    const slots = Object.entries(manifest.slots ?? {}).map(([name, spec]) => ({ name: runtime === 'svelte' && name === 'default' ? 'children' : name, description: spec.description }));
+    const slots = Object.entries(manifest.slots ?? {})
+        .filter(([, spec]) => spec[runtime === 'livewire' ? 'blade' : 'svelte'] !== false)
+        .map(([name, spec]) => ({ name: runtime === 'svelte' && name === 'default' ? 'children' : name, description: spec.description }));
     const events = Object.values(manifest.events ?? {}).map((spec) => ({ name: runtime === 'livewire' ? spec.blade : spec.svelte, description: spec.description })).filter((e) => e.name);
-    const notes = [...(manifest.notes?.shared ?? []), ...(manifest.notes?.[runtime] ?? [])];
+    const notes = [...(manifest.notes?.shared ?? []), ...(manifest.notes?.[runtime] ?? [])].map((note) => expandTags(note, runtime, registry));
     return { props, slots, events, notes };
 }
 

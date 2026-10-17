@@ -23,7 +23,7 @@ export default defineComponent({
     aria: 'WAI-ARIA menu button: click, Enter / Space or ArrowDown on the trigger opens the menu on its first item (ArrowUp: the last); ArrowUp / ArrowDown wrap, Home / End jump; Escape closes it and returns focus to the trigger; Tab or a click outside closes it.',
     props: {
         position: { type: 'enum', values: ['bottom-start', 'bottom-end', 'top-start', 'top-end'], default: 'bottom-start', description: 'Where the menu opens against the trigger; unknown values act as bottom-start.' },
-        open: { type: 'boolean', default: false, bindable: true, blade: false, description: 'Svelte: bind:open reads and sets whether the menu is open.' },
+        open: { type: 'boolean', default: false, bindable: true, blade: false, description: 'bind:open reads and sets whether the menu is open.' },
     },
     parts: {
         trigger: { description: 'Wraps the trigger slot; carries aria-haspopup and aria-expanded.' },
@@ -39,12 +39,12 @@ export default defineComponent({
     },
     uses: ['dropdown.item', 'dropdown.separator', 'button'],
     notes: {
-        shared: ['Use it (with dropdown.item) instead of a custom menu.'],
+        shared: ['Use it (with {{tag:dropdown.item}} and {{tag:dropdown.separator}}) instead of a custom menu.'],
         livewire: [
-            'The trigger goes in <x-slot:trigger>, the items in the default slot.',
+            'The trigger goes in <x-slot:trigger> (required); the items go straight in the default slot. There is no menu slot (that is the context menu\'s).',
             'The sigtaDropdown Alpine component handles open / Escape / click outside / roving focus.',
         ],
-        svelte: ['The trigger is a snippet: {#snippet trigger()}<Button>Options</Button>{/snippet}. bind:open to open or close it yourself.'],
+        svelte: ['The trigger is a snippet ({#snippet trigger()}<Button>Options</Button>{/snippet}, required); the items are the children. bind:open to open or close it yourself.'],
     },
     examples: [
         {

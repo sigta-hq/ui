@@ -82,14 +82,13 @@ export default defineComponent({
             'Use it instead of any hand-written "Saving…" / "Saved" text or loading spans.',
             'It never moves: all its labels share one cell, so it is as wide as its longest label whatever it is saying and the compass stays put. Use align="end" at the right end of a bar (a justify-between header, the end of a toolbar); the default start suits a left edge. The room is reserved for the longest label, so keep your own words close in length.',
             '"Saved" holds for a moment, then it settles back to idle.',
-            'Anywhere: give it a name and drive it with save(promise, name) (saving → saved / failed) or saveState(\'dirty\', name) for the unsaved-changes hint.',
         ],
         livewire: [
             'target names actions and/or properties (comma-separated, dot paths match children) on the closest component; it follows their requests by itself, and typing into a watched wire:model shows dirty until it syncs. Validation errors read as failed.',
-            'Without Livewire, give it a name: $sigta.save(promise, \'profile\') or $sigta.saveState(\'dirty\', \'profile\') from Alpine.',
+            'Anywhere else (Alpine, plain JS, outside a Livewire component): give it a name and drive it with $sigta.save(promise, name) (saving → saved / failed) or $sigta.saveState(\'dirty\', name) for the unsaved-changes hint; window.Sigta.save(…) from plain JS.',
         ],
         svelte: [
-            'There is no wire:target to follow: drive it with state (bind:state), with sigta.save(promise, name) / sigta.saveState(state, name), or from Inertia visits with connectInertia({ saveState: name }) from @sigta-hq/svelte/inertia.',
+            'Drive it with state (bind:state); or give it a name and use sigta.save(promise, name) (saving → saved / failed) or sigta.saveState(\'dirty\', name) for the unsaved-changes hint (import { sigta } from \'@sigta-hq/svelte\'); or follow Inertia visits with connectInertia({ saveState: name }) from @sigta-hq/svelte/inertia.',
             'bind:state follows the events as well, so your code can read what it shows.',
         ],
     },

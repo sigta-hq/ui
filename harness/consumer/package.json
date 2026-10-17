@@ -1,0 +1,6 @@
+{
+    "name": "sigta-consumer-smoke",
+    "private": true,
+    "type": "module",
+    "description": "A Svelte app outside the workspace that installs the packed @sigta-hq tarballs, as a consumer would. Driven by scripts/consumer-smoke.js; not a workspace."
+}

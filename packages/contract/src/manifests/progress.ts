@@ -31,7 +31,7 @@ export default defineComponent({
     },
     notes: {
         shared: [
-            'For long-running background work prefer job (or loader with a value), which carry the brand motion; use progress for a plain bar (uploads, steps).',
+            'For long-running background work prefer {{tag:job}} (or {{tag:loader}} with a value), which carry the brand motion; use progress for a plain bar (uploads, steps).',
             'The percentage is value / max, clamped to 0–100.',
         ],
     },

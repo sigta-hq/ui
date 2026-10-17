@@ -20,7 +20,7 @@ export default defineComponent({
         svelte: '<Rule variant={2} />',
     },
     notes: {
-        shared: ['Use it between page sections; inside content, a plain separator is the quieter choice.'],
+        shared: ['Use it between page sections; inside content, a plain {{tag:separator}} (an <hr>) is the quieter choice.'],
     },
     examples: [
         {

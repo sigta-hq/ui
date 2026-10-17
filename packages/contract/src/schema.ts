@@ -52,6 +52,9 @@ export interface SlotSpec {
     params?: string;
     /** Required to render meaningfully. */
     required?: boolean;
+    /** false when one runtime has no such slot / snippet (left out of that runtime's reference). */
+    blade?: false;
+    svelte?: false;
 }
 
 export interface EventSpec {

@@ -9,7 +9,7 @@ export default defineComponent({
     tier: 'components',
     page: 'listbox',
     svelte: 'Listbox',
-    description: 'Rich single select: a button trigger showing the current choice opens a floating listbox of <autocomplete.option>s (the option row shared with autocomplete and pillbox). Arrow keys move, Enter chooses, Escape closes. The chosen value lives in a hidden input (name, wire:model) or bind:value.',
+    description: 'Rich single select: a button trigger showing the current choice opens a floating listbox of autocomplete.options (the option row shared with autocomplete and pillbox). Arrow keys move, Enter chooses, Escape closes. The chosen value lives in a hidden input, so it also posts with a plain form.',
     aria: 'A button with role="combobox" and aria-haspopup="listbox" controls a listbox; the active option is announced through aria-activedescendant.',
     props: {
         label: { type: 'string', default: null, description: 'Field label.' },
@@ -17,7 +17,7 @@ export default defineComponent({
         error: { type: 'string', default: null, description: 'Error text; marks the trigger invalid.' },
         placeholder: { type: 'string', default: 'Select…', description: 'Shown on the trigger while nothing is chosen.' },
         name: { type: 'string', default: null, description: 'Form name of the hidden value input.' },
-        value: { type: 'string', default: null, bindable: true, description: 'The chosen value (an option\'s value). Livewire: pass the current value (:value) for the trigger to show it, and wire:model (it lands on the hidden input) to receive choices; Svelte: bind:value.' },
+        value: { type: 'string', default: null, bindable: true, description: 'The chosen value (an option\'s value).', blade: { note: 'Pass the current value (:value) for the trigger to show it, and wire:model (it lands on the hidden input) to receive choices.' } },
     },
     parts: {
         trigger: { description: 'The button (role=combobox) in the field chrome; your id lands here.' },
@@ -30,7 +30,7 @@ export default defineComponent({
         invalid: { attribute: 'aria-invalid', description: 'On the trigger, with an error.' },
         empty: { attribute: 'data-empty', description: 'On the value part while it shows the placeholder.' },
     },
-    slots: { default: { description: 'The <autocomplete.option>s.', required: true } },
+    slots: { default: { description: 'The autocomplete.options.', required: true } },
     events: {
         change: { description: 'The value changed.', blade: 'input / change on the hidden input (wire:model hears it)', svelte: 'onchange', detail: 'string | null' },
     },
@@ -47,7 +47,7 @@ export default defineComponent({
     },
     notes: {
         shared: [
-            'Use it for a rich single choice; a plain list of strings is better as a native select, a long searchable one as autocomplete.',
+            'Use it for a rich single choice; a plain list of strings is better as a {{tag:select}}, a long searchable one as an {{tag:autocomplete}}.',
             'The listbox floats with fixed positioning, so it escapes cards and forms that clip overflow.',
             'The trigger shows the placeholder until the runtime starts, then the chosen option\'s text.',
         ],

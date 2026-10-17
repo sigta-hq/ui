@@ -48,7 +48,7 @@ export default defineComponent({
     },
     notes: {
         shared: [
-            'Build it from table.columns (the <thead> row) with a table.column per header, and table.rows (the <tbody>) with table.row and table.cell.',
+            'Build it from {{tag:table.columns}} (the <thead> row) with a {{tag:table.column}} per header, and {{tag:table.rows}} (the <tbody>) with {{tag:table.row}} and {{tag:table.cell}}.',
             'Cells use tabular numerals, so figures line up; the last row draws no rule under it.',
         ],
         livewire: ['Attributes (class, wire:key, data-*) land on the <table>, not on the scrolling wrapper. Loop rows with @foreach and give each table.row a wire:key.'],

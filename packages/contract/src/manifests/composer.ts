@@ -12,7 +12,7 @@ export default defineComponent({
     props: {
         placeholder: { type: 'string', default: 'Write a message…', description: 'Textarea placeholder.' },
         name: { type: 'string', default: null, description: 'Form name of the textarea.' },
-        value: { type: 'string', default: null, native: true, bindable: true, description: 'The text. Livewire: wire:model (lands on the textarea); Svelte: bind:value.' },
+        value: { type: 'string', default: null, native: true, bindable: true, description: 'The draft text.', blade: { note: 'wire:model lands on the textarea.' } },
     },
     parts: {
         leading: { description: 'Holds the leading control (the attach button, or your leading slot).' },

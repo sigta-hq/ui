@@ -36,7 +36,7 @@ raw HTML tag with Tailwind utility classes.
 | Toggle | `<sigta:switch>` | custom toggle markup |
 | Range slider | `<sigta:slider>` | `<input type="range" class="…">` |
 | Field wrapper | `<sigta:field>` | hand-rolled label/error markup |
-| Icon | `<sigta:icon>` | `<svg>` / any icon library |
+| Icon | `<sigta:icon name="…">` | `<svg>` / any icon library |
 | Badge / status pill | `<sigta:badge>` / `<sigta:pill>` | `<span class="rounded-full …">` |
 | Alert / status box | `<sigta:callout>` | `<div role="alert" class="…">` |
 | Modal | `<sigta:modal>` + `<sigta:modal.trigger>` | custom dialog markup |
@@ -49,9 +49,9 @@ raw HTML tag with Tailwind utility classes.
 | Body text variant | `<sigta:text>` | `<p class="text-…">` |
 | Avatar | `<sigta:avatar>` | `<img class="rounded-full …">` |
 | Loading indicator / spinner | `<sigta:loader>` | a spinner SVG, `animate-spin`, "Loading…" text |
-| "Saving…" / "Saved" indicator | `<sigta:save-state>` | hand-written status text |
+| "Saving…" / "Saved" indicator | `<sigta:save-state>` | hand-written status text, `wire:loading` spans |
 | Background job / queue progress | `<sigta:job>` | a progress bar + text assembled by hand |
-| A count that changes (unread, open) | `<sigta:count>` | a bare number in a badge |
+| A count that changes (unread, open) | `<sigta:count>` | a bare `{{ $n }}` in a badge |
 
 For the complete list with props and variants, read **`sigta-components.md`**.
 
@@ -74,10 +74,10 @@ layer.**
 
 ### 3. Never import another icon library
 
-Use `<sigta:icon>` (Lucide under the hood, one pinned set). Do not add Heroicons,
-Phosphor, Feather, lucide-svelte or any other icon set. If a needed icon is
-missing from Lucide, say so in a comment rather than substituting another
-library.
+Use `<sigta:icon name="…">` (Lucide under the hood, one pinned set). Do not
+add Heroicons, Phosphor, Feather, or any other icon set.
+If a needed icon is missing from Lucide, say so in a comment rather than
+substituting another library.
 
 ### 4. Foundation must be wired before components work
 
@@ -87,6 +87,9 @@ The app's CSS entry must import Sigta:
 @import "tailwindcss";
 @import "../../vendor/sigta/ui/resources/css/sigta.css";
 ```
+
+The component stylesheet ships prebuilt, so no `@source` line is needed for
+Sigta's own views (an existing one is harmless; leave it).
 
 The layout `<head>` must include (after Livewire styles):
 
@@ -120,7 +123,7 @@ the UI feel unfinished. Work out every state before you place one:
   by hand, and never swap a button's label for "Saving…" or for the loader.
 - **Pin the compass to the side that stays put; the words grow away from
   it.** Against a right edge (the end of a toolbar, a `justify-between`
-  header, the last table cell) use the save state with `align="end"`, or put a
+  header, the last table cell) use `<sigta:save-state>` with `align="end"`, or put a
   hand-built loader after its text and right-align the text. Anything between
   the loader and the edge it hangs from will push it. In a centred group both
   ends move, so reserve the words' room (next rule).
@@ -226,7 +229,7 @@ rather than building custom wiring:
 - `sigta-save-state` `{name, state}` → drives the `<sigta:save-state name="…">` with that name. Prefer `$sigta.save(promise, name)`.
 - `sigta-modal-show` / `sigta-modal-hide` `{name}` → open/close a modal
 - `sigta-composer-submit` `{text}` → composer sent a message
-- `sigta-kanban-move` `{card, from, to, position}` → card dragged on the board
+- `sigta-kanban-move` `{card, from, to, position}` → card dragged on the board; `sigta-kanban-column-move` `{column, position}` → a sortable column dragged along it
 
 ## Livewire notes
 
@@ -244,7 +247,7 @@ Include `<sigta:toast />` once in your layout. With `wire:navigate`, wrap it in 
 ## When to extend vs. when to ask
 
 If the design calls for something no Sigta component covers, **prefer composing
-existing components** (a card containing a button + a badge) over writing
-bespoke markup. If composition can't satisfy the need, leave a clear comment
-saying what's missing and why — do not silently introduce a parallel
-component vocabulary.
+existing components** (a `<sigta:card>` containing a `<sigta:button>` + a
+`<sigta:badge>`) over writing bespoke markup. If composition can't satisfy the
+need, leave a clear comment saying what's missing and why — do not silently
+introduce a parallel component vocabulary.

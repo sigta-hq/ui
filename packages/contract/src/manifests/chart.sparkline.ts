@@ -18,7 +18,7 @@ export default defineComponent({
     notes: {
         shared: [
             'Charts are hand-drawn inline SVG in currentColor: recolour one with a text colour on it or a parent (class="text-graphite"), never a hex.',
-            'It stretches to the width of its container; put it in a stat\'s slot for a trend under the figure.',
+            'It stretches to the width of its container; put it in a {{tag:stat}} for a trend under the figure.',
             'The geometry is computed the same way in both runtimes (@sigta-hq/core chart.ts), so the paths are identical.',
         ],
     },

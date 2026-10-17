@@ -32,10 +32,20 @@ of its family (`<Dropdown.Item>`, `<Tabs.Panel>`, `<Section.Hero>`): import the
 family (`import { Dropdown } from '@sigta-hq/svelte'`).
 
 Two-way props are bindable (`bind:value`), events are callback props
-(`onchange`), named slots are snippets of the same name. Unknown attributes
+(`onchange`), named slots are snippets of the same name and the default slot
+is `children` (prose says "slot" for both). Unknown attributes
 (`name`, `id`, `aria-*`, `data-*`) forward to the native element. Props marked
 **required** have no default.
+
+Prose names other components by their contract name, which maps to the import
+mechanically: `dropdown.item` is `<Dropdown.Item>`, `save-state` is
+`<SaveState>`, `tile-grid.tile` is `<TileGrid.Tile>`.
 <!-- @end -->
+
+A *family* heading groups the components one kit page shows together (it is
+not always a namespace: {{tag:duration}} sits with {{tag:elapsed-clock}}). Each
+entry gives the props with their types and defaults, then slots, events,
+accessibility and usage notes, and an example.
 
 <!-- @components -->
 
@@ -113,8 +123,13 @@ public function complete(int $id): void
 | `sigta-toast` | `{heading, text, variant, duration, link, action, key}` | `Sigta::toast()` / your code | toast region |
 | `sigta-celebrate` | `{level, text, target}` | `Sigta::celebrate()` / your code | the runtime |
 | `sigta-save-state` | `{name, state}` | `$sigta.save()` / `$sigta.saveState()` / your code | `save-state` with that `name` |
-| `sigta-modal-show` | `{name}` | `modal.trigger` / your code | `modal` |
-| `sigta-modal-hide` | `{name}` | `modal.close` / your code | `modal` |
+| `sigta-modal-show` | `{name}` | `modal.trigger` / your code | `modal`, `command` |
+| `sigta-modal-hide` | `{name}` | `modal.close` / your code | `modal`, `command` |
+
+Component events — custom DOM events; listen on the component (`x-on:sigta-kanban-move="…"`) or on the window (`x-on:sigta-kanban-move.window="…"`):
+
+| Event | Detail | Component | What it means |
+|---|---|---|---|
 <!-- @end -->
 <!-- @svelte -->
 | Event | Detail | Fired by | Listen in |
@@ -122,7 +137,14 @@ public function complete(int $id): void
 | `sigta-toast` | `{heading, text, variant, duration, link, action, key}` | `sigta.toast()` / your code / Inertia `sigta.toasts` | `<Toast />` |
 | `sigta-celebrate` | `{level, text, target}` | `sigta.celebrate()` / your code / Inertia `sigta.celebrate` | the runtime |
 | `sigta-save-state` | `{name, state}` | `sigta.save()` / `sigta.saveState()` / your code | `<SaveState name>` |
-| `sigta-modal-show` | `{name}` | `Modal.Trigger` / your code | `<Modal name>` |
-| `sigta-modal-hide` | `{name}` | `Modal.Close` / your code | `<Modal name>` |
+| `sigta-modal-show` | `{name}` | `<Modal.Trigger>` / your code | `<Modal name>`, `<Command name>` |
+| `sigta-modal-hide` | `{name}` | `<Modal.Close>` / your code | `<Modal name>`, `<Command name>` |
+
+Component callbacks — a component's own events are callback props (the
+components that also dispatch a DOM event say so in their entry, and say when
+the callback receives less than the event's detail):
+
+| Callback prop | Detail | Component | What it means |
+|---|---|---|---|
 <!-- @end -->
 <!-- @events -->

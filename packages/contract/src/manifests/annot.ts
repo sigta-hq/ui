@@ -8,7 +8,7 @@ export default defineComponent({
     page: 'typography',
     svelte: 'Annot',
     description: 'Handwritten margin annotation (Caveat), slightly rotated. Decorative by default: decorative=true → aria-hidden.',
-    aria: 'aria-hidden while decorative (the default); pass decorative={false} when the note carries meaning.',
+    aria: 'aria-hidden while decorative (the default); set decorative to false when the note carries meaning.',
     props: {
         rotate: { type: 'number', default: -6, description: 'Rotation in degrees.' },
         tone: {

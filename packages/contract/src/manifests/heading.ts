@@ -13,12 +13,12 @@ export default defineComponent({
         level: { type: 'number', default: 2, description: 'Heading level 1–6 (the tag).' },
         size: { type: 'enum', values: ['display', 'xl', 'lg', 'base', 'sm'], default: null, description: 'The look; defaults by level (1 → xl, 2 → lg, 3 → base, else sm).' },
     },
-    slots: { default: { description: 'The heading text; a <sigta:mark> can highlight a word.', required: true } },
+    slots: { default: { description: 'The heading text; a mark can highlight a word or two.', required: true } },
     usage: {
         livewire: '<sigta:heading level="1" size="display">Page title</sigta:heading>',
         svelte: '<Heading level={1} size="display">Page title</Heading>',
     },
-    notes: { shared: ['Use it instead of styling <h1>–<h6> by hand. The semantic level drives the default size; override the look with size.'] },
+    notes: { shared: ['Use it instead of styling <h1>–<h6> by hand. The semantic level drives the default size; override the look with size.', 'A {{tag:mark}} inside it highlights a word or two — one per view.'] },
     examples: [
         {
             label: 'Scale',

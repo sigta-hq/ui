@@ -17,7 +17,15 @@ const TIERS: Record<string, string> = {
 };
 
 const kebab = (name: string) => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
-const pascal = (name: string) => name.split('.').map((part) => part.replace(/(^|-)(.)/g, (_, __, ch: string) => ch.toUpperCase())).join('.');
+
+/** {{tag:name}} as the runtime writes the tag: `<sigta:name>` or `<Name>`. */
+export function expandTags(text: string, runtime: Runtime, registry: Registry): string {
+    return text.replace(/\{\{tag:([a-z0-9.-]+)\}\}/g, (_, name: string) => {
+        // A typo would print a tag that does not exist in either runtime.
+        if (!registry[name]) throw new Error(`{{tag:${name}}} names no component`);
+        return runtime === 'livewire' ? `\`<sigta:${name}>\`` : `\`<${registry[name].svelte}>\``;
+    });
+}
 
 /** Keeps the lines of one runtime's blocks and expands {{tag:name}}. */
 export function edition(template: string, runtime: Runtime, registry: Registry): string {
@@ -30,10 +38,7 @@ export function edition(template: string, runtime: Runtime, registry: Registry):
         if (block && block !== runtime) continue;
         out.push(line);
     }
-    return out.join('\n')
-        .replace(/^<!-- Source of[\s\S]*?-->\n/, '')
-        .replace(/\{\{tag:([a-z0-9.-]+)\}\}/g, (_, name: string) =>
-            runtime === 'livewire' ? `\`<sigta:${name}>\`` : `\`<${registry[name]?.svelte ?? pascal(name)}>\``);
+    return expandTags(out.join('\n').replace(/^<!-- Source of[\s\S]*?-->\n/, ''), runtime, registry);
 }
 
 /** The kit-page order of resources/catalog.php (tiers, then pages), when PHP is around. */
@@ -80,21 +85,24 @@ function entry(manifest: ComponentManifest, runtime: Runtime, registry: Registry
     const lines = [`${depth} \`${name}\``, '', manifest.description, ''];
     const props = Object.entries(manifest.props).map(([key, spec]) => propLine(key, spec, runtime)).filter(Boolean);
     lines.push(props.length ? `- **Props:**\n${props.join('\n')}` : '- **Props:** none');
-    const slots = Object.entries(manifest.slots ?? {});
+    const slots = Object.entries(manifest.slots ?? {}).filter(([, spec]) => spec[runtime === 'livewire' ? 'blade' : 'svelte'] !== false);
     if (slots.length) {
-        lines.push(`- **${runtime === 'livewire' ? 'Slots' : 'Snippets'}:** ${slots.map(([slot, spec]) => {
+        const items = slots.map(([slot, spec]) => {
             const shown = runtime === 'svelte' && slot === 'default' ? 'children' : slot;
             const params = runtime === 'svelte' && spec.params ? ` ${spec.params}` : '';
             return `\`${shown}\`${params} — ${spec.description}`;
-        }).join('; ')}`);
+        });
+        const label = `- **${runtime === 'livewire' ? 'Slots' : 'Snippets'}:**`;
+        lines.push(items.length === 1 ? `${label} ${items[0]}` : `${label}\n${items.map((item) => `  - ${item}`).join('\n')}`);
     }
     const events = Object.entries(manifest.events ?? {})
         .map(([, spec]) => ({ spec, how: runtime === 'livewire' ? spec.blade : spec.svelte }))
         .filter(({ how }) => how);
     if (events.length) {
-        lines.push(`- **Events:** ${events.map(({ spec, how }) => `\`${how}\`${spec.detail ? ` (${spec.detail})` : ''} — ${spec.description}`).join('; ')}`);
+        lines.push(`- **Events:**\n${events.map(({ spec, how }) => `  - \`${how}\`${spec.detail ? ` (\`${spec.detail}\`)` : ''} — ${spec.description}`).join('\n')}`);
     }
-    for (const note of [...(manifest.notes?.shared ?? []), ...(manifest.notes?.[runtime] ?? [])]) lines.push(`- ${note}`);
+    if (manifest.aria) lines.push(`- **Accessibility:** ${manifest.aria}`);
+    for (const note of [...(manifest.notes?.shared ?? []), ...(manifest.notes?.[runtime] ?? [])]) lines.push(`- ${expandTags(note, runtime, registry)}`);
     const code = usage(manifest, runtime, registry);
     if (code) lines.push(`\`\`\`${runtime === 'livewire' ? 'blade' : 'svelte'}`, code, '```');
     return lines.join('\n');
@@ -122,12 +130,17 @@ export function componentsSection(manifests: ComponentManifest[], runtime: Runti
     return out.join('\n').trimEnd();
 }
 
+/** A table cell: a `|` would end the cell, even inside a code span. */
+const cell = (text: string) => text.replace(/\|/g, '\\|');
+
+/** One row per component event: a named DOM event (Livewire) or a callback prop (Svelte). */
 function eventsSection(manifests: ComponentManifest[], runtime: Runtime): string {
+    const named = runtime === 'livewire' ? /^[a-z][a-z0-9-]*$/ : /^on[a-z]+$/;
     const rows = manifests.flatMap((m) => Object.values(m.events ?? {})
         .map((spec) => ({ m, spec, how: runtime === 'livewire' ? spec.blade : spec.svelte }))
-        .filter(({ how, spec }) => how && !/^sigta-(toast|celebrate|save-state|modal-show|modal-hide)\b/.test(String(spec.blade ?? ''))));
+        .filter(({ how, spec }) => typeof how === 'string' && named.test(how) && !/^sigta-(toast|celebrate|save-state|modal-show|modal-hide)\b/.test(String(spec.blade ?? ''))));
     if (!rows.length) return '';
-    return rows.map(({ m, spec, how }) => `| \`${how}\` | ${spec.detail ? `\`${spec.detail}\`` : '—'} | ${runtime === 'livewire' ? `\`${m.name}\`` : `\`<${m.svelte}>\``} | ${spec.description} |`).join('\n');
+    return rows.map(({ m, spec, how }) => `| \`${how}\` | ${spec.detail ? `\`${cell(spec.detail)}\`` : '—'} | ${runtime === 'livewire' ? `\`${m.name}\`` : `\`<${m.svelte}>\``} | ${cell(spec.description)} |`).join('\n');
 }
 
 export function renderStubs(root: string, manifests: ComponentManifest[], registry: Registry, runtime: Runtime): { rules: string; components: string } {

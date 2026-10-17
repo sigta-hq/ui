@@ -219,7 +219,8 @@ npm run conformance -- --browser  # live DOM, screenshots and interactions in Ch
 ./scripts/check-tokens.sh         # no raw colours outside the theme
 npm run check                     # all of the above — the merge gate
 npm run docs                      # the docs site → docs/dist (both editions)
-npm run version <x.y.z>           # bump every package in lockstep; a v* tag publishes to GitHub Packages
+npm run consumer                  # pack the npm packages, install them into a fresh app outside the repo, build, SSR, drive it in Chromium (CI job; needs the registry)
+npm run version -- <x.y.z>        # bump every package in lockstep; a v* tag publishes to GitHub Packages
 ```
 
 Narrower loops:
@@ -231,6 +232,10 @@ Narrower loops:
   Livewire kit pages against a baseline. It needs the playground on :8321.
   Take the baseline first with
   `node scripts/visual-snapshot.js <dir> http://127.0.0.1:8321 <pages…>`.
+
+Packaging: anything a published package imports must be in its `files`
+(`npm run consumer` catches a miss). The Svelte package must never import
+from outside its own `dist` or another `@sigta-hq/*` package.
 
 Build-order gotchas:
 - After editing `packages/core/src` or `resources/js/*.js`, rebuild the

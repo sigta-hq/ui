@@ -9,7 +9,7 @@ export default defineComponent({
     tier: 'components',
     page: 'autocomplete',
     svelte: 'Autocomplete',
-    description: 'A filtering combobox: type to narrow the slotted options, move with the arrow keys, Enter to choose. The chosen value lives in a hidden input (name, wire:model) or bind:value.',
+    description: 'A filtering combobox: type to narrow the slotted options, move with the arrow keys, Enter to choose. The chosen value lives in a hidden input, so it also posts with a plain form.',
     aria: 'WAI-ARIA combobox (list autocomplete) with a listbox; the active option is announced through aria-activedescendant.',
     props: {
         label: { type: 'string', default: null, description: 'Label above the query box.' },
@@ -17,7 +17,7 @@ export default defineComponent({
         error: { type: 'string', default: null, description: 'Error text; marks the query box invalid.' },
         placeholder: { type: 'string', default: null, description: 'Query box placeholder.' },
         name: { type: 'string', default: null, description: 'Form name of the hidden value input.' },
-        value: { type: 'string', default: null, native: true, bindable: true, description: 'The chosen value. Livewire: wire:model (lands on the hidden input); Svelte: bind:value.' },
+        value: { type: 'string', default: null, native: true, bindable: true, description: 'The chosen value.', blade: { note: 'wire:model lands on the hidden input.' } },
     },
     parts: {
         label: { description: 'The label.' },
@@ -31,7 +31,7 @@ export default defineComponent({
         open: { attribute: 'aria-expanded', description: 'On the query box.' },
         invalid: { attribute: 'aria-invalid', description: 'On the query box, with an error.' },
     },
-    slots: { default: { description: 'The <autocomplete.option>s.', required: true } },
+    slots: { default: { description: 'The autocomplete.options.', required: true } },
     events: {
         change: { description: 'The value changed.', blade: 'input / change on the hidden input (wire:model hears it)', svelte: 'onchange', detail: 'string | null' },
     },

@@ -28,7 +28,7 @@ export default defineComponent({
     notes: {
         shared: [
             'Server-rendered as 00:00:00; it ticks once a second on the client. A start in the future reads 00:00:00.',
-            'For a static duration use duration.',
+            'For a static duration use {{tag:duration}}.',
         ],
         livewire: ['Pass :since an ISO string or a Carbon/DateTime; omit it for "now".'],
         svelte: ['Pass since an ISO string (new Date().toISOString(), or what your backend sends).'],

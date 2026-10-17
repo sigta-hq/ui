@@ -15,7 +15,7 @@ export default defineComponent({
         heading: { type: 'string', default: null, description: 'Heading row text (the close button sits beside it).' },
         dismissible: { type: 'boolean', default: true, description: 'Close button and backdrop click close it.' },
         fullscreen: { type: 'boolean', default: null, description: 'Fill the screen below the tablet breakpoint; defaults to true for lg and xl.' },
-        open: { type: 'boolean', default: false, bindable: true, blade: false, description: 'Svelte: bind:open to open and close it.' },
+        open: { type: 'boolean', default: false, bindable: true, blade: false, description: 'bind:open to open and close it.' },
     },
     parts: {
         dialog: { description: 'The <dialog>; your attributes and class land here.' },
@@ -43,12 +43,16 @@ export default defineComponent({
     notes: {
         shared: [
             'Use it instead of custom dialog markup.',
-            'Open by name with <sigta:modal.trigger name="…"> / <Modal.Trigger name="…">, or a sigta-modal-show window event { name }; close with modal.close or sigta-modal-hide.',
+            'Open it by name: wrap the opener in {{tag:modal.trigger}} with the same name, or dispatch a sigta-modal-show window event { name }; close it with {{tag:modal.close}} or a sigta-modal-hide event.',
+            'Full screen on a phone: below the tablet breakpoint an lg or xl modal fills the screen edge to edge (no gutter, border or rounding) while sm and base stay centred cards, because a workspace needs the room and a confirmation does not. Pass fullscreen to force it on a small modal, or set it to false to keep a large one centred. Above the breakpoint every size is unchanged.',
+            'A full-screen modal lays its body out as a column with a full-height minimum, so a child marked flex-1 fills the screen exactly and taller content scrolls the dialog as usual.',
+            'With a heading the close button sits in the heading row; with no heading it floats in the top-right corner and no header band is reserved, so keep the top-right of your content clear for it.',
         ],
         livewire: [
-            'The dialog carries wire:ignore.self so a Livewire morph inside the modal never closes it. Open from PHP with $this->dispatch(\'sigta-modal-show\', name: \'…\').',
+            'It keeps its open state across a host Livewire re-render: the dialog renders wire:ignore.self, so a modal that stays open while its contents autosave or run New / Delete actions does not close on the morph (its children still morph). Do not add wire:ignore.self yourself.',
+            'Open it from PHP with $this->dispatch(\'sigta-modal-show\', name: \'…\'); sigta-modal-hide closes it. To keep a large modal centred on a phone: :fullscreen="false".',
         ],
-        svelte: ['bind:open is the idiomatic way; the window events work too, so triggers and Livewire-style events behave the same.'],
+        svelte: ['bind:open is the idiomatic way to open and close it; {{tag:modal.trigger}} / {{tag:modal.close}} and the sigta-modal-show / sigta-modal-hide window events work too. To keep a large modal centred on a phone: fullscreen={false}.'],
     },
     examples: [
         {

@@ -23,7 +23,7 @@ export default defineComponent({
     aria: 'WAI-ARIA tabs with automatic activation: Left / Right move between tabs (wrapping), Home / End jump to the ends; only the selected tab is in the tab order.',
     props: {
         default: { type: 'string', default: null, description: 'The tab active on load (rendered selected on the server); the first tab when unset.' },
-        value: { type: 'string', default: null, bindable: true, blade: false, description: 'Svelte: bind:value reads and sets the active tab\'s name.' },
+        value: { type: 'string', default: null, bindable: true, blade: false, description: 'bind:value reads and sets the active tab\'s name.' },
     },
     slots: { default: { description: 'A tabs.list and the tabs.panels.', required: true } },
     uses: ['tabs.list', 'tabs.tab', 'tabs.panel'],

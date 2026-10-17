@@ -23,7 +23,7 @@ export default defineComponent({
         error: { type: 'string', default: null, description: 'Error text; turns the zone red and marks the input invalid.' },
         multiple: { type: 'boolean', default: false, description: 'Accept several files.' },
         helper: { type: 'string', default: null, description: 'The line before "browse"; defaults to "Drag a file here, or" ("Drag files here, or" with multiple).' },
-        files: { type: 'array', default: [], bindable: true, blade: false, shape: 'File[]', description: 'Svelte: bind:files — the picked File objects, in order (empty to clear the input).' },
+        files: { type: 'array', default: [], bindable: true, blade: false, shape: 'File[]', description: 'bind:files — the picked File objects, in order (empty to clear the input).' },
     },
     parts: {
         zone: { description: 'The dashed dropzone (<label>).' },

@@ -11,7 +11,7 @@ export default defineComponent({
     aria: 'Native <input type="checkbox">; wrapped in its <label> when labelled.',
     props: {
         label: { type: 'string', default: null, description: 'Label text beside the box.' },
-        checked: { type: 'boolean', default: false, native: true, bindable: true, description: 'Livewire: wire:model or checked; Svelte: bind:checked.' },
+        checked: { type: 'boolean', default: false, native: true, bindable: true, description: 'Ticked.', blade: { note: 'wire:model, or checked for the initial state.' } },
     },
     states: {
         checked: { attribute: 'checked', description: 'Ticked.' },
@@ -21,7 +21,7 @@ export default defineComponent({
         shared: [
             'Use it instead of <input type="checkbox"> with classes. Renders a <label> wrapper when label is set, the bare input otherwise.',
             'The tick is drawn as two pen strokes when checked; the box gives a little under a press.',
-            'To complete a row with the full motion (tick, burst, strike, fold), call complete from its change handler in a [data-sigta-motion] list and mark the row\'s title with data-sigta-strike.',
+            'To complete a row with the full motion (tick, burst, strike, fold), call complete from its change handler in a [data-sigta-motion] list and mark the row\'s title with data-sigta-strike (see Motion at the end of this file).',
         ],
         livewire: [
             '<sigta:checkbox x-on:change="$sigta.complete($el, () => $wire.complete({{ $task->id }}))" /> — inside Livewire the commit goes out at once and the row folds when the server drops it.',

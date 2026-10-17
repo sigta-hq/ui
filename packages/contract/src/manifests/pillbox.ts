@@ -19,7 +19,7 @@ export default defineComponent({
     tier: 'components',
     page: 'pillbox',
     svelte: 'Pillbox',
-    description: 'Multi-select combobox with removable chips: type to narrow the slotted <autocomplete.option>s, Enter or a click adds (or removes) the active one as a chip beside the query box; each chip\'s × removes it. The hidden input carries a JSON array of the selected values.',
+    description: 'Multi-select combobox with removable chips: type to narrow the slotted autocomplete.options, Enter or a click adds (or removes) the active one as a chip beside the query box; each chip\'s × removes it. The hidden input carries a JSON array of the selected values.',
     aria: 'WAI-ARIA combobox (list autocomplete) with a multi-selectable listbox; each chip\'s remove button is labelled "Remove …".',
     props: {
         label: { type: 'string', default: null, description: 'Label above the field.' },
@@ -27,7 +27,7 @@ export default defineComponent({
         error: { type: 'string', default: null, description: 'Error text; marks the query box invalid and the field red.' },
         placeholder: { type: 'string', default: 'Add…', description: 'Query box placeholder.' },
         name: { type: 'string', default: null, description: 'Form name of the hidden value input (a JSON array).' },
-        value: { type: 'array', default: [], native: true, bindable: true, shape: 'string[]', description: 'The selected values. Livewire: wire:model (lands on the hidden input, a JSON array); Svelte: bind:value.' },
+        value: { type: 'array', default: [], native: true, bindable: true, shape: 'string[]', description: 'The selected values.', blade: { note: 'wire:model lands on the hidden input, as a JSON array.' } },
     },
     parts: {
         label: { description: 'The label.' },
@@ -44,7 +44,7 @@ export default defineComponent({
         open: { attribute: 'aria-expanded', description: 'On the query box.' },
         invalid: { attribute: 'aria-invalid', description: 'On the query box, with an error; the control turns red.' },
     },
-    slots: { default: { description: 'The <autocomplete.option>s.', required: true } },
+    slots: { default: { description: 'The autocomplete.options.', required: true } },
     events: {
         change: { description: 'The selection changed.', blade: 'input / change on the hidden input (wire:model hears it)', svelte: 'onchange', detail: 'string[]' },
     },

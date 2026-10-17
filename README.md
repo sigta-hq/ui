@@ -113,6 +113,7 @@ npm run generate       # manifest JSON, Svelte index, LLM stubs for both runtime
 npm run check          # the merge gate: build, generate --check, Vitest, svelte-check,
                        # conformance (server + browser), Pest, token guard
 npm run docs           # the docs site → docs/dist
+npm run consumer       # install the packed npm packages into a fresh Svelte app and drive it
 
 cd playground
 composer install && npm install

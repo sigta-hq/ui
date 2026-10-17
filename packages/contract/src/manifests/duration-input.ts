@@ -15,7 +15,7 @@ export default defineComponent({
     aria: 'The compact label is a <button>; the editor is a text input labelled "<label> as hours and minutes, HH:MM".',
     props: {
         label: { type: 'string', default: null, description: 'Field label.' },
-        value: { type: 'number', default: null, bindable: true, description: 'Whole minutes (null or 0 reads as no value). Livewire: the initial minutes, emitted onto the forwarded wire:model; Svelte: bind:value.' },
+        value: { type: 'number', default: null, bindable: true, description: 'Whole minutes (null or 0 reads as no value).', blade: { note: 'The initial minutes; a committed edit is emitted onto the forwarded wire:model.' } },
         placeholder: { type: 'string', default: null, description: 'Shown while there is no value; defaults to "0m".' },
     },
     parts: {
@@ -34,7 +34,7 @@ export default defineComponent({
         svelte: '<DurationInput label="Estimate" bind:value={task.estimateMinutes} />',
     },
     notes: {
-        shared: ['For a read-only duration use duration; for a value that counts up live, elapsed-clock.'],
+        shared: ['For a read-only duration use {{tag:duration}}; for a value that counts up live, {{tag:elapsed-clock}}.'],
         livewire: [
             'The forwarded wire:model lands on a hidden input that carries whole minutes (empty when cleared); every other attribute lands on the field.',
             'Give the field a value-keyed wire:key (wire:key="est-{{ $minutes }}") so switching context or resetting after a save gives Alpine fresh state instead of a stale in-place value.',

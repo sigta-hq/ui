@@ -21,7 +21,7 @@ export default defineComponent({
     description: 'The shell\'s nav column on paper. A full rail on desktop; below the tablet breakpoint it becomes a top bar whose burger slides the nav in as a drawer over the page, with a scrim behind it.',
     aria: 'An <aside> landmark named by its aria-label ("App navigation" by default). The open drawer is a modal dialog (role="dialog", aria-modal="true") with a focus trap; the burger carries aria-expanded and aria-controls.',
     props: {
-        open: { type: 'boolean', default: false, bindable: true, blade: false, description: 'Svelte: bind:open — whether the drawer is open (below the tablet breakpoint; the rail ignores it).' },
+        open: { type: 'boolean', default: false, bindable: true, blade: false, description: 'bind:open — whether the drawer is open (below the tablet breakpoint; the rail ignores it).' },
     },
     parts: {
         top: { description: 'The top row: brand, then the actions + burger cluster (dropped under a shell header).' },

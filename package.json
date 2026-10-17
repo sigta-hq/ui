@@ -1,7 +1,7 @@
 {
     "name": "sigta-ui",
     "private": true,
-    "description": "Sigta UI monorepo \u2014 the shared contract, core and Svelte adapter (npm workspaces) beside the Composer package at the root, which carries the Livewire adapter.",
+    "description": "Sigta UI monorepo — the shared contract, core and Svelte adapter (npm workspaces) beside the Composer package at the root, which carries the Livewire adapter.",
     "type": "module",
     "workspaces": [
         "packages/contract",
@@ -23,7 +23,8 @@
         "test": "npm run test -w @sigta-hq/contract -w @sigta-hq/core -w @sigta-hq/svelte",
         "check": "npm run build && npm run generate:check && npm run test && npm run check -w @sigta-hq/svelte && npm run conformance && npm run conformance -- --browser && ./vendor/bin/pest && ./scripts/check-tokens.sh",
         "docs": "node docs/build.js",
-        "version": "node scripts/version.js"
+        "version": "node scripts/version.js",
+        "consumer": "node scripts/consumer-smoke.js"
     },
     "devDependencies": {
         "@alpinejs/focus": "^3.17.4",

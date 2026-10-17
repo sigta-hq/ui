@@ -7,12 +7,12 @@ export default defineComponent({
     tier: 'elements',
     page: 'motion',
     svelte: 'Count',
-    description: 'A number that bumps when it changes — rising as it grows, dropping as it shrinks — whether a morph, an x-text, a Svelte update or a plain write changes it. For unread badges and "12 open" headings. Tabular numerals.',
+    description: 'A number that bumps when it changes — rising as it grows, dropping as it shrinks — whatever changes it (a re-render, a script, a plain DOM write). For unread badges and "12 open" headings. Tabular numerals.',
     aria: 'A plain <span>; the number is its text.',
     props: {
         value: { type: 'number', default: null, description: 'The number; falls back to the slot (children) when unset. Zero is a value.' },
     },
-    slots: { default: { description: 'The number, when value is unset (an x-text target in Alpine).' } },
+    slots: { default: { description: 'The number, when value is unset.' } },
     usage: {
         livewire: `<sigta:count :value="$openCount" /> open
 <sigta:count x-text="items.length">{{ count($items) }}</sigta:count>`,

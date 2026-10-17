@@ -14,10 +14,10 @@ export default defineComponent({
         description: { type: 'string', default: null, description: 'Help text.' },
         error: { type: 'string', default: null, description: 'Error text; marks the textarea invalid.' },
         rows: { type: 'number', default: 4, description: 'Visible text lines.' },
-        value: { type: 'string', default: null, native: true, bindable: true, description: 'The text. Livewire: wire:model, or the slot / a value attribute for the initial text; Svelte: bind:value.' },
+        value: { type: 'string', default: null, native: true, bindable: true, description: 'The text.', blade: { note: 'wire:model, or the slot / a value attribute for the initial text.' } },
     },
     states: { invalid: { attribute: 'aria-invalid', description: 'Set with an error: red border until focused.' } },
-    slots: { default: { description: 'Blade only: the initial text (Svelte uses value).' } },
+    slots: { default: { description: 'The initial text (a value attribute works too).', svelte: false } },
     uses: ['field'],
     usage: {
         livewire: '<sigta:textarea label="Notes" wire:model="notes" rows="3" description="Visible to the whole team." />',

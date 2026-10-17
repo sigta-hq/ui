@@ -49,7 +49,7 @@ export default defineComponent({
     description: 'Native HTML5 drag-and-drop board of kanban.columns holding kanban.cards. Dragging a card between (or within) columns reports { card, from, to, position }; sortable columns report { column, position } when dragged along the board.',
     aria: 'Columns are labelled lists (role="list") of focusable cards (role="listitem", aria-roledescription="draggable"); a sortable column\'s grip handle is a labelled button. A keyboard move menu is out of scope.',
     props: {},
-    slots: { default: { description: 'The kanban.columns (optionally each in a wrapper of your own, e.g. one carrying wire:key).', required: true } },
+    slots: { default: { description: 'The kanban.columns (optionally each in a wrapper of your own).', required: true } },
     events: {
         move: {
             description: 'A card was dropped: its id, the column it came from, the column it landed in and its 0-based position among that column\'s cards. The DOM event bubbles to the board and window.',
@@ -114,10 +114,10 @@ export default defineComponent({
         ],
         livewire: [
             'Listen for sigta-kanban-move / sigta-kanban-column-move on the board (x-on:…) or on window, and persist in your component; its next morph reconciles the board to the order it renders. Without a backend the optimistic move stands.',
-            'Only transient drag state lives in Alpine (the runtime\'s sigtaKanban, so @sigtaScripts is required), never the list order, so morphs stay clean on a keyed, model-bound board: give columns and cards wire:key.',
+            'Only transient drag state lives in Alpine (the runtime\'s sigtaKanban, so @sigtaScripts is required), never the list order, so morphs stay clean on a keyed, model-bound board: give columns and cards wire:key (a column may sit in a wrapper of your own that carries it).',
         ],
         svelte: [
-            'onmove / oncolumnmove carry the same detail as the DOM events, which the board dispatches too. Render columns and cards with keyed {#each} blocks from your lists and move the item in the callback: the dropped element is put back first, so your lists re-render from a clean DOM. Without a change, the optimistic move stands, as in the Livewire runtime.',
+            'onmove / oncolumnmove carry the same detail as the DOM events, which the board dispatches too. Render columns and cards with keyed {#each} blocks from your lists and move the item in the callback: the dropped element is put back first, so your lists re-render from a clean DOM. If the callback leaves your lists as they are, the optimistic move stands.',
         ],
     },
     examples: [

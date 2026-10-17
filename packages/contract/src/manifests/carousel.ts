@@ -57,7 +57,7 @@ export default defineComponent({
     notes: {
         shared: [
             'The dots are generated from the slide count once the page runs; smooth scrolling is skipped under prefers-reduced-motion.',
-            'For several slides per view, give each carousel.slide a basis (basis="basis-1/2 md:basis-1/3").',
+            'For several slides per view, give each {{tag:carousel.slide}} a basis (basis="basis-1/2 md:basis-1/3").',
         ],
     },
     examples: [

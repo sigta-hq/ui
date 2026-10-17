@@ -23,13 +23,13 @@ export default defineComponent({
     tier: 'components',
     page: 'command',
     svelte: 'Command',
-    description: 'Command palette (⌘K / Ctrl-K): a dialog with a query box filtering <command.item>s. Arrow keys move, Enter runs the active command, Escape closes. Open it with the shortcut, a modal.trigger with its name, or a sigta-modal-show window event.',
+    description: 'Command palette (⌘K / Ctrl-K): a dialog with a query box filtering command.items. Arrow keys move, Enter runs the active command, Escape closes. Open it with the shortcut, a modal.trigger with its name, or a sigta-modal-show window event.',
     aria: 'A native modal <dialog>; the query box is a combobox (list autocomplete, always expanded) over a listbox of options, the active one announced through aria-activedescendant.',
     props: {
         name: { type: 'string', default: 'command', description: 'Name that modal.trigger and the sigta-modal-show / sigta-modal-hide window events address.' },
         placeholder: { type: 'string', default: 'Type a command…', description: 'Query box placeholder.' },
         shortcut: { type: 'boolean', default: true, description: 'Open on ⌘K / Ctrl-K anywhere on the page.' },
-        open: { type: 'boolean', default: false, bindable: true, blade: false, description: 'Svelte: bind:open to open and close it.' },
+        open: { type: 'boolean', default: false, bindable: true, blade: false, description: 'bind:open to open and close it.' },
     },
     parts: {
         dialog: { description: 'The <dialog>; your attributes and class land here.' },
@@ -40,7 +40,7 @@ export default defineComponent({
         list: { description: 'The listbox of commands.' },
         empty: { description: '"Nothing found" when the query filters everything out.' },
     },
-    slots: { default: { description: 'The <command.item>s.', required: true } },
+    slots: { default: { description: 'The command.items.', required: true } },
     events: {
         show: { description: 'Open a palette by name from anywhere.', blade: 'sigta-modal-show', svelte: false, detail: '{ name?: string }' },
         hide: { description: 'Close a palette by name from anywhere.', blade: 'sigta-modal-hide', svelte: false, detail: '{ name?: string }' },
@@ -63,7 +63,7 @@ export default defineComponent({
     notes: {
         shared: [
             'One palette per page: with shortcut on (the default) ⌘K / Ctrl-K opens it from anywhere.',
-            'Open it by name like a modal: modal.trigger name="command", or a sigta-modal-show window event { name }; sigta-modal-hide closes it.',
+            'Open it by name like a modal: {{tag:modal.trigger}} with name="command", or a sigta-modal-show window event { name }; sigta-modal-hide closes it.',
             'The query filters the items by their text; the list keeps every item while the query is empty.',
         ],
         livewire: ['Open it from PHP with $this->dispatch(\'sigta-modal-show\', name: \'command\').'],

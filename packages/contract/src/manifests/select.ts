@@ -15,7 +15,7 @@ export default defineComponent({
         label: { type: 'string', default: null, description: 'Field label.' },
         description: { type: 'string', default: null, description: 'Help text.' },
         error: { type: 'string', default: null, description: 'Error text; marks the select invalid.' },
-        value: { type: 'string', default: null, native: true, bindable: true, description: 'The chosen value. Livewire: wire:model on the component; Svelte: bind:value.' },
+        value: { type: 'string', default: null, native: true, bindable: true, description: 'The chosen value.' },
     },
     parts: {
         wrap: { description: 'Positions the chevron over the select.' },
@@ -35,7 +35,7 @@ export default defineComponent({
 </Select>`,
     },
     notes: {
-        shared: ['Use it instead of a raw <select> with classes. For a searchable or rich single-select use listbox or autocomplete.'],
+        shared: ['Use it instead of a raw <select> with classes. For a searchable or rich single-select use {{tag:listbox}} or {{tag:autocomplete}}.'],
         livewire: ['wire:model is forwarded onto the native <select>.'],
         svelte: ['bind:value for two-way binding; name, required … pass straight through to the <select>.'],
     },

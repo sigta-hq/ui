@@ -10,7 +10,7 @@ export default defineComponent({
     description: 'A draggable card on raised paper inside a kanban.column: lifts on hover and focus, fades while it is dragged.',
     aria: 'role="listitem", focusable (tabindex="0") and announced with aria-roledescription="draggable"; draggable="true" for native drag and drop.',
     props: {
-        id: { type: 'string', default: null, description: 'Identifies the card in sigta-kanban-move / onmove (card); generated when not given.' },
+        id: { type: 'string', default: null, description: 'Identifies the card in the move events (card); generated when not given.' },
     },
     states: {
         dragging: { attribute: 'data-dragging', description: 'While the card is dragged.', conformance: false },

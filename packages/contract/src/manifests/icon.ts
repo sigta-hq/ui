@@ -19,8 +19,7 @@ export default defineComponent({
     },
     notes: {
         shared: [
-            'Never import another icon library; every icon comes from <sigta:icon> / <Icon>. If an icon is missing from Lucide, say so in a comment rather than substituting another set.',
-            'aria-hidden by default; pass aria-label (and aria-hidden="false") for a meaningful icon.',
+            'Never import another icon library; every icon comes from {{tag:icon}}. If an icon is missing from Lucide, say so in a comment rather than substituting another set.',
         ],
     },
     examples: [
