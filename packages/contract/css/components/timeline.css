@@ -1,0 +1,29 @@
+/* Timeline — a hairline rail down the left with an ink dot per entry (an
+   accent dot for the one that matters); mono meta, a Fraunces heading and
+   graphite body copy, spaced only when something sits above them. */
+[data-sigta="timeline"] {
+    @apply m-0 flex list-none flex-col p-0;
+}
+[data-sigta="timeline.item"] {
+    @apply relative border-l border-line pl-6 pb-8 last:pb-1;
+}
+[data-scope="timeline.item"][data-part="dot"] {
+    @apply absolute -left-[5px] top-[3px] size-[9px] rounded-full;
+
+    /* default, and any variant the component does not know */
+    [data-sigta="timeline.item"]:not([data-variant="accent"]) > & { @apply bg-ink; }
+    [data-sigta="timeline.item"][data-variant="accent"] > & { @apply border border-ink bg-accent; }
+}
+[data-scope="timeline.item"][data-part="meta"] {
+    @apply m-0 font-mono text-[0.68rem] tracking-[0.08em] uppercase text-graphite;
+}
+[data-scope="timeline.item"][data-part="heading"] {
+    @apply m-0 font-head text-[1.1rem] font-medium leading-snug text-ink;
+
+    [data-scope="timeline.item"][data-part="meta"] + & { @apply mt-1; }
+}
+[data-scope="timeline.item"][data-part="body"] {
+    @apply font-body text-[0.95rem] leading-relaxed text-graphite;
+
+    [data-scope="timeline.item"]:is([data-part="meta"], [data-part="heading"]) + & { @apply mt-1.5; }
+}

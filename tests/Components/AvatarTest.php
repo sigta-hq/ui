@@ -8,15 +8,28 @@ it('derives initials from the first two words of the name', function () {
     expect($html)
         ->toContain('data-sigta="avatar"')
         ->toContain('SR')
-        ->toContain('font-mono')
-        ->toContain('bg-ink')
-        ->toContain('text-surface')
-        ->toContain('rounded-full')
+        ->toContain('data-size="base"')
+        ->toContain('data-shape="circle"')
+        ->toContain('data-tone="ink"')
+        ->toContain('role="img"')
         ->toContain('aria-label="Søren Risbøll Frisk"');
+
+    expect(contractCss('avatar'))
+        ->toContain('@apply font-mono;')
+        ->toContain('&:not([data-tone="line"]) { @apply bg-ink text-surface; }')
+        ->toContain('&:not([data-shape="square"]) { @apply rounded-full; }');
 });
 
 it('derives a single initial from a single-word name', function () {
     expect(Blade::render('<x-sigta::avatar name="Plumb" />'))->toContain('>P<');
+});
+
+it('hides nameless initials from assistive technology', function () {
+    $html = Blade::render('<x-sigta::avatar />');
+
+    expect($html)
+        ->toContain('aria-hidden="true"')
+        ->not->toContain('role="img"');
 });
 
 it('renders an image when src is given', function () {
@@ -24,10 +37,12 @@ it('renders an image when src is given', function () {
 
     expect($html)
         ->toContain('<img')
+        ->toContain('data-sigta="avatar"')
         ->toContain('src="/img/sf.jpg"')
         ->toContain('alt="Søren Frisk"')
-        ->toContain('object-cover')
         ->not->toContain('<span');
+
+    expect(contractCss('avatar'))->toContain('&:is(img) { @apply object-cover; }');
 });
 
 it('prefers an explicit alt over the name', function () {
@@ -40,19 +55,22 @@ it('supports the square shape and line tone', function () {
     $html = Blade::render('<x-sigta::avatar name="Søren Frisk" shape="square" tone="line" />');
 
     expect($html)
-        ->toContain('rounded-base')
-        ->toContain('bg-line')
-        ->toContain('text-ink')
-        ->not->toContain('rounded-full');
+        ->toContain('data-shape="square"')
+        ->toContain('data-tone="line"');
+
+    expect(contractCss('avatar'))
+        ->toContain('&[data-shape="square"] { @apply rounded-base; }')
+        ->toContain('&[data-tone="line"] { @apply bg-line text-ink; }');
 });
 
-it('renders each size', function (string $size, string $class) {
-    expect(Blade::render('<x-sigta::avatar name="Søren Frisk" size="'.$size.'" />'))->toContain($class);
+it('renders each size', function (string $size, string $rule) {
+    expect(Blade::render('<x-sigta::avatar name="Søren Frisk" size="'.$size.'" />'))->toContain('data-size="'.$size.'"');
+    expect(contractCss('avatar'))->toContain($rule);
 })->with([
-    ['xs', 'size-6'],
-    ['sm', 'size-8'],
-    ['base', 'size-10'],
-    ['lg', 'size-14'],
+    ['xs', '&[data-size="xs"] { @apply size-6'],
+    ['sm', '&[data-size="sm"] { @apply size-8'],
+    ['base', '[data-size="lg"])) { @apply size-10'],
+    ['lg', '&[data-size="lg"] { @apply size-14'],
 ]);
 
 it('forwards arbitrary attributes', function () {
@@ -69,18 +87,29 @@ it('renders a profile with name, meta and avatar', function () {
     expect($html)
         ->toContain('data-sigta="profile"')
         ->toContain('data-sigta="avatar"')
-        ->toContain('Søren Frisk')
-        ->toContain('Studio lead')
-        ->toContain('font-head')
+        ->toContain('data-scope="profile" data-part="name">Søren Frisk')
+        ->toContain('data-scope="profile" data-part="meta">Studio lead')
+        ->not->toContain('data-reverse');
+
+    expect(contractCss('profile'))
+        ->toContain('[data-scope="profile"][data-part="name"] {'."\n".'    @apply font-head')
         ->toContain('text-graphite');
+});
+
+it('hides the profile avatar beside the visible name', function () {
+    $html = Blade::render('<x-sigta::profile name="Søren Frisk" />');
+
+    expect($html)
+        ->toContain('aria-hidden="true"')
+        ->not->toContain('role="img"')
+        ->not->toContain('data-part="meta"');
 });
 
 it('reverses the profile layout', function () {
     $html = Blade::render('<x-sigta::profile name="Søren Frisk" meta="Studio lead" reverse />');
 
-    expect($html)
-        ->toContain('flex-row-reverse')
-        ->toContain('text-right');
+    expect($html)->toContain('data-reverse');
+    expect(contractCss('profile'))->toContain('&[data-reverse] { @apply flex-row-reverse text-right; }');
 });
 
 it('forwards attributes on the profile root', function () {

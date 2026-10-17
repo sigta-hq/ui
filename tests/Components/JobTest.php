@@ -31,10 +31,20 @@ it('names each state and colours the finished ones', function () {
     expect(Blade::render('<x-sigta::job heading="Export" state="queued" />'))->toContain('data-state="queued"')->toContain('Queued');
     expect(Blade::render('<x-sigta::job heading="Export" state="done" :value="80" />'))
         ->toContain('data-state="done"')
-        ->toContain('text-success')
+        ->toContain('<span data-scope="job" data-part="status" aria-live="polite">Done</span>')
         ->toContain('100%');
-    expect(Blade::render('<x-sigta::job heading="Export" state="failed" />'))->toContain('text-danger')->toContain('Failed');
+    expect(Blade::render('<x-sigta::job heading="Export" state="failed" />'))->toContain('data-state="failed"')->toContain('Failed');
     expect(Blade::render('<x-sigta::job heading="Export" state="lost" />'))->toContain('data-state="working"');
+
+    // The status word takes the state's ink.
+    expect(contractCss('job'))
+        ->toContain('[data-sigta="job"][data-state="done"] & { @apply text-success; }')
+        ->toContain('[data-sigta="job"][data-state="failed"] & { @apply text-danger; }');
+});
+
+it('gives the percentage a fixed width, so the heading never shifts', function () {
+    expect(Blade::render('<x-sigta::job heading="Export" :value="7" />'))->toContain('<span data-scope="job" data-part="percent">7%</span>');
+    expect(contractCss('job'))->toMatch('/\[data-scope="job"\]\[data-part="percent"\] \{\s*@apply w-\[4ch\] shrink-0 text-right[^;]*tabular-nums/');
 });
 
 it('shows the elapsed clock only while the job waits or runs', function () {
@@ -49,5 +59,5 @@ it('renders an actions slot and forwards attributes', function () {
 
     expect($html)
         ->toContain('wire:key="job-7"')
-        ->toContain('<button>Retry</button>');
+        ->toContain('<div data-scope="job" data-part="actions"><button>Retry</button></div>');
 });

@@ -1,1 +1,1 @@
-<tbody data-sigta="table.rows" {{ $attributes->merge(['class' => '[&>tr:last-child>td]:border-b-0']) }}>{{ $slot }}</tbody>
+<tbody data-sigta="table.rows" {{ $attributes }}>{{ $slot }}</tbody>

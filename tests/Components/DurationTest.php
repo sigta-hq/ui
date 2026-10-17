@@ -5,8 +5,9 @@ use Illuminate\Support\Facades\Blade;
 it('formats whole minutes as a compact h/m label', function () {
     expect(Blade::render('<x-sigta::duration :minutes="75" />'))
         ->toContain('data-sigta="duration"')
-        ->toContain('tabular-nums')
         ->toContain('1h 15m');
+
+    expect(contractCss('duration'))->toContain('@apply tabular-nums;');
 });
 
 it('drops the minutes on an exact hour', function () {
@@ -32,11 +33,13 @@ it('clamps negative input to zero', function () {
     expect(Blade::render('<x-sigta::duration :minutes="-30" />'))->toContain('0m');
 });
 
-it('forwards attributes and merges the base class', function () {
+it('forwards attributes and a class onto the span', function () {
     expect(Blade::render('<x-sigta::duration :minutes="60" data-test="dur" class="text-graphite" />'))
         ->toContain('data-test="dur"')
-        ->toContain('text-graphite')
-        ->toContain('tabular-nums');
+        ->toContain('class="text-graphite"');
+
+    // The base look lives in the contract, so a consumer class adds to it.
+    expect(contractCss('duration'))->toContain('[data-sigta="duration"]')->toContain('tabular-nums');
 });
 
 it('leaks no blade comment markers before the value', function () {

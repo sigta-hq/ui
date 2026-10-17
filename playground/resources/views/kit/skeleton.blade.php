@@ -19,7 +19,7 @@
                 «sigta:skeleton variant="circle" />
                 «div class="flex-1 flex flex-col gap-2">
                     «sigta:skeleton class="w-1/3" />
-                    «sigta:skeleton class="w-1/2 h-3" />
+                    «sigta:skeleton class="w-1/2" />
                 «/div>
             «/div>
             «sigta:skeleton variant="heading" />

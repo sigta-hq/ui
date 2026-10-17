@@ -1,4 +1,4 @@
-/* Sigta UI — Livewire runtime. Built by scripts/build-livewire.js from resources/js/sigta.js and packages/core/src; do not edit. sources:c376f334a24e2a972c9f55c4580740f3526232f0 */
+/* Sigta UI — Livewire runtime. Built by scripts/build-livewire.js from resources/js/sigta.js and packages/core/src; do not edit. sources:e4764733afb5be1365a9a7156fd8a2ee5473cad5 */
 (() => {
   // packages/core/src/env.ts
   var isBrowser = () => typeof window !== "undefined" && typeof document !== "undefined";
@@ -661,6 +661,19 @@
     return () => window.removeEventListener(CELEBRATE_EVENT, onCelebrate);
   }
 
+  // packages/core/src/floating-bar.ts
+  var FLOATING_SPACE = "--sigta-floating-space";
+  function publishFloatingSpace(root, bar, visible) {
+    if (!isBrowser()) return;
+    const bottom = parseFloat(getComputedStyle(root).paddingBottom) || 0;
+    const space = visible ? bar.offsetHeight + bottom * 2 : 0;
+    document.documentElement.style.setProperty(FLOATING_SPACE, `${space}px`);
+  }
+  function clearFloatingSpace() {
+    if (!isBrowser()) return;
+    document.documentElement.style.removeProperty(FLOATING_SPACE);
+  }
+
   // resources/js/sigta.js
   var dropped = /* @__PURE__ */ new WeakSet();
   var complete2 = (target, commit = null, options = {}) => {
@@ -682,6 +695,12 @@
       toggle() {
         this.open = !this.open;
         if (this.open) this.$nextTick(() => this.focusItem(0));
+      },
+      // Arrow keys on the trigger open the menu on its first (0) or last (-1)
+      // item, per the WAI-ARIA menu button pattern.
+      openAt(index) {
+        this.open = true;
+        this.$nextTick(() => this.focusItem(index));
       },
       close(focusTrigger = false) {
         if (!this.open) return;
@@ -741,12 +760,10 @@
       destroy() {
         this.showObserver?.disconnect();
         this.sizeObserver?.disconnect();
-        document.documentElement.style.removeProperty("--sigta-floating-space");
+        clearFloatingSpace();
       },
       publish() {
-        const bottom = parseFloat(getComputedStyle(this.$root).paddingBottom) || 0;
-        const space = this.visible ? this.$refs.bar.offsetHeight + bottom * 2 : 0;
-        document.documentElement.style.setProperty("--sigta-floating-space", `${space}px`);
+        publishFloatingSpace(this.$root, this.$refs.bar, this.visible);
       }
     }));
     Alpine.data("sigtaModal", (name = null) => ({
@@ -788,6 +805,15 @@
         const tabs = this.tabs();
         const i = tabs.findIndex((t) => t.dataset.name === this.active);
         const next = tabs[step(i, delta, tabs.length)];
+        if (next) {
+          this.active = next.dataset.name;
+          next.focus();
+        }
+      },
+      // Home / End: the first (0) or last (-1) tab.
+      moveTo(index) {
+        const tabs = this.tabs();
+        const next = tabs[index < 0 ? tabs.length + index : index];
         if (next) {
           this.active = next.dataset.name;
           next.focus();

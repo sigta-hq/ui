@@ -17,7 +17,15 @@ it('renders a breadcrumb nav with an ordered list', function () {
         ->toContain('aria-label="Breadcrumb"')
         ->toContain('<ol')
         ->toContain('Home')
-        ->toContain('Marginalia v3');
+        ->toContain('Marginalia v3')
+        ->toContain('data-scope="breadcrumbs" data-part="list"')
+        ->toContain('data-sigta="breadcrumbs.item"')
+        ->not->toContain('class=');
+
+    // Each crumb after the first is preceded by a graphite slash.
+    expect(contractCss('breadcrumbs'))
+        ->toContain("before:content-['/']")
+        ->toContain('first:before:hidden');
 });
 
 it('marks the current item and renders it without a link', function () {
@@ -34,6 +42,13 @@ it('marks the current item and renders it without a link', function () {
 
     // The current item is a span, not an anchor.
     expect(substr_count($html, '<a '))->toBe(1);
+    expect($html)
+        ->toContain('data-scope="breadcrumbs.item" data-part="link"')
+        ->toContain('data-scope="breadcrumbs.item" data-part="current"');
+
+    expect(contractCss('breadcrumbs'))
+        ->toMatch('/\[data-part="current"\] \{\s*@apply text-ink;/')
+        ->toMatch('/\[data-part="link"\] \{\s*@apply text-graphite[^;]*hover:text-ink/');
 });
 
 it('treats an explicit current prop as the current page even with an href', function () {

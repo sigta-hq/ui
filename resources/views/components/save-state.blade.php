@@ -36,8 +36,6 @@ $mark = match ($state) {
     'failed' => 'failed',
     default => 'idle',
 };
-
-$end = $align === 'end';
 @endphp
 
 <span
@@ -47,19 +45,19 @@ $end = $align === 'end';
     x-bind:data-state="state"
     @if ($target) data-target="{{ $target }}" @endif
     @if ($name) data-name="{{ $name }}" @endif
-    {{ $attributes->merge(['class' => 'inline-flex items-center gap-2 font-mono text-[0.72rem] tracking-[0.06em] text-graphite'.($end ? ' flex-row-reverse' : '')]) }}
+    {{ $attributes->merge(['data-align' => $align]) }}
 >
-    <x-sigta::loader size="sm" decorative :state="$mark" x-bind:data-state="mark" x-bind:class="{ 'text-ink': state === 'saving' || state === 'saved' }" />
-    {{-- One cell, every label: only the current one is visible (core.css). --}}
-    <span role="status" aria-live="polite" class="sigta-save-labels grid min-h-5 items-center {{ $end ? 'justify-items-end text-right' : 'justify-items-start' }}">
-        <span data-when="dirty">{{ $dirty }}</span>
-        {{-- The compass is the visible cue while saving; the words are for
-             assistive tech, and for anyone who has asked for less motion. --}}
-        <span data-when="saving" class="sr-only motion-reduce:not-sr-only">{{ $saving }}</span>
-        <span data-when="saved" class="font-hand font-semibold text-[1.15rem] leading-none tracking-normal text-ink -rotate-3">{{ $saved }}</span>
-        <span data-when="failed" class="text-danger">{{ $failed }}</span>
+    <x-sigta::loader size="sm" decorative :state="$mark" x-bind:data-state="mark" data-scope="save-state" data-part="loader" />
+    {{-- One cell, every label: only the current one is visible. The compass
+         is the visible cue while saving; its words are for assistive tech,
+         and for anyone who has asked for less motion. --}}
+    <span role="status" aria-live="polite" data-scope="save-state" data-part="labels">
+        <span data-scope="save-state" data-part="label" data-when="dirty">{{ $dirty }}</span>
+        <span data-scope="save-state" data-part="label" data-when="saving">{{ $saving }}</span>
+        <span data-scope="save-state" data-part="label" data-when="saved">{{ $saved }}</span>
+        <span data-scope="save-state" data-part="label" data-when="failed">{{ $failed }}</span>
         @if ($idle)
-            <span data-when="idle">{{ $idle }}</span>
+            <span data-scope="save-state" data-part="label" data-when="idle">{{ $idle }}</span>
         @endif
     </span>
 </span>

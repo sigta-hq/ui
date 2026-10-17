@@ -1,0 +1,14 @@
+/* Breadcrumbs — a mono trail; each crumb after the first is preceded by a
+   graphite "/". Links are graphite and ink on hover; the current page is ink. */
+[data-scope="breadcrumbs"][data-part="list"] {
+    @apply flex flex-wrap items-center gap-x-[0.6em] gap-y-1 list-none m-0 p-0 font-mono text-[0.74rem] tracking-[0.05em];
+}
+[data-sigta="breadcrumbs.item"] {
+    @apply flex items-center gap-[0.6em] before:content-['/'] before:text-graphite first:before:hidden;
+}
+[data-scope="breadcrumbs.item"][data-part="link"] {
+    @apply text-graphite no-underline hover:text-ink transition-colors duration-200 ease-out;
+}
+[data-scope="breadcrumbs.item"][data-part="current"] {
+    @apply text-ink;
+}

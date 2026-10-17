@@ -24,7 +24,7 @@ it('renders with zero props: root marker + default Danish copy', function () {
 });
 
 it('defaults to a four-column grid', function () {
-    expect(Blade::render('<x-sigta::section.features />'))->toContain('lg:grid-cols-4');
+    expect(Blade::render('<x-sigta::section.features />'))->toContain('data-sigta="tile-grid" data-cols="4"');
 });
 
 it('lets an override prop win over the default heading', function () {

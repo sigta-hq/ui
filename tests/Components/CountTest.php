@@ -8,9 +8,15 @@ it('renders a number that watches itself for changes', function () {
     expect($html)
         ->toContain('data-sigta="count"')
         ->toContain('x-data="sigtaCount"')
-        ->toContain('tabular-nums')
-        ->toContain('inline-block')
         ->toContain('>12</span>');
+
+    expect(contractCss('count'))->toContain('@apply inline-block tabular-nums;');
+});
+
+it('forwards attributes and a class onto the number', function () {
+    expect(Blade::render('<x-sigta::count :value="3" class="text-lg" data-test="n" />'))
+        ->toContain('class="text-lg"')
+        ->toContain('data-test="n"');
 });
 
 it('renders zero rather than falling back to the slot', function () {

@@ -1,4 +1,5 @@
-{{-- One crumb. Link when href given; current page (no href or current) is ink + aria-current. --}}
+{{-- One crumb. Link when href given; current page (no href or current) is ink + aria-current.
+     Attributes land on the link (or the current-page span), not the <li>. --}}
 @props([
     'href' => null,
     'current' => false,
@@ -8,13 +9,10 @@
 $isCurrent = $current || $href === null;
 @endphp
 
-<li
-    data-sigta="breadcrumbs.item"
-    class="flex items-center gap-[0.6em] before:content-['/'] before:text-graphite first:before:hidden"
->
+<li data-sigta="breadcrumbs.item">
     @if ($isCurrent)
-        <span aria-current="page" {{ $attributes->merge(['class' => 'text-ink']) }}>{{ $slot }}</span>
+        <span aria-current="page" data-scope="breadcrumbs.item" data-part="current" {{ $attributes }}>{{ $slot }}</span>
     @else
-        <a href="{{ $href }}" {{ $attributes->merge(['class' => 'text-graphite no-underline hover:text-ink transition-colors duration-200 ease-out']) }}>{{ $slot }}</a>
+        <a href="{{ $href }}" data-scope="breadcrumbs.item" data-part="link" {{ $attributes }}>{{ $slot }}</a>
     @endif
 </li>

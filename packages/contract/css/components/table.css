@@ -1,0 +1,21 @@
+/* Table — a brand data table: mono uppercase caption and headers, hairline
+   rows, tabular numerals. The wrapper scrolls sideways on a narrow screen;
+   the last row draws no rule under it. One stylesheet for the family. */
+[data-sigta="table"] {
+    @apply w-full overflow-x-auto;
+}
+[data-scope="table"][data-part="table"] {
+    @apply w-full border-collapse text-[0.9rem];
+}
+[data-scope="table"][data-part="caption"] {
+    @apply text-left font-mono text-[0.66rem] tracking-[0.1em] uppercase text-graphite font-normal mb-[0.7rem];
+}
+[data-sigta="table.column"] {
+    @apply text-left font-mono text-[0.68rem] tracking-[0.06em] uppercase text-graphite font-normal py-[0.6em] px-[0.4em] border-b border-line;
+}
+[data-sigta="table.cell"] {
+    @apply text-left py-[0.6em] px-[0.4em] border-b border-line tabular-nums;
+}
+[data-sigta="table.rows"] > tr:last-child > td {
+    @apply border-b-0;
+}

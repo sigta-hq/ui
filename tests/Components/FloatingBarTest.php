@@ -27,9 +27,18 @@ it('slides in and out, and keeps a morph off the animated element', function () 
     expect($html)
         ->toContain('x-show="visible"')
         ->toContain('wire:ignore.self')
-        ->toContain('x-transition:enter-start="opacity-0 translate-y-6 scale-95"')
-        ->toContain('x-transition:leave-end="opacity-0 translate-y-6 scale-95"')
-        ->toContain('fixed inset-x-0 bottom-0');
+        ->toContain('x-transition:enter="sigta-floating-bar-enter"')
+        ->toContain('x-transition:enter-start="sigta-floating-bar-away"')
+        ->toContain('x-transition:leave="sigta-floating-bar-leave"')
+        ->toContain('x-transition:leave-end="sigta-floating-bar-away"')
+        ->toContain('data-scope="floating-bar"')
+        ->toContain('data-part="bar"');
+
+    expect(contractCss('floating-bar'))
+        ->toMatch('/\[data-sigta="floating-bar"\] \{\s*@apply pointer-events-none fixed inset-x-0 bottom-0/')
+        ->toContain('&.sigta-floating-bar-enter { @apply transition ease-out duration-300; }')
+        ->toContain('&.sigta-floating-bar-leave { @apply transition ease-in duration-200; }')
+        ->toContain('&.sigta-floating-bar-away { @apply opacity-0 translate-y-6 scale-95; }');
 });
 
 it('names the bar as a region when given a label', function () {

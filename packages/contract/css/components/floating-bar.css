@@ -1,0 +1,15 @@
+/* Floating bar — a dark pill pinned to the bottom centre of the viewport.
+   Shown, it rises into place and grows from 95%; hidden, it sinks away and
+   fades. The runtime hides and shows it and adds these transition hooks
+   (enter / leave, then away for the far end of the move); a first render
+   that is already up shows without moving. */
+[data-sigta="floating-bar"] {
+    @apply pointer-events-none fixed inset-x-0 bottom-0 z-[80] flex justify-center p-4;
+}
+[data-scope="floating-bar"][data-part="bar"] {
+    @apply pointer-events-auto flex max-w-full items-center gap-3 rounded-full border border-inverse-line bg-ink py-1.5 ps-4 pe-1.5 text-inverse-fg shadow-paper;
+
+    &.sigta-floating-bar-enter { @apply transition ease-out duration-300; }
+    &.sigta-floating-bar-leave { @apply transition ease-in duration-200; }
+    &.sigta-floating-bar-away { @apply opacity-0 translate-y-6 scale-95; }
+}

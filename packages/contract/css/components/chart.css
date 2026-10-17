@@ -1,0 +1,22 @@
+/* Charts — hand-drawn ink on paper, all currentColor: recolour a chart with a
+   text colour on it or a parent. The geometry is plain SVG both runtimes
+   compute alike (@sigta-hq/core chart.ts); only the frame lives here. */
+[data-sigta="chart.sparkline"] {
+    @apply w-full h-10;
+}
+[data-sigta="chart.line"],
+[data-sigta="chart.bars"] {
+    @apply w-full text-ink;
+}
+[data-scope="chart.line"][data-part="plot"],
+[data-scope="chart.bars"][data-part="plot"] {
+    @apply block w-full h-auto;
+}
+[data-scope="chart.line"][data-part="labels"] {
+    @apply flex justify-between gap-2 mt-1.5 font-mono text-[0.62rem] text-graphite;
+}
+/* One label under each bar: --sigta-chart-columns is the number of bars. */
+[data-scope="chart.bars"][data-part="labels"] {
+    @apply grid mt-1.5 font-mono text-[0.62rem] text-graphite text-center;
+    grid-template-columns: repeat(var(--sigta-chart-columns, 1), minmax(0, 1fr));
+}

@@ -25,26 +25,35 @@ it('renders semantic table structure with a caption', function () {
 
     expect($html)
         ->toContain('data-sigta="table"')
-        ->toContain('overflow-x-auto')
-        ->toContain('<table')
-        ->toContain('<caption')
+        ->toContain('<table data-scope="table" data-part="table"')
+        ->toContain('<caption data-scope="table" data-part="caption"')
         ->toContain('Recent engagements')
         ->toContain('<thead')
         ->toContain('<tbody')
         ->toContain('<th ')
         ->toContain('<td ')
         ->toContain('Marginalia v3');
+
+    // The wrapper scrolls sideways when the table does not fit.
+    expect(contractCss('table'))->toMatch('/\[data-sigta="table"\] \{\s*@apply w-full overflow-x-auto;/');
 });
 
 it('styles headers as mono uppercase and cells with tabular numerals', function () {
     $html = renderKitTable();
 
     expect($html)
-        ->toContain('scope="col"')
-        ->toContain('font-mono')
-        ->toContain('uppercase')
-        ->toContain('tabular-nums')
-        ->toContain('[&amp;&gt;tr:last-child&gt;td]:border-b-0'); // escaped by the attribute bag; decodes to [&>tr:last-child>td]:border-b-0
+        ->toContain('<th data-sigta="table.column" scope="col"')
+        ->toContain('<td data-sigta="table.cell"')
+        ->toContain('<tbody data-sigta="table.rows"')
+        ->toContain('<thead data-sigta="table.columns"')
+        ->toContain('<tr data-sigta="table.row"');
+
+    $css = contractCss('table');
+    expect($css)
+        ->toMatch('/\[data-sigta="table\.column"\] \{\s*@apply[^;]*font-mono[^;]*uppercase[^;]*;/')
+        ->toMatch('/\[data-sigta="table\.cell"\] \{\s*@apply[^;]*tabular-nums[^;]*;/')
+        // The last row draws no rule under it.
+        ->toMatch('/\[data-sigta="table\.rows"\] > tr:last-child > td \{\s*@apply border-b-0;/');
 });
 
 it('omits the caption when none is given', function () {
@@ -57,6 +66,12 @@ it('forwards attributes onto the native table element', function () {
     $html = renderKitTable('data-test="engagements" wire:key="t1"');
 
     expect($html)
-        ->toContain('data-test="engagements"')
-        ->toContain('wire:key="t1"');
+        ->toMatch('/<table data-scope="table" data-part="table"[^>]*data-test="engagements"/')
+        ->toMatch('/<table [^>]*wire:key="t1"/');
+});
+
+it('lets a header cell override its scope', function () {
+    expect(Blade::render('<x-sigta::table.column scope="colgroup">Q3</x-sigta::table.column>'))
+        ->toContain('scope="colgroup"')
+        ->not->toContain('scope="col"');
 });

@@ -13,6 +13,7 @@
 --------------------------------------------------------------------------- */
 import {
     choose,
+    clearFloatingSpace,
     createApi,
     dropToast,
     leaveToast,
@@ -28,6 +29,7 @@ import {
     observeLoaders,
     observeMotionLists,
     positionPanel,
+    publishFloatingSpace,
     pushToast,
     revive,
     complete as completeRow,
@@ -77,6 +79,12 @@ document.addEventListener('alpine:init', () => {
         toggle() {
             this.open = !this.open;
             if (this.open) this.$nextTick(() => this.focusItem(0));
+        },
+        // Arrow keys on the trigger open the menu on its first (0) or last (-1)
+        // item, per the WAI-ARIA menu button pattern.
+        openAt(index) {
+            this.open = true;
+            this.$nextTick(() => this.focusItem(index));
         },
         close(focusTrigger = false) {
             if (!this.open) return;
@@ -146,12 +154,10 @@ document.addEventListener('alpine:init', () => {
         destroy() {
             this.showObserver?.disconnect();
             this.sizeObserver?.disconnect();
-            document.documentElement.style.removeProperty('--sigta-floating-space');
+            clearFloatingSpace();
         },
         publish() {
-            const bottom = parseFloat(getComputedStyle(this.$root).paddingBottom) || 0;
-            const space = this.visible ? this.$refs.bar.offsetHeight + bottom * 2 : 0;
-            document.documentElement.style.setProperty('--sigta-floating-space', `${space}px`);
+            publishFloatingSpace(this.$root, this.$refs.bar, this.visible);
         },
     }));
 
@@ -183,6 +189,15 @@ document.addEventListener('alpine:init', () => {
             const tabs = this.tabs();
             const i = tabs.findIndex((t) => t.dataset.name === this.active);
             const next = tabs[step(i, delta, tabs.length)];
+            if (next) {
+                this.active = next.dataset.name;
+                next.focus();
+            }
+        },
+        // Home / End: the first (0) or last (-1) tab.
+        moveTo(index) {
+            const tabs = this.tabs();
+            const next = tabs[index < 0 ? tabs.length + index : index];
             if (next) {
                 this.active = next.dataset.name;
                 next.focus();

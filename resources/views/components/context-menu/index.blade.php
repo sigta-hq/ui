@@ -37,11 +37,13 @@
     }"
     x-on:contextmenu.prevent="openAt($event)"
     x-on:keydown.escape.prevent.stop="close(true)"
-    {{ $attributes->merge(['class' => 'relative']) }}
+    {{ $attributes }}
     data-sigta="context-menu"
 >
     {{ $slot }}
 
+    {{-- The static position is where Alpine's binding starts (0, 0), so the server
+         render and the Svelte twin agree before the menu is ever opened. --}}
     <div
         x-cloak
         x-show="open"
@@ -50,12 +52,11 @@
         x-on:keydown.up.prevent="move(-1)"
         x-on:keydown.home.prevent="focusItem(0)"
         x-on:keydown.end.prevent="focusItem(-1)"
+        style="left:0px;top:0px"
         x-bind:style="`left:${x}px;top:${y}px`"
-        x-transition:enter="transition ease-out duration-150"
-        x-transition:enter-start="opacity-0 -translate-y-1"
-        x-transition:enter-end="opacity-100 translate-y-0"
         role="menu"
-        class="fixed z-50 min-w-48 bg-surface-raised border border-line rounded-panel shadow-paper py-1.5"
+        data-scope="context-menu"
+        data-part="menu"
     >
         {{ $menu ?? '' }}
     </div>

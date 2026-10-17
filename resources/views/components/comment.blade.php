@@ -41,32 +41,32 @@
 $hasAvatar = $avatar !== null || $src !== null;
 @endphp
 
-<article data-sigta="comment" {{ $attributes->merge(['class' => 'flex gap-3 py-3 border-b border-line last:border-b-0']) }}>
+<article data-sigta="comment" {{ $attributes }}>
     @if ($hasAvatar)
-        <x-sigta::avatar :name="$avatar" :src="$src" size="sm" class="mt-0.5" />
+        <x-sigta::avatar :name="$avatar" :src="$src" size="sm" data-scope="comment" data-part="avatar" />
     @endif
 
-    <div class="min-w-0 flex-1">
-        <div class="flex items-baseline justify-between gap-3">
-            <div class="flex min-w-0 items-baseline gap-2">
+    <div data-scope="comment" data-part="main">
+        <div data-scope="comment" data-part="header">
+            <div data-scope="comment" data-part="byline">
                 @if ($author)
-                    <span class="truncate font-head text-[0.98rem] font-medium text-ink">{{ $author }}</span>
+                    <span data-scope="comment" data-part="author">{{ $author }}</span>
                 @endif
                 @if ($meta)
-                    <span class="shrink-0 font-mono text-[0.66rem] tracking-[0.06em] uppercase text-graphite">{{ $meta }}</span>
+                    <span data-scope="comment" data-part="meta">{{ $meta }}</span>
                 @endif
             </div>
 
             @isset($actions)
-                <div class="flex shrink-0 items-center gap-1">{{ $actions }}</div>
+                <div data-scope="comment" data-part="actions">{{ $actions }}</div>
             @endisset
         </div>
 
-        <div class="mt-1">
+        <div data-scope="comment" data-part="content">
             @if ($editing && isset($edit))
                 {{ $edit }}
             @else
-                <div class="font-body text-[0.95rem] leading-relaxed text-ink">{{ $slot }}</div>
+                <div data-scope="comment" data-part="body">{{ $slot }}</div>
             @endif
         </div>
     </div>

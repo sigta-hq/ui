@@ -1,1 +1,1 @@
-<th data-sigta="table.column" {{ $attributes->merge(['scope' => 'col', 'class' => 'text-left font-mono text-[0.68rem] tracking-[0.06em] uppercase text-graphite font-normal py-[0.6em] px-[0.4em] border-b border-line']) }}>{{ $slot }}</th>
+<th data-sigta="table.column" {{ $attributes->merge(['scope' => 'col']) }}>{{ $slot }}</th>

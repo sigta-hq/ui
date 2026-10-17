@@ -5,14 +5,14 @@
     'lede' => null,
 ])
 
-<div data-sigta="section-header" {{ $attributes->merge(['class' => 'flex flex-wrap items-end justify-between gap-8']) }}>
+<div data-sigta="section-header" {{ $attributes }}>
     <div>
         @if ($eyebrow)
-            <x-sigta::eyebrow class="mb-[1.2rem]">{{ $eyebrow }}</x-sigta::eyebrow>
+            <x-sigta::eyebrow data-scope="section-header" data-part="eyebrow">{{ $eyebrow }}</x-sigta::eyebrow>
         @endif
-        <x-sigta::heading level="2" size="xl" class="max-w-[16ch]">{{ $heading }}</x-sigta::heading>
+        <x-sigta::heading level="2" size="xl" data-scope="section-header" data-part="heading">{{ $heading }}</x-sigta::heading>
     </div>
     @if ($lede !== null || $slot->isNotEmpty())
-        <x-sigta::text variant="muted" class="max-w-[34ch]">{{ $lede ?? $slot }}</x-sigta::text>
+        <x-sigta::text variant="muted" data-scope="section-header" data-part="lede">{{ $lede ?? $slot }}</x-sigta::text>
     @endif
 </div>

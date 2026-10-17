@@ -1,7 +1,9 @@
 {{-- Bar chart (brand hero language): ink bars, optional highlighter swipe
      behind one bar (`highlight` index) and an optional dashed hand-drawn
      trend line across the bar tops (`:trend="true"`).
-     Usage: <x-sigta::chart.bars :values="[…]" :labels="[…]" :highlight="4" trend /> --}}
+     Usage: <x-sigta::chart.bars :values="[…]" :labels="[…]" :highlight="4" trend />
+     The geometry is mirrored in @sigta-hq/core (chart.ts) for the Svelte
+     runtime: change both together, the conformance check compares them. --}}
 @props([
     'values' => [],
     'labels' => null,
@@ -62,13 +64,14 @@ if ($trend && $n > 1) {
 }
 @endphp
 
-<div data-sigta="chart.bars" {{ $attributes->merge(['class' => 'w-full text-ink']) }}>
+<div data-sigta="chart.bars" {{ $attributes }}>
     <svg
         viewBox="0 0 {{ $w }} {{ $h }}"
         preserveAspectRatio="none"
         xmlns="http://www.w3.org/2000/svg"
         @if ($label) role="img" aria-label="{{ $label }}" @else aria-hidden="true" @endif
-        class="block w-full h-auto"
+        data-scope="chart.bars"
+        data-part="plot"
     >
         @if ($highlighted)
             @php
@@ -104,7 +107,7 @@ if ($trend && $n > 1) {
     </svg>
 
     @if ($labels && $n > 0)
-        <div class="grid mt-1.5 font-mono text-[0.62rem] text-graphite text-center" style="grid-template-columns: repeat({{ $n }}, minmax(0, 1fr))" aria-hidden="true">
+        <div data-scope="chart.bars" data-part="labels" style="--sigta-chart-columns: {{ $n }}" aria-hidden="true">
             @foreach ($labels as $tick)
                 <span>{{ $tick }}</span>
             @endforeach

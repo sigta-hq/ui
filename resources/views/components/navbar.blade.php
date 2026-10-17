@@ -11,44 +11,47 @@
 
 @php
 $panelId = 'sigta-navbar-panel-'.\Illuminate\Support\Str::random(8);
-
-// Written out whole so Tailwind finds each class. A site with longer links and a
-// wide CTA folds them away up to `lg`, rather than wrapping each link onto two lines.
-[$barLinks, $belowOnly] = match ($collapse) {
-    'lg' => ['hidden lg:flex', 'lg:hidden'],
-    default => ['hidden md:flex', 'md:hidden'],
-};
 @endphp
 
+{{-- data-collapse picks the breakpoint in the contract stylesheet: a site with longer
+     links and a wide CTA folds them away up to `lg`, rather than wrapping each link
+     onto two lines. --}}
 <header
     data-sigta="navbar"
+    data-collapse="{{ $collapse }}"
     x-data="{ open: false }"
-    {{ $attributes->merge(['class' => 'sticky top-0 z-50 bg-surface/85 backdrop-blur-md border-b border-line']) }}
+    {{ $attributes }}
 >
-    <div class="max-w-(--sigta-maxw) mx-auto px-(--sigta-gutter) flex items-center justify-between gap-4 h-[68px]">
+    <div data-scope="navbar" data-part="bar">
         @isset ($brand)
-            <div {{ $brand->attributes->merge(['class' => 'flex items-center shrink-0']) }}>{{ $brand }}</div>
+            <div {{ $brand->attributes->merge(['data-scope' => 'navbar', 'data-part' => 'brand']) }}>{{ $brand }}</div>
         @endisset
 
-        <nav class="{{ $barLinks }} items-center gap-8" aria-label="Primary">
+        <nav data-scope="navbar" data-part="links" aria-label="Primary">
             {{ $slot }}
         </nav>
 
-        <div class="flex items-center gap-3">
+        <div data-scope="navbar" data-part="end">
             @isset ($actions)
-                <div {{ $actions->attributes->merge(['class' => 'flex items-center gap-3']) }}>{{ $actions }}</div>
+                <div {{ $actions->attributes->merge(['data-scope' => 'navbar', 'data-part' => 'actions']) }}>{{ $actions }}</div>
             @elseif ($ctaLabel)
-                <x-sigta::button variant="cta" size="sm" :href="$ctaHref" :target="$target">{{ $ctaLabel }}</x-sigta::button>
+                {{-- Without an href the CTA is a plain button, never a link to nowhere. --}}
+                @if ($ctaHref !== null)
+                    <x-sigta::button variant="cta" size="sm" :href="$ctaHref" :target="$target">{{ $ctaLabel }}</x-sigta::button>
+                @else
+                    <x-sigta::button variant="cta" size="sm">{{ $ctaLabel }}</x-sigta::button>
+                @endif
             @endisset
 
             <button
                 type="button"
-                class="{{ $belowOnly }} inline-flex items-center justify-center p-2 -mr-2 text-ink rounded-base cursor-pointer hover:bg-ink/5 transition duration-150 ease-out"
                 aria-expanded="false"
                 :aria-expanded="open ? 'true' : 'false'"
                 aria-controls="{{ $panelId }}"
                 aria-label="Menu"
                 @click="open = !open"
+                data-scope="navbar"
+                data-part="toggle"
             >
                 <span x-show="!open"><x-sigta::icon name="menu" /></span>
                 <span x-show="open" x-cloak><x-sigta::icon name="x" /></span>
@@ -61,8 +64,9 @@ $panelId = 'sigta-navbar-panel-'.\Illuminate\Support\Str::random(8);
         x-show="open"
         x-cloak
         @keydown.escape.window="open = false"
-        class="{{ $belowOnly }} border-t border-line px-(--sigta-gutter) py-4 flex flex-col gap-3"
         aria-label="Primary"
+        data-scope="navbar"
+        data-part="panel"
     >
         {{ $slot }}
     </nav>

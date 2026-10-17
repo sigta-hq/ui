@@ -3,10 +3,10 @@
     'caption' => null,
 ])
 
-<div data-sigta="table" class="w-full overflow-x-auto">
-    <table {{ $attributes->merge(['class' => 'w-full border-collapse text-[0.9rem]']) }}>
+<div data-sigta="table">
+    <table data-scope="table" data-part="table" {{ $attributes }}>
         @if ($caption)
-            <caption class="text-left font-mono text-[0.66rem] tracking-[0.1em] uppercase text-graphite font-normal mb-[0.7rem]">{{ $caption }}</caption>
+            <caption data-scope="table" data-part="caption">{{ $caption }}</caption>
         @endif
         {{ $slot }}
     </table>

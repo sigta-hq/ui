@@ -1,0 +1,33 @@
+/* Comment — one authored row in a feed, ruled off from the next: an optional
+   avatar, the author in Fraunces with a mono timestamp beside it, the
+   owner's actions at the right, then the body (or the inline editor). */
+[data-sigta="comment"] {
+    @apply flex gap-3 py-3 border-b border-line last:border-b-0;
+}
+[data-scope="comment"][data-part="avatar"] {
+    @apply mt-0.5;
+}
+[data-scope="comment"][data-part="main"] {
+    @apply min-w-0 flex-1;
+}
+[data-scope="comment"][data-part="header"] {
+    @apply flex items-baseline justify-between gap-3;
+}
+[data-scope="comment"][data-part="byline"] {
+    @apply flex min-w-0 items-baseline gap-2;
+}
+[data-scope="comment"][data-part="author"] {
+    @apply truncate font-head text-[0.98rem] font-medium text-ink;
+}
+[data-scope="comment"][data-part="meta"] {
+    @apply shrink-0 font-mono text-[0.66rem] tracking-[0.06em] uppercase text-graphite;
+}
+[data-scope="comment"][data-part="actions"] {
+    @apply flex shrink-0 items-center gap-1;
+}
+[data-scope="comment"][data-part="content"] {
+    @apply mt-1;
+}
+[data-scope="comment"][data-part="body"] {
+    @apply font-body text-[0.95rem] leading-relaxed text-ink;
+}

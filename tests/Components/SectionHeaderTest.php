@@ -10,16 +10,23 @@ it('renders a heading and a lede in a baseline-aligned flex row', function () {
         ->toContain('Kan du genkende det?')
         ->toContain('Fire situationer, hvor det hjælper.')
         ->toContain('<h2')
-        ->toContain('justify-between')
-        ->toContain('items-end')
-        ->toContain('flex-wrap')
-        ->toContain('data-variant="muted"');
+        ->toMatch('/<h2 data-sigta="heading"[^>]*data-part="heading"/')
+        ->toMatch('/<p data-sigta="text"[^>]*data-variant="muted"[^>]*data-part="lede"|<p data-sigta="text"[^>]*data-part="lede"[^>]*data-variant="muted"/');
+
+    expect(contractCss('section-header'))
+        ->toMatch('/\[data-sigta="section-header"\] \{\s*@apply flex flex-wrap items-end justify-between gap-8;/')
+        ->toContain('[data-scope="section-header"][data-part="heading"] {')
+        ->toContain('[data-scope="section-header"][data-part="lede"] {');
 });
 
 it('renders the lede from the default slot when no lede prop is given', function () {
     $html = Blade::render('<x-sigta::section-header heading="Priser">Lede fra slot</x-sigta::section-header>');
 
-    expect($html)->toContain('Lede fra slot');
+    expect($html)->toContain('Lede fra slot')->toContain('data-part="lede"');
+});
+
+it('omits the lede when there is neither a prop nor a slot', function () {
+    expect(Blade::render('<x-sigta::section-header heading="Priser" />'))->not->toContain('data-part="lede"');
 });
 
 it('renders an optional eyebrow above the heading', function () {
@@ -27,6 +34,7 @@ it('renders an optional eyebrow above the heading', function () {
 
     expect($html)
         ->toContain('data-sigta="eyebrow"')
+        ->toMatch('/data-scope="section-header" data-part="eyebrow"/')
         ->toContain('Om Sigta');
 
     expect(strpos($html, 'Om Sigta'))->toBeLessThan(strpos($html, 'Manden bag'));

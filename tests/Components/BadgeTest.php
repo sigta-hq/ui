@@ -8,28 +8,23 @@ it('renders an outline badge by default', function () {
     expect($html)
         ->toContain('Outline')
         ->toContain('data-sigta="badge"')
-        ->toContain('border-ink')
+        ->toContain('data-variant="outline"');
+
+    expect(contractCss('badge'))
         ->toContain('font-mono')
         ->toContain('leading-none') // tight line-height keeps the label vertically centered
         ->toContain('rounded-full')
-        ->not->toContain('bg-ink');
+        ->toContain('[data-variant="accent"])) { @apply bg-transparent text-ink border-ink; }');
 });
 
 it('renders the solid variant as an ink fill', function () {
-    $html = Blade::render('<x-sigta::badge variant="solid">Solid</x-sigta::badge>');
-
-    expect($html)
-        ->toContain('bg-ink')
-        ->toContain('text-surface');
+    expect(Blade::render('<x-sigta::badge variant="solid">Solid</x-sigta::badge>'))->toContain('data-variant="solid"');
+    expect(contractCss('badge'))->toContain('&[data-variant="solid"] { @apply bg-ink text-surface border-ink; }');
 });
 
 it('renders the accent variant with the accent border', function () {
-    $html = Blade::render('<x-sigta::badge variant="accent">Highlight</x-sigta::badge>');
-
-    expect($html)
-        ->toContain('bg-accent')
-        ->toContain('border-accent-line')
-        ->toContain('text-ink');
+    expect(Blade::render('<x-sigta::badge variant="accent">Highlight</x-sigta::badge>'))->toContain('data-variant="accent"');
+    expect(contractCss('badge'))->toContain('&[data-variant="accent"] { @apply bg-accent border-accent-line text-ink; }');
 });
 
 it('forwards arbitrary attributes', function () {

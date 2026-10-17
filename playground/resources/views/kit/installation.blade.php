@@ -160,7 +160,7 @@
         <pre class="{{ $preClasses }}"><code>{{ $codeRequirements }}</code></pre>
     </section>
 
-    <x-sigta::rule variant="1" class="text-ink/60" />
+    <x-sigta::rule variant="1" />
 
     {{-- ===================== 1 · VCS REPOSITORY ===================== --}}
     <section>
@@ -242,7 +242,7 @@
         </x-sigta::text>
     </section>
 
-    <x-sigta::rule variant="2" class="text-ink/60" />
+    <x-sigta::rule variant="2" />
 
     {{-- ===================== 4 · CSS ENTRY ===================== --}}
     <section>
@@ -324,7 +324,7 @@
         </div>
     </section>
 
-    <x-sigta::rule variant="3" class="text-ink/60" />
+    <x-sigta::rule variant="3" />
 
     {{-- ===================== 8 · DEPLOY ===================== --}}
     <section>

@@ -1,6 +1,8 @@
 {{-- Sparkline: `:values` → smooth hand-drawn line in a 200×40 viewBox.
      Inherits currentColor — recolor with text utilities on a parent.
-     Decorative by default; pass `label` for a meaningful chart. --}}
+     Decorative by default; pass `label` for a meaningful chart.
+     The geometry is mirrored in @sigta-hq/core (chart.ts) for the Svelte
+     runtime: change both together, the conformance check compares them. --}}
 @props([
     'values' => [],
     'label' => null,
@@ -55,7 +57,7 @@ $end = $n ? $points[$n - 1] : null;
     xmlns="http://www.w3.org/2000/svg"
     @if ($label) role="img" aria-label="{{ $label }}" @else aria-hidden="true" @endif
     data-sigta="chart.sparkline"
-    {{ $attributes->merge(['class' => 'w-full h-10']) }}
+    {{ $attributes }}
 >
     @if ($path !== '')
         <path d="{{ $path }}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" />

@@ -17,7 +17,7 @@
     <div class="mx-auto max-w-(--sigta-maxw) px-(--sigta-gutter)">
         <div class="relative overflow-hidden rounded-frame bg-inverse p-[clamp(34px,6vw,72px)] text-center text-inverse-fg">
             @if ($annotation)
-                <x-sigta::annot :rotate="-6" tone="accent" class="absolute top-[18px] right-[7%] text-[1.5rem] max-md:hidden">{{ $annotation }}</x-sigta::annot>
+                <x-sigta::annot :rotate="-6" tone="accent" class="absolute top-[18px] right-[7%] max-md:hidden">{{ $annotation }}</x-sigta::annot>
             @endif
             <h2 class="mx-auto max-w-[20ch] text-balance font-head font-normal text-[clamp(2rem,5vw,3.4rem)] leading-[1.04]">{{ $heading }}</h2>
             @if ($lede)

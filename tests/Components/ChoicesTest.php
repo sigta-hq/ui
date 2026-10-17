@@ -38,10 +38,19 @@ it('renders a round radio that forwards its name', function () {
     expect($html)
         ->toContain('data-sigta="radio"')
         ->toContain('type="radio"')
-        ->toContain('rounded-full')
-        ->toContain('checked:bg-ink')
+        ->toContain('data-scope="radio" data-part="control"')
         ->toMatch('/<input[^>]*name="density"/')
         ->toContain('Compact density');
+
+    expect(contractCss('radio'))->toContain('rounded-full')->toContain('checked:bg-ink');
+});
+
+it('renders a bare radio as the root and dims it when disabled', function () {
+    expect(Blade::render('<x-sigta::radio name="d" disabled />'))
+        ->toMatch('/<input data-sigta="radio" type="radio"[^>]*disabled/')
+        ->not->toContain('<label');
+
+    expect(contractCss('radio'))->toContain('input[data-sigta="radio"] {')->toContain('@apply disabled:opacity-40 disabled:pointer-events-none;');
 });
 
 it('forwards wire:model to the native radio', function () {
@@ -57,10 +66,14 @@ it('renders a switch as a real checkbox with a peer track', function () {
         ->toContain('data-sigta="switch"')
         ->toContain('role="switch"')
         ->toContain('type="checkbox"')
-        ->toContain('sr-only')
-        ->toContain('peer-checked:bg-ink')
-        ->toContain('peer-checked:after:translate-x-[20px]')
+        ->toContain('data-scope="switch" data-part="input"')
+        ->toContain('data-scope="switch" data-part="track"')
         ->toContain('Grayscale mode');
+
+    expect(contractCss('switch'))
+        ->toContain('@apply sr-only;')
+        ->toContain('[data-scope="switch"][data-part="input"]:checked ~ [data-scope="switch"][data-part="track"] {')
+        ->toContain('@apply bg-ink border-ink after:translate-x-[20px];');
 });
 
 it('forwards wire:model and disabled to the native switch input', function () {
@@ -68,8 +81,9 @@ it('forwards wire:model and disabled to the native switch input', function () {
 
     expect($html)
         ->toMatch('/<input[^>]*wire:model="grayscale"/')
-        ->toMatch('/<input[^>]*disabled/')
-        ->toContain('has-[:disabled]:opacity-40');
+        ->toMatch('/<input[^>]*disabled/');
+
+    expect(contractCss('switch'))->toContain('has-[:disabled]:opacity-40');
 });
 
 it('draws the checkbox tick as pen strokes and gives on press', function () {
@@ -82,10 +96,11 @@ it('draws the checkbox tick as pen strokes and gives on press', function () {
 });
 
 it('squashes the switch knob while pressed', function () {
-    $html = Blade::render('<x-sigta::switch label="Grain" />');
+    expect(Blade::render('<x-sigta::switch label="Grain" />'))->toContain('data-sigta="switch"');
 
-    expect($html)
-        ->toContain('group/switch')
-        ->toContain('group-active/switch:after:w-[22px]')
-        ->toContain('peer-checked:group-active/switch:after:translate-x-[16px]');
+    expect(contractCss('switch'))
+        ->toContain('[data-sigta="switch"]:active [data-scope="switch"][data-part="track"] {')
+        ->toContain('@apply after:w-[22px];')
+        ->toContain('[data-sigta="switch"]:active [data-scope="switch"][data-part="input"]:checked ~ [data-scope="switch"][data-part="track"] {')
+        ->toContain('@apply after:translate-x-[16px];');
 });

@@ -28,12 +28,6 @@ $status = match ($state) {
     default => 'Running',
 };
 
-$statusClass = match ($state) {
-    'done' => 'text-success',
-    'failed' => 'text-danger',
-    default => 'text-graphite',
-};
-
 $percent = $value === null ? null : ($state === 'done' ? 100 : min(100, max(0, (float) $value)));
 @endphp
 
@@ -41,23 +35,23 @@ $percent = $value === null ? null : ($state === 'done' ? 100 : min(100, max(0, (
     data-sigta="job"
     x-data="sigtaJob"
     data-state="{{ $state }}"
-    {{ $attributes->merge(['class' => 'flex items-start gap-3.5 rounded-panel border border-line bg-surface-raised px-4 py-3.5']) }}
+    {{ $attributes }}
 >
-    <x-sigta::loader size="lg" :label="$heading ?? $status" :state="$state" :value="$percent" class="mt-0.5" />
+    <x-sigta::loader size="lg" :label="$heading ?? $status" :state="$state" :value="$percent" data-scope="job" data-part="loader" />
 
-    <div class="min-w-0 flex-1">
-        <div class="flex items-baseline justify-between gap-3">
+    <div data-scope="job" data-part="main">
+        <div data-scope="job" data-part="header">
             @if ($heading)
-                <p class="font-head text-[1.02rem] leading-snug text-ink truncate">{{ $heading }}</p>
+                <p data-scope="job" data-part="heading">{{ $heading }}</p>
             @endif
             @if ($percent !== null)
                 {{-- A fixed width, so a growing percentage never nudges the heading. --}}
-                <span class="w-[4ch] shrink-0 text-right font-mono text-[0.74rem] tabular-nums text-ink">{{ round($percent) }}%</span>
+                <span data-scope="job" data-part="percent">{{ round($percent) }}%</span>
             @endif
         </div>
 
-        <p class="mt-1 flex flex-wrap items-center gap-x-2 font-mono text-[0.64rem] uppercase tracking-[0.12em] text-graphite">
-            <span class="{{ $statusClass }}" aria-live="polite">{{ $status }}</span>
+        <p data-scope="job" data-part="meta">
+            <span data-scope="job" data-part="status" aria-live="polite">{{ $status }}</span>
             @if ($stage)
                 <span aria-hidden="true">·</span>
                 <span>{{ $stage }}</span>
@@ -69,13 +63,13 @@ $percent = $value === null ? null : ($state === 'done' ? 100 : min(100, max(0, (
         </p>
 
         @if ($description)
-            <p class="mt-1.5 text-[0.9rem] leading-snug text-graphite">{{ $description }}</p>
+            <p data-scope="job" data-part="description">{{ $description }}</p>
         @endif
 
         {{ $slot }}
     </div>
 
     @isset($actions)
-        <div class="flex shrink-0 items-center gap-2">{{ $actions }}</div>
+        <div data-scope="job" data-part="actions">{{ $actions }}</div>
     @endisset
 </div>

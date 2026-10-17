@@ -1,0 +1,46 @@
+/* Stat — a figure: a mono label, the value in Fraunces and tabular numerals,
+   and an optional delta coloured by its trend. `panel` boxes it on paper;
+   `inline` is the bare hero-meta figure, value above label. The inverse tone
+   re-inks the chrome for a dark surface (the panel gets a dark ground, the
+   inline figure stays bare); trend colours stay semantic in both tones. */
+[data-sigta="stat"] {
+    @apply flex flex-col;
+
+    /* panel, and any variant the component does not know */
+    &:not([data-variant="inline"]) {
+        @apply rounded-panel p-[18px] bg-surface border border-line;
+
+        &[data-tone="inverse"] { @apply bg-inverse border-inverse-line; }
+    }
+}
+[data-scope="stat"][data-part="label"] {
+    @apply font-mono tracking-[0.08em] uppercase text-graphite;
+
+    [data-sigta="stat"]:not([data-variant="inline"]) > & { @apply text-[0.66rem]; }
+    [data-sigta="stat"][data-variant="inline"] > & { @apply text-[0.72rem] mt-[0.2rem]; }
+    [data-sigta="stat"][data-tone="inverse"] > & { @apply text-inverse-fg-muted; }
+}
+[data-scope="stat"][data-part="value"] {
+    @apply font-head font-medium leading-[1.1] tabular-nums text-ink;
+
+    [data-sigta="stat"]:not([data-variant="inline"]) > & { @apply text-[1.9rem] mt-1; }
+    [data-sigta="stat"][data-variant="inline"] > & { @apply text-[1.5rem]; }
+    [data-sigta="stat"][data-tone="inverse"] > & { @apply text-inverse-fg; }
+}
+[data-scope="stat"][data-part="delta"] {
+    @apply font-mono text-[0.72rem] mt-[0.2rem];
+
+    &[data-trend="up"] { @apply text-success; }
+    &[data-trend="down"] { @apply text-danger; }
+    /* no trend, and any trend the component does not know */
+    &:not(:is([data-trend="up"], [data-trend="down"])) {
+        @apply text-graphite;
+
+        [data-sigta="stat"][data-tone="inverse"] > & { @apply text-inverse-fg-muted; }
+    }
+}
+[data-scope="stat"][data-part="content"] {
+    @apply mt-2 text-ink;
+
+    [data-sigta="stat"][data-tone="inverse"] > & { @apply text-inverse-fg; }
+}

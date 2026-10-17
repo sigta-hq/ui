@@ -1,0 +1,22 @@
+/* Pagination — small mono page squares: graphite numbers that ink in on
+   hover, the current page filled with ink, ellipses for the gaps and arrow
+   squares that dim at either end. */
+[data-scope="pagination"][data-part="list"] {
+    @apply m-0 flex list-none items-center gap-1 p-0 font-mono text-[0.72rem] tracking-[0.04em];
+}
+[data-scope="pagination"][data-part="page"] {
+    @apply flex h-7 min-w-7 items-center justify-center px-1 rounded-base tabular-nums no-underline transition-colors duration-150 ease-out;
+
+    &[aria-current="page"] {
+        @apply bg-ink text-surface;
+    }
+    &:not([aria-current="page"]) {
+        @apply text-graphite hover:text-ink hover:bg-ink/5;
+    }
+}
+[data-scope="pagination"][data-part="gap"] {
+    @apply flex h-7 min-w-7 items-center justify-center text-graphite;
+}
+[data-scope="pagination"]:is([data-part="prev"], [data-part="next"]) {
+    @apply flex size-7 items-center justify-center rounded-base text-ink no-underline transition-colors duration-150 ease-out hover:bg-ink/5 disabled:opacity-40 disabled:pointer-events-none aria-disabled:opacity-40 aria-disabled:pointer-events-none;
+}

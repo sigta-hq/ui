@@ -36,32 +36,43 @@ it('keeps every label in the markup so it never changes width', function () {
     $html = Blade::render('<x-sigta::save-state state="saving" />');
 
     expect($html)
-        ->toContain('sigta-save-labels grid')
-        ->toMatch('/<span data-when="dirty">Unsaved changes<\/span>/')
-        ->toMatch('/<span data-when="saving" class="sr-only motion-reduce:not-sr-only">Saving…<\/span>/')
-        ->toMatch('/<span data-when="saved" class="font-hand[^"]*">Saved<\/span>/')
-        ->toMatch('/<span data-when="failed" class="text-danger">Not saved<\/span>/')
+        ->toContain('data-scope="save-state" data-part="labels"')
+        ->toContain('<span data-scope="save-state" data-part="label" data-when="dirty">Unsaved changes</span>')
+        ->toContain('<span data-scope="save-state" data-part="label" data-when="saving">Saving…</span>')
+        ->toContain('<span data-scope="save-state" data-part="label" data-when="saved">Saved</span>')
+        ->toContain('<span data-scope="save-state" data-part="label" data-when="failed">Not saved</span>')
         // Switching labels is CSS visibility, never display, so nothing reflows.
         ->not->toContain('x-show')
         ->not->toContain('display: none');
+
+    expect(contractCss('save-state'))
+        ->toMatch('/\[data-scope="save-state"\]\[data-part="labels"\] \{\s*@apply grid min-h-5/')
+        ->toMatch('/\[data-scope="save-state"\]\[data-part="label"\] \{\s*grid-area: 1 \/ 1;\s*visibility: hidden;/')
+        ->toContain('&[data-when="saving"] { @apply sr-only motion-reduce:not-sr-only; }')
+        ->toMatch('/&\[data-when="saved"\] \{ @apply font-hand[^}]*-rotate-3; \}/')
+        ->toContain('&[data-when="failed"] { @apply text-danger; }')
+        ->not->toContain('display: none');
+});
+
+it('inks the compass while it saves and once it has', function () {
+    expect(Blade::render('<x-sigta::save-state />'))->toMatch('/data-sigta="loader"[^>]*data-scope="save-state" data-part="loader"|data-scope="save-state" data-part="loader"[^>]*data-sigta="loader"/');
+    expect(contractCss('save-state'))->toMatch('/\[data-sigta="save-state"\]:is\(\[data-state="saving"\], \[data-state="saved"\]\) > \[data-scope="save-state"\]\[data-part="loader"\] \{\s*@apply text-ink;/');
 });
 
 it('sits at the start by default and flips for the end of a bar', function () {
-    $start = Blade::render('<x-sigta::save-state />');
+    expect(Blade::render('<x-sigta::save-state />'))->toContain('data-align="start"');
+    expect(Blade::render('<x-sigta::save-state align="end" />'))->toContain('data-align="end"');
 
-    expect($start)->not->toContain('flex-row-reverse')->toContain('justify-items-start');
-
-    expect(Blade::render('<x-sigta::save-state align="end" />'))
-        ->toContain('flex-row-reverse')
-        ->toContain('justify-items-end text-right')
-        ->not->toContain('justify-items-start');
+    expect(contractCss('save-state'))
+        ->toContain('&[data-align="end"] { @apply flex-row-reverse; }')
+        ->toMatch('/@apply grid min-h-5 items-center justify-items-start;\s*\[data-sigta="save-state"\]\[data-align="end"\] > & \{ @apply justify-items-end text-right; \}/');
 });
 
 it('takes its own words, and holds an idle line only when given one', function () {
     $html = Blade::render('<x-sigta::save-state idle="All changes saved" saved="Gemt" failed="Ikke gemt" dirty="Ikke gemt endnu" saving="Gemmer…" />');
 
     expect($html)
-        ->toContain('<span data-when="idle">All changes saved</span>')
+        ->toContain('data-when="idle">All changes saved</span>')
         ->toContain('>Gemt</span>')
         ->toContain('>Ikke gemt</span>')
         ->toContain('>Ikke gemt endnu</span>')

@@ -1,0 +1,10 @@
+/* Context menu — the dropdown's menu, opened at the pointer: fixed, so it
+   escapes the surface; the runtime sets left/top inline, kept clear of the
+   viewport edges. Enters with sigta-menu-in (dropdown.css). */
+[data-sigta="context-menu"] {
+    @apply relative;
+}
+[data-scope="context-menu"][data-part="menu"] {
+    @apply fixed z-50 min-w-48 bg-surface-raised border border-line rounded-panel shadow-paper py-1.5;
+    animation: sigta-menu-in 150ms cubic-bezier(0, 0, 0.2, 1);
+}

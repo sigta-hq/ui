@@ -32,6 +32,44 @@ A number that bumps when it changes — rising as it grows, dropping as it shrin
 
 ### `typography` family
 
+#### `Annot`
+
+Handwritten margin annotation (Caveat), slightly rotated. Decorative by default: decorative=true → aria-hidden.
+
+- **Props:**
+  - `rotate` (number, default `-6`) — Rotation in degrees.
+  - `tone` (`ink` · `muted` · `accent`) — ink, muted (graphite) or accent (for annotations on dark bands). Unset: muted when muted is set, else ink.
+  - `muted` (boolean, default `false`) — Back-compat for tone="muted"; tone wins when both are given.
+  - `decorative` (boolean, default `true`) — Hides it from assistive technology (aria-hidden).
+- **Snippets:** `children` — The note.
+- A hand-drawn flourish: use it beside content as a margin note, sparingly. Position it with classes (absolute -top-3 right-[8%]) on a panel, which does not clip it.
+```svelte
+<Annot tone="accent">lad os tegne det op ↘</Annot>
+```
+
+#### `Brand`
+
+The SIGTA wordmark + glyph lockup. currentColor throughout, so a text colour on it recolours the whole mark.
+
+- **Props:**
+  - `name` (string, default `SIGTA`) — The wordmark text.
+  - `glyphOnly` (boolean, default `false`) — Only the glyph, no wordmark.
+  - `size` (`sm` · `base` · `lg`, default `base`) — Glyph 22 / 30 / 38px with a matching wordmark.
+- Recolour it with a text utility on the brand itself (class="text-inverse-fg" on a dark band); never hard-code a colour.
+```svelte
+<Brand size="lg" />
+```
+
+#### `Eyebrow`
+
+Mono uppercase kicker with a leading dash rule. Sits above section headings.
+
+- **Props:** none
+- **Snippets:** `children` — The kicker text.
+```svelte
+<Eyebrow>01 · Install</Eyebrow>
+```
+
 #### `Heading`
 
 A Fraunces heading at the brand scale. The level picks the tag (h1–h6) and a default size; size overrides the look without changing the outline.
@@ -43,6 +81,47 @@ A Fraunces heading at the brand scale. The level picks the tag (h1–h6) and a d
 - Use it instead of styling <h1>–<h6> by hand. The semantic level drives the default size; override the look with size.
 ```svelte
 <Heading level={1} size="display">Page title</Heading>
+```
+
+#### `Mark`
+
+Highlighter swipe behind a word or two: a slightly skewed accent stroke drawn under the text. Use sparingly — one per view.
+
+- **Props:** none
+- **Snippets:** `children` — The word or two to highlight.
+- Use sparingly — one mark per view. Accent (highlighter yellow) is scarce: status highlights only, never large fills.
+- It does not wrap (white-space: nowrap); keep it to a word or two inside a heading or a sentence.
+```svelte
+<Heading level={2}>One brand, <Mark>every surface</Mark>.</Heading>
+```
+
+#### `Rule`
+
+The brand's hand-drawn squiggle divider: an inline SVG hairline in currentColor. Decorative divider, aria-hidden.
+
+- **Props:**
+  - `variant` (number, default `1`) — Which of the three hand-drawn squiggle paths: 1, 2 or 3 (other numbers wrap round).
+- Use it between page sections; inside content, a plain separator is the quieter choice.
+```svelte
+<Rule variant={2} />
+```
+
+#### `Separator`
+
+Plain <hr> hairline, solid or dashed. Use inside content; use the rule for decorative dividers.
+
+- **Props:**
+  - `variant` (`solid` · `dashed`, default `solid`) — Line style.
+- Use it inside content; for a decorative divider between sections use <Rule>.
+```svelte
+<script>
+    import { Separator } from '@sigta-hq/svelte';
+</script>
+
+<div class="flex flex-col gap-6">
+    <Separator />
+    <Separator variant="dashed" />
+</div>
 ```
 
 #### `Text`
@@ -83,6 +162,67 @@ The action control: ink fill, outline, ghost and danger variants, a dark-band pa
 <Button variant="primary" loading={form.processing} onclick={save}>Save</Button>   <!-- compass while it saves -->
 ```
 
+### `badge` family
+
+#### `Badge`
+
+Small mono pill with a 1.5px border: an ink outline, a solid ink fill, or the accent highlight.
+
+- **Props:**
+  - `variant` (`outline` · `solid` · `accent`, default `outline`) — outline (ink border), solid (ink fill) or accent (highlighter, sparingly).
+- **Snippets:** `children` — The label.
+- Use it instead of a <span class="rounded-full …">. For a status with a coloured dot (live, failed, paused) use the pill.
+- A number that changes (unread, open) belongs in <Count>, not a bare number in a badge.
+```svelte
+<Badge>Draft</Badge>
+<Badge variant="solid">Live</Badge>
+```
+
+#### `Pill`
+
+Status pill with a leading dot and a tinted background in the status colour: success, danger or neutral.
+
+- **Props:**
+  - `variant` (`neutral` · `success` · `danger`, default `neutral`) — The status colour (neutral is graphite).
+- **Snippets:** `children` — The status label.
+- Use it for a status (operational, at risk, paused); for a plain label use the badge.
+```svelte
+<script>
+    import { Pill } from '@sigta-hq/svelte';
+</script>
+
+<div class="flex flex-wrap items-center gap-3">
+    <Pill variant="success">Operational</Pill>
+    <Pill variant="danger">Degraded</Pill>
+    <Pill>Paused</Pill>
+</div>
+```
+
+### `Avatar`
+
+A person or team: their portrait, or mono initials from the first two words of the name when there is no src (the initials fallback). Circle or square, ink or hairline ground.
+
+- **Props:**
+  - `src` (string) — Image URL; without it the initials show.
+  - `name` (string) — The person's name: the initials come from its first two words, and it is the accessible name.
+  - `alt` (string) — Accessible name / alt text; defaults to name.
+  - `shape` (`circle` · `square`, default `circle`) — circle, or square (rounded-base) for teams and workspaces.
+  - `size` (`xs` · `sm` · `base` · `lg`, default `base`) — xs 24px, sm 32px, base 40px, lg 56px.
+  - `tone` (`ink` · `line`, default `ink`) — Initials ground: ink fill, or a quiet hairline ground (line).
+- Use it instead of an <img class="rounded-full …">. Beside a visible name (a profile, a list row), pass aria-hidden="true" so the name is not read twice.
+```svelte
+<script>
+    import { Avatar } from '@sigta-hq/svelte';
+</script>
+
+<div class="flex flex-wrap items-center gap-4">
+    <Avatar name="Søren Frisk" size="xs" />
+    <Avatar name="Søren Frisk" size="sm" />
+    <Avatar name="Søren Frisk" />
+    <Avatar name="Søren Frisk" size="lg" />
+</div>
+```
+
 ### `Icon`
 
 A Lucide icon from the pinned set both runtimes share, at the brand stroke weight (1.75). Decorative unless labelled.
@@ -113,6 +253,23 @@ A native text input in the field chrome: label, description, error and an option
 <Input label="Email" type="email" icon="mail" bind:value={email} placeholder="you@studio.co" description="We only use this for the invoice." />
 ```
 
+### `Textarea`
+
+A native <textarea> in the field chrome: label, description and error, resizable in height. Every other attribute lands on the <textarea> itself.
+
+- **Props:**
+  - `label` (string) — Field label.
+  - `description` (string) — Help text.
+  - `error` (string) — Error text; marks the textarea invalid.
+  - `rows` (number, default `4`) — Visible text lines.
+  - `value` (string, bindable (`bind:value`)) — The text. Livewire: wire:model, or the slot / a value attribute for the initial text; Svelte: bind:value.
+- **Snippets:** `children` — Blade only: the initial text (Svelte uses value).
+- Use it instead of a raw <textarea> with classes; it wraps itself in the field chrome.
+- bind:value for two-way binding; name, placeholder, required … pass straight through to the <textarea>.
+```svelte
+<Textarea label="Notes" bind:value={notes} rows={3} description="Visible to the whole team." />
+```
+
 ### `Checkbox`
 
 A native checkbox whose tick is drawn as two pen strokes. With a label it renders a mono label row; every other attribute lands on the <input>. In a motion list it is the trigger for completing a row.
@@ -135,6 +292,36 @@ A native checkbox whose tick is drawn as two pen strokes. With a label it render
     <Checkbox label="Archived (disabled)" disabled />
     <Checkbox aria-label="Bare checkbox" />
 </div>
+```
+
+### `Radio`
+
+A native radio drawn as a round box that fills with ink around a paper dot. Renders a <label> wrapper when label is set, the bare input otherwise; every other attribute lands on the <input>.
+
+- **Props:**
+  - `label` (string) — Label text beside the box.
+  - `checked` (boolean, default `false`) — Chosen. Livewire: wire:model on each radio of the group, or checked.
+  - `value` (string) — The value this radio stands for.
+  - `group` (string, bindable (`bind:group`)) — Svelte: bind:group={choice} on each radio of the group; the radio whose value matches is chosen.
+- Use it instead of <input type="radio"> with classes. Same wrapper behavior as checkbox.
+- For a compact strip of mutually exclusive options use segmented.
+- bind:group={choice} with a value per radio; without a group, checked sets it.
+```svelte
+<Radio name="density" value="comfortable" label="Comfortable density" bind:group={density} />
+<Radio name="density" value="compact" label="Compact density" bind:group={density} />
+```
+
+### `Switch`
+
+A role="switch" toggle: a real checkbox behind a pill track whose paper knob slides across; the knob squashes toward its travel while pressed. Every attribute but class lands on the native <input>.
+
+- **Props:**
+  - `label` (string) — Label text beside the track; without it pass aria-label.
+  - `checked` (boolean, default `false`, bindable (`bind:checked`)) — On. Livewire: wire:model or checked; Svelte: bind:checked.
+- Use it instead of custom toggle markup. Without a visible label, pass aria-label.
+- bind:checked for the state; other attributes (name, disabled, onchange) land on the native <input>.
+```svelte
+<Switch label="Weekly digest" bind:checked={digest} />
 ```
 
 ### `Progress`
@@ -173,6 +360,43 @@ The Sigta compass: the brand mark as a loader. While it works the legs swing rou
 <Loader />
 <Loader size="lg" value={job.progress} state={job.done ? 'done' : 'working'} />
 <Loader variant="sketch" size="xl" label="Preparing your workspace" />
+```
+
+### `Slider`
+
+Brand-styled native range input in the field chrome: a hairline track and a raised paper thumb with an ink rim; optional live value readout. min, max, step, value and every other attribute land on the <input>.
+
+- **Props:**
+  - `label` (string) — Field label.
+  - `description` (string) — Help text.
+  - `error` (string) — Error text; rims the thumb in red.
+  - `showValue` (boolean, default `false`) — Print the live value beside the track in mono.
+  - `value` (number, bindable (`bind:value`)) — The value. Livewire: wire:model or value; Svelte: bind:value.
+- Use it instead of <input type="range"> with classes.
+- bind:value gives a number; min, max, step pass straight through to the <input>.
+```svelte
+<Slider label="Ink density" min={0} max={100} bind:value={density} showValue />
+```
+
+### `Skeleton`
+
+Loading placeholder, aria-hidden: a pulsing hairline-tinted shape — a line, a heading, a 16:9 block or a circle. Size it with classes (w-1/3, h-3).
+
+- **Props:**
+  - `variant` (`line` · `heading` · `block` · `circle`, default `line`) — line (1rem), heading (2rem, two thirds wide), block (16:9) or circle (40px).
+- Content that replaces a skeleton can land with animate-sigta-settle (fade, rise, unblur).
+```svelte
+<script>
+    import { Skeleton } from '@sigta-hq/svelte';
+</script>
+
+<div class="flex flex-col gap-4 max-w-md">
+    <Skeleton variant="heading" />
+    <Skeleton />
+    <Skeleton class="w-4/5" />
+    <Skeleton variant="block" />
+    <Skeleton variant="circle" />
+</div>
 ```
 
 ### `elapsed-clock` family
@@ -222,6 +446,29 @@ Mono uppercase form label. variant="inverse" re-colours it for a dark surface.
 
 ## Components (functional units with internal parts)
 
+### `Profile`
+
+Avatar + name + optional meta line (role, place, email). reverse mirrors the layout for a right edge.
+
+- **Props:**
+  - `name` (string) — The person's name (also the avatar's initials).
+  - `meta` (string) — A mono line under the name.
+  - `src` (string) — Portrait URL for the avatar.
+  - `reverse` (boolean, default `false`) — Avatar on the right, text right-aligned.
+```svelte
+<script>
+    import { Profile } from '@sigta-hq/svelte';
+</script>
+
+<div class="flex flex-col gap-5">
+    <Profile name="Søren Frisk" meta="Studio lead · Copenhagen" />
+    <Profile name="Ada Marsh" meta="Engineering · Halyard OS" src="data:image/svg+xml;utf8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 80 80%27%3E%3Crect width=%2780%27 height=%2780%27 fill=%27gainsboro%27/%3E%3Ccircle cx=%2740%27 cy=%2731%27 r=%2714%27 fill=%27dimgray%27/%3E%3Cpath d=%27M12 76c4-17 16-25 28-25s24 8 28 25z%27 fill=%27dimgray%27/%3E%3C/svg%3E" />
+    <div class="flex justify-end">
+        <Profile name="Nina Vale" meta="Design · Marginalia" reverse={true} />
+    </div>
+</div>
+```
+
 ### `Field`
 
 The chrome around a form control: a label, the control, then a description or an error. Every Sigta form control renders through it; wrap a custom control in it yourself.
@@ -244,6 +491,25 @@ The chrome around a form control: a label, the control, then a description or an
         <Input id="kit-field-custom" value="Marginalia v3" />
     </Field>
 </div>
+```
+
+### `Select`
+
+Native select with a chevron overlay, wrapped in the field chrome: label, description and error. The <option>s are the slot; every other attribute lands on the <select> itself.
+
+- **Props:**
+  - `label` (string) — Field label.
+  - `description` (string) — Help text.
+  - `error` (string) — Error text; marks the select invalid.
+  - `value` (string, bindable (`bind:value`)) — The chosen value. Livewire: wire:model on the component; Svelte: bind:value.
+- **Snippets:** `children` — The native <option>s (and <optgroup>s).
+- Use it instead of a raw <select> with classes. For a searchable or rich single-select use listbox or autocomplete.
+- bind:value for two-way binding; name, required … pass straight through to the <select>.
+```svelte
+<Select label="Engagement type" bind:value={type}>
+    <option value="build">Full build</option>
+    <option value="sprint">Design sprint</option>
+</Select>
 ```
 
 ### `autocomplete` family
@@ -289,6 +555,137 @@ One option of an autocomplete. Its value defaults to its text; label is what the
 </Autocomplete>
 ```
 
+### `Otp`
+
+One-time-code input: a row of single-character boxes backed by one hidden input that carries the code. Supports paste (spread across the boxes), arrow keys and backspace.
+
+- **Props:**
+  - `length` (number, default `6`) — Number of boxes (at least 1).
+  - `label` (string) — Field label.
+  - `description` (string) — Help text.
+  - `error` (string) — Error text; marks every box invalid.
+  - `autofocus` (boolean, default `false`) — Focus the first box on load.
+  - `value` (string, bindable (`bind:value`)) — The code. Livewire: wire:model (lands on the hidden input); Svelte: bind:value.
+- **Events:** `bind:value, or oninput (dispatched on the hidden input)` (string) — The code changed.
+- name, disabled and every attribute except class land on the hidden input; disabled also disables the boxes.
+```svelte
+<Otp length={6} name="code" label="Verification code" bind:value={code} />
+```
+
+### `Segmented`
+
+A segmented control: a hairline strip of mono options, the chosen one filled in ink. Radio-group semantics, zero JS.
+
+- **Props:**
+  - `name` (string, **required**) — The radios' shared name.
+  - `options` (object, default `{}`) — The options, value ⇒ label.
+  - `label` (string) — Accessible group name (a visually hidden legend).
+  - `checked` (string, bindable (`bind:checked`)) — The chosen value (compared as a string). Livewire: wire:model or checked; Svelte: bind:checked.
+- Use it for a short range of mutually exclusive views (7d / 30d / QTD); for a longer list use radio or select.
+- bind:checked holds the chosen value; other attributes (onchange, disabled) land on each radio.
+```svelte
+<Segmented name="range" label="Range" options={{ '7d': '7d', '30d': '30d', qtd: 'QTD' }} bind:checked={range} />
+```
+
+### `Card`
+
+Raised surface on a hairline with an optional thumb above a padded body. Lifts on hover when hover=true; clips its content (use the panel where something must overhang).
+
+- **Props:**
+  - `hover` (boolean, default `true`) — Lift with a paper shadow on hover (for a card that is or holds an action); false for a static card.
+- **Snippets:** `children` — The body.; `thumb` — Media above the body (an SVG, an image, a skeleton), clipped to 16:9.
+- Its body has fluid padding. Pass any padding class on the card (p-5, sm:p-4) and it replaces the body padding instead of adding to it.
+- The thumb is a snippet: {#snippet thumb()}…{/snippet}.
+```svelte
+<script>
+    import { Card } from '@sigta-hq/svelte';
+</script>
+
+<div class="grid gap-6 sm:grid-cols-2">
+    <Card>
+        {#snippet thumb()}
+            <svg viewBox="0 0 400 225" preserveAspectRatio="xMidYMid slice" class="absolute inset-0 size-full text-ink" aria-hidden="true">
+                <g stroke="var(--sigta-line)" stroke-width="1">
+                    <path d="M0 56 H400"></path>
+                    <path d="M0 112 H400"></path>
+                    <path d="M0 168 H400"></path>
+                </g>
+                <rect x="290" y="40" width="60" height="34" rx="3" fill="var(--sigta-accent)" opacity=".9"></rect>
+                <path d="M30 170 C90 160 110 120 170 110 S270 80 320 60 380 48 380 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
+                <circle cx="380" cy="48" r="5" fill="currentColor"></circle>
+            </svg>
+        {/snippet}
+        <div class="font-mono text-[0.7rem] tracking-[0.12em] uppercase text-graphite flex justify-between">
+            <span>Our product</span>
+            <span>SaaS · live</span>
+        </div>
+        <h3 class="font-head font-medium text-[1.5rem] mt-2 mb-1.5">Marginalia</h3>
+        <p class="text-graphite text-[0.96rem] m-0">A reading-and-notes app for teams — annotate any doc, search every margin.</p>
+    </Card>
+    <Card>
+        {#snippet thumb()}
+            <svg viewBox="0 0 400 225" preserveAspectRatio="xMidYMid slice" class="absolute inset-0 size-full text-ink" aria-hidden="true">
+                <g fill="currentColor" opacity=".85">
+                    <rect x="40" y="120" width="36" height="70" rx="3"></rect>
+                    <rect x="100" y="90" width="36" height="100" rx="3"></rect>
+                    <rect x="160" y="105" width="36" height="85" rx="3"></rect>
+                    <rect x="220" y="64" width="36" height="126" rx="3"></rect>
+                </g>
+                <rect x="280" y="80" width="36" height="110" rx="3" fill="var(--sigta-accent)"></rect>
+                <rect x="280" y="80" width="36" height="110" rx="3" fill="none" stroke="currentColor" stroke-width="2"></rect>
+                <path d="M58 110 118 80 178 96 238 56 298 70" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="2 6"></path>
+            </svg>
+        {/snippet}
+        <div class="font-mono text-[0.7rem] tracking-[0.12em] uppercase text-graphite flex justify-between">
+            <span>Our product</span>
+            <span>SaaS · live</span>
+        </div>
+        <h3 class="font-head font-medium text-[1.5rem] mt-2 mb-1.5">Plumb</h3>
+        <p class="text-graphite text-[0.96rem] m-0">Metrics without the dashboard fatigue. One honest number per question.</p>
+    </Card>
+</div>
+```
+
+### `Callout`
+
+Inline alert with a heavy left accent border; the icon and the ARIA role are picked from the variant, with an optional bold lead-in heading.
+
+- **Props:**
+  - `variant` (`info` · `success` · `danger`, default `info`) — info (ink, triangle-alert), success (circle-check) or danger (circle-alert, role="alert").
+  - `icon` (string) — Icon name to use instead of the variant's.
+  - `heading` (string) — A bold Fraunces lead-in before the text.
+- **Snippets:** `children` — The message.
+- Use it instead of a hand-styled <div role="alert">.
+```svelte
+<Callout variant="success" heading="Deploy complete.">Plumb 2.4 is live.</Callout>
+```
+
+### `Stat`
+
+A numeric figure: a mono label, the value in Fraunces with tabular numerals, and an optional delta with a trend arrow. panel boxes it on paper; inline is the borderless hero-meta figure, value above label.
+
+- **Props:**
+  - `label` (string) — Mono uppercase label.
+  - `value` (string) — The figure, formatted by you ("2,418", "$48.2k", "14 år").
+  - `delta` (string) — The change line under the value ("6.2% vs last 30d").
+  - `trend` (`up` · `down`) — up = success ink with ▲; down = danger ink with ▼; unset = a neutral graphite delta.
+  - `variant` (`inline` · `panel`, default `panel`) — panel = boxed figure on paper (label above value); inline = bare hero-meta figure (value above label).
+  - `tone` (`default` · `inverse`, default `default`) — inverse re-inks it for a dark surface.
+- **Snippets:** `children` — Extra content under the figure, typically a chart.sparkline (it inherits the value colour).
+- tone="inverse" darkens it for a dark surface: the panel variant gets a dark ground; the inline variant stays bare, to sit on a dark panel (panel variant="inverse"). Trend colours stay semantic in both tones.
+- Put a chart.sparkline in the slot for a trend line under the figure.
+```svelte
+<script>
+    import { Stat } from '@sigta-hq/svelte';
+</script>
+
+<div class="grid gap-3 sm:grid-cols-3">
+    <Stat label="Active accounts" value="2,418" delta="6.2% vs last 30d" trend="up" />
+    <Stat label="Time to value" value="3.1d" delta="0.4d slower" trend="down" />
+    <Stat label="Seats in use" value="14" delta="unchanged" />
+</div>
+```
+
 ### `Money`
 
 Formats a minor-unit amount (øre/cents) in tabular numerals. Known codes (DKK/EUR/USD/GBP/SEK/NOK) carry symbol, position and separators; override any piece, or pass an unknown code (trailing symbol). suffix renders a muted per-unit tail (e.g. "/ hour").
@@ -320,6 +717,137 @@ Ink bubble on hover/focus with a 150ms open delay; Escape dismisses it. The slot
 - A tooltip only adds a hint: an icon-only trigger still needs its own aria-label.
 ```svelte
 <Tooltip text="Delete permanently"><Button variant="ghost"><Icon name="trash-2" /></Button></Tooltip>
+```
+
+### `dropdown` family
+
+#### `Dropdown`
+
+A menu button: its trigger opens a menu of dropdown.items on raised paper, below or above it. Handles open, Escape, click outside and roving focus.
+
+- **Props:**
+  - `position` (`bottom-start` · `bottom-end` · `top-start` · `top-end`, default `bottom-start`) — Where the menu opens against the trigger; unknown values act as bottom-start.
+  - `open` (boolean, default `false`, bindable (`bind:open`)) — Svelte: bind:open reads and sets whether the menu is open.
+- **Snippets:** `trigger` — What opens the menu, usually a button.; `children` — The dropdown.items and dropdown.separators.
+- Use it (with dropdown.item) instead of a custom menu. The trigger goes in the trigger slot, the items in the default slot.
+- The trigger is a snippet: {#snippet trigger()}<Button>Options</Button>{/snippet}. bind:open to open or close it yourself.
+```svelte
+<script>
+    import { Button, Dropdown } from '@sigta-hq/svelte';
+</script>
+
+<Dropdown>
+    {#snippet trigger()}
+        <Button>Open</Button>
+    {/snippet}
+    <Dropdown.Item href="/profile" icon="user">Profile</Dropdown.Item>
+    <Dropdown.Separator />
+    <Dropdown.Item variant="danger" icon="log-out">Sign out</Dropdown.Item>
+</Dropdown>
+```
+
+#### `Dropdown.Item`
+
+One menu row in mono: an optional icon, the label and a keyboard hint. Renders an <a> with an href, else a button that closes its menu when clicked. Focused, it fills with ink.
+
+- **Props:**
+  - `icon` (string) — A leading icon name.
+  - `variant` (`default` · `danger`, default `default`) — danger = red text, for destructive actions.
+  - `kbd` (string) — A keyboard hint at the end of the row (⌘E).
+  - `href` (string) — Renders an <a role="menuitem">; else a <button role="menuitem">.
+- **Snippets:** `children` — The label.
+- Also the item of popover and context-menu: a button item closes whichever of them holds it.
+- A button item calls your onclick, then closes the menu.
+```svelte
+<script>
+    import { Button, Dropdown } from '@sigta-hq/svelte';
+</script>
+
+<Dropdown>
+    {#snippet trigger()}
+        <Button>Options</Button>
+    {/snippet}
+    <Dropdown.Item icon="pencil" kbd="⌘E">Edit</Dropdown.Item>
+    <Dropdown.Item href="#top" icon="external-link">Open link</Dropdown.Item>
+    <Dropdown.Item icon="archive" aria-disabled="true">Archive (disabled)</Dropdown.Item>
+    <Dropdown.Item icon="trash-2" variant="danger">Delete</Dropdown.Item>
+</Dropdown>
+```
+
+#### `Dropdown.Separator`
+
+A hairline <hr role="separator"> between groups of menu items.
+
+- **Props:** none
+```svelte
+<script>
+    import { Button, Dropdown } from '@sigta-hq/svelte';
+</script>
+
+<Dropdown>
+    {#snippet trigger()}
+        <Button>Options</Button>
+    {/snippet}
+    <Dropdown.Item icon="pencil">Edit</Dropdown.Item>
+    <Dropdown.Separator />
+    <Dropdown.Item icon="trash-2" variant="danger">Delete</Dropdown.Item>
+</Dropdown>
+```
+
+### `Popover`
+
+A generic popover: the dropdown's placement and raised paper around free-form content, without menu semantics.
+
+- **Props:**
+  - `position` (`bottom-start` · `bottom-end` · `top-start` · `top-end`, default `bottom-start`) — Where the panel opens against the trigger; unknown values act as bottom-start.
+  - `open` (boolean, default `false`, bindable (`bind:open`)) — Svelte: bind:open reads and sets whether it is open.
+- **Snippets:** `trigger` — What opens it, usually a button.; `children` — The content.
+- Use dropdown for a list of actions; popover for anything else (a share box, a small form).
+- The trigger is a snippet; bind:open to open or close it yourself.
+```svelte
+<script>
+    import { Button, Heading, Icon, Popover, Text } from '@sigta-hq/svelte';
+</script>
+
+<Popover>
+    {#snippet trigger()}
+        <Button>
+            Share 
+            <Icon name="chevron-down" size="sm" />
+        </Button>
+    {/snippet}
+    <Heading level={3} size="sm">Share this draft</Heading>
+    <Text variant="muted" class="text-[0.9rem] mt-1.5">Anyone with the link can read, nobody can edit.</Text>
+    <div class="mt-3 flex gap-2">
+        <Button variant="primary" size="sm">Copy link</Button>
+        <Button variant="ghost" size="sm">Settings</Button>
+    </div>
+</Popover>
+```
+
+### `ContextMenu`
+
+A right-click surface that opens a dropdown-styled menu at the pointer, kept clear of the viewport edges. Reuses dropdown.item and dropdown.separator.
+
+- **Props:** none
+- **Snippets:** `children` — The surface that listens for the right-click.; `menu` — The dropdown.items.
+- The default slot is the surface; the menu slot holds the items (dropdown.item, dropdown.separator), which close the menu when chosen.
+- {#snippet menu()} holds the items.
+```svelte
+<script>
+    import { ContextMenu, Dropdown } from '@sigta-hq/svelte';
+</script>
+
+<ContextMenu>
+    {#snippet menu()}
+        <Dropdown.Item icon="pencil" kbd="⌘R">Rename</Dropdown.Item>
+        <Dropdown.Item icon="copy">Duplicate</Dropdown.Item>
+        <Dropdown.Item icon="external-link" href="#top">Open in new tab</Dropdown.Item>
+        <Dropdown.Separator />
+        <Dropdown.Item icon="trash-2" variant="danger">Delete</Dropdown.Item>
+    {/snippet}
+    <div class="grid place-items-center h-40 bg-surface border-[1.5px] border-dashed border-line rounded-panel font-mono text-[0.76rem] text-graphite select-none">Right-click anywhere in here</div>
+</ContextMenu>
 ```
 
 ### `modal` family
@@ -403,6 +931,644 @@ The toast region: a fixed stack of paper notes with an inked edge in the variant
 </script>
 ```
 
+### `SaveState`
+
+The compass stands in for "Saving…": it draws while a save is in flight (the words stay for assistive tech, and show under reduced motion), lands with a handwritten "Saved" as the mark completes, then settles back to idle (showing the idle text, if any); a failed save — validation errors included — shakes it red.
+
+- **Props:**
+  - `name` (string) — The name sigta-save-state events address; unnamed ones hear unnamed events.
+  - `state` (`idle` · `dirty` · `saving` · `saved` · `failed`, default `idle`) — The state it shows (anything else reads as idle). Livewire: the initial state; Svelte: drive it here (bind:state also follows the events). Bindable: bind:state follows the sigta-save-state events too.
+  - `align` (`start` · `end`, default `start`) — end puts the compass on the right and right-aligns the words — for the right end of a bar.
+  - `idle` (string) — Text shown at rest ("All changes saved"); none by default.
+  - `dirty` (string, default `Unsaved changes`) — Text while there are unsaved changes.
+  - `saving` (string, default `Saving…`) — Text while saving (for assistive tech, and shown under reduced motion).
+  - `saved` (string, default `Saved`) — The handwritten word once saved.
+  - `failed` (string, default `Not saved`) — Text when the save failed.
+- **Events:** `sigta-save-state (window) — sigta.save(promise, name), sigta.saveState(state, name), or connectInertia({ saveState: name })` ({ name: string | null, state: 'idle' | 'dirty' | 'saving' | 'saved' | 'failed' }) — Drives the save states with that name: { name, state }.
+- Use it instead of any hand-written "Saving…" / "Saved" text or loading spans.
+- It never moves: all its labels share one cell, so it is as wide as its longest label whatever it is saying and the compass stays put. Use align="end" at the right end of a bar (a justify-between header, the end of a toolbar); the default start suits a left edge. The room is reserved for the longest label, so keep your own words close in length.
+- "Saved" holds for a moment, then it settles back to idle.
+- Anywhere: give it a name and drive it with save(promise, name) (saving → saved / failed) or saveState('dirty', name) for the unsaved-changes hint.
+- There is no wire:target to follow: drive it with state (bind:state), with sigta.save(promise, name) / sigta.saveState(state, name), or from Inertia visits with connectInertia({ saveState: name }) from @sigta-hq/svelte/inertia.
+- bind:state follows the events as well, so your code can read what it shows.
+```svelte
+<script>
+    import { Heading, SaveState, Textarea, sigta } from '@sigta-hq/svelte';
+
+    let state = $state('idle');
+</script>
+
+<header class="flex items-center justify-between">
+    <Heading>Draft</Heading>
+    <SaveState bind:state align="end" />   <!-- flush right, words grow leftward -->
+</header>
+
+<SaveState name="profile" idle="All changes saved" />
+<!-- any promise: resolve = saved, reject = failed (fetch only rejects on network errors, so throw on !response.ok) -->
+<Textarea oninput={() => sigta.save(saveProfile(), 'profile')} />
+```
+
+### `Job`
+
+One piece of long-running work (an import, an export, a queue run): a large compass that draws its circle as far round as value, the heading with its percentage, a mono status line (Running · <stage> · <elapsed>), and — the moment it turns done — the circle rises into the mark's arc with a burst.
+
+- **Props:**
+  - `heading` (string) — What the work is ("Importing 1,204 contacts"); also names the progressbar.
+  - `description` (string) — A line of detail under the status.
+  - `stage` (string) — What is happening now, after the status word.
+  - `value` (number) — Progress 0–100; unset keeps the compass turning without progress. done reads 100.
+  - `state` (`queued` · `working` · `done` · `failed`, default `working`) — queued, working (Running), done or failed; anything else reads as working.
+  - `since` (date) — When the work started (ISO-8601): an elapsed clock ticks in the status line while it is queued or working.
+- **Snippets:** `children` — Extra content under the description.; `actions` — Controls at the right ("Retry", "Cancel").
+- Use it for background work and queue progress instead of a progress bar and text assembled by hand.
+- It never moves: the compass keeps its place through every state and the percentage has a fixed width, so the heading beside it never shifts. Keep it rendered and change state; never mount it per state.
+- Its state is plain markup, so new props move it along; in a [data-sigta-motion] list a finished job that leaves the list folds away.
+- Pass state and value from your data (a poll, a websocket, Inertia props) and key the {#each} by id.
+```svelte
+<div data-sigta-motion class="space-y-2.5">
+    {#each imports as job (job.id)}
+        <Job heading={job.name} state={job.state} value={job.progress} stage={job.stage} since={job.startedAt} />
+    {/each}
+</div>
+```
+
+### `FloatingBar`
+
+A dark pill pinned to the bottom centre of the viewport that slides up when show turns true and away when it turns false — for state that lasts while the member works (a running timer, a bulk selection). A first render that is already shown appears without animating.
+
+- **Props:**
+  - `show` (boolean, default `false`) — Whether the bar is up.
+  - `label` (string) — Names the bar as a region ("Running timer").
+- **Snippets:** `children` — The bar's content: a status dot, a title, a clock, a button.
+- Content is your slot. While it is up it sets --sigta-floating-space on <html>, which shell.main and the bottom toasts add to their bottom edge, so nothing ends up under it; if your app scrolls another element, add pb-[var(--sigta-floating-space,0px)] to it.
+- Drive show from your state; keep it in a layout that persists across page visits so it does not replay on every page.
+```svelte
+<FloatingBar show={entry !== null} label="Running timer">…</FloatingBar>
+```
+
+### `tabs` family
+
+#### `Tabs`
+
+A tab group: a tabs.list of tabs.tabs over their tabs.panels, one panel shown at a time. Mono tabs on a hairline; the selected one is ink with an ink underline.
+
+- **Props:**
+  - `default` (string) — The tab active on load (rendered selected on the server); the first tab when unset.
+  - `value` (string, bindable (`bind:value`)) — Svelte: bind:value reads and sets the active tab's name.
+- **Snippets:** `children` — A tabs.list and the tabs.panels.
+- Use it instead of custom tab JS. A tab and its panel share a name; the ids (sigta-tab-<name>, sigta-panel-<name>) derive from it, so names are unique per page.
+- bind:value to read or switch the active tab; default only seeds it.
+```svelte
+<Tabs bind:value={tab} default="overview">
+    <Tabs.List>
+        <Tabs.Tab name="overview">Overview</Tabs.Tab>
+        <Tabs.Tab name="billing">Billing</Tabs.Tab>
+    </Tabs.List>
+    <Tabs.Panel name="overview">…</Tabs.Panel>
+    <Tabs.Panel name="billing">…</Tabs.Panel>
+</Tabs>
+```
+
+#### `Tabs.List`
+
+The row of tabs on a hairline (role="tablist"), with arrow-key roving: Left / Right wrap round, Home / End jump to the ends.
+
+- **Props:**
+  - `label` (string, default `Tabs`) — The tablist's accessible name (aria-label).
+- **Snippets:** `children` — The tabs.tabs.
+```svelte
+<script>
+    import { Tabs } from '@sigta-hq/svelte';
+</script>
+
+<Tabs default="week">
+    <Tabs.List label="Range">
+        <Tabs.Tab name="week">Week</Tabs.Tab>
+        <Tabs.Tab name="month">Month</Tabs.Tab>
+    </Tabs.List>
+    <Tabs.Panel name="week">This week.</Tabs.Panel>
+    <Tabs.Panel name="month">This month.</Tabs.Panel>
+</Tabs>
+```
+
+#### `Tabs.Panel`
+
+The panel of the tab with the same name (role="tabpanel"), shown while that tab is selected.
+
+- **Props:**
+  - `name` (string, **required**) — The tab it belongs to (its id: sigta-panel-<name>).
+- **Snippets:** `children` — The panel content.
+```svelte
+<script>
+    import { Tabs, Text } from '@sigta-hq/svelte';
+</script>
+
+<Tabs default="notes">
+    <Tabs.List>
+        <Tabs.Tab name="summary">Summary</Tabs.Tab>
+        <Tabs.Tab name="notes">Notes</Tabs.Tab>
+    </Tabs.List>
+    <Tabs.Panel name="summary">
+        <Text>The summary.</Text>
+    </Tabs.Panel>
+    <Tabs.Panel name="notes">
+        <Text variant="muted">No notes yet.</Text>
+    </Tabs.Panel>
+</Tabs>
+```
+
+#### `Tabs.Tab`
+
+One tab (role="tab"): a mono button, graphite until hovered, ink with an ink underline while selected. Its name pairs it with the tabs.panel of the same name.
+
+- **Props:**
+  - `name` (string, **required**) — Pairs the tab with its panel (and makes its id: sigta-tab-<name>).
+- **Snippets:** `children` — The tab label.
+```svelte
+<script>
+    import { Tabs } from '@sigta-hq/svelte';
+</script>
+
+<Tabs default="one">
+    <Tabs.List>
+        <Tabs.Tab name="one">One</Tabs.Tab>
+        <Tabs.Tab name="two">Two</Tabs.Tab>
+    </Tabs.List>
+    <Tabs.Panel name="one">First.</Tabs.Panel>
+    <Tabs.Panel name="two">Second.</Tabs.Panel>
+</Tabs>
+```
+
+### `accordion` family
+
+#### `Accordion`
+
+A group of disclosure items (the FAQ look) on native <details>/<summary>. Its name forwards to every item, so the browser keeps one open at a time. No JS.
+
+- **Props:**
+  - `name` (string) — Forwards to every item's <details name> for native exclusive-open; omit it for independent items.
+- **Snippets:** `children` — The accordion.items.
+- Use it (with accordion.item) for an accordion or FAQ instead of styling <details> by hand.
+- Items read the group's name from context; an item's own name wins.
+```svelte
+<script>
+    import { Accordion } from '@sigta-hq/svelte';
+</script>
+
+<Accordion name="faq">
+    <Accordion.Item heading="How does billing work?">Monthly, cancel anytime.</Accordion.Item>
+</Accordion>
+```
+
+#### `Accordion.Item`
+
+One question: a native <details>/<summary> on a hairline, the heading in the head face and a mono "+" that rotates into a cross while it is open. No JS.
+
+- **Props:**
+  - `heading` (string, **required**) — The summary line (the question).
+  - `name` (string) — The <details name>; defaults to the accordion's name. Items sharing a name open one at a time.
+  - `open` (boolean, default `false`, bindable (`bind:open`)) — Open on load. Livewire: the native open attribute (forwarded onto <details>); Svelte: open or bind:open.
+- **Snippets:** `children` — The answer.
+- Every other attribute lands on the <details>.
+```svelte
+<script>
+    import { Accordion } from '@sigta-hq/svelte';
+</script>
+
+<Accordion>
+    <Accordion.Item heading="What does it cost?" open={true}>
+        <p>One flat hourly rate, no minimum.</p>
+    </Accordion.Item>
+    <Accordion.Item heading="Can we pause?">
+        <p>Any month, with no notice.</p>
+    </Accordion.Item>
+</Accordion>
+```
+
+### `breadcrumbs` family
+
+#### `Breadcrumbs`
+
+A breadcrumb trail: a <nav> around an ordered list of breadcrumbs.items in small mono type, separated by graphite slashes.
+
+- **Props:** none
+- **Snippets:** `children` — The breadcrumbs.items, first to current.
+- Container only (<nav><ol>); attributes land on the <nav>, and an aria-label replaces "Breadcrumb".
+```svelte
+<script>
+    import { Breadcrumbs } from '@sigta-hq/svelte';
+</script>
+
+<Breadcrumbs>
+    <Breadcrumbs.Item href="#home">Home</Breadcrumbs.Item>
+    <Breadcrumbs.Item href="#projects">Projects</Breadcrumbs.Item>
+    <Breadcrumbs.Item>Marginalia v3</Breadcrumbs.Item>
+</Breadcrumbs>
+```
+
+#### `Breadcrumbs.Item`
+
+One crumb: a graphite link that inks in on hover, or — with no href, or current — the current page as ink text with aria-current="page".
+
+- **Props:**
+  - `href` (string) — The crumb's link; without it the crumb is the current page.
+  - `current` (boolean, default `false`) — Render as the current page even with an href.
+- **Snippets:** `children` — The crumb text.
+- Attributes land on the link or the current span, not the <li>.
+```svelte
+<script>
+    import { Breadcrumbs } from '@sigta-hq/svelte';
+</script>
+
+<Breadcrumbs>
+    <Breadcrumbs.Item href="#home">Home</Breadcrumbs.Item>
+    <Breadcrumbs.Item>Settings</Breadcrumbs.Item>
+</Breadcrumbs>
+```
+
+### `navbar` family
+
+#### `Navbar`
+
+The sticky, translucent site header on a hairline: brand, links and actions. Below the collapse breakpoint the links fold behind a burger into a panel under the bar.
+
+- **Props:**
+  - `ctaLabel` (string) — With no actions slot, renders a call-to-action button (cta, sm) with this label.
+  - `ctaHref` (string) — The CTA's link; without it the CTA is a plain button.
+  - `target` (string) — Forwards onto the CTA like on a button (target="_blank" gets rel="noopener").
+  - `collapse` (`md` · `lg`, default `md`) — The breakpoint below which the links fold behind the burger. Use lg when the links and a wide CTA do not fit on one line at tablet widths, so no link wraps onto two lines; the actions stay visible either way.
+- **Snippets:** `children` — The links (navlinks); rendered in the bar and again in the folded-out panel.; `brand` — The brand, at the start of the bar.; `actions` — Actions at the end of the bar (replaces the CTA props); stays visible on every width.
+- Put navlinks in the default slot and mark the current page with current.
+- Snippets: brand, children (the links), actions.
+```svelte
+<script>
+    import { Navbar, Navlink } from '@sigta-hq/svelte';
+</script>
+
+<Navbar ctaLabel="Book a call" ctaHref="https://calendly.com/sf-sigta/30min" target="_blank">
+    <Navlink href="#work">Work</Navlink>
+</Navbar>
+```
+
+#### `Navlink`
+
+A navigation link for the navbar: mono, graphite to ink, with an underline that grows left to right on hover; the current page keeps it drawn (aria-current="page").
+
+- **Props:**
+  - `current` (boolean, default `false`) — The current page: ink, underline drawn, aria-current="page".
+  - `href` (string) — The link target.
+- **Snippets:** `children` — The link text.
+```svelte
+<script>
+    import { Navlink } from '@sigta-hq/svelte';
+</script>
+
+<div class="flex items-center gap-8">
+    <Navlink href="#work" current={true}>Current page</Navlink>
+    <Navlink href="#studio">Hover me</Navlink>
+    <Navlink href="#journal">Another link</Navlink>
+</div>
+```
+
+### `Pagination`
+
+Page navigation in small mono squares: prev / next arrows that dim at either end, and the pages around the current one (1 … 4 5 6 … 10) with the current page in ink.
+
+- **Props:**
+  - `paginator` (object) — The page state, from a server paginator. Its links follow url.
+  - `pages` (number) — Manual mode: the number of pages.
+  - `current` (number, default `1`) — Manual mode: the current page (clamped to 1…pages).
+  - `url` (string) — The page href pattern: "?page=%d", or a prefix the page number is appended to ("?page="). Without it (and without a server paginator) the pages are buttons for you to wire up. Or a function of the page.
+- Accepts a paginator or manual pages / current / url. Up to seven pages are all listed; beyond that, the first, the last and the pages either side of the current one, with ellipses between.
+- Pass a plain object — a Laravel paginator serialized by Inertia works as is (paginator={users}) — and url.
+```svelte
+<Pagination paginator={{ currentPage: users.current_page, lastPage: users.last_page }} url="?page=%d" />
+<Pagination pages={10} current={page} url={(n) => `/users/${n}`} />
+```
+
+### `table` family
+
+#### `Table`
+
+Brand data table: mono uppercase caption and headers, hairline rows, tabular numerals. Scrolls sideways when it does not fit.
+
+- **Props:**
+  - `caption` (string) — Mono uppercase caption above the table.
+- **Snippets:** `children` — A table.columns header row and table.rows.
+- Build it from table.columns (the <thead> row) with a table.column per header, and table.rows (the <tbody>) with table.row and table.cell.
+- Cells use tabular numerals, so figures line up; the last row draws no rule under it.
+- Attributes land on the <table>, not on the scrolling wrapper. Loop rows with a keyed {#each}.
+```svelte
+<Table caption="Q3 revenue">
+    <Table.Columns>
+        <Table.Column>Month</Table.Column>
+        <Table.Column>Revenue</Table.Column>
+    </Table.Columns>
+    <Table.Rows>
+        <Table.Row>
+            <Table.Cell>July</Table.Cell>
+            <Table.Cell>$12,400</Table.Cell>
+        </Table.Row>
+    </Table.Rows>
+</Table>
+```
+
+#### `Table.Cell`
+
+A body cell (<td>) over a hairline, in tabular numerals.
+
+- **Props:** none
+- **Snippets:** `children` — The cell content: text, a figure, a pill.
+```svelte
+<Table.Cell>$12,400</Table.Cell>
+```
+
+#### `Table.Column`
+
+A header cell: <th scope="col"> in mono uppercase graphite over a hairline.
+
+- **Props:** none
+- **Snippets:** `children` — The column heading.
+```svelte
+<Table.Column>Revenue</Table.Column>
+```
+
+#### `Table.Columns`
+
+The header row of a table: a <thead> with one <tr> around the table.column cells.
+
+- **Props:** none
+- **Snippets:** `children` — The table.column header cells.
+```svelte
+<Table.Columns>
+    <Table.Column>Month</Table.Column>
+    <Table.Column>Revenue</Table.Column>
+</Table.Columns>
+```
+
+#### `Table.Row`
+
+One body row (<tr>) of table.cell cells.
+
+- **Props:** none
+- **Snippets:** `children` — The table.cell cells.
+```svelte
+<Table.Row>
+    <Table.Cell>{month.name}</Table.Cell>
+    <Table.Cell>{month.revenue}</Table.Cell>
+</Table.Row>
+```
+
+#### `Table.Rows`
+
+The body of a table: a <tbody> around the table.row rows. Its last row draws no rule under it.
+
+- **Props:** none
+- **Snippets:** `children` — The table.row rows.
+```svelte
+<Table.Rows>
+    {#each months as month (month.id)}
+        <Table.Row>…</Table.Row>
+    {/each}
+</Table.Rows>
+```
+
+### `timeline` family
+
+#### `Timeline`
+
+Vertical timeline: an ordered list with a hairline rail down the left and an ink dot per entry.
+
+- **Props:** none
+- **Snippets:** `children` — The timeline.item entries, oldest first.
+- Accent is scarce: give one entry (the milestone) variant="accent", not several.
+```svelte
+<script>
+    import { Timeline } from '@sigta-hq/svelte';
+</script>
+
+<Timeline>
+    <Timeline.Item heading="Kickoff" meta="Jan 2026">Scoped the build, drew the first flows on paper.</Timeline.Item>
+    <Timeline.Item heading="First cut" meta="Feb 2026">MVP in front of five design partners.</Timeline.Item>
+    <Timeline.Item heading="Shipped" meta="Mar 2026" variant="accent">Live for all workspaces — no migration needed.</Timeline.Item>
+    <Timeline.Item heading="Now" meta="Ongoing">Steady ink: weekly releases, one honest changelog.</Timeline.Item>
+</Timeline>
+```
+
+#### `Timeline.Item`
+
+One entry on the timeline: an ink dot on the rail, a mono meta line (a date), a Fraunces heading and graphite body copy. Each part is optional.
+
+- **Props:**
+  - `heading` (string) — The entry heading.
+  - `meta` (string) — Mono uppercase line above the heading, usually a date.
+  - `variant` (`default` · `accent`, default `default`) — default = ink dot; accent = accent-filled dot with an ink ring, for the milestone.
+- **Snippets:** `children` — The body copy.
+```svelte
+<script>
+    import { Timeline } from '@sigta-hq/svelte';
+</script>
+
+<Timeline>
+    <Timeline.Item heading="Kickoff" meta="Jan">Scoped the work.</Timeline.Item>
+    <Timeline.Item heading="Shipped" meta="Mar" variant="accent">Live for all.</Timeline.Item>
+    <Timeline.Item meta="Apr">A quiet month: meta and body, no heading.</Timeline.Item>
+    <Timeline.Item heading="Heading only" />
+</Timeline>
+```
+
+### `Comment`
+
+One authored comment in a feed: an optional avatar, the author with a mono timestamp line, the body, an owner actions slot (edit / delete) and an inline edit slot shown while editing. Presentational — persistence, validation and who-may-edit auth stay in your app.
+
+- **Props:**
+  - `author` (string) — Author display name.
+  - `meta` (string) — Secondary mono line beside the author, usually the timestamp ("2h ago").
+  - `avatar` (string) — Name (or initials) for a leading avatar; unset (with no src) = no avatar column.
+  - `src` (string) — Avatar image URL (falls back to initials from avatar).
+  - `editing` (boolean, default `false`) — Render the edit slot instead of the body.
+- **Snippets:** `children` — The comment body.; `actions` — Owner controls (edit / delete), at the right of the byline. Only rendered when given.; `edit` — The inline editor, shown instead of the body while editing.
+- Presentational: persistence, validation and who-may-edit auth stay in your app. Loop it for a feed; pair it with composer or a textarea form to add new ones.
+- Pass meta a ready string ("2h ago", a date) — the component does not format time.
+- Pass the actions snippet only to the owner (actions={mine ? ownerActions : undefined}): a given snippet renders the actions column. Key the {#each} by id.
+```svelte
+{#each comments as c (c.id)}
+    <Comment author={c.author?.name} meta={c.createdAgo} editing={editingId === c.id} actions={c.userId === me.id ? ownerActions : undefined}>
+        {c.body}
+        {#snippet edit()}
+            <Textarea bind:value={draft} rows={3} />
+        {/snippet}
+    </Comment>
+{/each}
+
+{#snippet ownerActions()}
+    <Button variant="ghost" size="sm" aria-label="Edit" onclick={() => startEditing(c)}><Icon name="pencil" size="sm" /></Button>
+{/snippet}
+```
+
+### `chart` family
+
+#### `Chart.Bars`
+
+Hand-drawn bar chart: ink bars, an optional highlighter swipe behind one bar and an optional dashed trend line across the bar tops. Optional mono labels, one under each bar.
+
+- **Props:**
+  - `values` (array, default `[]`) — One value per bar. Bars rise from zero (or from the lowest value when it is negative).
+  - `labels` (array) — One label per bar, under it.
+  - `highlight` (number) — Index of the bar to highlight with the accent swipe (it is drawn at full ink; the others a touch lighter).
+  - `trend` (boolean, default `false`) — Draw a dashed hand-drawn trend line across the bar tops.
+  - `height` (number, default `160`) — Height of the 720-wide viewBox (at least 40); the chart scales to its container's width.
+  - `label` (string) — Accessible name; makes the chart meaningful (role="img").
+- currentColor-driven: bars take the text colour (ink by default). The highlighter swipe is the accent, so highlight one bar, in one chart per view.
+- The geometry is computed the same way in both runtimes (@sigta-hq/core chart.ts), so the paths are identical.
+```svelte
+<Chart.Bars values={monthly} labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']} highlight={5} trend label="Monthly builds, rising" />
+```
+
+#### `Chart.Line`
+
+Hand-drawn line/area chart: a smooth ink line over a faded currentColor area and three hairline gridlines; the latest point is highlighted with an accent halo and a dashed drop line to the axis. Optional mono tick labels underneath.
+
+- **Props:**
+  - `values` (array, default `[]`) — The values, oldest first.
+  - `labels` (array) — Tick labels spread evenly under the chart (first … last); any number of them.
+  - `height` (number, default `200`) — Height of the 720-wide viewBox (at least 40); the chart scales to its container's width.
+  - `label` (string) — Accessible name; makes the chart meaningful (role="img").
+- currentColor-driven: the line and area take the text colour (ink by default); the halo is the accent, so keep one highlighted chart per view.
+- The geometry is computed the same way in both runtimes (@sigta-hq/core chart.ts), so the paths are identical.
+```svelte
+<Chart.Line values={weekly} labels={['W1', 'W13', 'W26']} label="Weekly active workspaces, rising" />
+```
+
+#### `Chart.Sparkline`
+
+Tiny smooth hand-drawn sparkline in a 200×40 viewBox with a dot on the latest value. Inherits currentColor; decorative unless given a label.
+
+- **Props:**
+  - `values` (array, default `[]`) — The values, oldest first. One value draws just the dot; equal values draw a flat line.
+  - `label` (string) — Accessible name; makes the sparkline meaningful (role="img") instead of decorative.
+- Charts are hand-drawn inline SVG in currentColor: recolour one with a text colour on it or a parent (class="text-graphite"), never a hex.
+- It stretches to the width of its container; put it in a stat's slot for a trend under the figure.
+- The geometry is computed the same way in both runtimes (@sigta-hq/core chart.ts), so the paths are identical.
+```svelte
+<script>
+    import { Chart, Stat } from '@sigta-hq/svelte';
+</script>
+
+<div class="grid gap-3 sm:grid-cols-3">
+    <Stat label="Monthly recurring" value="$48.2k" delta="9%" trend="up">
+        <Chart.Sparkline values={[12,14,13,17,16,20,19,24,23,28]} />
+    </Stat>
+    <Stat label="Churned seats" value="41" delta="12 fewer" trend="up">
+        <Chart.Sparkline values={[80,74,78,66,60,62,52,48,44,41]} class="text-graphite" />
+    </Stat>
+    <Stat label="Support load" value="3.4h" delta="steady">
+        <Chart.Sparkline values={[3.2,3.6,3.1,3.5,3.3,3.6,3.2,3.4]} label="Sparkline of support load hovering around 3.4 hours" />
+    </Stat>
+</div>
+```
+
+## Layout (structural scaffolds)
+
+### `Panel`
+
+Bordered surface without overflow-hidden — so overhanging annotations/badges show. Static (no hover lift); use it where the card would clip. variant="inverse" is a dark ink band.
+
+- **Props:**
+  - `variant` (`default` · `inverse`, default `default`) — default (raised paper on a hairline) or inverse (dark ink band).
+- **Snippets:** `children` — The content; children stack as a flex column.
+- Default padding is fluid (24 to 40px). Pass any padding class (p-4, px-6, sm:p-5, !p-2) and it replaces the default entirely; without one, the default applies.
+- Children stack as a flex column, so gap-* spaces them and items-* / justify-* act on that column (items-center centres them horizontally). Pass a display class (flex, grid, block) and it replaces the stack entirely, so class="flex items-center justify-between" is a row; a direction class alone (flex-row) keeps the flex and turns it. Responsive classes (sm:flex-row) build on the stack.
+- variant="inverse" is a dark ink band; pair it with <Label variant="inverse"> and <Stat tone="inverse"> so nested chrome inverts too.
+```svelte
+<Panel class="flex items-center justify-between gap-3 p-4">
+    <Profile name="Ada Lovelace" meta="ada@example.com" />
+    <Badge>Owner</Badge>
+</Panel>
+```
+
+### `tile-grid` family
+
+#### `TileGrid`
+
+Hairline-gap grid of tiles: a 1px gap over a bg-line ground reads as thin dividers between them, inside a hairline frame.
+
+- **Props:**
+  - `cols` (number, default `3`) — Columns on a wide screen: 2, 3 or 4. They collapse on smaller screens — 4 → 2 → 1, 3 → 1, 2 → 1.
+- **Snippets:** `children` — The tile-grid.tile cells.
+```svelte
+<script>
+    import { TileGrid } from '@sigta-hq/svelte';
+</script>
+
+<TileGrid cols={2}>
+    <TileGrid.Tile num="01 · Tilbuddet i indbakken" class="gap-[0.9rem]">
+        <p class="font-head italic font-normal text-[clamp(1.15rem,1.7vw,1.4rem)] leading-[1.3]">"Vi har fået et tilbud på 750.000 kr. Er det rimeligt?"</p>
+        <p class="flex items-baseline gap-[0.55em] text-[0.95rem] text-graphite before:content-['→'] before:shrink-0 before:font-mono before:text-ink">Vi læser det med dig, linje for linje.</p>
+    </TileGrid.Tile>
+    <TileGrid.Tile num="02 · Projektet skrider" class="gap-[0.9rem]">
+        <p class="font-head italic font-normal text-[clamp(1.15rem,1.7vw,1.4rem)] leading-[1.3]">"Udviklingen er bagud, og ingen kan forklare hvorfor."</p>
+        <p class="flex items-baseline gap-[0.55em] text-[0.95rem] text-graphite before:content-['→'] before:shrink-0 before:font-mono before:text-ink">Vi finder ud af, hvor det knirker.</p>
+    </TileGrid.Tile>
+</TileGrid>
+```
+
+#### `TileGrid.Tile`
+
+One cell of a tile-grid: raised paper with generous padding and an optional mono number on top; the content stacks as a column.
+
+- **Props:**
+  - `num` (string) — Mono number (or kicker) on top: "01", "02 · Projektet skrider".
+- **Snippets:** `children` — The tile content.
+- Its root keeps data-sigta="tile" (the name it has always carried), so the parts are data-scope="tile".
+```svelte
+<script>
+    import { TileGrid } from '@sigta-hq/svelte';
+</script>
+
+<TileGrid cols={2}>
+    <TileGrid.Tile num="01">
+        <p>Teknisk ledelse</p>
+    </TileGrid.Tile>
+    <TileGrid.Tile>
+        <p>Bare indhold</p>
+    </TileGrid.Tile>
+</TileGrid>
+```
+
+### `SectionHeader`
+
+A section's opening row: the heading on the left (with an optional eyebrow above it), a graphite lede on the right, baseline-aligned; the lede wraps under the heading when the row runs out of room.
+
+- **Props:**
+  - `heading` (string) — The heading (an h2 at the xl size).
+  - `eyebrow` (string) — Mono kicker above the heading.
+  - `lede` (string) — The graphite lede on the right (or pass it as the slot).
+- **Snippets:** `children` — The lede, when the lede prop is not given.
+```svelte
+<script>
+    import { SectionHeader } from '@sigta-hq/svelte';
+</script>
+
+<SectionHeader heading="Kan du genkende det?" lede="Fire situationer, hvor det hjælper at have en teknisk stemme på sin egen side af bordet." />
+```
+
+### `Paper`
+
+Page-ground overlay (dot grid + paper grain), fixed behind the page and never in the way of a click. Place once, directly inside <body>.
+
+- **Props:**
+  - `dots` (boolean, default `true`) — The dot grid.
+  - `grain` (boolean, default `true`) — The paper grain (an SVG noise filter).
+- It is fixed to the viewport, behind everything: give the page content position: relative and a z-index above 0 (relative z-10) so it sits on the paper.
+- It takes no other attributes: it is the ground, not a styled box.
+- Place it once, in the root layout before the page content.
+```svelte
+<!-- the root layout, once, before the page content -->
+<Paper />
+{@render children()}
+```
+
 ---
 
 ## Motion (behaviours, not components)
@@ -449,3 +1615,4 @@ Ink on paper: strokes draw, paper settles under a press, a finished thing is cro
 | `sigta-modal-show` | `{name}` | `Modal.Trigger` / your code | `<Modal name>` |
 | `sigta-modal-hide` | `{name}` | `Modal.Close` / your code | `<Modal name>` |
 | `onchange` | `string | null` | `<Autocomplete>` | The value changed. |
+| `bind:value, or oninput (dispatched on the hidden input)` | `string` | `<Otp>` | The code changed. |

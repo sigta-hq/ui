@@ -14,26 +14,25 @@
     data-sigta="floating-bar"
     data-show="{{ $show ? 'true' : 'false' }}"
     x-data="sigtaFloatingBar"
-    {{ $attributes->merge(['class' => 'pointer-events-none fixed inset-x-0 bottom-0 z-[80] flex justify-center p-4']) }}
+    {{ $attributes }}
 >
     {{-- Alpine owns this element's display from here on. `wire:ignore.self` keeps a
          Livewire morph from writing the server's display back over it, which would
          cut the leave transition short; the children still update. A first render
          that is already up shows without animating, since x-show only transitions
-         on a change. --}}
+         on a change. The transition hooks are styled in the contract stylesheet. --}}
     <div
         x-ref="bar"
         x-show="visible"
         wire:ignore.self
         @unless ($show) style="display: none" @endunless
         @if ($label) role="region" aria-label="{{ $label }}" @endif
-        x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 translate-y-6 scale-95"
-        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-        x-transition:leave-end="opacity-0 translate-y-6 scale-95"
-        class="pointer-events-auto flex max-w-full items-center gap-3 rounded-full border border-inverse-line bg-ink py-1.5 ps-4 pe-1.5 text-inverse-fg shadow-paper"
+        x-transition:enter="sigta-floating-bar-enter"
+        x-transition:enter-start="sigta-floating-bar-away"
+        x-transition:leave="sigta-floating-bar-leave"
+        x-transition:leave-end="sigta-floating-bar-away"
+        data-scope="floating-bar"
+        data-part="bar"
     >
         {{ $slot }}
     </div>

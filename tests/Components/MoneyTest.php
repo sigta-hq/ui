@@ -8,8 +8,9 @@ it('formats DKK minor units with a trailing symbol and Danish separators', funct
     expect($html)
         ->toContain('data-sigta="money"')
         ->toContain('data-currency="DKK"')
-        ->toContain('tabular-nums')
         ->toContain('1.234,56 kr.');
+
+    expect(contractCss('money'))->toContain('@apply tabular-nums;');
 });
 
 it('formats USD with a leading symbol and US separators', function () {
@@ -39,8 +40,9 @@ it('appends a muted per-unit suffix', function () {
 
     expect($html)
         ->toContain('1.450,00 kr.')
-        ->toContain('text-graphite')
-        ->toContain('/ hour');
+        ->toContain('<span data-scope="money" data-part="suffix"> / hour</span>');
+
+    expect(contractCss('money'))->toContain('[data-scope="money"][data-part="suffix"] {')->toContain('@apply text-graphite;');
 });
 
 it('renders zero for a null amount', function () {

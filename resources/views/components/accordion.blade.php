@@ -3,6 +3,6 @@
     'name' => null,
 ])
 
-<div data-sigta="accordion" {{ $attributes->merge(['class' => 'w-full']) }}>
+<div data-sigta="accordion" {{ $attributes }}>
     {{ $slot }}
 </div>

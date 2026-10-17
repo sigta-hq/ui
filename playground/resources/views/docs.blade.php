@@ -175,7 +175,7 @@
         </div>
     </section>
 
-    <x-sigta::rule variant="1" class="text-ink/60" />
+    <x-sigta::rule variant="1" />
 
     {{-- ===================== INSTALL ===================== --}}
     <section id="install" class="scroll-mt-8 py-[clamp(40px,6vw,80px)]">
@@ -208,7 +208,7 @@
         </div>
     </section>
 
-    <x-sigta::rule variant="2" class="text-ink/60" />
+    <x-sigta::rule variant="2" />
 
     {{-- ===================== USAGE ===================== --}}
     <section id="usage" class="scroll-mt-8 py-[clamp(40px,6vw,80px)]">
@@ -247,7 +247,7 @@
         </div>
     </section>
 
-    <x-sigta::rule variant="3" class="text-ink/60" />
+    <x-sigta::rule variant="3" />
 
     {{-- ===================== THEMING ===================== --}}
     <section id="theming" class="scroll-mt-8 py-[clamp(40px,6vw,80px)]">
@@ -298,7 +298,7 @@
         </div>
     </section>
 
-    <x-sigta::rule variant="1" class="text-ink/60" />
+    <x-sigta::rule variant="1" />
 
     {{-- ===================== COMPONENTS INDEX ===================== --}}
     <section id="components" class="scroll-mt-8 py-[clamp(40px,6vw,80px)]">

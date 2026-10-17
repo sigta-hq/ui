@@ -1,3 +1,9 @@
+{{-- A tab's panel. The group's default panel renders shown; the others stay cloaked
+     until Alpine shows the active one. --}}
+@aware([
+    'default' => null,
+])
+
 @props([
     'name',
 ])
@@ -7,8 +13,8 @@
     id="sigta-panel-{{ $name }}"
     aria-labelledby="sigta-tab-{{ $name }}"
     tabindex="0"
-    x-cloak
+    @if ($name !== $default) x-cloak @endif
     x-show="isActive('{{ $name }}')"
-    {{ $attributes->merge(['class' => 'pt-5']) }}
+    {{ $attributes }}
     data-sigta="tabs.panel"
 >{{ $slot }}</div>

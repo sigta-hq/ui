@@ -1,18 +1,39 @@
-/* Save state — every label sits in the same grid cell and only the
-   current one is visible, so the indicator keeps the width of its longest
-   label whatever it is saying and the compass never moves. The
-   handwritten "Saved" is written in each time it appears. */
-[data-sigta="save-state"] .sigta-save-labels > * {
+/* Save state — the compass stands in for "Saving…": quiet graphite at rest,
+   inked while it saves and once it has. Every label sits in the same grid
+   cell and only the current one is visible, so the indicator keeps the
+   width of its longest label whatever it is saying and the compass never
+   moves. align="end" puts the compass on the right and lets the words grow
+   leftward. The handwritten "Saved" is written in each time it appears. */
+[data-sigta="save-state"] {
+    @apply inline-flex items-center gap-2 font-mono text-[0.72rem] tracking-[0.06em] text-graphite;
+
+    &[data-align="end"] { @apply flex-row-reverse; }
+}
+[data-sigta="save-state"]:is([data-state="saving"], [data-state="saved"]) > [data-scope="save-state"][data-part="loader"] {
+    @apply text-ink;
+}
+[data-scope="save-state"][data-part="labels"] {
+    @apply grid min-h-5 items-center justify-items-start;
+
+    [data-sigta="save-state"][data-align="end"] > & { @apply justify-items-end text-right; }
+}
+[data-scope="save-state"][data-part="label"] {
     grid-area: 1 / 1;
     visibility: hidden;
+
+    /* The compass is the visible cue while saving; the words are for
+       assistive tech, and for anyone who has asked for less motion. */
+    &[data-when="saving"] { @apply sr-only motion-reduce:not-sr-only; }
+    &[data-when="saved"] { @apply font-hand font-semibold text-[1.15rem] leading-none tracking-normal text-ink -rotate-3; }
+    &[data-when="failed"] { @apply text-danger; }
 }
-[data-sigta="save-state"][data-state="idle"] [data-when="idle"],
-[data-sigta="save-state"][data-state="dirty"] [data-when="dirty"],
-[data-sigta="save-state"][data-state="saving"] [data-when="saving"],
-[data-sigta="save-state"][data-state="saved"] [data-when="saved"],
-[data-sigta="save-state"][data-state="failed"] [data-when="failed"] {
+[data-sigta="save-state"][data-state="idle"] > [data-part="labels"] > [data-when="idle"],
+[data-sigta="save-state"][data-state="dirty"] > [data-part="labels"] > [data-when="dirty"],
+[data-sigta="save-state"][data-state="saving"] > [data-part="labels"] > [data-when="saving"],
+[data-sigta="save-state"][data-state="saved"] > [data-part="labels"] > [data-when="saved"],
+[data-sigta="save-state"][data-state="failed"] > [data-part="labels"] > [data-when="failed"] {
     visibility: visible;
 }
-[data-sigta="save-state"][data-state="saved"] [data-when="saved"] {
+[data-sigta="save-state"][data-state="saved"] > [data-part="labels"] > [data-when="saved"] {
     animation: sigta-write var(--sigta-dur-draw, 420ms) var(--sigta-curve-pen, cubic-bezier(.65, 0, .35, 1)) both;
 }

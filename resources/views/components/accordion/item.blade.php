@@ -11,12 +11,12 @@
 <details
     data-sigta="accordion.item"
     @if ($name) name="{{ $name }}" @endif
-    {{ $attributes->merge(['class' => 'group border-b border-line']) }}
+    {{ $attributes }}
 >
-    <summary class="list-none [&::-webkit-details-marker]:hidden cursor-pointer flex justify-between items-baseline gap-4 py-[1.1em] font-head font-medium text-[clamp(1.05rem,1.6vw,1.25rem)] after:content-['+'] after:font-mono after:font-normal after:text-[1.1rem] after:text-graphite after:shrink-0 after:transition-transform after:duration-[180ms] after:ease-out group-open:after:rotate-45">
+    <summary data-scope="accordion.item" data-part="summary">
         {{ $heading }}
     </summary>
-    <div class="pb-[1.3em] text-graphite max-w-[60ch]">
+    <div data-scope="accordion.item" data-part="content">
         {{ $slot }}
     </div>
 </details>

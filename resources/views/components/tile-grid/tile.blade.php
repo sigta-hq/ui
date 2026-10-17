@@ -3,9 +3,9 @@
     'num' => null,
 ])
 
-<article data-sigta="tile" {{ $attributes->merge(['class' => 'flex flex-col bg-surface-raised p-[clamp(22px,2.4vw,32px)]']) }}>
+<article data-sigta="tile" {{ $attributes }}>
     @if ($num !== null)
-        <span class="font-mono text-[0.72rem] tracking-[0.1em] text-graphite">{{ $num }}</span>
+        <span data-scope="tile" data-part="num">{{ $num }}</span>
     @endif
     {{ $slot }}
 </article>

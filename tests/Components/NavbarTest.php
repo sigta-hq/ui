@@ -17,7 +17,12 @@ it('renders the navbar with all three slots', function () {
         ->toContain('data-sigta="brand"')
         ->toContain('Work')
         ->toContain('Book')
-        ->toContain('sticky top-0 z-50');
+        ->toContain('data-scope="navbar" data-part="bar"')
+        ->toContain('data-scope="navbar" data-part="brand"')
+        ->toContain('data-scope="navbar" data-part="actions"')
+        ->not->toMatch('/<header[^>]*class=/');
+
+    expect(contractCss('navbar'))->toContain('sticky top-0 z-50');
 });
 
 it('wires the mobile toggle with aria-expanded and a controlled panel', function () {
@@ -37,21 +42,36 @@ it('folds the links behind the burger below md by default', function () {
     $html = Blade::render('<x-sigta::navbar><x-sigta::navlink href="/">Home</x-sigta::navlink></x-sigta::navbar>');
 
     expect($html)
-        ->toContain('class="hidden md:flex items-center gap-8"')
-        ->toContain('class="md:hidden inline-flex')
-        ->toContain('class="md:hidden border-t')
-        ->not->toContain('lg:flex');
+        ->toContain('data-collapse="md"')
+        ->toContain('data-scope="navbar" data-part="links"')
+        ->toMatch('/data-scope="navbar"\s+data-part="toggle"/')
+        ->toMatch('/data-scope="navbar"\s+data-part="panel"/');
+
+    // Links show from md, the burger and its panel only below it.
+    $css = contractCss('navbar');
+    expect($css)
+        ->toMatch('/\[data-part="links"\] \{\s*@apply hidden md:flex items-center gap-8;/')
+        ->toMatch('/\[data-part="toggle"\] \{\s*@apply md:hidden inline-flex/')
+        ->toMatch('/\[data-part="panel"\] \{\s*@apply md:hidden border-t/');
 });
 
 it('folds the links behind the burger below lg when collapse is lg', function () {
     $html = Blade::render('<x-sigta::navbar collapse="lg"><x-sigta::navlink href="/">Home</x-sigta::navlink></x-sigta::navbar>');
 
-    expect($html)
-        ->toContain('class="hidden lg:flex items-center gap-8"')
-        ->toContain('class="lg:hidden inline-flex')
-        ->toContain('class="lg:hidden border-t')
-        ->not->toContain('md:flex')
-        ->not->toContain('md:hidden');
+    expect($html)->toContain('data-collapse="lg"')->not->toContain('data-collapse="md"');
+
+    // With collapse lg the bar's links wait for lg, and the burger and panel stay up to it.
+    $css = contractCss('navbar');
+    expect($css)
+        ->toContain('[data-sigta="navbar"][data-collapse="lg"] > [data-part="bar"] > & { @apply hidden lg:flex; }')
+        ->toContain('[data-sigta="navbar"][data-collapse="lg"] > [data-part="bar"] > [data-part="end"] > & { @apply inline-flex lg:hidden; }')
+        ->toContain('[data-sigta="navbar"][data-collapse="lg"] > & { @apply flex lg:hidden; }');
+});
+
+it('renders the CTA as a plain button when it has no href', function () {
+    $html = Blade::render('<x-sigta::navbar cta-label="Book" />');
+
+    expect($html)->toMatch('/<button[^>]*data-sigta="button"/')->not->toContain('<a data-sigta="button"');
 });
 
 it('forwards attributes onto the header root', function () {
@@ -81,14 +101,16 @@ it('renders navlinks with the animated underline and current state', function ()
     expect($plain)
         ->toContain('data-sigta="navlink"')
         ->toContain('href="/work"')
-        ->toContain('font-mono')
-        ->toContain('after:right-full')
+        ->not->toContain('class=')
         ->not->toContain('aria-current');
 
-    expect($current)
-        ->toContain('aria-current="page"')
-        ->toContain('text-ink')
-        ->toContain('after:right-0');
+    expect($current)->toContain('aria-current="page"');
+
+    // The underline grows on hover; the current page keeps it drawn.
+    expect(contractCss('navlink'))
+        ->toContain('font-mono')
+        ->toMatch('/&\[aria-current="page"\] \{\s*@apply text-ink after:right-0;/')
+        ->toMatch('/&:not\(\[aria-current="page"\]\) \{\s*@apply text-graphite hover:text-ink after:right-full hover:after:right-0;/');
 });
 
 it('forwards attributes on navlinks', function () {

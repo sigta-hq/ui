@@ -34,6 +34,47 @@ it('drives pagination from a Laravel paginator', function () {
     expect($html)->toContain('/things?page=2')->toContain('/things?page=4')->toContain('aria-current="page"');
 });
 
+it('reads the neutral paginator shape both runtimes accept', function () {
+    $html = Blade::render('<x-sigta::pagination :paginator="[\'currentPage\' => 3, \'lastPage\' => 12]" url="/invoices?page=" />');
+
+    expect($html)
+        ->toContain('href="/invoices?page=2"')
+        ->toContain('href="/invoices?page=4"')
+        ->toContain('aria-label="Page 12"')
+        ->toMatch('/aria-current="page"[^>]*>3</');
+
+    // A simple paginator (no last page): prev / next only.
+    $simple = Blade::render('<x-sigta::pagination :paginator="[\'currentPage\' => 2, \'hasMorePages\' => false]" url="?page=%d" />');
+    expect($simple)->toContain('href="?page=1"')->not->toContain('aria-label="Next page"')->not->toContain('aria-label="Page');
+
+    // A paginator's toArray() reads too.
+    $paginator = new LengthAwarePaginator(range(1, 10), 50, 10, 2, ['path' => '/things']);
+    $array = Blade::render('<x-sigta::pagination :paginator="$p" url="?page=%d" />', ['p' => $paginator->toArray()]);
+    expect($array)->toContain('href="?page=3"')->toContain('aria-label="Page 5"');
+});
+
+it('takes a closure for the page url', function () {
+    $html = Blade::render('<x-sigta::pagination :pages="3" :current="2" :url="fn ($page) => \'/p/\'.$page" />');
+
+    expect($html)->toContain('href="/p/1"')->toContain('href="/p/3"');
+});
+
+it('marks pages and arrows with contract parts', function () {
+    $html = Blade::render('<x-sigta::pagination :pages="10" :current="5" />');
+
+    expect($html)
+        ->toContain('data-scope="pagination" data-part="list"')
+        ->toContain('data-part="prev"')
+        ->toContain('data-part="next"')
+        ->toContain('data-part="gap"')
+        ->toContain('<button type="button" aria-label="Page 4"')
+        ->not->toContain('class=');
+
+    expect(contractCss('pagination'))
+        ->toMatch('/&\[aria-current="page"\] \{\s*@apply bg-ink text-surface;/')
+        ->toContain('aria-disabled:opacity-40');
+});
+
 /* -------- progress -------------------------------------------------------- */
 
 it('renders a determinate progressbar with aria values', function () {
@@ -50,7 +91,17 @@ it('renders a determinate progressbar with aria values', function () {
 
 it('omits aria-valuenow when indeterminate', function () {
     $html = Blade::render('<x-sigta::progress indeterminate />');
-    expect($html)->toContain('role="progressbar"')->not->toContain('aria-valuenow');
+    expect($html)->toContain('role="progressbar"')->not->toContain('aria-valuenow')->toContain('data-indeterminate=""');
+
+    expect(contractCss('progress'))->toContain('@keyframes sigta-progress-sweep')->toContain('animate-[sigta-progress-sweep_1.4s_ease-in-out_infinite]');
+});
+
+it('fills the progress bar through --sigta-progress', function () {
+    expect(Blade::render('<x-sigta::progress :value="30" :max="120" />'))
+        ->toContain('data-scope="progress" data-part="fill" style="--sigta-progress: 25"')
+        ->not->toContain('data-indeterminate');
+
+    expect(contractCss('progress'))->toContain('width: calc(var(--sigta-progress, 0) * 1%);');
 });
 
 /* -------- slider ---------------------------------------------------------- */
@@ -66,6 +117,9 @@ it('renders a range slider that forwards wire:model and errors', function () {
 
     expect(Blade::render('<x-sigta::slider label="V" error="Too loud" />'))
         ->toContain('aria-invalid="true"')->toContain('Too loud');
+
+    expect($html)->toContain('data-scope="slider" data-part="value"');
+    expect(contractCss('slider'))->toContain('[&::-webkit-slider-thumb]:border-danger');
 });
 
 /* -------- timeline -------------------------------------------------------- */
@@ -79,10 +133,26 @@ it('renders a timeline as an ordered list of items', function () {
     BLADE);
 
     expect($html)
+        ->toContain('<ol data-sigta="timeline"')
         ->toContain('data-sigta="timeline.item"')
         ->toContain('Kickoff')
         ->toContain('Shipped')
-        ->toContain('bg-accent');   // accent variant dot
+        ->toContain('data-variant="accent"')
+        ->toContain('<span aria-hidden="true" data-scope="timeline.item" data-part="dot"></span>');
+
+    // accent variant dot
+    expect(contractCss('timeline'))->toContain('[data-sigta="timeline.item"][data-variant="accent"] > & { @apply border border-ink bg-accent; }');
+});
+
+it('spaces timeline parts only when something sits above them', function () {
+    expect(Blade::render('<x-sigta::timeline.item heading="Solo" />'))
+        ->toContain('<h3 data-scope="timeline.item" data-part="heading">Solo</h3>')
+        ->not->toContain('data-part="meta"')
+        ->not->toContain('data-part="body"');
+
+    expect(contractCss('timeline'))
+        ->toContain('[data-scope="timeline.item"][data-part="meta"] + & { @apply mt-1; }')
+        ->toContain('[data-scope="timeline.item"]:is([data-part="meta"], [data-part="heading"]) + & { @apply mt-1.5; }');
 });
 
 /* -------- otp ------------------------------------------------------------- */
@@ -100,6 +170,18 @@ it('renders an otp field of N boxes over one hidden input', function () {
         ->toContain('wire:model="code"');
 
     expect(substr_count($html, 'inputmode="numeric"'))->toBe(4);
+    expect(preg_match_all('/data-scope="otp"\s+data-part="box"/', $html))->toBe(4);
+});
+
+it('points the otp boxes at the field description and error it renders', function () {
+    $html = Blade::render('<x-sigta::otp id="code" :length="2" description="From your email." error="Expired." />');
+
+    expect($html)
+        ->toContain('id="code-0-description"')
+        ->toContain('id="code-0-error"')
+        ->toContain('aria-describedby="code-0-description code-0-error"');
+
+    expect(contractCss('otp'))->toContain('&[aria-invalid="true"] {')->toContain('@apply border-danger focus:border-ink;');
 });
 
 /* -------- file upload ----------------------------------------------------- */
@@ -187,7 +269,12 @@ it('renders a context menu with contextmenu handler and menu items', function ()
         ->toContain('contextmenu.prevent')
         ->toContain('role="menu"')
         ->toContain('role="menuitem"')
-        ->toContain('Right-click me');
+        ->toContain('Right-click me')
+        ->toContain('data-scope="context-menu"')
+        ->toContain('style="left:0px;top:0px"')
+        ->not->toContain('class=');
+
+    expect(contractCss('context-menu'))->toContain('@apply fixed z-50 min-w-48');
 });
 
 /* -------- listbox --------------------------------------------------------- */

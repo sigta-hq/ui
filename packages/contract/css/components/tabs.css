@@ -1,0 +1,19 @@
+/* Tabs — mono tabs on a hairline. The selected tab (aria-selected) is ink
+   with an ink underline that sits on the list's hairline; the others are
+   graphite until hovered. */
+[data-sigta="tabs.list"] {
+    @apply flex items-end gap-1 border-b border-line;
+}
+[data-sigta="tabs.tab"] {
+    @apply font-mono text-[0.78rem] tracking-[0.04em] px-3.5 py-2.5 -mb-px border-b-[1.5px] cursor-pointer transition-colors;
+
+    &[aria-selected="true"] {
+        @apply text-ink border-ink;
+    }
+    &:not([aria-selected="true"]) {
+        @apply text-graphite border-transparent hover:text-ink;
+    }
+}
+[data-sigta="tabs.panel"] {
+    @apply pt-5;
+}

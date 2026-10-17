@@ -8,40 +8,48 @@ it('renders an info callout by default', function () {
     expect($html)
         ->toContain('Two seats are unassigned.')
         ->toContain('data-sigta="callout"')
-        ->toContain('border-ink')
-        ->toContain('border-l-4')
+        ->toContain('data-variant="info"')
         ->toContain('role="status"')
         ->toContain('<svg')
+        ->toContain('data-scope="callout" data-part="icon"')
         ->toContain('aria-hidden="true"');
+
+    expect(contractCss('callout'))
+        ->toContain('border-l-4')
+        ->toContain('[data-variant="danger"])) { @apply border-ink; }');
 });
 
 it('renders the success variant with success border and icon color', function () {
     $html = Blade::render('<x-sigta::callout variant="success">Deploy complete.</x-sigta::callout>');
 
     expect($html)
-        ->toContain('border-success')
-        ->toContain('text-success')
+        ->toContain('data-variant="success"')
         ->toContain('role="status"');
+
+    expect(contractCss('callout'))
+        ->toContain('&[data-variant="success"] { @apply border-success; }')
+        ->toContain('[data-sigta="callout"][data-variant="success"] > & { @apply text-success; }');
 });
 
 it('renders the danger variant as an alert', function () {
     $html = Blade::render('<x-sigta::callout variant="danger">Payment failed.</x-sigta::callout>');
 
     expect($html)
-        ->toContain('border-danger')
-        ->toContain('text-danger')
+        ->toContain('data-variant="danger"')
         ->toContain('role="alert"');
+
+    expect(contractCss('callout'))
+        ->toContain('&[data-variant="danger"] { @apply border-danger; }')
+        ->toContain('[data-sigta="callout"][data-variant="danger"] > & { @apply text-danger; }');
 });
 
 it('renders the heading as a bold Fraunces lead', function () {
     $html = Blade::render('<x-sigta::callout heading="Heads up.">Trial ends Friday.</x-sigta::callout>');
 
     expect($html)
-        ->toContain('font-head')
-        ->toContain('Heads up.')
-        ->toContain('Trial ends Friday.');
+        ->toContain('<b data-scope="callout" data-part="heading">Heads up.</b> Trial ends Friday.');
 
-    expect(strpos($html, 'Heads up.'))->toBeLessThan(strpos($html, 'Trial ends Friday.'));
+    expect(contractCss('callout'))->toContain('[data-scope="callout"][data-part="heading"] {'."\n".'    @apply font-head font-semibold;');
 });
 
 it('accepts an icon override', function () {

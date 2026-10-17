@@ -1,0 +1,33 @@
+/* Navbar — a sticky, translucent paper bar on a hairline: brand, links and
+   actions. Below the collapse breakpoint (data-collapse: md, the default, or
+   lg) the links fold behind the burger and drop down in a panel under the
+   bar; the actions stay visible either way. */
+[data-sigta="navbar"] {
+    @apply sticky top-0 z-50 bg-surface/85 backdrop-blur-md border-b border-line;
+}
+[data-scope="navbar"][data-part="bar"] {
+    @apply max-w-(--sigta-maxw) mx-auto px-(--sigta-gutter) flex items-center justify-between gap-4 h-[68px];
+}
+[data-scope="navbar"][data-part="brand"] {
+    @apply flex items-center shrink-0;
+}
+[data-scope="navbar"]:is([data-part="end"], [data-part="actions"]) {
+    @apply flex items-center gap-3;
+}
+
+/* md, and any value the component does not know */
+[data-scope="navbar"][data-part="links"] {
+    @apply hidden md:flex items-center gap-8;
+
+    [data-sigta="navbar"][data-collapse="lg"] > [data-part="bar"] > & { @apply hidden lg:flex; }
+}
+[data-scope="navbar"][data-part="toggle"] {
+    @apply md:hidden inline-flex items-center justify-center p-2 -mr-2 text-ink rounded-base cursor-pointer hover:bg-ink/5 transition duration-150 ease-out;
+
+    [data-sigta="navbar"][data-collapse="lg"] > [data-part="bar"] > [data-part="end"] > & { @apply inline-flex lg:hidden; }
+}
+[data-scope="navbar"][data-part="panel"] {
+    @apply md:hidden border-t border-line px-(--sigta-gutter) py-4 flex flex-col gap-3;
+
+    [data-sigta="navbar"][data-collapse="lg"] > & { @apply flex lg:hidden; }
+}

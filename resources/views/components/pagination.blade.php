@@ -1,7 +1,9 @@
-{{-- Page navigation. Pass a Laravel paginator (`:paginator="$users"`) or drive it
-     manually with `pages`/`current`/`url`. `url` is a href pattern for manual mode:
-     "?page=%d" (sprintf) or a prefix the page number is appended to ("?page=").
-     Without `url`, manual mode renders plain buttons for the consumer to wire up. --}}
+{{-- Page navigation. Pass a Laravel paginator (`:paginator="$users"`), the neutral shape
+     both runtimes read (`:paginator="['currentPage' => 3, 'lastPage' => 12]"`, or a
+     paginator's toArray()), or drive it manually with `pages`/`current`. `url` is a href
+     pattern: "?page=%d" (sprintf) or a prefix the page number is appended to ("?page="),
+     or a Closure(int $page): string. Without hrefs (no paginator and no `url`), the
+     page links are plain buttons for the consumer to wire up. --}}
 @props([
     'paginator' => null,
     'pages' => null,
@@ -10,22 +12,37 @@
 ])
 
 @php
-$isSimple = $paginator !== null && ! $paginator instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator;
+$hrefFor = match (true) {
+    $url === null => null,
+    $url instanceof \Closure => $url,
+    default => fn (int $page) => str_contains($url, '%d') ? sprintf($url, $page) : $url.$page,
+};
 
-if ($paginator) {
+if ($paginator instanceof \Illuminate\Contracts\Pagination\Paginator) {
+    $isSimple = ! $paginator instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator;
     $current = $paginator->currentPage();
     $last = $isSimple ? null : $paginator->lastPage();
+    $hasMore = $paginator->hasMorePages();
     $hrefFor = fn (int $page) => $paginator->url($page);
     $prevHref = $paginator->previousPageUrl();
-    $nextHref = $isSimple ? ($paginator->hasMorePages() ? $paginator->url($current + 1) : null) : $paginator->nextPageUrl();
+    $nextHref = $isSimple ? ($hasMore ? $paginator->url($current + 1) : null) : $paginator->nextPageUrl();
 } else {
-    $last = max(1, (int) ($pages ?? 1));
-    $current = min($last, max(1, (int) $current));
-    $hrefFor = $url === null
-        ? null
-        : fn (int $page) => str_contains($url, '%d') ? sprintf($url, $page) : $url.$page;
+    if (is_array($paginator) && $paginator !== []) {
+        // The neutral shape: { currentPage, lastPage?, hasMorePages? }, or a paginator's
+        // toArray() (current_page, last_page, next_page_url). Not clamped, like a paginator.
+        $current = (int) ($paginator['currentPage'] ?? $paginator['current_page'] ?? 1);
+        $last = $paginator['lastPage'] ?? $paginator['last_page'] ?? null;
+        $last = $last === null ? null : (int) $last;
+        $hasMore = (bool) ($paginator['hasMorePages'] ?? (array_key_exists('next_page_url', $paginator)
+            ? $paginator['next_page_url'] !== null
+            : $last !== null && $current < $last));
+    } else {
+        $last = max(1, (int) ($pages ?? 1));
+        $current = min($last, max(1, (int) $current));
+        $hasMore = $current < $last;
+    }
     $prevHref = $hrefFor && $current > 1 ? $hrefFor($current - 1) : null;
-    $nextHref = $hrefFor && $current < $last ? $hrefFor($current + 1) : null;
+    $nextHref = $hrefFor && ($last !== null ? $current < $last : $hasMore) ? $hrefFor($current + 1) : null;
 }
 
 // Window of page links: 1 … around-current … last.
@@ -49,47 +66,42 @@ if ($last !== null) {
 }
 
 $atStart = $current <= 1;
-$atEnd = $last !== null ? $current >= $last : ($nextHref === null);
-
-$pageBase = 'flex h-7 min-w-7 items-center justify-center px-1 rounded-base tabular-nums no-underline transition-colors duration-150 ease-out';
-$pageIdle = $pageBase.' text-graphite hover:text-ink hover:bg-ink/5';
-$pageCurrent = $pageBase.' bg-ink text-surface';
-$arrow = 'flex size-7 items-center justify-center rounded-base text-ink no-underline transition-colors duration-150 ease-out hover:bg-ink/5 disabled:opacity-40 disabled:pointer-events-none aria-disabled:opacity-40 aria-disabled:pointer-events-none';
+$atEnd = $last !== null ? $current >= $last : ! $hasMore;
 @endphp
 
 <nav data-sigta="pagination" {{ $attributes->merge(['aria-label' => 'Pagination']) }}>
-    <ul class="m-0 flex list-none items-center gap-1 p-0 font-mono text-[0.72rem] tracking-[0.04em]">
+    <ul data-scope="pagination" data-part="list">
         <li>
             @if ($atStart)
-                <span class="{{ $arrow }}" aria-disabled="true" aria-hidden="true"><x-sigta::icon name="chevron-left" size="sm" /></span>
+                <span aria-disabled="true" aria-hidden="true" data-scope="pagination" data-part="prev"><x-sigta::icon name="chevron-left" size="sm" /></span>
             @elseif ($prevHref !== null)
-                <a href="{{ $prevHref }}" class="{{ $arrow }}" aria-label="Previous page" rel="prev"><x-sigta::icon name="chevron-left" size="sm" /></a>
+                <a href="{{ $prevHref }}" aria-label="Previous page" rel="prev" data-scope="pagination" data-part="prev"><x-sigta::icon name="chevron-left" size="sm" /></a>
             @else
-                <button type="button" class="{{ $arrow }}" aria-label="Previous page"><x-sigta::icon name="chevron-left" size="sm" /></button>
+                <button type="button" aria-label="Previous page" data-scope="pagination" data-part="prev"><x-sigta::icon name="chevron-left" size="sm" /></button>
             @endif
         </li>
 
         @foreach ($items as $item)
             <li>
                 @if ($item === '…')
-                    <span class="flex h-7 min-w-7 items-center justify-center text-graphite" aria-hidden="true">…</span>
+                    <span aria-hidden="true" data-scope="pagination" data-part="gap">…</span>
                 @elseif ($item === $current)
-                    <span class="{{ $pageCurrent }}" aria-current="page">{{ $item }}</span>
+                    <span aria-current="page" data-scope="pagination" data-part="page">{{ $item }}</span>
                 @elseif ($hrefFor !== null)
-                    <a href="{{ $hrefFor($item) }}" class="{{ $pageIdle }}" aria-label="Page {{ $item }}">{{ $item }}</a>
+                    <a href="{{ $hrefFor($item) }}" aria-label="Page {{ $item }}" data-scope="pagination" data-part="page">{{ $item }}</a>
                 @else
-                    <button type="button" class="{{ $pageIdle }}" aria-label="Page {{ $item }}">{{ $item }}</button>
+                    <button type="button" aria-label="Page {{ $item }}" data-scope="pagination" data-part="page">{{ $item }}</button>
                 @endif
             </li>
         @endforeach
 
         <li>
             @if ($atEnd)
-                <span class="{{ $arrow }}" aria-disabled="true" aria-hidden="true"><x-sigta::icon name="chevron-right" size="sm" /></span>
+                <span aria-disabled="true" aria-hidden="true" data-scope="pagination" data-part="next"><x-sigta::icon name="chevron-right" size="sm" /></span>
             @elseif ($nextHref !== null)
-                <a href="{{ $nextHref }}" class="{{ $arrow }}" aria-label="Next page" rel="next"><x-sigta::icon name="chevron-right" size="sm" /></a>
+                <a href="{{ $nextHref }}" aria-label="Next page" rel="next" data-scope="pagination" data-part="next"><x-sigta::icon name="chevron-right" size="sm" /></a>
             @else
-                <button type="button" class="{{ $arrow }}" aria-label="Next page"><x-sigta::icon name="chevron-right" size="sm" /></button>
+                <button type="button" aria-label="Next page" data-scope="pagination" data-part="next"><x-sigta::icon name="chevron-right" size="sm" /></button>
             @endif
         </li>
     </ul>

@@ -1,7 +1,9 @@
 {{-- Line/area chart (brand .chart-wrap language): smooth ink line, faded
      currentColor area, three hairline gridlines, latest point highlighted
      with an accent halo + dashed drop line to the axis.
-     Usage: <x-sigta::chart.line :values="[…]" :labels="['W1','W13','W26']" label="…" /> --}}
+     Usage: <x-sigta::chart.line :values="[…]" :labels="['W1','W13','W26']" label="…" />
+     The geometry is mirrored in @sigta-hq/core (chart.ts) for the Svelte
+     runtime: change both together, the conformance check compares them. --}}
 @props([
     'values' => [],
     'labels' => null,
@@ -58,13 +60,14 @@ $end = $n ? $points[$n - 1] : null;
 $gradientId = 'sigta-chart-'.\Illuminate\Support\Str::random(6);
 @endphp
 
-<div data-sigta="chart.line" {{ $attributes->merge(['class' => 'w-full text-ink']) }}>
+<div data-sigta="chart.line" {{ $attributes }}>
     <svg
         viewBox="0 0 {{ $w }} {{ $h }}"
         preserveAspectRatio="none"
         xmlns="http://www.w3.org/2000/svg"
         @if ($label) role="img" aria-label="{{ $label }}" @else aria-hidden="true" @endif
-        class="block w-full h-auto"
+        data-scope="chart.line"
+        data-part="plot"
     >
         <defs>
             <linearGradient id="{{ $gradientId }}" x1="0" y1="0" x2="0" y2="1">
@@ -94,7 +97,7 @@ $gradientId = 'sigta-chart-'.\Illuminate\Support\Str::random(6);
     </svg>
 
     @if ($labels)
-        <div class="flex justify-between gap-2 mt-1.5 font-mono text-[0.62rem] text-graphite" aria-hidden="true">
+        <div data-scope="chart.line" data-part="labels" aria-hidden="true">
             @foreach ($labels as $tick)
                 <span>{{ $tick }}</span>
             @endforeach

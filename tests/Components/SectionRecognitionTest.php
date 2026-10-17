@@ -13,7 +13,7 @@ it('renders with zero props: root marker + default Danish copy', function () {
         // composes section-header + two-col tile-grid
         ->toContain('data-sigta="section-header"')
         ->toContain('data-sigta="tile-grid"')
-        ->toContain('md:grid-cols-2')
+        ->toContain('data-sigta="tile-grid" data-cols="2"')
         // scene + answer copy from the default cards
         ->toContain('Tilbuddet i indbakken')
         ->toContain('Vi har fået et tilbud på 750.000 kr.')

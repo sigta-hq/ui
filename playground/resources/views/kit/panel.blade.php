@@ -8,7 +8,7 @@
         «/sigta:panel>
 
         «sigta:panel>
-            «sigta:annot :rotate="-5" class="absolute -top-3 right-[8%] text-[1.3rem]">overhæng vises«/sigta:annot>
+            «sigta:annot :rotate="-5" class="absolute -top-3 right-[8%]">overhæng vises«/sigta:annot>
             «span class="mb-[1.1rem] block font-mono text-[0.66rem] tracking-[0.14em] uppercase text-graphite">Spor 2 · Fast månedspris«/span>
             «sigta:heading level="3" class="mb-4 text-[clamp(1.4rem,2.2vw,1.8rem)]">Skræddersyet software som abonnement«/sigta:heading>
             «p class="text-[0.98rem] leading-[1.6] text-graphite">Panelet klipper ikke den overhængende note, fordi der ikke er overflow-hidden.«/p>

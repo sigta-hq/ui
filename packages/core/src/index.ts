@@ -11,3 +11,5 @@ export * from './globals.ts';
 export * from './format.ts';
 export * from './classes.ts';
 export * from './chart.ts';
+export * from './pagination.ts';
+export * from './floating-bar.ts';

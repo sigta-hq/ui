@@ -95,6 +95,18 @@ it('forwards wire:model and rows to the native textarea', function () {
     expect($html)
         ->toContain('rows="8"')
         ->toMatch('/<textarea[^>]*wire:model="body"/')
-        ->toContain('border-danger')
+        ->toMatch('/<textarea[^>]*aria-invalid="true"/')
         ->toContain('Too short.');
+
+    expect(contractCss('textarea'))->toContain('&[aria-invalid="true"] {')->toContain('@apply border-danger focus:border-ink;');
+});
+
+it('fills a textarea from a value attribute when the slot is empty', function () {
+    expect(Blade::render('<x-sigta::textarea value="From the value" />'))
+        ->toContain('>From the value</textarea>')
+        ->not->toContain('value="From the value"');
+
+    // The slot wins when both are given.
+    expect(Blade::render('<x-sigta::textarea value="Ignored">From the slot</x-sigta::textarea>'))
+        ->toContain('>From the slot</textarea>');
 });

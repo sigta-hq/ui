@@ -44,7 +44,7 @@ $tiers ??= [
         @foreach ($tiers as $tier)
             <x-sigta::panel>
                 @if (! empty($tier['annot']))
-                    <x-sigta::annot :rotate="-5" class="absolute -top-3 right-[8%] text-[1.3rem] max-sm:hidden">{{ $tier['annot'] }}</x-sigta::annot>
+                    <x-sigta::annot :rotate="-5" class="absolute -top-3 right-[8%] max-sm:hidden">{{ $tier['annot'] }}</x-sigta::annot>
                 @endif
 
                 @if (! empty($tier['label']))

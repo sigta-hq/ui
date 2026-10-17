@@ -1,0 +1,15 @@
+/* Section header — the heading on the left (an eyebrow above it), the
+   graphite lede on the right, baseline-aligned; the lede wraps under the
+   heading when the row runs out of room. */
+[data-sigta="section-header"] {
+    @apply flex flex-wrap items-end justify-between gap-8;
+}
+[data-scope="section-header"][data-part="eyebrow"] {
+    @apply mb-[1.2rem];
+}
+[data-scope="section-header"][data-part="heading"] {
+    @apply max-w-[16ch];
+}
+[data-scope="section-header"][data-part="lede"] {
+    @apply max-w-[34ch];
+}

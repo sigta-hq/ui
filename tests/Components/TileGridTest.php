@@ -13,24 +13,28 @@ it('renders a hairline-gap grid with tiles and numbers', function () {
     expect($html)
         ->toContain('data-sigta="tile-grid"')
         ->toContain('data-sigta="tile"')
-        ->toContain('gap-px')
-        ->toContain('bg-line')
-        ->toContain('border border-line')
-        ->toContain('rounded-base')
-        ->toContain('overflow-hidden')
         // tiles + numbers
         ->toContain('Teknisk ledelse')
         ->toContain('Din mand i rummet')
-        ->toContain('01')
-        ->toContain('02')
-        ->toContain('bg-surface-raised');
+        ->toContain('<span data-scope="tile" data-part="num">01</span>')
+        ->toContain('<span data-scope="tile" data-part="num">02</span>');
+
+    expect(contractCss('tile-grid'))
+        ->toMatch('/\[data-sigta="tile-grid"\] \{\s*@apply grid gap-px overflow-hidden rounded-base border border-line bg-line;/')
+        ->toMatch('/\[data-sigta="tile"\] \{\s*@apply flex flex-col bg-surface-raised/');
 });
 
 it('maps the cols prop to responsive grid columns', function () {
-    expect(Blade::render('<x-sigta::tile-grid cols="4" />'))->toContain('lg:grid-cols-4');
-    expect(Blade::render('<x-sigta::tile-grid cols="4" />'))->toContain('sm:grid-cols-2');
-    expect(Blade::render('<x-sigta::tile-grid cols="3" />'))->toContain('md:grid-cols-3');
-    expect(Blade::render('<x-sigta::tile-grid cols="2" />'))->toContain('md:grid-cols-2');
+    expect(Blade::render('<x-sigta::tile-grid cols="4" />'))->toContain('data-cols="4"');
+    expect(Blade::render('<x-sigta::tile-grid cols="3" />'))->toContain('data-cols="3"');
+    expect(Blade::render('<x-sigta::tile-grid cols="2" />'))->toContain('data-cols="2"');
+    expect(Blade::render('<x-sigta::tile-grid />'))->toContain('data-cols="3"');
+
+    expect(contractCss('tile-grid'))
+        ->toContain('&[data-cols="4"] { @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-4; }')
+        ->toContain('&[data-cols="2"] { @apply grid-cols-1 md:grid-cols-2; }')
+        // 3, and any count the component does not know
+        ->toContain('&:not(:is([data-cols="2"], [data-cols="4"])) { @apply grid-cols-1 md:grid-cols-3; }');
 });
 
 it('renders a tile without a number', function () {
@@ -38,7 +42,8 @@ it('renders a tile without a number', function () {
 
     expect($html)
         ->toContain('data-sigta="tile"')
-        ->toContain('Bare indhold');
+        ->toContain('Bare indhold')
+        ->not->toContain('data-part="num"');
 });
 
 it('forwards arbitrary attributes on both grid and tile', function () {
