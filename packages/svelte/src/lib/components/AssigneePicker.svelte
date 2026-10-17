@@ -9,6 +9,7 @@
     import { Presence } from '../runtime/presence.svelte.js';
     import Avatar from './Avatar.svelte';
     import Icon from './Icon.svelte';
+    import { translator } from '../runtime/messages.js';
 
     interface Person {
         id: string | number;
@@ -26,6 +27,7 @@
     }
 
     let { user = null, members = [], size = 'xs', showName = false, label = null, inline = false, onselect, onclick, ...rest }: Props = $props();
+    const t = translator();
 
     let open = $state(false);
     let q = $state('');
@@ -84,11 +86,11 @@
 {#snippet content()}
     {#if open}
         <div>
-            <input bind:this={search} bind:value={q} type="text" placeholder="Search people" data-scope="assignee-picker" data-part="search" data-test="assignee-search" />
+            <input bind:this={search} bind:value={q} type="text" placeholder={t('Search people')} data-scope="assignee-picker" data-part="search" data-test="assignee-search" />
             <div data-scope="assignee-picker" data-part="list">
                 <button type="button" onclick={() => select(null)} data-scope="assignee-picker" data-part="unassign">
                     <span aria-hidden="true" data-scope="assignee-picker" data-part="mark"><Icon name="x" size="xs" /></span>
-                    Unassigned
+                    {t('Unassigned')}
                 </button>
                 {#each filtered as member (member.id)}
                     <button type="button" onclick={() => select(member.id)} data-scope="assignee-picker" data-part="option">
@@ -96,7 +98,7 @@
                         <span data-scope="assignee-picker" data-part="label">{member.name}</span>
                     </button>
                 {/each}
-                <p hidden={filtered.length > 0} data-scope="assignee-picker" data-part="empty">No people found.</p>
+                <p hidden={filtered.length > 0} data-scope="assignee-picker" data-part="empty">{t('No people found.')}</p>
             </div>
         </div>
     {/if}
@@ -107,7 +109,7 @@
         type="button"
         bind:this={trigger}
         draggable="false"
-        aria-label={label ?? 'Assignee'}
+        aria-label={label ?? t('Assignee')}
         {...rest}
         onclick={toggle}
         ondragstart={noDrag}
@@ -122,7 +124,7 @@
             </span>
         {/if}
         {#if showName}
-            <span data-scope="assignee-picker" data-part="name">{userName ?? 'Assign'}</span>
+            <span data-scope="assignee-picker" data-part="name">{userName ?? t('Assign')}</span>
         {/if}
     </button>
 

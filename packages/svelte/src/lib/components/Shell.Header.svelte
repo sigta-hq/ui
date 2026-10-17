@@ -8,6 +8,7 @@
     import type { Snippet } from 'svelte';
     import type { HTMLAttributes } from 'svelte/elements';
     import Icon from './Icon.svelte';
+    import { translator } from '../runtime/messages.js';
 
     interface Props extends HTMLAttributes<HTMLElement> {
         brand?: Snippet;
@@ -15,6 +16,7 @@
     }
 
     let { brand, actions, ...rest }: Props = $props();
+    const t = translator();
 
     let navOpen = $state(false);
 
@@ -40,7 +42,7 @@
         <button
             type="button"
             aria-expanded={navOpen ? 'true' : 'false'}
-            aria-label="Toggle navigation"
+            aria-label={t('Toggle navigation')}
             onclick={toggle}
             data-scope="shell.header"
             data-part="toggle"

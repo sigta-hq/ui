@@ -8,6 +8,7 @@
     import { Presence } from '../runtime/presence.svelte.js';
     import Field from './Field.svelte';
     import Icon from './Icon.svelte';
+    import { translator } from '../runtime/messages.js';
 
     interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'onchange'> {
         label?: string | null;
@@ -21,6 +22,7 @@
     }
 
     let { label = null, value = $bindable(null), placeholder = null, currency = $bindable('DKK'), currencies = null, currencyName = null, onchange, oncurrency, ...rest }: Props = $props();
+    const t = translator();
 
     const uid = $props.id();
     const amountId = `sigta-${uid}`;
@@ -71,7 +73,7 @@
             bind:value={major}
             oninput={typed}
             placeholder={placeholder ?? '0'}
-            aria-label={`${label ? `${label} ` : ''}amount`}
+            aria-label={`${label ? `${label} ` : ''}${t('amount')}`}
             data-test="money-amount"
             data-scope="money-input"
             data-part="amount"
@@ -83,7 +85,7 @@
                 onclick={() => { open = !open; }}
                 aria-expanded={open ? 'true' : 'false'}
                 aria-haspopup="listbox"
-                aria-label="Currency"
+                aria-label={t('Currency')}
                 data-test="money-currency"
                 data-scope="money-input"
                 data-part="currency"

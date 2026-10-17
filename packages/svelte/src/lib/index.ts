@@ -128,3 +128,4 @@ export { default as Toast } from './components/Toast.svelte';
 export { default as Tooltip } from './components/Tooltip.svelte';
 export { sigta, ensureRuntime } from './runtime/runtime.js';
 export { leave, arrive } from './runtime/transitions.js';
+export { setMessages, type Messages } from './runtime/messages.js';

@@ -397,6 +397,12 @@ window events.
 Trigger a toast with `Sigta::toast('msg')` (Livewire), `$sigta.toast('msg')` (Alpine), or `window.Sigta.toast(...)` (JS). Variants include `warning` and `info` (`info` is Sigta-specific).
 
 Include `<sigta:toast />` once in your layout. With `wire:navigate`, wrap it in `@persist('toast')`.
+
+### Language
+
+Sigta's own strings (aria labels such as "Toggle navigation", empty states
+such as "No people found.") go through `__()`, so they follow the app's
+locale: translate them in `lang/<locale>.json` like any other string.
 <!-- @end -->
 <!-- @svelte -->
 ## Svelte notes
@@ -430,6 +436,28 @@ connectInertia();
 
 `connectInertia({ saveState: 'page' })` also drives `<SaveState name="page">`
 from every non-GET visit: saving, then saved, or failed on validation errors.
+
+### Language
+
+Sigta's own strings (aria labels such as "Toggle navigation", empty states
+such as "No people found.") are English until you give the root layout a
+message map keyed by the English text — the same shape as a Laravel
+`lang/<locale>.json`, so a backend's translation file works as is:
+
+```svelte
+<script>
+    import { setMessages } from '@sigta-hq/svelte';
+    import da from '../lang/da.json';
+    let { children } = $props();
+    setMessages(da);
+</script>
+
+{@render children()}
+```
+
+It lives in Svelte context, so server renders in different languages never
+mix. Never hard-code a translation into a Sigta component's label prop to work
+around a missing message — add the message.
 <!-- @end -->
 
 ## When to extend vs. when to ask

@@ -1,6 +1,8 @@
 <!-- A consumer app: everything below comes from the installed @sigta-hq packages, nothing from the monorepo sources. -->
 <script>
-    import { Autocomplete, Badge, Button, Card, Checkbox, Dropdown, Field, Heading, Icon, Input, Kanban, Modal, Section, Text, Toast, sigta } from '@sigta-hq/svelte';
+    import { Autocomplete, Badge, Button, Card, Checkbox, Dropdown, Field, Heading, Icon, Input, Kanban, Modal, MoneyInput, Section, Text, Toast, setMessages, sigta } from '@sigta-hq/svelte';
+
+    setMessages({ Currency: 'Valuta' });
 
     let name = $state('');
     let owner = $state(null);
@@ -29,6 +31,7 @@
             <Autocomplete.Option value="grace">Grace Hopper</Autocomplete.Option>
         </Autocomplete>
         <Checkbox label="I agree" bind:checked={agreed} />
+        <MoneyInput label="Price" />
         <p data-testid="state">{name}|{owner}|{agreed}</p>
     </Card>
 

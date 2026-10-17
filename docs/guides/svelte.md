@@ -72,3 +72,25 @@ session()->flash('sigta', ['toasts' => [['text' => 'Saved', 'variant' => 'succes
 
 Everything works in plain Svelte or SvelteKit: call `sigta.toast()` after a
 fetch, drive `<SaveState>` with `sigta.save(promise, name)`.
+
+## Language
+
+Sigta's own strings (aria labels such as "Toggle navigation", empty states
+such as "No people found.") are English until the root layout gives Sigta a
+message map. The keys are the English text, exactly like a Laravel
+`lang/<locale>.json`, so whatever translation file your backend already has
+works as is:
+
+```svelte
+<script>
+    import { setMessages } from '@sigta-hq/svelte';
+    import da from '../lang/da.json';
+    let { children } = $props();
+    setMessages(da);
+</script>
+
+{@render children()}
+```
+
+The map lives in Svelte context, so server renders for different languages
+never share it.

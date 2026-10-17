@@ -7,6 +7,7 @@
     import { tick } from 'svelte';
     import { durationDraft, durationLabel, durationMinutes, parseDuration } from '@sigta-hq/core';
     import Field from './Field.svelte';
+    import { translator } from '../runtime/messages.js';
 
     interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'onchange'> {
         label?: string | null;
@@ -16,6 +17,7 @@
     }
 
     let { label = null, value = $bindable(null), placeholder = null, onchange, ...rest }: Props = $props();
+    const t = translator();
 
     const uid = $props.id();
     const editorId = `sigta-${uid}`;
@@ -76,7 +78,7 @@
             onkeydown={keydown}
             inputmode="numeric"
             placeholder="00:00"
-            aria-label={`${label ? `${label} ` : ''}as hours and minutes, HH:MM`}
+            aria-label={`${label ? `${label} ` : ''}${t('as hours and minutes, HH:MM')}`}
             data-scope="duration-input"
             data-part="editor"
             data-test="duration-editor"

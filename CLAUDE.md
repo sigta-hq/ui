@@ -149,8 +149,15 @@ How state flows follows each runtime:
 
 Data props use neutral shapes: ISO date strings, plain pagination objects,
 plain arrays of objects. Blade may additionally accept PHP types (Carbon, a
-paginator) and normalize them. Text Blade translates with `__()` is a label
-prop with the English default in Svelte.
+paginator) and normalize them.
+
+Sigta's own strings (aria labels, empty states) go through `__('English
+text')` in Blade and `t('English text')` in Svelte, where
+`const t = translator()` comes from `runtime/messages.ts`. An app translates
+both with one map keyed by the English text: a Laravel `lang/<locale>.json`
+on one side, `setMessages(map)` on the other. Add a string to both runtimes
+at once; `packages/svelte/test/messages.test.ts` fails when Blade's `__()`
+strings and Svelte's `t()` strings differ.
 
 ## Livewire compatibility
 

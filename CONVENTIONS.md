@@ -122,7 +122,7 @@ the adapters.
 - SSR-safe: nothing touches `window` or `document` at module level or during render; page-wide behavior comes from `ensureRuntime()` in `onMount`.
 - Compound components share state through context (`runtime/*.svelte.ts`), the twin of an Alpine component's shared scope.
 - Keep third-party instances (TipTap) in plain variables, not `$state`.
-- Text Blade translates with `__()` is a label prop with the English default in Svelte, so an app can pass its own.
+- Sigta's own strings go through `t('English text')` (`const t = translator()` from `runtime/messages.ts`) wherever Blade uses `__('English text')`: the same keys, so one `lang/<locale>.json` translates both runtimes (`setMessages(map)` in the Svelte root layout). A test holds the two lists equal.
 - `@sigta-hq/svelte` never depends on a backend. Server-driven toasts and celebrations come through the optional `@sigta-hq/svelte/inertia` and the neutral `sigta` page prop.
 
 ## Definition of done (per component)

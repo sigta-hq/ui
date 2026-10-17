@@ -98,6 +98,8 @@ try {
         const state = await tab.textContent('[data-testid="state"]');
         check('bind:value and bind:checked round-trip', state === 'Ada|grace|true', state);
 
+        check('setMessages translates Sigta\'s own strings', await tab.locator('[aria-label="Valuta"]').count() === 1);
+
         await tab.click('[data-sigta="section.faq"] summary >> nth=0');
         check('a section renders its default content and opens', await tab.evaluate(() => !!document.querySelector('[data-sigta="section.faq"] details[open]')));
     } finally {

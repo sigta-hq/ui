@@ -13,6 +13,7 @@
     import { onMount, untrack } from 'svelte';
     import { lockScroll, trapFocus } from '@sigta-hq/core';
     import Icon from './Icon.svelte';
+    import { translator } from '../runtime/messages.js';
     import { setShown, type ShowClasses } from '../runtime/show.js';
 
     interface Props extends HTMLAttributes<HTMLElement> {
@@ -23,6 +24,7 @@
     }
 
     let { open = $bindable(false), brand, actions, children, 'aria-label': ariaLabel, ...rest }: Props = $props();
+    const t = translator();
 
     const uid = $props.id();
     const panelId = `sigta-shell-sidebar-${uid}`;
@@ -115,7 +117,7 @@
                 type="button"
                 aria-expanded={open ? 'true' : 'false'}
                 aria-controls={panelId}
-                aria-label="Toggle navigation"
+                aria-label={t('Toggle navigation')}
                 onclick={toggle}
                 data-scope="shell.sidebar"
                 data-part="toggle"
@@ -146,7 +148,7 @@
         data-part="nav"
     >
         <div data-scope="shell.sidebar" data-part="dismiss">
-            <button type="button" onclick={close} aria-label="Close navigation" data-scope="shell.sidebar" data-part="close">
+            <button type="button" onclick={close} aria-label={t('Close navigation')} data-scope="shell.sidebar" data-part="close">
                 <Icon name="x" />
             </button>
         </div>

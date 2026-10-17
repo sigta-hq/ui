@@ -91,7 +91,12 @@ for (const [head, members] of [...roots.entries()].sort(([a], [b]) => a.localeCo
         ? `export const ${head}: typeof ${local(head)} & ${shape} = Object.assign(${local(head)}, { ${parts} });`
         : `export const ${head}: ${shape} = { ${parts} };`);
 }
-lines.push(`export { sigta, ensureRuntime } from './runtime/runtime.js';`, `export { leave, arrive } from './runtime/transitions.js';`, '');
+lines.push(
+    `export { sigta, ensureRuntime } from './runtime/runtime.js';`,
+    `export { leave, arrive } from './runtime/transitions.js';`,
+    `export { setMessages, type Messages } from './runtime/messages.js';`,
+    '',
+);
 emit('packages/svelte/src/lib/index.ts', lines.join('\n'));
 
 /* -------- LLM context files ----------------------------------------------- */

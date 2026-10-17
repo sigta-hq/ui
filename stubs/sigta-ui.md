@@ -244,6 +244,12 @@ Trigger a toast with `Sigta::toast('msg')` (Livewire), `$sigta.toast('msg')` (Al
 
 Include `<sigta:toast />` once in your layout. With `wire:navigate`, wrap it in `@persist('toast')`.
 
+### Language
+
+Sigta's own strings (aria labels such as "Toggle navigation", empty states
+such as "No people found.") go through `__()`, so they follow the app's
+locale: translate them in `lang/<locale>.json` like any other string.
+
 ## When to extend vs. when to ask
 
 If the design calls for something no Sigta component covers, **prefer composing
