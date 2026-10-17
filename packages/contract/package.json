@@ -1,17 +1,37 @@
 {
     "name": "@sigta-hq/contract",
     "version": "0.1.0",
-    "description": "Sigta UI contract — component manifests, the shared component stylesheet, tokens, fonts and icons every runtime renders against.",
+    "description": "Sigta UI contract \u2014 component manifests, the shared component stylesheet, tokens, fonts and icons every runtime renders against.",
     "license": "UNLICENSED",
     "type": "module",
-    "repository": { "type": "git", "url": "git+https://github.com/sigta-hq/ui.git", "directory": "packages/contract" },
-    "publishConfig": { "registry": "https://npm.pkg.github.com" },
-    "files": ["dist", "manifest.json", "css", "fonts", "src"],
-    "sideEffects": ["*.css"],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sigta-hq/ui.git",
+        "directory": "packages/contract"
+    },
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com"
+    },
+    "files": [
+        "dist",
+        "manifest.json",
+        "css",
+        "fonts",
+        "src"
+    ],
+    "sideEffects": [
+        "*.css"
+    ],
     "exports": {
-        ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
         "./manifest.json": "./manifest.json",
-        "./icons": { "types": "./dist/icons.d.ts", "default": "./dist/icons.js" },
+        "./icons": {
+            "types": "./dist/icons.d.ts",
+            "default": "./dist/icons.js"
+        },
         "./sigta.css": "./dist/css/sigta.css",
         "./core.css": "./dist/css/core.css",
         "./theme.css": "./dist/css/theme.css",
@@ -19,7 +39,8 @@
         "./fonts.css": "./dist/css/fonts.css",
         "./components.css": "./dist/css/components.css",
         "./tailwind.css": "./dist/css/tailwind.css",
-        "./fonts/*": "./fonts/*"
+        "./fonts/*": "./fonts/*",
+        "./preflight.css": "./dist/css/preflight.css"
     },
     "scripts": {
         "build": "node scripts/build.ts",

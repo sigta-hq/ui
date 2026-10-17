@@ -15,3 +15,7 @@ export * from './pagination.ts';
 export * from './floating-bar.ts';
 export * from './calendar.ts';
 export * from './time.ts';
+export * from './focus.ts';
+export * from './carousel.ts';
+export * from './autosize.ts';
+export * from './files.ts';

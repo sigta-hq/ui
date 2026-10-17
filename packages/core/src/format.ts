@@ -114,6 +114,76 @@ export function formatMoney(minor: number | string | null | undefined, options: 
     return position === 'before' ? symbol + formatted : `${formatted} ${symbol}`;
 }
 
+/* -------- money input ------------------------------------------------------- */
+
+/** PHP's is_numeric() for the values a prop or an input carries. */
+function isNumeric(value: unknown): boolean {
+    if (typeof value === 'number') return Number.isFinite(value);
+    return typeof value === 'string' && /^\s*[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?\s*$/.test(value);
+}
+
+/**
+ * A minor-unit amount as the money input's text field shows it: plain major
+ * units with no grouping and no trailing zeros (145050 → "1450.5", 145000 →
+ * "1450"); empty for a missing or non-numeric value. The Blade view computes
+ * the same in PHP.
+ */
+export function majorFromMinor(minor: number | string | null | undefined): string {
+    if (!isNumeric(minor)) return '';
+    return numberFormat(toInt(minor) / 100, 2, '.', '').replace(/0+$/, '').replace(/\.$/, '');
+}
+
+/**
+ * What someone typed into the money input, in minor units: a comma counts as
+ * the decimal point and the amount rounds to whole minor units ("1450,5" →
+ * 145050); null when it does not start with a number.
+ */
+export function minorFromMajor(text: string | number | null | undefined): number | null {
+    const n = parseFloat(String(text ?? '').replace(',', '.'));
+    return Number.isFinite(n) ? Math.round(n * 100) : null;
+}
+
+/* -------- duration input ---------------------------------------------------- */
+
+/** Whole minutes from a value a duration input carries: null when it holds none, else 0 or more. */
+export function durationMinutes(value: number | string | null | undefined): number | null {
+    return isNumeric(value) ? Math.max(0, toInt(value)) : null;
+}
+
+/**
+ * The duration input's tight label: `1h59m`, `2h`, `45m` — or the placeholder
+ * while there is no value (missing, or 0 minutes).
+ */
+export function durationLabel(minutes: number | string | null | undefined, placeholder = '0m'): string {
+    const total = durationMinutes(minutes) ?? 0;
+    if (total <= 0) return placeholder;
+    const h = Math.floor(total / 60);
+    const m = total % 60;
+    return h === 0 ? `${m}m` : m === 0 ? `${h}h` : `${h}h${m}m`;
+}
+
+/** The `HH:MM` draft the duration input edits; empty while there is no value. */
+export function durationDraft(minutes: number | string | null | undefined): string {
+    const total = durationMinutes(minutes) ?? 0;
+    return total > 0 ? formatDuration(total, 'clock') : '';
+}
+
+/**
+ * Whole minutes from what someone typed into the duration input, forgivingly:
+ * `H:MM` or `HH:MM` (either side may be missing), or a bare minute count.
+ * Anything else, and negatives, read as 0.
+ */
+export function parseDuration(raw: string | null | undefined): number {
+    const s = (raw ?? '').trim();
+    if (s === '') return 0;
+    if (s.includes(':')) {
+        const [hours, mins] = s.split(':');
+        return Math.max(0, (parseInt(hours, 10) || 0) * 60 + (parseInt(mins, 10) || 0));
+    }
+    const n = parseInt(s, 10);
+    return Number.isNaN(n) ? 0 : Math.max(0, n);
+}
+
 /* -------- progress ---------------------------------------------------------- */
 
 /** How far a progress bar is filled, 0–100. A max of 0 or less counts as a hair above 0. */

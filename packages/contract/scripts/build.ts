@@ -57,7 +57,12 @@ writeFileSync(join(out, 'theme.css'), read('theme.css'));
 writeFileSync(join(out, 'theme.example.css'), read('theme.example.css'));
 const core = LAYERS + read('base.css') + '\n' + compiled;
 writeFileSync(join(out, 'core.css'), banner('core: base + components, no theme') + core);
-writeFileSync(join(out, 'sigta.css'), banner('drop-in: core + the Sigta theme') + core + '\n' + fonts + '\n' + theme);
+// The drop-in file also works without Tailwind: it carries Tailwind's
+// preflight (the reset every component is drawn against), which an app that
+// does use Tailwind already has — the duplicate is identical and harmless.
+const preflight = readFileSync(join(pkg, '../../node_modules/tailwindcss/preflight.css'), 'utf8');
+writeFileSync(join(out, 'preflight.css'), banner('Tailwind\'s preflight, for apps without Tailwind') + `@layer base {\n${preflight}\n}\n`);
+writeFileSync(join(out, 'sigta.css'), banner('drop-in: preflight + core + the Sigta theme') + LAYERS + `@layer base {\n${preflight}\n}\n` + core.slice(LAYERS.length) + '\n' + fonts + '\n' + theme);
 
 // 3. TypeScript: schema, renderers, manifests, icons.
 rmSync(join(dist, 'manifests'), { recursive: true, force: true });
