@@ -22,7 +22,7 @@ export default defineComponent({
             default: null,
             description: 'Busy state. Livewire infers it from wire:click / wire:submit / type="submit" and shows the compass once the action outlasts a beat; true shows it now, false never. Svelte: pass the in-flight flag (loading={form.processing}); the compass appears once it outlasts a beat.',
         },
-        href: { type: 'string', default: null, native: true, description: 'Renders an <a> with the button look. target="_blank" gets rel="noopener" unless rel is given.' },
+        href: { type: 'string', default: null, native: true, description: 'Renders an <a> with the button look (a null or empty href stays a <button>). target="_blank" gets rel="noopener" unless rel is given.' },
         type: { type: 'enum', values: ['button', 'submit', 'reset'], default: 'button', native: true, description: 'The native button type. A submit button carries the busy markup automatically.' },
     },
     parts: {

@@ -465,6 +465,9 @@
           "label": "Filtered with the keyboard"
         },
         {
+          "label": "Reopened after a choice: the typed filter still holds"
+        },
+        {
           "label": "No matches, with an error"
         }
       ]
@@ -836,7 +839,7 @@
           "type": "string",
           "default": null,
           "native": true,
-          "description": "Renders an <a> with the button look. target=\"_blank\" gets rel=\"noopener\" unless rel is given."
+          "description": "Renders an <a> with the button look (a null or empty href stays a <button>). target=\"_blank\" gets rel=\"noopener\" unless rel is given."
         },
         "type": {
           "type": "enum",
@@ -5082,6 +5085,9 @@
         },
         {
           "label": "Chips chosen with Enter and a click"
+        },
+        {
+          "label": "Every chip chosen: the field wraps and the panel follows it down"
         },
         {
           "label": "A chip removed"

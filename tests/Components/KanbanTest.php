@@ -41,10 +41,18 @@ it('wires the drop handler to dispatch the persistence event', function () {
     $html = Blade::render('<x-sigta::kanban><x-sigta::kanban.column id="todo" label="To do" /></x-sigta::kanban>');
 
     expect($html)
-        ->toContain('sigta-kanban-move')          // event name present for Livewire
+        ->toContain('x-data="sigtaKanban()"')     // the board is the runtime's sigtaKanban
         ->toContain('data-kanban-body')
         ->toContain('x-on:drop.prevent="drop($event, \'todo\')"')
-        ->toContain('x-on:dragover.prevent="over($event, \'todo\')"');
+        ->toContain('x-on:dragover.prevent="over($event, \'todo\')"')
+        ->toContain('x-bind:data-over="overColumn === \'todo\' ? \'\' : null"');
+
+    // The event name Livewire listens for, dispatched by the runtime on drop.
+    expect(file_get_contents(__DIR__.'/../../packages/core/src/kanban.ts'))
+        ->toContain("KANBAN_MOVE_EVENT = 'sigta-kanban-move'");
+    expect(file_get_contents(__DIR__.'/../../resources/js/sigta.js'))
+        ->toContain("Alpine.data('sigtaKanban'")
+        ->toContain('this.$dispatch(KANBAN_MOVE_EVENT, {');
 });
 
 it('shows a count badge reflecting the number of cards', function () {
@@ -134,15 +142,64 @@ it('grows a drag handle and a dragging visual when a column is sortable', functi
         ->toContain('draggable="true"')                                 // it starts a native drag
         ->toContain('x-on:dragstart="columnStart(\'todo\', $event)"')   // wired to the board
         ->toContain('aria-label="Reorder To do"')                       // handle names the column
-        ->toContain("draggedColumn === 'todo'")                         // fades while dragging
-        ->toContain('data-[col-dragging]:opacity-40');
+        ->toContain('x-bind:data-col-dragging="draggedColumn === \'todo\' ? \'\' : null"');   // fades while dragging
+
+    expect(contractCss('kanban'))->toContain('&[data-col-dragging] { @apply opacity-40; }');
 });
 
 it('wires the board to reorder columns and dispatch the persistence event', function () {
     $html = Blade::render('<x-sigta::kanban><x-sigta::kanban.column id="todo" label="To do" sortable /></x-sigta::kanban>');
 
     expect($html)
-        ->toContain('sigta-kanban-column-move')   // event name present for Livewire
+        ->toContain('x-data="sigtaKanban()"')
         ->toContain('columnOver($event)')         // board handles column dragover
         ->toContain('columnDrop($event)');        // …and drop
+
+    // The event name Livewire listens for, dispatched by the runtime on drop.
+    expect(file_get_contents(__DIR__.'/../../packages/core/src/kanban.ts'))
+        ->toContain("KANBAN_COLUMN_MOVE_EVENT = 'sigta-kanban-column-move'");
+    expect(file_get_contents(__DIR__.'/../../resources/js/sigta.js'))
+        ->toContain('this.$dispatch(KANBAN_COLUMN_MOVE_EVENT, { column: id, position });');
+});
+
+it('carries the contract attributes and no design classes', function () {
+    $html = Blade::render(<<<'BLADE'
+        <x-sigta::kanban>
+            <x-sigta::kanban.column id="todo" label="To do" sortable>
+                <x-sigta::kanban.card id="c1">Card</x-sigta::kanban.card>
+            </x-sigta::kanban.column>
+        </x-sigta::kanban>
+    BLADE);
+
+    expect($html)
+        ->toContain('data-scope="kanban.column" data-part="header"')
+        ->toContain('data-scope="kanban.column" data-part="handle"')
+        ->toContain('data-scope="kanban.column" data-part="label"')
+        ->toContain('data-scope="kanban.column" data-part="end"')
+        ->toContain('data-scope="kanban.column" data-part="body"')
+        ->toContain('class="group"')                 // a hook for group-hover in card content
+        ->not->toContain('rounded-panel')
+        ->not->toContain('border-dashed')
+        ->not->toContain('bg-surface-raised');
+
+    $css = contractCss('kanban');
+    expect($css)
+        ->toContain('[data-sigta="kanban"] {')
+        ->toContain('[data-sigta="kanban.column"] {')
+        ->toContain('[data-scope="kanban.column"][data-part="body"] {')
+        ->toContain('&[data-over] { @apply border-ink bg-ink/5; }')     // the drop target inks
+        ->toContain('[data-sigta="kanban.card"] {')
+        ->toContain('&[data-dragging] { @apply opacity-40 cursor-grabbing; }');
+});
+
+it('renders the heading slot in its own part, without the label part', function () {
+    $html = Blade::render(<<<'BLADE'
+        <x-sigta::kanban.column id="backlog" label="Backlog">
+            <x-slot:heading><span>Custom</span></x-slot:heading>
+        </x-sigta::kanban.column>
+    BLADE);
+
+    expect($html)
+        ->toContain('data-scope="kanban.column" data-part="heading"')
+        ->not->toContain('data-part="label"');
 });

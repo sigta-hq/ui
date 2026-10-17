@@ -12,6 +12,7 @@ export const sourceAliases = [
     { find: /^@sigta-hq\/svelte\/inertia$/, replacement: join(root, 'packages/svelte/src/lib/inertia/index.ts') },
     { find: /^@sigta-hq\/svelte$/, replacement: join(root, 'packages/svelte/src/lib/index.ts') },
     { find: /^@sigta-hq\/core$/, replacement: join(root, 'packages/core/src/index.ts') },
+    { find: /^@sigta-hq\/core\/editor$/, replacement: join(root, 'packages/core/src/editor.ts') },
     { find: /^@sigta-hq\/contract\/icons$/, replacement: join(root, 'packages/contract/src/icons.ts') },
     { find: /^@sigta-hq\/contract\/sections$/, replacement: join(root, 'packages/contract/src/sections.ts') },
 ];

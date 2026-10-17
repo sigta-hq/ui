@@ -90,6 +90,10 @@ export default defineComponent({
             { press: ['ArrowDown', 'ArrowDown', 'Enter'] },
             { click: '[data-sigta="autocomplete.option"][data-value="brand"]' },
         ]),
+        chosen('Every chip chosen: the field wraps and the panel follows it down', [
+            { click: '[data-part="input"]' },
+            { press: ['Enter', 'ArrowDown', 'Enter', 'ArrowDown', 'Enter', 'ArrowDown', 'Enter'] },
+        ]),
         chosen('A chip removed', [
             { click: '[data-part="input"]' },
             { press: ['Enter', 'ArrowDown', 'Enter'] },

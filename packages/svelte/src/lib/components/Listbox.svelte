@@ -33,9 +33,6 @@
     const box = new Combobox({
         value,
         onchange: (chosen) => {
-            // There is no query box: choosing must not filter the options
-            // by the chosen label (the combobox writes it into the query).
-            box.query = '';
             value = chosen as string | null;
             onchange?.(value);
         },

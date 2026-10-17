@@ -21,6 +21,16 @@ it('renders as an anchor when href is present', function () {
         ->not->toContain('<button');
 });
 
+it('stays a button when href is null or empty, like the Svelte twin', function () {
+    foreach (['<x-sigta::button :href="null">Go</x-sigta::button>', '<x-sigta::button href="">Go</x-sigta::button>'] as $source) {
+        $html = Blade::render($source);
+
+        expect($html)
+            ->toContain('<button')
+            ->not->toContain('<a ');
+    }
+});
+
 it('forwards arbitrary attributes', function () {
     $html = Blade::render('<x-sigta::button wire:click="save" data-test="cta">Go</x-sigta::button>');
 

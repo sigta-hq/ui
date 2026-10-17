@@ -49,8 +49,8 @@ export class KanbanBoard {
     fromColumn: string | null = $state(null);
     overColumn: string | null = $state(null);
     draggedColumn: string | null = $state(null);
-    /** The board's root element (not state: only read inside handlers). */
-    root: HTMLElement | null = null;
+    /** The board's root element. */
+    root: HTMLElement | null = $state.raw(null);
     #callbacks: () => KanbanCallbacks;
     #origin: Spot | null = null;
 

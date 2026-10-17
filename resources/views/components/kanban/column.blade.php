@@ -44,8 +44,7 @@ $aria ??= $label;
                 x-on:dragstart="columnStart('{{ $id }}', $event)"
                 aria-label="{{ $aria ? 'Reorder '.$aria : 'Reorder column' }}"
                 data-sigta="kanban.column-handle"
-                data-scope="kanban.column"
-                data-part="handle"
+                data-scope="kanban.column" data-part="handle"
             >
                 <x-sigta::icon name="grip-vertical" size="xs" />
             </button>
@@ -68,8 +67,7 @@ $aria ??= $label;
         aria-label="{{ $aria }}"
         data-kanban-body
         data-column-id="{{ $id }}"
-        data-scope="kanban.column"
-        data-part="body"
+        data-scope="kanban.column" data-part="body"
         x-on:dragover.prevent="over($event, '{{ $id }}')"
         x-on:drop.prevent="drop($event, '{{ $id }}')"
         x-bind:data-over="overColumn === '{{ $id }}' ? '' : null"

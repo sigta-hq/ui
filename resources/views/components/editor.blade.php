@@ -17,6 +17,9 @@
      own origin is linked at once, then the resolver is asked GET resolve-url?url=…
      for JSON {title, url?}; the link's text becomes the title when it answers,
      and stays the address when it does not.
+     The editor itself (extensions, markdown, commands, links, uploads) is
+     @sigta-hq/core's editor.ts, shared with the Svelte Editor; resources/js/editor.js
+     is its Alpine glue. The look is the contract's editor.css (+ prose.css).
      Usage:
        <x-sigta::editor name="body" wire:model="body" :value="$post->body" label="Body" />
        <x-sigta::editor format="markdown" variant="inline" placeholder="Add a description"
@@ -63,29 +66,11 @@ if ($uploadUrl) {
     $tools[] = ['image', 'image', 'Picture'];
 }
 
-$btn = 'flex size-8 items-center justify-center rounded-base text-ink cursor-pointer transition-colors duration-150 hover:bg-ink/5';
-
-$frame = match (true) {
-    $inline => 'flex flex-col rounded-[5px] border-[1.5px] transition-colors -mx-[0.8em] hover:border-line focus-within:border-ink '.($error ? 'border-danger' : 'border-transparent'),
-    default => 'flex flex-col bg-surface border-[1.5px] rounded-[5px] overflow-hidden focus-within:border-ink transition-colors '.($error ? 'border-danger' : 'border-line'),
-};
-
-$toolbarFrame = $inline
-    ? 'order-last border-t border-line px-1.5 py-1'
-    : 'border-b border-line px-1.5 py-1';
-
-// The padding goes on the editable element itself (the runtime applies these
-// classes to it), so the whole box is editable surface: a click anywhere in it
-// places the caret, instead of only the line the text happens to occupy.
-$contentClass = $inline
-    ? 'px-[0.8em] py-[0.62em] max-w-none'
-    : 'px-4 py-3 max-w-none';
-
 // Like a textarea's rows: the empty editor is an inviting area, not a single
-// line. Inline fields default to three lines, the form variant to six. Expressed
-// in em of the prose line height plus the vertical padding, so it tracks the font.
+// line. Inline fields default to three lines, the form variant to six; the
+// contract turns the number into a min-height in em of the prose line height
+// plus the vertical padding, so it tracks the font.
 $rows = (int) ($rows ?? ($inline ? 3 : 6));
-$minHeight = 'min-height: calc('.$rows.' * 1.65em + '.($inline ? '1.24em' : '1.5em').');';
 @endphp
 
 <x-sigta::field :label="$label" :description="$description" :error="$error" :for="$id">
@@ -104,43 +89,43 @@ $minHeight = 'min-height: calc('.$rows.' * 1.65em + '.($inline ? '1.24em' : '1.5
         x-on:keydown.meta.k.prevent="openLink()"
         x-on:keydown.ctrl.k.prevent="openLink()"
         x-on:click="followLink($event)"
-        {{ $attributes->only('class')->merge(['class' => $frame]) }}
+        @if ($error) data-invalid @endif
+        {{ $attributes->only('class') }}
     >
         <div
             role="toolbar"
             aria-label="Formatting"
             aria-controls="{{ $id }}"
-            class="flex flex-wrap items-center gap-0.5 {{ $toolbarFrame }}"
+            data-scope="editor" data-part="toolbar"
             @if ($inline) x-show="focused || linkOpen" x-cloak @endif
         >
             @foreach ($tools as $tool)
                 @if ($tool[0] === '__sep')
-                    <span class="mx-1 h-5 w-px bg-line" aria-hidden="true"></span>
+                    <span data-scope="editor" data-part="separator" aria-hidden="true"></span>
                 @else
                     {{-- mousedown is prevented so the editor keeps focus and selection while a tool is clicked. --}}
                     <button
                         type="button"
-                        class="{{ $btn }}"
+                        data-scope="editor" data-part="tool"
                         aria-label="{{ $tool[2] }}"
                         x-on:mousedown.prevent
                         x-on:click="run('{{ $tool[0] }}'{{ isset($tool[3]) ? ', '.\Illuminate\Support\Js::from($tool[3]) : '' }})"
                         x-bind:aria-pressed="isActive('{{ $tool[0] }}'{{ isset($tool[3]) ? ', '.\Illuminate\Support\Js::from($tool[3]) : '' }})"
-                        x-bind:class="isActive('{{ $tool[0] }}'{{ isset($tool[3]) ? ', '.\Illuminate\Support\Js::from($tool[3]) : '' }}) ? 'bg-ink text-surface hover:bg-ink' : ''"
                     >
                         <x-sigta::icon :name="$tool[1]" size="sm" />
                     </button>
                 @endif
             @endforeach
 
-            <span class="ml-auto flex items-center gap-0.5">
+            <span data-scope="editor" data-part="end">
                 @if ($uploadUrl)
-                    <span x-show="uploading > 0" x-cloak class="flex size-8 items-center justify-center text-graphite" role="status" aria-label="Uploading"><x-sigta::icon name="loader-circle" size="sm" class="animate-spin" /></span>
+                    <span x-show="uploading > 0" x-cloak data-scope="editor" data-part="uploading" role="status" aria-label="Uploading"><x-sigta::icon name="loader-circle" size="sm" /></span>
                 @endif
-                <button type="button" class="{{ $btn }}" aria-label="Undo" x-on:mousedown.prevent x-on:click="run('undo')"><x-sigta::icon name="undo-2" size="sm" /></button>
-                <button type="button" class="{{ $btn }}" aria-label="Redo" x-on:mousedown.prevent x-on:click="run('redo')"><x-sigta::icon name="redo-2" size="sm" /></button>
+                <button type="button" data-scope="editor" data-part="tool" aria-label="Undo" x-on:mousedown.prevent x-on:click="run('undo')"><x-sigta::icon name="undo-2" size="sm" /></button>
+                <button type="button" data-scope="editor" data-part="tool" aria-label="Redo" x-on:mousedown.prevent x-on:click="run('redo')"><x-sigta::icon name="redo-2" size="sm" /></button>
             </span>
 
-            <div x-show="linkOpen" x-cloak class="flex w-full items-center gap-1.5 py-1" data-sigta="editor-link">
+            <div x-show="linkOpen" x-cloak data-sigta="editor-link" data-scope="editor" data-part="link">
                 <input
                     x-ref="linkInput"
                     x-model="linkUrl"
@@ -148,22 +133,24 @@ $minHeight = 'min-height: calc('.$rows.' * 1.65em + '.($inline ? '1.24em' : '1.5
                     inputmode="url"
                     placeholder="https://"
                     aria-label="Link address"
-                    class="min-w-0 flex-1 rounded-base border-[1.5px] border-line bg-surface px-2 py-1 font-mono text-[0.78rem] text-ink placeholder:text-graphite/70 focus:border-ink focus:outline-none"
+                    data-scope="editor" data-part="link-input"
                     x-on:keydown.enter.prevent.stop="applyLink()"
                     x-on:keydown.escape.prevent.stop="closeLink()"
                 />
-                <button type="button" class="{{ $btn }}" aria-label="Apply link" x-on:mousedown.prevent x-on:click="applyLink()"><x-sigta::icon name="check" size="sm" /></button>
-                <button type="button" class="{{ $btn }}" aria-label="Open link" x-on:mousedown.prevent x-on:click="visitLink()" x-bind:disabled="linkUrl.trim() === ''"><x-sigta::icon name="external-link" size="sm" /></button>
-                <button type="button" class="{{ $btn }}" aria-label="Remove link" x-on:mousedown.prevent x-on:click="removeLink()"><x-sigta::icon name="unlink" size="sm" /></button>
+                <button type="button" data-scope="editor" data-part="tool" aria-label="Apply link" x-on:mousedown.prevent x-on:click="applyLink()"><x-sigta::icon name="check" size="sm" /></button>
+                <button type="button" data-scope="editor" data-part="tool" aria-label="Open link" x-on:mousedown.prevent x-on:click="visitLink()" x-bind:disabled="linkUrl.trim() === ''"><x-sigta::icon name="external-link" size="sm" /></button>
+                <button type="button" data-scope="editor" data-part="tool" aria-label="Remove link" x-on:mousedown.prevent x-on:click="removeLink()"><x-sigta::icon name="unlink" size="sm" /></button>
             </div>
         </div>
 
-        {{-- TipTap mounts here and owns this subtree, so Livewire must never morph it. --}}
-        <div id="{{ $id }}" x-ref="element" wire:ignore class="flex cursor-text flex-col" data-content-class="{{ $contentClass }}" style="{{ $minHeight }}"></div>
+        {{-- TipTap mounts here and owns this subtree, so Livewire must never morph it.
+             The editable element it creates is the content part (its padding is the
+             contract's), filling the box so a click anywhere in it lands in the text. --}}
+        <div id="{{ $id }}" x-ref="element" wire:ignore data-scope="editor" data-part="mount" style="--sigta-editor-rows: {{ $rows }}"></div>
 
         @if ($uploadUrl)
             {{-- The picker behind the toolbar's picture tool; drop and paste reach the runtime directly. --}}
-            <input type="file" x-ref="imageInput" accept="image/*" multiple class="hidden" tabindex="-1" aria-hidden="true" x-on:change="pickedImages($event)">
+            <input type="file" x-ref="imageInput" accept="image/*" multiple tabindex="-1" aria-hidden="true" data-scope="editor" data-part="picker" x-on:change="pickedImages($event)">
         @endif
 
         <input type="hidden" x-ref="value" @if ($name) name="{{ $name }}" @endif value="{{ $value }}" {{ $attributes->except(['class', 'id']) }}>

@@ -196,7 +196,9 @@ const bundleOf = (slug) => viteManifest[relative(work, entries[slug])]?.file;
 cpSync(join(root, 'dist/sigta.js'), join(dist, 'assets/sigta.js'));
 writeFileSync(join(dist, 'assets/alpine.js'),
     readFileSync(join(root, 'node_modules/@alpinejs/focus/dist/cdn.min.js'), 'utf8') + '\n' + readFileSync(join(root, 'node_modules/alpinejs/dist/cdn.min.js'), 'utf8'));
-const livewireScripts = (base) => `<script src="${base}assets/sigta.js"></script>\n<script defer src="${base}assets/alpine.js"></script>`;
+// The editor's runtime is its own bundle (@sigtaEditorScripts), loaded only on the page that shows it.
+cpSync(join(root, 'dist/sigta-editor.js'), join(dist, 'assets/sigta-editor.js'));
+const livewireScripts = (base, slug) => `<script src="${base}assets/sigta.js"></script>\n${slug === 'editor' ? `<script src="${base}assets/sigta-editor.js"></script>\n` : ''}<script defer src="${base}assets/alpine.js"></script>`;
 
 for (const runtime of RUNTIMES) {
     for (const slug of pageOrder) {
@@ -214,7 +216,7 @@ for (const runtime of RUNTIMES) {
         const body = render(ComponentPage, { props: { components } }).body;
         write(`${runtime}/${slug}/`, page({
             runtime, path: `${runtime}/${slug}/`, title: titleOf(slug), body,
-            scripts: (base) => (runtime === 'livewire' ? livewireScripts(base) : `<script type="module" src="${base}assets/svelte/${bundleOf(slug)}"></script>`),
+            scripts: (base) => (runtime === 'livewire' ? livewireScripts(base, slug) : `<script type="module" src="${base}assets/svelte/${bundleOf(slug)}"></script>`),
         }));
     }
     for (const guide of guides.filter((g) => !g.runtime || g.runtime === runtime)) {

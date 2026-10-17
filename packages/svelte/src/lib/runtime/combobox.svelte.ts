@@ -24,6 +24,9 @@ const KEY = Symbol('sigta-combobox');
 export class Combobox {
     open = $state(false);
     query = $state('');
+    /** The query as last typed: options filter by this, not by query, so a
+        choice written back into the box does not hide the other options. */
+    applied = $state('');
     activeId: string | null = $state(null);
     options: ComboboxOption[] = $state([]);
     value: string | string[] | null = $state(null);
@@ -45,7 +48,7 @@ export class Combobox {
     }
 
     isVisible(option: ComboboxOption): boolean {
-        return matchesQuery(option.text(), this.query);
+        return matchesQuery(option.text(), this.applied);
     }
 
     get visible(): ComboboxOption[] {
@@ -71,6 +74,7 @@ export class Combobox {
     }
 
     filter(): void {
+        this.applied = this.query;
         this.setActive(null);
         this.open = true;
         this.reposition();
@@ -108,12 +112,15 @@ export class Combobox {
             this.closeList();
         }
         this.onchange(this.value);
+        // A chip added or removed can wrap the anchor onto another row.
+        this.reposition();
     }
 
     deselect(value: string): void {
         if (!this.multiple || !Array.isArray(this.value)) return;
         this.value = this.value.filter((v) => v !== value);
         this.onchange(this.value);
+        this.reposition();
     }
 }
 

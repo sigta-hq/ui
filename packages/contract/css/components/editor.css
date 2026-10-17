@@ -1,0 +1,84 @@
+/* Editor — the rich text editor: a toolbar of square tools over the editable
+   page, in a 1.5px frame that inks while the editor has focus and turns red
+   with an error (data-invalid). The inline variant is borderless until
+   hovered, sits flush with the text around it and shows its toolbar below
+   the text while editing. The text itself is .sigta-prose (prose.css). */
+[data-sigta="editor"] {
+    @apply flex flex-col rounded-[5px] border-[1.5px] transition-colors;
+
+    /* the form editor, and any variant the component does not know */
+    &:not([data-variant="inline"]) {
+        @apply overflow-hidden bg-surface border-line;
+
+        &[data-invalid] { @apply border-danger; }
+        &:focus-within { @apply border-ink; }
+    }
+
+    &[data-variant="inline"] {
+        @apply -mx-[0.8em] border-transparent;
+
+        &[data-invalid] { @apply border-danger; }
+        &:focus-within { @apply border-ink; }
+        /* after focus-within, as it always was: a hovered inline editor shows the hairline */
+        @apply hover:border-line;
+    }
+}
+
+[data-scope="editor"][data-part="toolbar"] {
+    @apply flex flex-wrap items-center gap-0.5 border-line px-1.5 py-1;
+}
+[data-sigta="editor"]:not([data-variant="inline"]) > [data-scope="editor"][data-part="toolbar"] {
+    @apply border-b;
+}
+[data-sigta="editor"][data-variant="inline"] > [data-scope="editor"][data-part="toolbar"] {
+    @apply order-last border-t;
+}
+
+/* A square tool; pressed (aria-pressed) while its mark or block is at the caret. */
+[data-scope="editor"][data-part="tool"] {
+    @apply flex size-8 items-center justify-center rounded-base text-ink cursor-pointer transition-colors duration-150 hover:bg-ink/5;
+
+    &[aria-pressed="true"] { @apply bg-ink text-surface hover:bg-ink; }
+}
+[data-scope="editor"][data-part="separator"] {
+    @apply mx-1 h-5 w-px bg-line;
+}
+[data-scope="editor"][data-part="end"] {
+    @apply ml-auto flex items-center gap-0.5;
+}
+[data-scope="editor"][data-part="uploading"] {
+    @apply flex size-8 items-center justify-center text-graphite;
+
+    & > [data-sigta="icon"] { @apply animate-spin; }
+}
+
+/* The link row under the tools: the address, then apply, open and remove. */
+[data-scope="editor"][data-part="link"] {
+    @apply flex w-full items-center gap-1.5 py-1;
+}
+[data-scope="editor"][data-part="link-input"] {
+    @apply min-w-0 flex-1 rounded-base border-[1.5px] border-line bg-surface px-2 py-1 font-mono text-[0.78rem] text-ink placeholder:text-graphite/70 focus:border-ink focus:outline-none;
+}
+
+/* Where TipTap mounts. Like a textarea's rows, --sigta-editor-rows lines of
+   prose plus the padding make its least height, which the editable element
+   inherits (prose.css), so the whole box is a place to click. */
+[data-scope="editor"][data-part="mount"] {
+    @apply flex cursor-text flex-col;
+    min-height: calc(var(--sigta-editor-rows, 6) * 1.65em + 1.5em);
+}
+[data-sigta="editor"][data-variant="inline"] > [data-scope="editor"][data-part="mount"] {
+    min-height: calc(var(--sigta-editor-rows, 3) * 1.65em + 1.24em);
+}
+
+/* The editable element TipTap creates. */
+[data-scope="editor"][data-part="content"] {
+    @apply max-w-none px-4 py-3 focus:outline-none;
+}
+[data-sigta="editor"][data-variant="inline"] [data-scope="editor"][data-part="content"] {
+    @apply px-[0.8em] py-[0.62em];
+}
+
+[data-scope="editor"][data-part="picker"] {
+    @apply hidden;
+}

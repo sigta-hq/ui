@@ -20,19 +20,15 @@
     let { onmove, oncolumnmove, children, ...rest }: Props = $props();
 
     const board = new KanbanBoard(() => ({ onmove, oncolumnmove }));
-    let root: HTMLDivElement | undefined = $state();
-    $effect(() => {
-        board.root = root ?? null;
-    });
 </script>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-    bind:this={root}
+    bind:this={board.root}
     data-sigta="kanban"
     ondragend={() => { board.end(); board.columnEnd(); }}
     ondragover={(event) => board.columnOver(event)}
     ondrop={(event) => board.columnDrop(event)}
-    role="presentation"
     {...rest}
 >
     {@render children?.()}

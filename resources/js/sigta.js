@@ -383,11 +383,14 @@ document.addEventListener('alpine:init', () => {
                 this.closeList();
             }
             this.syncInput();
+            // A chip added or removed can wrap the anchor onto another row.
+            this.$nextTick(() => this.positionPanel());
         },
         deselect(value) {
             if (!this.multiple) return;
             this.value = this.value.filter((v) => v !== value);
             this.syncInput();
+            this.$nextTick(() => this.positionPanel());
         },
         isSelected(value) {
             return isChosen(this.value, value);

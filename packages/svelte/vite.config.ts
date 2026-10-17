@@ -11,6 +11,7 @@ export default defineConfig({
         conditions: ['browser'],
         alias: [
             { find: /^@sigta-hq\/core$/, replacement: source('../core/src/index.ts') },
+            { find: /^@sigta-hq\/core\/editor$/, replacement: source('../core/src/editor.ts') },
             { find: /^@sigta-hq\/contract\/icons$/, replacement: source('../contract/src/icons.ts') },
             { find: /^@sigta-hq\/contract\/sections$/, replacement: source('../contract/src/sections.ts') },
         ],

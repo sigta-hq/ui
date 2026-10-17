@@ -1,4 +1,4 @@
-/* Sigta UI — Livewire runtime. Built by scripts/build-livewire.js from resources/js/sigta.js and packages/core/src; do not edit. sources:ae91bbee7be80908291872ed315be986de4d5152 */
+/* Sigta UI — Livewire runtime. Built by scripts/build-livewire.js from resources/js/sigta.js and packages/core/src; do not edit. sources:d9db7e9fb8b4bafd8aa2e20a13c8156d81be8dfa */
 (() => {
   // packages/core/src/env.ts
   var isBrowser = () => typeof window !== "undefined" && typeof document !== "undefined";
@@ -1328,11 +1328,13 @@
           this.closeList();
         }
         this.syncInput();
+        this.$nextTick(() => this.positionPanel());
       },
       deselect(value) {
         if (!this.multiple) return;
         this.value = this.value.filter((v) => v !== value);
         this.syncInput();
+        this.$nextTick(() => this.positionPanel());
       },
       isSelected(value) {
         return isChosen(this.value, value);

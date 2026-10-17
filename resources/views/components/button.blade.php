@@ -32,7 +32,7 @@ if ($loading === true) {
 }
 @endphp
 
-@if ($attributes->has('href'))
+@if (filled($attributes->get('href')))
     <a data-sigta="button" {{ $attributes->merge($linkAttributes) }}>{{ $slot }}</a>
 @else
     <button data-sigta="button" {{ $attributes->merge($buttonAttributes) }}>

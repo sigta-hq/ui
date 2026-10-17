@@ -65,12 +65,15 @@ export async function startHarness(fixtures, bladeHtml, svelteHtml) {
                 return res.end(readFileSync(join(root, 'packages/contract/fonts', url.pathname.slice(7))));
             }
             if (url.pathname === '/sigta.js') return send(readFileSync(join(root, 'dist/sigta.js'), 'utf8'), 'text/javascript');
+            if (url.pathname === '/sigta-editor.js') return send(readFileSync(join(root, 'dist/sigta-editor.js'), 'utf8'), 'text/javascript');
             if (url.pathname === '/alpine.js') return send(focus + '\n' + alpine, 'text/javascript');
             const [, runtime, id] = url.pathname.split('/');
             const fixture = byId[decodeURIComponent(id ?? '')];
             if (runtime === 'blade' && fixture) {
                 // The runtime registers on alpine:init, so it loads before Alpine starts.
-                return send(page('<script src="/sigta.js"></script><script defer src="/alpine.js"></script>', `<main id="fixture">${bladeHtml[fixture.id]}</main>`));
+                // The editor's runtime is its own bundle (@sigtaEditorScripts), loaded only where an editor is.
+                const editor = String(bladeHtml[fixture.id]).includes('data-sigta="editor"') ? '<script src="/sigta-editor.js"></script>' : '';
+                return send(page(`<script src="/sigta.js"></script>${editor}<script defer src="/alpine.js"></script>`, `<main id="fixture">${bladeHtml[fixture.id]}</main>`));
             }
             if (runtime === 'svelte' && fixture) {
                 const module = `/.conformance/harness-${process.pid}/${fileId(fixture.id)}.svelte`;

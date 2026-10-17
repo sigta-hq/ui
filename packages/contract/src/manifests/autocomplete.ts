@@ -70,6 +70,17 @@ export default defineComponent({
             interactions: [{ click: '[data-part="input"]' }, { fill: ['[data-part="input"]', 'ha'] }, { press: ['ArrowDown', 'ArrowDown'] }],
         },
         {
+            label: 'Reopened after a choice: the typed filter still holds',
+            tree: [el('div', { class: 'max-w-sm' },
+                c('autocomplete', { label: 'Assign to', placeholder: 'Search people…' },
+                    ...people.map((name) => c('autocomplete.option', { value: name.split(' ')[0].toLowerCase() }, name)),
+                ),
+            )],
+            // The chosen value is bound on the client, so this one compares in the browser.
+            conformance: 'browser',
+            interactions: [{ click: '[data-part="input"]' }, { fill: ['[data-part="input"]', 'er'] }, { press: ['ArrowDown', 'Enter'] }, { click: '[data-part="input"]' }],
+        },
+        {
             label: 'No matches, with an error',
             tree: [el('div', { class: 'max-w-sm' },
                 c('autocomplete', { label: 'Workspace', error: 'Pick a workspace.' },

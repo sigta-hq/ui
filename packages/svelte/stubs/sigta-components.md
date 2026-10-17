@@ -138,7 +138,7 @@ The action control: ink fill, outline, ghost and danger variants, a dark-band pa
   - `variant` (`primary` · `secondary` · `ghost` · `cta` · `danger` · `inverse` · `ghost-inverse`, default `secondary`) — primary/cta = ink fill; secondary = ink outline; ghost = borderless; danger = red fill; inverse / ghost-inverse = paper fill / hairline outline for dark bands.
   - `size` (`sm` · `base`, default `base`) — Control size.
   - `loading` (boolean) — Busy state. Livewire infers it from wire:click / wire:submit / type="submit" and shows the compass once the action outlasts a beat; true shows it now, false never. Svelte: pass the in-flight flag (loading={form.processing}); the compass appears once it outlasts a beat.
-  - `href` (string) — Renders an <a> with the button look. target="_blank" gets rel="noopener" unless rel is given.
+  - `href` (string) — Renders an <a> with the button look (a null or empty href stays a <button>). target="_blank" gets rel="noopener" unless rel is given.
   - `type` (`button` · `submit` · `reset`, default `button`) — The native button type. A submit button carries the busy markup automatically.
 - **Snippets:** `children` — The label; icons go inline (leading or trailing).
 - Renders <a> when href is set, else <button>. Lifts on hover, settles back onto the paper while pressed, springs back on release.
