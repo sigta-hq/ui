@@ -33,8 +33,16 @@ export default defineComponent({
         hide: { description: 'Close a modal by name from anywhere.', blade: 'sigta-modal-hide', svelte: false, detail: '{ name?: string }' },
     },
     uses: ['heading', 'icon', 'modal.trigger', 'modal.close'],
+    usage: {
+        livewire: `<sigta:modal.trigger name="settings"><sigta:button>Settings</sigta:button></sigta:modal.trigger>
+<sigta:modal name="settings" heading="Settings">…</sigta:modal>`,
+        svelte: `<Modal.Trigger name="settings"><Button>Settings</Button></Modal.Trigger>
+<Modal name="settings" heading="Settings">…</Modal>
+<!-- or: <Modal bind:open heading="Settings">…</Modal> -->`,
+    },
     notes: {
         shared: [
+            'Use it instead of custom dialog markup.',
             'Open by name with <sigta:modal.trigger name="…"> / <Modal.Trigger name="…">, or a sigta-modal-show window event { name }; close with modal.close or sigta-modal-hide.',
         ],
         livewire: [

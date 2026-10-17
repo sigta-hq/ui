@@ -119,6 +119,8 @@ export interface ComponentManifest {
     events?: Record<string, EventSpec>;
     /** Component names this one is composed of (for docs cross-links). */
     uses?: readonly string[];
+    /** The canonical usage snippet per runtime for the LLM reference (falls back to the first example). */
+    usage?: { livewire?: string; svelte?: string };
     /** Rules and gotchas for agents, shared or per runtime. */
     notes?: { shared?: readonly string[]; livewire?: readonly string[]; svelte?: readonly string[] };
     examples: Example[];

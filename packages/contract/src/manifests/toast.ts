@@ -36,9 +36,30 @@ export default defineComponent({
         },
     },
     uses: ['icon'],
+    usage: {
+        livewire: `@persist('toast')
+    <sigta:toast />
+@endpersist
+
+{{-- PHP --}}
+Sigta::toast('Your changes have been saved.');
+Sigta::toast(heading: 'Changes saved.', text: 'You can always update this in your settings.', variant: 'success', duration: 5000, link: ['text' => 'View settings', 'href' => '/settings', 'navigate' => true]);`,
+        svelte: `<!-- root layout -->
+<Toast />
+
+<script>
+    import { sigta } from '@sigta-hq/svelte';
+    sigta.toast('Your changes have been saved.');
+    sigta.toast({ heading: 'Changes saved.', text: 'You can always update this in your settings.', variant: 'success', duration: 5000, link: { text: 'View settings', href: '/settings' } });
+</script>`,
+    },
     notes: {
-        shared: ['Mount it once per layout, near the end of <body>.', 'Use a key to replace rather than stack (ticking off five items leaves one toast).'],
+        shared: [
+            'Variants: success, warning, danger, info.',
+            'An action (e.g. Undo after a completion) adds a button that fires its event — or runs onClick from JS — and closes the toast. A key replaces the showing toast with the same key instead of stacking another.','Mount it once per layout, near the end of <body>.', 'Use a key to replace rather than stack (ticking off five items leaves one toast).'],
         livewire: [
+            'From Alpine: $sigta.toast(\'Saved\') or $sigta.toast({ heading: \'…\', variant: \'warning\' }); from JS: window.Sigta.toast(…); low level: $this->dispatch(\'sigta-toast\', heading: \'Saved\', variant: \'success\').',
+            'action: [\'text\' => \'Undo\', \'event\' => \'task-reopen\', \'detail\' => [\'id\' => $id]] fires through Livewire, so an #[On(\'task-reopen\')] method receives $id.',
             'From PHP: Sigta::toast(\'Saved\') or Sigta::toast(heading: \'…\', variant: \'success\', action: [\'text\' => \'Undo\', \'event\' => \'task-reopen\', \'detail\' => [\'id\' => 5]]). An action\'s event goes through Livewire, so #[On] listeners hear it.',
             'With wire:navigate, wrap it in @persist(\'toast\') so toasts survive page transitions.',
         ],

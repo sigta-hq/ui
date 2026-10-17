@@ -21,10 +21,11 @@
         "generate:check": "node packages/contract/scripts/generate.ts --check",
         "conformance": "node scripts/conformance.js",
         "test": "npm run test -w @sigta-hq/contract -w @sigta-hq/core -w @sigta-hq/svelte",
-        "check": "npm run build && npm run generate:check && npm run test && npm run conformance && ./vendor/bin/pest && ./scripts/check-tokens.sh"
+        "check": "npm run build && npm run generate:check && npm run test && npm run check -w @sigta-hq/svelte && npm run conformance && npm run conformance -- --browser && ./vendor/bin/pest && ./scripts/check-tokens.sh"
     },
     "devDependencies": {
         "@alpinejs/focus": "^3.17.4",
+        "@inertiajs/svelte": "^2.3.29",
         "@playwright/test": "^1.64.1",
         "@sveltejs/package": "^3.0.1",
         "@sveltejs/vite-plugin-svelte": "^7.3.1",
@@ -35,9 +36,11 @@
         "@tiptap/extensions": "~3.31.0",
         "@tiptap/markdown": "~3.31.0",
         "@tiptap/starter-kit": "~3.31.0",
+        "@types/node": "^26.6.5",
         "alpinejs": "^3.17.4",
         "esbuild": "^0.28.0",
         "jsdom": "^29.1.1",
+        "marked": "^14.1.4",
         "pixelmatch": "^8.0.0",
         "pngjs": "^7.0.0",
         "svelte": "^5.57.2",

@@ -41,9 +41,9 @@
     aria-hidden={decorative ? 'true' : undefined}
     role={decorative ? undefined : 'progressbar'}
     aria-label={decorative ? undefined : name}
-    aria-valuemin={!decorative && percent !== null ? '0' : undefined}
-    aria-valuemax={!decorative && percent !== null ? '100' : undefined}
-    aria-valuenow={!decorative && percent !== null ? String(Math.round(percent)) : undefined}
+    aria-valuemin={!decorative && percent !== null ? 0 : undefined}
+    aria-valuemax={!decorative && percent !== null ? 100 : undefined}
+    aria-valuenow={!decorative && percent !== null ? Math.round(percent) : undefined}
     {...rest}
 >
     <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

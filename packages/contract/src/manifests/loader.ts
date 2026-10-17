@@ -25,11 +25,24 @@ export default defineComponent({
         progress: { attribute: 'data-progress', description: 'Present with a value; --sigta-progress carries it.' },
         landing: { attribute: 'data-landing', description: 'Set by the runtime while a finished compass closes its circle.' },
     },
+    usage: {
+        livewire: `<sigta:loader />
+<sigta:loader size="lg" :value="$import->progress" :state="$import->done ? 'done' : 'working'" />
+<sigta:loader variant="sketch" size="xl" label="Preparing your workspace" />`,
+        svelte: `<Loader />
+<Loader size="lg" value={job.progress} state={job.done ? 'done' : 'working'} />
+<Loader variant="sketch" size="xl" label="Preparing your workspace" />`,
+    },
     notes: {
         shared: [
-            'A loader never moves and nothing moves around it: keep labels beside it rendered through every state.',
-            'Drive the state from data (a poll, a prop); the runtime lands the compass when working turns done.',
+            'Use it wherever you would write "Loading…" or reach for a spinner.',
+            'States: queued (the compass standing, no arc yet, graphite), working, done (the mark complete with its arc and a small stamp), failed (shakes, danger), idle (the complete mark, graphite).',
+            'When a working loader turns done, the runtime lets it finish its turn, close the circle and raise it into the mark\'s arc before the stamp (with reduced motion it lands at once). currentColor throughout.',
+            'It never moves. Keep it rendered and change state rather than mounting it per request; if it must be hidden at rest, keep its box with class="invisible". Put it on the side of its text that stays put (after right-aligned text at a right edge) and reserve the text\'s room so a new word never pushes it.',
+            'Prefer save-state, a busy button or job, which hold their space already.',
         ],
+        livewire: ['Never wrap it in @if, x-if, x-show or a bare wire:loading; drive state with a morph or x-bind:data-state. Hidden at rest: class="invisible" wire:loading.class.remove="invisible".'],
+        svelte: ['Never wrap it in {#if}; pass state (and value) from your data.'],
     },
     examples: [
         {

@@ -13,6 +13,11 @@ export default defineComponent({
         variant: { type: 'enum', values: ['body', 'lede', 'muted', 'caption', 'hand'], default: 'body', description: 'body, lede (intro), muted, caption (mono), hand (Caveat).' },
     },
     slots: { default: { description: 'The text.', required: true } },
+    usage: {
+        livewire: '<sigta:text variant="muted">Secondary detail.</sigta:text>',
+        svelte: '<Text variant="muted">Secondary detail.</Text>',
+    },
+    notes: { shared: ['Use it instead of a <p> with text utilities. lede = large intro; muted = graphite secondary; caption = small mono; hand = Caveat handwriting.'] },
     examples: [
         {
             label: 'Variants',

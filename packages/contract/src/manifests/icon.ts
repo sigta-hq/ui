@@ -13,8 +13,15 @@ export default defineComponent({
         name: { type: 'string', required: true, description: 'Lucide icon name, e.g. arrow-right, check, x, calendar.' },
         size: { type: 'enum', values: ['xs', 'sm', 'base', 'lg'], default: 'base', description: 'xs 14px, sm 16px, base 20px, lg 24px.' },
     },
+    usage: {
+        livewire: '<sigta:icon name="arrow-right" size="sm" />',
+        svelte: '<Icon name="arrow-right" size="sm" />',
+    },
     notes: {
-        shared: ['Never import another icon library; every icon comes from <sigta:icon> / <Icon>.'],
+        shared: [
+            'Never import another icon library; every icon comes from <sigta:icon> / <Icon>. If an icon is missing from Lucide, say so in a comment rather than substituting another set.',
+            'aria-hidden by default; pass aria-label (and aria-hidden="false") for a meaningful icon.',
+        ],
     },
     examples: [
         {

@@ -23,7 +23,12 @@ export default defineComponent({
     },
     states: { invalid: { attribute: 'aria-invalid', description: 'Set with an error: red border until focused.' } },
     uses: ['field', 'icon'],
+    usage: {
+        livewire: '<sigta:input label="Email" type="email" icon="mail" wire:model="email" placeholder="you@studio.co" description="We only use this for the invoice." />',
+        svelte: '<Input label="Email" type="email" icon="mail" bind:value={email} placeholder="you@studio.co" description="We only use this for the invoice." />',
+    },
     notes: {
+        shared: ['Use it instead of a raw <input>; it wraps itself in the field chrome.'],
         livewire: ['wire:model (with .live / .blur modifiers) is forwarded onto the native <input>. Under Livewire 4 write wire:model.live.blur for v3-style blur sync.'],
         svelte: ['bind:value for two-way binding; name, placeholder, required … pass straight through to the <input>.'],
     },

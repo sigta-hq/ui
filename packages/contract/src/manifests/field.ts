@@ -22,7 +22,10 @@ export default defineComponent({
     slots: { default: { description: 'The control.', required: true } },
     uses: ['label'],
     notes: {
-        shared: ['With no label, description, error or attributes it renders the control alone, without a wrapper.'],
+        shared: [
+            'With no label, description, error or attributes it renders the control alone, without a wrapper.',
+            'Use it when wrapping a custom control; Sigta form controls already wrap themselves.',
+        ],
     },
     examples: [
         {

@@ -38,13 +38,28 @@ export default defineComponent({
     slots: {
         default: { description: 'The label; icons go inline (leading or trailing).', required: true },
     },
+    usage: {
+        livewire: `<sigta:button variant="cta" href="/book">Book a project <sigta:icon name="arrow-right" size="sm" /></sigta:button>
+<sigta:button href="https://calendly.com/sf-sigta/30min" target="_blank">Book a call</sigta:button>
+<sigta:button>Preview</sigta:button>
+<sigta:button variant="ghost">Cancel</sigta:button>
+<sigta:button variant="primary" wire:click="save">Save</sigta:button>   {{-- compass while it saves --}}`,
+        svelte: `<Button variant="cta" href="/book">Book a project <Icon name="arrow-right" size="sm" /></Button>
+<Button href="https://calendly.com/sf-sigta/30min" target="_blank">Book a call</Button>
+<Button>Preview</Button>
+<Button variant="ghost">Cancel</Button>
+<Button variant="primary" loading={form.processing} onclick={save}>Save</Button>   <!-- compass while it saves -->`,
+    },
     notes: {
         shared: [
+            'Renders <a> when href is set, else <button>. Lifts on hover, settles back onto the paper while pressed, springs back on release.',
             'Use variant="cta" with a trailing arrow-right icon for the main call to action.',
             'On a dark band (bg-inverse) use variant="inverse" and "ghost-inverse" — never override colours.',
+            'A link button with target="_blank" gets rel="noopener" unless rel is set.',
+            'The label never gives way to the loader: a quick action shows nothing; once one outlasts a beat (--sigta-dur-busy, 500ms) the compass stands in for a leading icon, or is written in before a label that has none. A submitting form\'s button keeps its ink while it is disabled for the submit. Never write "Saving…" into a button label yourself.',
         ],
         livewire: [
-            'wire:click / wire:submit / type="submit" add the busy markup; Livewire sets data-loading and the runtime shows the compass after a beat.',
+            'wire:click / wire:submit / type="submit" add the busy markup and the button takes no clicks while Livewire runs its action (Livewire sets data-loading, on the form for a submit); the runtime shows the compass after a beat.',
             ':loading="true" shows the busy state now (a button you drive yourself); :loading="false" never shows it.',
         ],
         svelte: [

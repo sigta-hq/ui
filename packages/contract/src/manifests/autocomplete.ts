@@ -36,6 +36,16 @@ export default defineComponent({
         change: { description: 'The value changed.', blade: 'input / change on the hidden input (wire:model hears it)', svelte: 'onchange', detail: 'string | null' },
     },
     uses: ['autocomplete.option'],
+    usage: {
+        livewire: `<sigta:autocomplete label="Country" wire:model="country" placeholder="Search…">
+    <sigta:autocomplete.option value="dk">Denmark</sigta:autocomplete.option>
+    <sigta:autocomplete.option value="se">Sweden</sigta:autocomplete.option>
+</sigta:autocomplete>`,
+        svelte: `<Autocomplete label="Country" bind:value={country} placeholder="Search…">
+    <Autocomplete.Option value="dk">Denmark</Autocomplete.Option>
+    <Autocomplete.Option value="se">Sweden</Autocomplete.Option>
+</Autocomplete>`,
+    },
     notes: {
         shared: ['The listbox floats with fixed positioning, so it escapes cards and forms that clip overflow.'],
         livewire: ['wire:model and every attribute except class and id land on the hidden value input.'],

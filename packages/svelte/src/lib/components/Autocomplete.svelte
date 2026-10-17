@@ -7,7 +7,7 @@
     import { serialize } from '@sigta-hq/core';
     import { Combobox } from '../runtime/combobox.svelte.js';
 
-    interface Props extends HTMLAttributes<HTMLInputElement> {
+    interface Props extends Omit<HTMLAttributes<HTMLInputElement>, 'onchange'> {
         label?: string | null;
         description?: string | null;
         error?: string | null;

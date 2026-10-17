@@ -4,9 +4,10 @@
      packages/svelte/src/lib/index.ts           the Svelte package's exports
    and (as they land) both runtimes' LLM stubs and the docs data.
    --check exits non-zero when a generated file is out of date. */
-import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { renderStubs } from './stubs.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '../../..');
 const check = process.argv.includes('--check');
@@ -15,6 +16,7 @@ const stale: string[] = [];
 
 function emit(path: string, content: string): void {
     const file = join(root, path);
+    mkdirSync(dirname(file), { recursive: true });
     const current = existsSync(file) ? readFileSync(file, 'utf8') : null;
     if (current === content) return;
     if (check) stale.push(path);
@@ -59,20 +61,52 @@ for (const path of svelteNames) {
 }
 const local = (path: string) => `${path.replace(/\./g, '_')}_`;
 const lines = [`/* ${HEADER} */`];
-for (const path of [...svelteNames].sort()) lines.push(`import ${local(path)} from './components/${path}.svelte';`);
-lines.push('');
+// A plain component is re-exported; a family is its root with members attached
+// (or a plain object when there is no root), typed through `typeof` so the
+// declarations can name every component.
 for (const [head, members] of [...roots.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+    if (!members.length) {
+        lines.push(`export { default as ${head} } from './components/${head}.svelte';`);
+        continue;
+    }
     const hasRoot = svelteNames.includes(head);
-    const parts = members.sort().map((member) => `${member}: ${local(`${head}.${member}`)}`).join(', ');
-    if (!members.length) lines.push(`export const ${head} = ${local(head)};`);
-    else if (hasRoot) lines.push(`export const ${head} = Object.assign(${local(head)}, { ${parts} });`);
-    else lines.push(`export const ${head} = { ${parts} };`);
+    const names = members.sort();
+    if (hasRoot) lines.push(`import ${local(head)} from './components/${head}.svelte';`);
+    for (const member of names) lines.push(`import ${local(`${head}.${member}`)} from './components/${head}.${member}.svelte';`);
+    const shape = `{ ${names.map((member) => `${member}: typeof ${local(`${head}.${member}`)}`).join('; ')} }`;
+    const parts = names.map((member) => `${member}: ${local(`${head}.${member}`)}`).join(', ');
+    lines.push(hasRoot
+        ? `export const ${head}: typeof ${local(head)} & ${shape} = Object.assign(${local(head)}, { ${parts} });`
+        : `export const ${head}: ${shape} = { ${parts} };`);
 }
-lines.push('', `export { sigta, ensureRuntime } from './runtime/runtime.js';`, `export { leave, arrive } from './runtime/transitions.js';`, '');
+lines.push(`export { sigta, ensureRuntime } from './runtime/runtime.js';`, `export { leave, arrive } from './runtime/transitions.js';`, '');
 emit('packages/svelte/src/lib/index.ts', lines.join('\n'));
+
+/* -------- LLM context files ----------------------------------------------- */
+// The Svelte edition ships what exists; the Livewire edition replaces the
+// hand-written stubs only once every Blade component has a manifest, so a
+// Livewire app never loses a component from its reference mid-migration.
+const registry = Object.fromEntries(manifests.map((m) => [m.name, m]));
+const svelteStubs = renderStubs(root, manifests, registry, 'svelte');
+emit('packages/svelte/stubs/sigta-ui.md', svelteStubs.rules);
+emit('packages/svelte/stubs/sigta-components.md', svelteStubs.components);
+
+const bladeViews = (dir: string, prefix = ''): string[] => readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
+    entry.isDirectory()
+        ? bladeViews(join(dir, entry.name), `${prefix}${entry.name}.`)
+        : entry.name.endsWith('.blade.php') ? [`${prefix}${entry.name.slice(0, -10)}`.replace(/\.index$/, '')] : []);
+const missing = bladeViews(join(root, 'resources/views/components')).filter((name) => !registry[name]);
+const livewireStubs = renderStubs(root, manifests, registry, 'livewire');
+if (missing.length === 0) {
+    emit('stubs/sigta-ui.md', livewireStubs.rules);
+    emit('stubs/sigta-components.md', livewireStubs.components);
+} else if (process.argv.includes('--preview')) {
+    emit('packages/contract/.build/preview/sigta-ui.md', livewireStubs.rules);
+    emit('packages/contract/.build/preview/sigta-components.md', livewireStubs.components);
+}
 
 if (check && stale.length) {
     console.error(`Generated files are out of date — run npm run generate:\n  ${stale.join('\n  ')}`);
     process.exit(1);
 }
-console.log(check ? 'generate: up to date' : `generate: ${manifests.length} manifests`);
+console.log(check ? 'generate: up to date' : `generate: ${manifests.length} manifests${missing.length ? ` (${missing.length} Blade components still without one; Livewire stubs left as they are)` : ''}`);

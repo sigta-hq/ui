@@ -19,6 +19,8 @@ export default defineComponent({
     },
     notes: {
         shared: [
+            'Use it instead of <input type="checkbox"> with classes. Renders a <label> wrapper when label is set, the bare input otherwise.',
+            'The tick is drawn as two pen strokes when checked; the box gives a little under a press.',
             'To complete a row with the full motion (tick, burst, strike, fold), call complete from its change handler in a [data-sigta-motion] list and mark the row\'s title with data-sigta-strike.',
         ],
         livewire: [

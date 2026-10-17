@@ -28,6 +28,7 @@
     let element: HTMLButtonElement | undefined = $state();
     // Busy at first render shows at once (a button you drive yourself);
     // turning busy later waits a beat, which the runtime times.
+    // svelte-ignore state_referenced_locally
     let busyNow = $state(loading === true);
     const canBusy = $derived((loading !== undefined && loading !== null) || type === 'submit');
 
