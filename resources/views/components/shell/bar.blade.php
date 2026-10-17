@@ -5,17 +5,17 @@
     'sub' => null,
 ])
 
-<header data-sigta="shell.bar" {{ $attributes->merge(['class' => 'flex justify-between items-center gap-4 flex-wrap']) }}>
-    <div class="flex flex-col">
+<header data-sigta="shell.bar" {{ $attributes }}>
+    <div data-scope="shell.bar" data-part="start">
         @if ($heading)
-            <h3 class="font-head text-[1.3rem] font-medium leading-[1.2]">{{ $heading }}</h3>
+            <h3 data-scope="shell.bar" data-part="heading">{{ $heading }}</h3>
         @endif
         @if ($sub)
-            <span class="font-mono text-[0.72rem] text-graphite">{{ $sub }}</span>
+            <span data-scope="shell.bar" data-part="sub">{{ $sub }}</span>
         @endif
     </div>
 
     @isset($actions)
-        <div class="flex items-center gap-2 flex-wrap">{{ $actions }}</div>
+        <div data-scope="shell.bar" data-part="actions">{{ $actions }}</div>
     @endisset
 </header>

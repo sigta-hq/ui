@@ -1,0 +1,28 @@
+/* Carousel — a scroll-snap track (no visible scrollbar) above a row of
+   prev / next chevrons around clickable dots. The current slide's dot is
+   filled (aria-current="true"). A slide is full width unless the consumer
+   gives it a basis (data-basis="custom"), e.g. basis-1/2 for two per view. */
+[data-sigta="carousel"] {
+    @apply w-full;
+}
+[data-scope="carousel"][data-part="track"] {
+    @apply flex gap-4 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
+}
+[data-scope="carousel"][data-part="controls"] {
+    @apply mt-4 flex items-center justify-center gap-4;
+}
+[data-scope="carousel"][data-part="dots"] {
+    @apply flex items-center gap-2;
+}
+[data-scope="carousel"][data-part="dot"] {
+    @apply size-2.5 rounded-full border-[1.5px] border-ink transition-colors duration-150 ease-out cursor-pointer;
+
+    &[aria-current="true"] { @apply bg-ink; }
+    &:not([aria-current="true"]) { @apply bg-transparent hover:bg-ink/20; }
+}
+
+[data-sigta="carousel.slide"] {
+    @apply snap-start shrink-0;
+
+    &:not([data-basis="custom"]) { @apply w-full; }
+}

@@ -1,0 +1,13 @@
+/* Composer — a chat input on paper: the leading control (attach), an
+   auto-growing borderless textarea and the send button, on one row aligned
+   to the bottom so the buttons stay by the last line as the text grows. The
+   frame inks in while anything inside has focus. */
+[data-sigta="composer"] {
+    @apply flex items-end gap-2 rounded-panel border-[1.5px] border-line bg-surface px-2.5 py-2 transition-colors duration-150 ease-out focus-within:border-ink;
+}
+[data-scope="composer"]:is([data-part="leading"], [data-part="send"]) {
+    @apply shrink-0;
+}
+[data-scope="composer"][data-part="input"] {
+    @apply flex-1 min-w-0 resize-none bg-transparent font-body text-[0.98rem] leading-relaxed text-ink placeholder:text-graphite/70 px-1 py-1.5 focus:outline-none;
+}

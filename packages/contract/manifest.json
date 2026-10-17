@@ -757,6 +757,153 @@
       ]
     },
     {
+      "name": "calendar",
+      "title": "Calendar",
+      "tier": "components",
+      "page": "calendar",
+      "svelte": "Calendar",
+      "description": "Standalone Mon-first month grid: a mono month caption between chevrons, weekday initials and 42 square day buttons (six weeks, spilling into the months around). Reactive month navigation, full keyboard support, min/max bounds. The shared engine behind the date-picker. Emits calendar-change.",
+      "aria": "WAI-ARIA date grid: role=grid labelled by the month caption (aria-live), columnheaders with the full weekday names, each day a gridcell button with its full date as aria-label, aria-selected and aria-current=\"date\" for today; one roving tab stop.",
+      "props": {
+        "name": {
+          "type": "string",
+          "default": null,
+          "description": "Form name of the hidden value input."
+        },
+        "value": {
+          "type": "date",
+          "default": null,
+          "bindable": true,
+          "description": "The selected day, YYYY-MM-DD; the calendar opens on its month. Livewire: wire:model (lands on the hidden input); Svelte: bind:value.",
+          "blade": {
+            "accepts": "string|\\DateTimeInterface (Carbon)",
+            "note": "A Carbon/DateTimeInterface is read as its Y-m-d day."
+          }
+        },
+        "min": {
+          "type": "date",
+          "default": null,
+          "description": "First selectable day, YYYY-MM-DD; earlier days are disabled and the month before is out of reach."
+        },
+        "max": {
+          "type": "date",
+          "default": null,
+          "description": "Last selectable day, YYYY-MM-DD; later days are disabled and the month after is out of reach."
+        },
+        "today": {
+          "type": "date",
+          "default": null,
+          "description": "The day marked as today, and opened on without a value, YYYY-MM-DD. Unset means the current date where it renders (the visitor's browser, once running). Pin it for a member's own time zone, or for tests and screenshots."
+        }
+      },
+      "parts": {
+        "header": {
+          "description": "The row with the month caption between the chevrons."
+        },
+        "prev": {
+          "description": "Previous month button (\"Previous month\"); disabled before min."
+        },
+        "next": {
+          "description": "Next month button (\"Next month\"); disabled after max."
+        },
+        "title": {
+          "description": "The month caption, \"July 2026\" (labels the grid, announced on change)."
+        },
+        "grid": {
+          "description": "The role=grid; arrow keys, Home/End and PageUp/PageDown move the focus."
+        },
+        "weekdays": {
+          "description": "The row of weekday column headers."
+        },
+        "weekday": {
+          "description": "One column header: Mo … Su, with the full name as aria-label."
+        },
+        "week": {
+          "description": "One row of seven days."
+        },
+        "day": {
+          "description": "A day button (role=gridcell), data-date=\"YYYY-MM-DD\"."
+        }
+      },
+      "states": {
+        "selected": {
+          "attribute": "aria-selected",
+          "values": [
+            "true",
+            "false"
+          ],
+          "description": "On each day: the selected one is inked."
+        },
+        "today": {
+          "attribute": "aria-current",
+          "values": [
+            "date"
+          ],
+          "description": "On today's day: a soft ink ring."
+        },
+        "disabled": {
+          "attribute": "disabled",
+          "description": "On days outside min/max, and on prev/next when that month is out of reach: faded, no clicks."
+        }
+      },
+      "events": {
+        "pick": {
+          "description": "A day was picked; bubbles from the calendar (the date-picker listens, internal).",
+          "blade": "calendar-change",
+          "svelte": false,
+          "detail": "{ value: string | null, label: string }"
+        },
+        "change": {
+          "description": "The selected day changed, YYYY-MM-DD.",
+          "blade": "input / change on the hidden input (wire:model hears it)",
+          "svelte": "onchange",
+          "detail": "string | null"
+        }
+      },
+      "uses": [
+        "icon"
+      ],
+      "usage": {
+        "livewire": "<sigta:calendar name=\"day\" wire:model.live=\"day\" :value=\"$day\" min=\"2026-07-06\" max=\"2026-07-24\" />",
+        "svelte": "<Calendar name=\"day\" bind:value={day} min=\"2026-07-06\" max=\"2026-07-24\" />"
+      },
+      "notes": {
+        "shared": [
+          "Keyboard: arrows move a day / a week, Home/End jump to the week's ends, PageUp/PageDown change month, Enter or Space picks. Only the active day is tabbable (roving tabindex); a day out of range takes no focus.",
+          "Days spill over from the months around (42 cells, always six weeks); picking one shows its month.",
+          "Labels are English (month names, Mo … Su)."
+        ],
+        "livewire": [
+          "wire:model and every attribute except class and id land on the hidden value input, which hears input and change when a day is picked. Pass the value back through :value so a change from the server (a reset) shows.",
+          "Picking a day also dispatches calendar-change (bubbling) with { value, label }: the ISO date and \"9 Jul 2026\"."
+        ],
+        "svelte": [
+          "bind:value (YYYY-MM-DD) and onchange(value); name and other attributes land on the hidden input for plain form posts. A value set from outside shows its month.",
+          "Picking a day also dispatches a bubbling calendar-change DOM event with { value, label }, as the Livewire runtime does."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Standalone"
+        },
+        {
+          "label": "No selection (opens on today)"
+        },
+        {
+          "label": "Bounded — min/max disable out-of-range days"
+        },
+        {
+          "label": "Keyboard"
+        },
+        {
+          "label": "Next month, then a day"
+        },
+        {
+          "label": "Keys stop at the bounds"
+        }
+      ]
+    },
+    {
       "name": "callout",
       "title": "Callout",
       "tier": "components",
@@ -1336,6 +1483,153 @@
         },
         {
           "label": "Rises as it grows, drops as it shrinks"
+        }
+      ]
+    },
+    {
+      "name": "date-picker",
+      "title": "Date picker",
+      "tier": "components",
+      "page": "date-picker",
+      "svelte": "DatePicker",
+      "description": "Text input + calendar-icon button opening a calendar popover, in the field chrome (label, description, error). Picking a day fills the field (\"9 Jul 2026\") and the YYYY-MM-DD value; the input also accepts typed dates within min/max, which the calendar then shows.",
+      "aria": "The input is a combobox (aria-haspopup=\"dialog\", aria-expanded) controlling a dialog labelled \"Choose date\" that holds the calendar's date grid; Escape closes it and returns focus to the input.",
+      "props": {
+        "label": {
+          "type": "string",
+          "default": null,
+          "description": "Field label."
+        },
+        "description": {
+          "type": "string",
+          "default": null,
+          "description": "Help text."
+        },
+        "error": {
+          "type": "string",
+          "default": null,
+          "description": "Error text; marks the input invalid."
+        },
+        "name": {
+          "type": "string",
+          "default": null,
+          "description": "Form name of the hidden value input."
+        },
+        "value": {
+          "type": "date",
+          "default": null,
+          "bindable": true,
+          "description": "The date, YYYY-MM-DD. Livewire: wire:model (lands on the hidden input); Svelte: bind:value.",
+          "blade": {
+            "accepts": "string|\\DateTimeInterface (Carbon)",
+            "note": "A Carbon/DateTimeInterface is read as its Y-m-d day."
+          }
+        },
+        "min": {
+          "type": "date",
+          "default": null,
+          "description": "First selectable day, YYYY-MM-DD (the calendar disables earlier days; a typed earlier date is refused)."
+        },
+        "max": {
+          "type": "date",
+          "default": null,
+          "description": "Last selectable day, YYYY-MM-DD (the calendar disables later days; a typed later date is refused)."
+        },
+        "placeholder": {
+          "type": "string",
+          "default": "Select a date",
+          "description": "Input placeholder."
+        },
+        "today": {
+          "type": "date",
+          "default": null,
+          "description": "Passed to the calendar: the day marked as today, and opened on without a value. Unset means the current date."
+        }
+      },
+      "parts": {
+        "anchor": {
+          "description": "Positions the panel under the input."
+        },
+        "trigger": {
+          "description": "The input with the calendar button tucked into its right padding."
+        },
+        "input": {
+          "description": "The text input (role=combobox)."
+        },
+        "toggle": {
+          "description": "The calendar-icon button (\"Open calendar\"); out of the tab order."
+        },
+        "panel": {
+          "description": "The dialog that drops below, holding the calendar."
+        }
+      },
+      "states": {
+        "open": {
+          "attribute": "aria-expanded",
+          "description": "On the input, while the calendar is open."
+        },
+        "invalid": {
+          "attribute": "aria-invalid",
+          "description": "On the input, with an error: red border until focused."
+        }
+      },
+      "events": {
+        "change": {
+          "description": "The date changed, YYYY-MM-DD (null when cleared).",
+          "blade": "input / change on the hidden input (wire:model hears it)",
+          "svelte": "onchange",
+          "detail": "string | null"
+        }
+      },
+      "uses": [
+        "field",
+        "calendar",
+        "icon"
+      ],
+      "usage": {
+        "livewire": "<sigta:date-picker label=\"Due date\" wire:model=\"due\" :value=\"$due\" min=\"2026-07-06\" />",
+        "svelte": "<DatePicker label=\"Due date\" bind:value={due} min=\"2026-07-06\" />"
+      },
+      "notes": {
+        "shared": [
+          "Typed dates: YYYY-MM-DD, or anything the browser reads (\"9 Jul 2026\", \"July 9, 2026\"); Enter or leaving the field takes it. A date outside min/max or no date at all reverts the field; an emptied field clears the value.",
+          "Open the calendar with the button or ArrowDown in the field; Escape, a click outside or focus leaving closes it. Picking a day closes it and returns focus to the field.",
+          "disabled disables the input, the button and the hidden input."
+        ],
+        "livewire": [
+          "wire:model and every attribute except class and id land on the hidden value input, which hears input and change on every pick or typed date. Pass :value as well: wire:model carries changes back, the value prop seeds what the field shows (and a change from the server, like a reset, shows when it comes back through :value)."
+        ],
+        "svelte": [
+          "bind:value (YYYY-MM-DD) and onchange(value); name and other attributes land on the hidden input for plain form posts."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Basic"
+        },
+        {
+          "label": "Pre-filled value"
+        },
+        {
+          "label": "With description"
+        },
+        {
+          "label": "Bounded (min/max)"
+        },
+        {
+          "label": "Error"
+        },
+        {
+          "label": "Disabled"
+        },
+        {
+          "label": "Opened"
+        },
+        {
+          "label": "Picked with the keyboard"
+        },
+        {
+          "label": "A typed date, shown in the calendar"
         }
       ]
     },
@@ -2160,6 +2454,132 @@
         },
         {
           "label": "On a dark surface"
+        }
+      ]
+    },
+    {
+      "name": "listbox",
+      "title": "Listbox",
+      "tier": "components",
+      "page": "listbox",
+      "svelte": "Listbox",
+      "description": "Rich single select: a button trigger showing the current choice opens a floating listbox of <autocomplete.option>s (the option row shared with autocomplete and pillbox). Arrow keys move, Enter chooses, Escape closes. The chosen value lives in a hidden input (name, wire:model) or bind:value.",
+      "aria": "A button with role=\"combobox\" and aria-haspopup=\"listbox\" controls a listbox; the active option is announced through aria-activedescendant.",
+      "props": {
+        "label": {
+          "type": "string",
+          "default": null,
+          "description": "Field label."
+        },
+        "description": {
+          "type": "string",
+          "default": null,
+          "description": "Help text below the trigger."
+        },
+        "error": {
+          "type": "string",
+          "default": null,
+          "description": "Error text; marks the trigger invalid."
+        },
+        "placeholder": {
+          "type": "string",
+          "default": "Select…",
+          "description": "Shown on the trigger while nothing is chosen."
+        },
+        "name": {
+          "type": "string",
+          "default": null,
+          "description": "Form name of the hidden value input."
+        },
+        "value": {
+          "type": "string",
+          "default": null,
+          "bindable": true,
+          "description": "The chosen value (an option's value). Livewire: the initial value, wire:model on the component binds it (lands on the hidden input); Svelte: bind:value."
+        }
+      },
+      "parts": {
+        "trigger": {
+          "description": "The button (role=combobox) in the field chrome; your id lands here."
+        },
+        "value": {
+          "description": "The chosen option's text, or the placeholder."
+        },
+        "chevron": {
+          "description": "The chevron; turns over while the list is open."
+        },
+        "listbox": {
+          "description": "The floating panel of options."
+        }
+      },
+      "states": {
+        "open": {
+          "attribute": "aria-expanded",
+          "description": "On the trigger."
+        },
+        "invalid": {
+          "attribute": "aria-invalid",
+          "description": "On the trigger, with an error."
+        },
+        "empty": {
+          "attribute": "data-empty",
+          "description": "On the value part while it shows the placeholder."
+        }
+      },
+      "slots": {
+        "default": {
+          "description": "The <autocomplete.option>s.",
+          "required": true
+        }
+      },
+      "events": {
+        "change": {
+          "description": "The value changed.",
+          "blade": "input / change on the hidden input (wire:model hears it)",
+          "svelte": "onchange",
+          "detail": "string | null"
+        }
+      },
+      "uses": [
+        "field",
+        "icon",
+        "autocomplete.option"
+      ],
+      "usage": {
+        "livewire": "<sigta:listbox label=\"Country\" wire:model=\"country\" placeholder=\"Pick one…\">\n    <sigta:autocomplete.option value=\"dk\">Denmark</sigta:autocomplete.option>\n    <sigta:autocomplete.option value=\"se\">Sweden</sigta:autocomplete.option>\n</sigta:listbox>",
+        "svelte": "<Listbox label=\"Country\" bind:value={country} placeholder=\"Pick one…\">\n    <Autocomplete.Option value=\"dk\">Denmark</Autocomplete.Option>\n    <Autocomplete.Option value=\"se\">Sweden</Autocomplete.Option>\n</Listbox>"
+      },
+      "notes": {
+        "shared": [
+          "Use it for a rich single choice; a plain list of strings is better as a native select, a long searchable one as autocomplete.",
+          "The listbox floats with fixed positioning, so it escapes cards and forms that clip overflow.",
+          "The trigger shows the placeholder until the runtime starts, then the chosen option's text."
+        ],
+        "livewire": [
+          "wire:model and every attribute except class and id land on the hidden value input; class lands on the root, id on the trigger."
+        ],
+        "svelte": [
+          "bind:value; class lands on the root, id on the trigger, other attributes (name, data-*) on the hidden value input."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Rich single select"
+        },
+        {
+          "label": "Preselected value + description"
+        },
+        {
+          "label": "Error state"
+        },
+        {
+          "label": "Opened, moved with the arrow keys"
+        },
+        {
+          "label": "Chosen with Enter"
+        },
+        {
+          "label": "Closed with Escape"
         }
       ]
     },
@@ -4815,6 +5235,176 @@
       "examples": [
         {
           "label": "With and without a number"
+        }
+      ]
+    },
+    {
+      "name": "time-picker",
+      "title": "Time picker",
+      "tier": "components",
+      "page": "time-picker",
+      "svelte": "TimePicker",
+      "description": "Text input + clock-icon button opening a listbox of times every step minutes between min and max, in the field chrome (label, description, error). The model stays 24h HH:MM regardless of the display format; typed times are accepted too.",
+      "aria": "The input is a combobox (aria-haspopup=\"listbox\", aria-expanded) controlling a listbox of option buttons with aria-selected; arrow keys move the active option, Enter picks it, Escape closes the list.",
+      "props": {
+        "label": {
+          "type": "string",
+          "default": null,
+          "description": "Field label (also names the listbox; \"Times\" without one)."
+        },
+        "description": {
+          "type": "string",
+          "default": null,
+          "description": "Help text."
+        },
+        "error": {
+          "type": "string",
+          "default": null,
+          "description": "Error text; marks the input invalid."
+        },
+        "name": {
+          "type": "string",
+          "default": null,
+          "description": "Form name of the hidden value input."
+        },
+        "value": {
+          "type": "string",
+          "default": null,
+          "bindable": true,
+          "description": "The time, HH:MM (24h). Livewire: wire:model (lands on the hidden input); Svelte: bind:value.",
+          "blade": {
+            "accepts": "string|\\DateTimeInterface (Carbon)",
+            "note": "A Carbon/DateTimeInterface is read as its H:i time; \"9:30\" reads as 09:30."
+          }
+        },
+        "min": {
+          "type": "string",
+          "default": null,
+          "description": "First time listed, HH:MM (default 00:00); a typed earlier time is refused."
+        },
+        "max": {
+          "type": "string",
+          "default": null,
+          "description": "Last time listed at most, HH:MM (default 23:59); a typed later time is refused."
+        },
+        "step": {
+          "type": "number",
+          "default": 30,
+          "description": "Minutes between listed times (at least 1)."
+        },
+        "format": {
+          "type": "enum",
+          "values": [
+            "24",
+            "12"
+          ],
+          "default": "24",
+          "description": "Labels as 13:30 or 1:30 PM. The model stays 24h HH:MM regardless of display format."
+        },
+        "placeholder": {
+          "type": "string",
+          "default": "Select a time",
+          "description": "Input placeholder."
+        }
+      },
+      "parts": {
+        "trigger": {
+          "description": "The input with the clock button tucked into its right padding."
+        },
+        "input": {
+          "description": "The text input (role=combobox)."
+        },
+        "toggle": {
+          "description": "The clock-icon button (\"Open time list\"); out of the tab order."
+        },
+        "listbox": {
+          "description": "The scrolling list of times that drops below."
+        },
+        "option": {
+          "description": "One time (role=option), data-value=\"HH:MM\"."
+        }
+      },
+      "states": {
+        "open": {
+          "attribute": "aria-expanded",
+          "description": "On the input, while the list is open."
+        },
+        "invalid": {
+          "attribute": "aria-invalid",
+          "description": "On the input, with an error: red border until focused."
+        },
+        "selected": {
+          "attribute": "aria-selected",
+          "values": [
+            "true",
+            "false"
+          ],
+          "description": "On each option: the chosen time is inked."
+        },
+        "active": {
+          "attribute": "data-active",
+          "description": "On the option the arrow keys or the pointer are on: a faint ink wash."
+        }
+      },
+      "events": {
+        "change": {
+          "description": "The time changed, HH:MM (null when cleared).",
+          "blade": "input / change on the hidden input (wire:model hears it)",
+          "svelte": "onchange",
+          "detail": "string | null"
+        }
+      },
+      "uses": [
+        "field",
+        "icon"
+      ],
+      "usage": {
+        "livewire": "<sigta:time-picker label=\"Start time\" wire:model=\"start\" :value=\"$start\" step=\"15\" min=\"09:00\" max=\"17:00\" />",
+        "svelte": "<TimePicker label=\"Start time\" bind:value={start} step={15} min=\"09:00\" max=\"17:00\" />"
+      },
+      "notes": {
+        "shared": [
+          "Typed times: 14:45, 9:05 or 2:45 pm; Enter on the open list picks the active time, leaving the field takes a typed one. A time outside min/max or no time at all reverts the field; an emptied field clears the value. A typed time need not be on the step.",
+          "Click the field, the button, ArrowDown or Enter to open the list (on the chosen time, else the first); arrows wrap, Escape or focus leaving closes it.",
+          "disabled disables the input, the button and the hidden input."
+        ],
+        "livewire": [
+          "wire:model and every attribute except class and id land on the hidden value input, which hears input and change on every pick or typed time. Pass :value as well: wire:model carries changes back, the value prop seeds what the field shows."
+        ],
+        "svelte": [
+          "bind:value (HH:MM) and onchange(value); name and other attributes land on the hidden input for plain form posts."
+        ]
+      },
+      "examples": [
+        {
+          "label": "Basic (30-minute steps)"
+        },
+        {
+          "label": "Pre-filled value"
+        },
+        {
+          "label": "12-hour labels (model stays 24h)"
+        },
+        {
+          "label": "15-minute steps, bounded 09:00–17:00"
+        },
+        {
+          "label": "With description"
+        },
+        {
+          "label": "Error"
+        },
+        {
+          "label": "Disabled"
+        },
+        {
+          "label": "Opened and stepped"
+        },
+        {
+          "label": "Picked with Enter"
+        },
+        {
+          "label": "A typed 12-hour time"
         }
       ]
     },

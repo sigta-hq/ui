@@ -42,6 +42,10 @@ import {
     step,
     toastDuration,
 } from '../../packages/core/src/index.ts';
+// The carousel's measuring, the composer's growth and the file upload's list.
+import { activeSlide, autosize, fileEntries, scrollToSlide } from '../../packages/core/src/index.ts';
+// The money input's and the duration input's parsing.
+import { durationDraft, durationLabel, durationMinutes, majorFromMinor, minorFromMajor, parseDuration } from '../../packages/core/src/index.ts';
 // The calendar, date picker and time picker's date and time logic.
 import {
     activeFor,
@@ -153,6 +157,59 @@ document.addEventListener('alpine:init', () => {
         },
         toggle() { this.open = !this.open; },
         close() { this.open = false; },
+    }));
+
+    /* Carousel — the active slide is read from the scroll position, so a swipe,
+       the arrows and the dots agree on it; the dots are generated from the
+       slide count, and the arrows disable at the ends. */
+    Alpine.data('sigtaCarousel', () => ({
+        active: 0,
+        count: 0,
+        init() {
+            this.count = this.$refs.track.children.length;
+            this.$nextTick(() => this.sync());
+        },
+        sync() { this.active = activeSlide(this.$refs.track); },
+        go(index) { scrollToSlide(this.$refs.track, index); },
+        prev() { this.go(Math.max(0, this.active - 1)); },
+        next() { this.go(Math.min(this.count - 1, this.active + 1)); },
+        atStart() { return this.active <= 0; },
+        atEnd() { return this.active >= this.count - 1; },
+    }));
+
+    /* Composer — grows with its text up to six rows; Enter sends, Shift+Enter
+       breaks the line. The submit event goes out from the textarea, so a
+       listener on the component (its attributes land on the textarea) hears a
+       send by Enter and by the button alike, and so does any ancestor. */
+    Alpine.data('sigtaComposer', () => ({
+        text: '',
+        maxRows: 6,
+        init() {
+            this.$nextTick(() => this.resize());
+        },
+        resize() { autosize(this.$refs.input, this.maxRows); },
+        submit() {
+            const value = this.text.trim();
+            if (!value) return;
+            this.$refs.input.dispatchEvent(new CustomEvent('sigta-composer-submit', { detail: { text: value }, bubbles: true, composed: true, cancelable: true }));
+            this.text = '';
+            this.$nextTick(() => this.resize());
+        },
+    }));
+
+    /* File upload — the zone marks a drag over it, a drop is handed to the
+       native input (so wire:model uploads it as if it were picked), and the
+       picked files are listed by name and size. */
+    Alpine.data('sigtaFileUpload', () => ({
+        dragging: 0,
+        files: [],
+        update(input) { this.files = fileEntries(input.files); },
+        drop(event) {
+            this.dragging = 0;
+            if (!event.dataTransfer?.files?.length) return;
+            this.$refs.input.files = event.dataTransfer.files;
+            this.$refs.input.dispatchEvent(new Event('change', { bubbles: true }));
+        },
     }));
 
     /* Floating bar — follows its data-show attribute (a Livewire morph updates it
@@ -333,6 +390,69 @@ document.addEventListener('alpine:init', () => {
             input.value = serialize(this.value);
             input.dispatchEvent(new Event('input', { bubbles: true }));
             input.dispatchEvent(new Event('change', { bubbles: true }));
+        },
+    }));
+
+    /* Money input — the amount is typed in major units and written in minor
+       units onto the hidden input that carries wire:model; the currency
+       switcher writes its own hidden input (currencyModel). Both start from
+       the hidden inputs' server-rendered values. */
+    Alpine.data('sigtaMoneyInput', () => ({
+        major: '',
+        currency: '',
+        open: false,
+        init() {
+            this.major = majorFromMinor(this.$refs.total.value);
+            this.currency = this.$refs.currency.value;
+            this.sync();
+        },
+        sync() {
+            const el = this.$refs.total;
+            el.value = minorFromMajor(this.major) ?? '';
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+        },
+        selectCurrency(code) {
+            this.currency = code;
+            const el = this.$refs.currency;
+            el.value = code;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            this.open = false;
+        },
+    }));
+
+    /* Duration input — a compact "1h59m" button that becomes an HH:MM editor;
+       on blur or Enter the draft is parsed to whole minutes and written onto
+       the hidden input that carries wire:model. Starts from that input's
+       server-rendered value. */
+    Alpine.data('sigtaDurationInput', (placeholder = '0m') => ({
+        minutes: null,
+        editing: false,
+        draft: '',
+        placeholder,
+        init() {
+            this.minutes = durationMinutes(this.$refs.total.value);
+        },
+        get hasValue() {
+            return this.minutes !== null && this.minutes > 0;
+        },
+        get label() {
+            return durationLabel(this.minutes, this.placeholder);
+        },
+        edit() {
+            this.draft = durationDraft(this.minutes);
+            this.editing = true;
+            this.$nextTick(() => { this.$refs.editor.focus(); this.$refs.editor.select(); });
+        },
+        commit() {
+            const total = parseDuration(this.draft);
+            this.minutes = total > 0 ? total : null;
+            const el = this.$refs.total;
+            el.value = total > 0 ? total : '';
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            this.editing = false;
+        },
+        cancel() {
+            this.editing = false;
         },
     }));
 

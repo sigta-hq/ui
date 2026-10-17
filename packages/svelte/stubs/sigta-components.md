@@ -519,6 +519,30 @@ One option of an autocomplete. Its value defaults to its text; label is what the
 </Autocomplete>
 ```
 
+### `Listbox`
+
+Rich single select: a button trigger showing the current choice opens a floating listbox of <autocomplete.option>s (the option row shared with autocomplete and pillbox). Arrow keys move, Enter chooses, Escape closes. The chosen value lives in a hidden input (name, wire:model) or bind:value.
+
+- **Props:**
+  - `label` (string) — Field label.
+  - `description` (string) — Help text below the trigger.
+  - `error` (string) — Error text; marks the trigger invalid.
+  - `placeholder` (string, default `Select…`) — Shown on the trigger while nothing is chosen.
+  - `name` (string) — Form name of the hidden value input.
+  - `value` (string, bindable (`bind:value`)) — The chosen value (an option's value). Livewire: the initial value, wire:model on the component binds it (lands on the hidden input); Svelte: bind:value.
+- **Snippets:** `children` — The <autocomplete.option>s.
+- **Events:** `onchange` (string | null) — The value changed.
+- Use it for a rich single choice; a plain list of strings is better as a native select, a long searchable one as autocomplete.
+- The listbox floats with fixed positioning, so it escapes cards and forms that clip overflow.
+- The trigger shows the placeholder until the runtime starts, then the chosen option's text.
+- bind:value; class lands on the root, id on the trigger, other attributes (name, data-*) on the hidden value input.
+```svelte
+<Listbox label="Country" bind:value={country} placeholder="Pick one…">
+    <Autocomplete.Option value="dk">Denmark</Autocomplete.Option>
+    <Autocomplete.Option value="se">Sweden</Autocomplete.Option>
+</Listbox>
+```
+
 ### `Otp`
 
 One-time-code input: a row of single-character boxes backed by one hidden input that carries the code. Supports paste (spread across the boxes), arrow keys and backspace.
@@ -1391,6 +1415,73 @@ Tiny smooth hand-drawn sparkline in a 200×40 viewBox with a dot on the latest v
 </div>
 ```
 
+### `Calendar`
+
+Standalone Mon-first month grid: a mono month caption between chevrons, weekday initials and 42 square day buttons (six weeks, spilling into the months around). Reactive month navigation, full keyboard support, min/max bounds. The shared engine behind the date-picker. Emits calendar-change.
+
+- **Props:**
+  - `name` (string) — Form name of the hidden value input.
+  - `value` (date, bindable (`bind:value`)) — The selected day, YYYY-MM-DD; the calendar opens on its month. Livewire: wire:model (lands on the hidden input); Svelte: bind:value.
+  - `min` (date) — First selectable day, YYYY-MM-DD; earlier days are disabled and the month before is out of reach.
+  - `max` (date) — Last selectable day, YYYY-MM-DD; later days are disabled and the month after is out of reach.
+  - `today` (date) — The day marked as today, and opened on without a value, YYYY-MM-DD. Unset means the current date where it renders (the visitor's browser, once running). Pin it for a member's own time zone, or for tests and screenshots.
+- **Events:** `onchange` (string | null) — The selected day changed, YYYY-MM-DD.
+- Keyboard: arrows move a day / a week, Home/End jump to the week's ends, PageUp/PageDown change month, Enter or Space picks. Only the active day is tabbable (roving tabindex); a day out of range takes no focus.
+- Days spill over from the months around (42 cells, always six weeks); picking one shows its month.
+- Labels are English (month names, Mo … Su).
+- bind:value (YYYY-MM-DD) and onchange(value); name and other attributes land on the hidden input for plain form posts. A value set from outside shows its month.
+- Picking a day also dispatches a bubbling calendar-change DOM event with { value, label }, as the Livewire runtime does.
+```svelte
+<Calendar name="day" bind:value={day} min="2026-07-06" max="2026-07-24" />
+```
+
+### `DatePicker`
+
+Text input + calendar-icon button opening a calendar popover, in the field chrome (label, description, error). Picking a day fills the field ("9 Jul 2026") and the YYYY-MM-DD value; the input also accepts typed dates within min/max, which the calendar then shows.
+
+- **Props:**
+  - `label` (string) — Field label.
+  - `description` (string) — Help text.
+  - `error` (string) — Error text; marks the input invalid.
+  - `name` (string) — Form name of the hidden value input.
+  - `value` (date, bindable (`bind:value`)) — The date, YYYY-MM-DD. Livewire: wire:model (lands on the hidden input); Svelte: bind:value.
+  - `min` (date) — First selectable day, YYYY-MM-DD (the calendar disables earlier days; a typed earlier date is refused).
+  - `max` (date) — Last selectable day, YYYY-MM-DD (the calendar disables later days; a typed later date is refused).
+  - `placeholder` (string, default `Select a date`) — Input placeholder.
+  - `today` (date) — Passed to the calendar: the day marked as today, and opened on without a value. Unset means the current date.
+- **Events:** `onchange` (string | null) — The date changed, YYYY-MM-DD (null when cleared).
+- Typed dates: YYYY-MM-DD, or anything the browser reads ("9 Jul 2026", "July 9, 2026"); Enter or leaving the field takes it. A date outside min/max or no date at all reverts the field; an emptied field clears the value.
+- Open the calendar with the button or ArrowDown in the field; Escape, a click outside or focus leaving closes it. Picking a day closes it and returns focus to the field.
+- disabled disables the input, the button and the hidden input.
+- bind:value (YYYY-MM-DD) and onchange(value); name and other attributes land on the hidden input for plain form posts.
+```svelte
+<DatePicker label="Due date" bind:value={due} min="2026-07-06" />
+```
+
+### `TimePicker`
+
+Text input + clock-icon button opening a listbox of times every step minutes between min and max, in the field chrome (label, description, error). The model stays 24h HH:MM regardless of the display format; typed times are accepted too.
+
+- **Props:**
+  - `label` (string) — Field label (also names the listbox; "Times" without one).
+  - `description` (string) — Help text.
+  - `error` (string) — Error text; marks the input invalid.
+  - `name` (string) — Form name of the hidden value input.
+  - `value` (string, bindable (`bind:value`)) — The time, HH:MM (24h). Livewire: wire:model (lands on the hidden input); Svelte: bind:value.
+  - `min` (string) — First time listed, HH:MM (default 00:00); a typed earlier time is refused.
+  - `max` (string) — Last time listed at most, HH:MM (default 23:59); a typed later time is refused.
+  - `step` (number, default `30`) — Minutes between listed times (at least 1).
+  - `format` (`24` · `12`, default `24`) — Labels as 13:30 or 1:30 PM. The model stays 24h HH:MM regardless of display format.
+  - `placeholder` (string, default `Select a time`) — Input placeholder.
+- **Events:** `onchange` (string | null) — The time changed, HH:MM (null when cleared).
+- Typed times: 14:45, 9:05 or 2:45 pm; Enter on the open list picks the active time, leaving the field takes a typed one. A time outside min/max or no time at all reverts the field; an emptied field clears the value. A typed time need not be on the step.
+- Click the field, the button, ArrowDown or Enter to open the list (on the chosen time, else the first); arrows wrap, Escape or focus leaving closes it.
+- disabled disables the input, the button and the hidden input.
+- bind:value (HH:MM) and onchange(value); name and other attributes land on the hidden input for plain form posts.
+```svelte
+<TimePicker label="Start time" bind:value={start} step={15} min="09:00" max="17:00" />
+```
+
 ## Layout (structural scaffolds)
 
 ### `Panel`
@@ -1538,4 +1629,8 @@ Ink on paper: strokes draw, paper settles under a press, a finished thing is cro
 | `sigta-modal-show` | `{name}` | `Modal.Trigger` / your code | `<Modal name>` |
 | `sigta-modal-hide` | `{name}` | `Modal.Close` / your code | `<Modal name>` |
 | `onchange` | `string | null` | `<Autocomplete>` | The value changed. |
+| `onchange` | `string | null` | `<Calendar>` | The selected day changed, YYYY-MM-DD. |
+| `onchange` | `string | null` | `<DatePicker>` | The date changed, YYYY-MM-DD (null when cleared). |
+| `onchange` | `string | null` | `<Listbox>` | The value changed. |
 | `bind:value, or oninput (dispatched on the hidden input)` | `string` | `<Otp>` | The code changed. |
+| `onchange` | `string | null` | `<TimePicker>` | The time changed, HH:MM (null when cleared). |

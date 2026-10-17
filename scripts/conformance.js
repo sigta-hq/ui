@@ -7,7 +7,7 @@
 //
 // --write keeps each fixture's two renders (for the visual comparison).
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { JSDOM } from 'jsdom';
@@ -49,6 +49,22 @@ export function collectFixtures(filter = []) {
                 fixtures.push({ ...base, blade: example.blade, svelte: example.svelte, imports: null });
             }
         });
+    }
+    // Acceptance pages: whole pages built from many components, in both
+    // runtimes (harness/acceptance/<page>.blade.php beside <page>.svelte),
+    // compared full-page at a desk and on a phone.
+    const acceptance = join(root, 'harness/acceptance');
+    if (existsSync(acceptance) && (!filter.length || filter.includes('acceptance'))) {
+        for (const file of readdirSync(acceptance).filter((f) => f.endsWith('.blade.php')).sort()) {
+            const name = file.slice(0, -'.blade.php'.length);
+            const svelteFile = join(acceptance, `${name}.svelte`);
+            if (!existsSync(svelteFile)) continue;
+            fixtures.push({
+                id: `acceptance--${name}`, component: 'acceptance', label: `${name} page`, browserOnly: true, interactions: [],
+                viewports: [{ width: 1280, height: 900 }, { width: 390, height: 844 }],
+                blade: readFileSync(join(acceptance, file), 'utf8'), svelte: readFileSync(svelteFile, 'utf8'), imports: null,
+            });
+        }
     }
     return fixtures;
 }
@@ -205,6 +221,10 @@ async function inBrowser(fixtures, blade, svelte) {
     const results = {};
     try {
         for (const fixture of fixtures) {
+            if (fixture.viewports) {
+                results[fixture.id] = await wholePage(context, harness, fixture, PNG, pixelmatch);
+                continue;
+            }
             const shots = {};
             const doms = {};
             const errors = [];
@@ -250,6 +270,39 @@ async function inBrowser(fixtures, blade, svelte) {
         await harness.close();
     }
     return results;
+}
+
+// An acceptance page at each viewport: full-page screenshots, compared.
+async function wholePage(context, harness, fixture, PNG, pixelmatch) {
+    const errors = [];
+    const doms = {};
+    const shots = {};
+    let pixels = 0;
+    const sizes = [];
+    for (const viewport of fixture.viewports) {
+        const taken = {};
+        for (const runtime of ['blade', 'svelte']) {
+            const page = await context.newPage();
+            await page.setViewportSize(viewport);
+            page.on('pageerror', (e) => errors.push(`${runtime}@${viewport.width}: ${e.message}`));
+            page.on('console', (m) => { if (m.type() === 'error') errors.push(`${runtime}@${viewport.width}: ${m.text()}`); });
+            await page.goto(`${harness.url}/${runtime}/${encodeURIComponent(fixture.id)}`, { waitUntil: 'networkidle' });
+            if (runtime === 'svelte') await page.waitForFunction(() => window.__hydrated === true, null, { timeout: 10000 }).catch(() => errors.push('svelte: never hydrated'));
+            await page.evaluate(() => document.fonts.ready);
+            await page.waitForTimeout(400);
+            doms[runtime] ??= await page.locator('#fixture').innerHTML();
+            await settleText(page);
+            taken[runtime] = PNG.sync.read(await page.screenshot({ fullPage: true }));
+            await page.close();
+        }
+        const [a, b] = [taken.blade, taken.svelte];
+        sizes.push(`${viewport.width}: ${a.width}x${a.height} vs ${b.width}x${b.height}`);
+        if (a.width !== b.width || a.height !== b.height) pixels = -1;
+        else if (pixels !== -1) pixels += pixelmatch(a.data, b.data, null, a.width, a.height, { threshold: 0.1 });
+        shots.blade ??= a;
+        shots.svelte ??= b;
+    }
+    return { dom: doms, pixels, size: sizes, errors, shots };
 }
 
 /* -------- run --------------------------------------------------------------- */

@@ -1,0 +1,118 @@
+/* Shell — the app frame: a sidebar rail beside the main column, on raised
+   paper. An embeddable rounded frame by default; data-full fills the
+   viewport. With a header (data-header) a full-width row sits above both
+   columns and takes over the sidebar's own brand row and burger.
+
+   The sidebar is a rail from the tablet breakpoint up; below it the rail is
+   a top bar whose burger slides the nav in as a drawer over the page, with a
+   scrim behind it. The runtime shows and hides the scrim and the drawer and
+   adds the transition hooks: sigta-shell-enter / sigta-shell-leave while
+   they move, sigta-shell-away for the far end of the move. */
+[data-sigta="shell"] {
+    @apply grid md:grid-cols-[220px_1fr] bg-surface-raised text-ink;
+
+    /* In header mode the phone's sidebar row is empty (its drawer is fixed),
+       so the rows are pinned: were they auto, a short page would hand a share
+       of its leftover height to the bars instead of the main row. */
+    &[data-header] { @apply grid-rows-[auto_auto_1fr] md:grid-rows-[auto_1fr]; }
+
+    &[data-full] { @apply min-h-screen rounded-none border-0; }
+    &:not([data-full]) { @apply min-h-[440px] border border-line rounded-frame overflow-hidden; }
+}
+
+/* -------- header ---------------------------------------------------------- */
+[data-sigta="shell.header"] {
+    @apply md:col-span-2 flex items-center gap-2 min-h-14 bg-surface border-b border-line px-3.5 py-2;
+}
+
+/* The brand lockup and the actions + burger cluster, in the header and in
+   the sidebar's own top row alike. One auto margin on the cluster keeps the
+   actions hard against the burger. */
+:is([data-scope="shell.header"], [data-scope="shell.sidebar"])[data-part="brand"] {
+    @apply flex items-center gap-2 min-w-0 font-head font-semibold text-[1.05rem] text-ink;
+}
+:is([data-scope="shell.header"], [data-scope="shell.sidebar"])[data-part="end"] {
+    @apply flex shrink-0 items-center gap-1 ms-auto -me-1;
+}
+/* The burger shows below the tablet breakpoint only. */
+:is([data-scope="shell.header"], [data-scope="shell.sidebar"])[data-part="toggle"] {
+    @apply md:hidden inline-flex shrink-0 items-center justify-center p-2 rounded-base text-ink cursor-pointer hover:bg-ink/5 transition duration-150 ease-out;
+}
+
+/* -------- sidebar --------------------------------------------------------- */
+[data-sigta="shell.sidebar"] {
+    @apply bg-surface border-line px-3.5 py-[18px] flex flex-col border-b md:border-b-0 md:border-r;
+
+    /* Under a header the sidebar is navigation alone: on a phone its row
+       holds only the (fixed) drawer, on a desk the rail scrolls by itself. */
+    [data-sigta="shell"][data-header] & { @apply max-md:p-0 max-md:border-b-0 md:min-h-0 md:overflow-y-auto; }
+}
+[data-scope="shell.sidebar"][data-part="top"] {
+    @apply flex items-center gap-2 w-full md:mb-4;
+
+    [data-sigta="shell"][data-header] & { @apply hidden; }
+}
+/* Dimming the page is what tells a reader the nav has taken over, and
+   tapping it is the expected way back out. */
+[data-scope="shell.sidebar"][data-part="scrim"] {
+    @apply md:hidden fixed inset-0 z-40 bg-ink/45 backdrop-blur-[2px];
+
+    &.sigta-shell-enter { @apply transition-opacity ease-out duration-200; }
+    &.sigta-shell-leave { @apply transition-opacity ease-in duration-150; }
+    &.sigta-shell-away { @apply opacity-0; }
+}
+/* The rail's column on a desk (shown whatever the runtime's display says), a
+   drawer sliding in from the rail's own edge below the breakpoint. */
+[data-scope="shell.sidebar"][data-part="nav"] {
+    @apply flex md:!flex flex-1 min-h-0 w-full flex-col gap-1 mt-4 md:mt-0
+        max-md:fixed max-md:inset-y-0 max-md:start-0 max-md:z-50 max-md:mt-0
+        max-md:w-[min(84vw,19rem)] max-md:overflow-y-auto max-md:overscroll-contain
+        max-md:bg-surface max-md:border-e max-md:border-line max-md:shadow-paper
+        max-md:px-3.5 max-md:py-[18px];
+
+    &.sigta-shell-enter { @apply transition ease-out duration-200; }
+    &.sigta-shell-leave { @apply transition ease-in duration-150; }
+    &.sigta-shell-away { @apply max-md:ltr:-translate-x-full max-md:rtl:translate-x-full; }
+}
+/* The burger is under the scrim once the drawer is over the page, so the
+   drawer carries its own way out, roughly where the burger was. */
+[data-scope="shell.sidebar"][data-part="dismiss"] {
+    @apply md:hidden flex justify-end -mt-1 -me-1 mb-1;
+}
+[data-scope="shell.sidebar"][data-part="close"] {
+    @apply inline-flex items-center justify-center p-2 rounded-base text-ink cursor-pointer hover:bg-ink/5 transition duration-150 ease-out;
+}
+
+/* -------- main, bar, link ------------------------------------------------- */
+/* The bottom padding grows by a visible floating bar's footprint, so the
+   last row can still scroll clear of it. */
+[data-sigta="shell.main"] {
+    @apply p-6 pb-[calc(1.5rem+var(--sigta-floating-space,0px))] flex flex-col gap-5 min-w-0;
+}
+
+[data-sigta="shell.bar"] {
+    @apply flex justify-between items-center gap-4 flex-wrap;
+}
+[data-scope="shell.bar"][data-part="start"] {
+    @apply flex flex-col;
+}
+[data-scope="shell.bar"][data-part="heading"] {
+    @apply font-head text-[1.3rem] font-medium leading-[1.2];
+}
+[data-scope="shell.bar"][data-part="sub"] {
+    @apply font-mono text-[0.72rem] text-graphite;
+}
+[data-scope="shell.bar"][data-part="actions"] {
+    @apply flex items-center gap-2 flex-wrap;
+}
+
+/* Mono and quiet graphite; the current page inverts to ink. */
+[data-sigta="shell.link"] {
+    @apply flex items-center gap-[0.55em] font-mono text-[0.76rem] no-underline rounded-[4px] px-[0.65em] py-[0.5em] transition-colors duration-150 ease-out;
+
+    &[aria-current="page"] { @apply bg-ink text-surface; }
+    &:not([aria-current="page"]) { @apply text-graphite hover:bg-ink/5 hover:text-ink; }
+}
+[data-scope="shell.link"][data-part="icon"] {
+    @apply shrink-0;
+}

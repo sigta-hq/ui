@@ -1,0 +1,40 @@
+/* File upload — a dashed dropzone (a <label> around a visually hidden file
+   input) with the upload icon and a "browse" chip, then the picked files by
+   name and size. The zone inks in on hover and while a drag is over it
+   (data-dragging), shows the focus ring when the input has keyboard focus,
+   turns red with an error (data-invalid; hover and drag still ink it) and
+   dims when disabled (data-disabled). */
+[data-sigta="file-upload"] {
+    @apply flex w-full flex-col gap-2;
+}
+[data-scope="file-upload"][data-part="zone"] {
+    @apply flex w-full cursor-pointer flex-col items-center gap-3 rounded-panel border-[1.5px] border-dashed border-line px-6 py-9 text-center transition duration-200 ease-out hover:border-ink hover:bg-ink/5 data-[dragging]:border-ink data-[dragging]:bg-ink/5 has-[:focus-visible]:outline-[2.5px] has-[:focus-visible]:outline-ink has-[:focus-visible]:outline-offset-[3px];
+
+    /* No more specific than the zone itself, so hover and drag still ink it. */
+    &:where([data-invalid]) { @apply border-danger; }
+    &[data-disabled] { @apply opacity-40 pointer-events-none; }
+}
+[data-scope="file-upload"][data-part="input"] {
+    @apply sr-only;
+}
+[data-scope="file-upload"][data-part="icon"] {
+    @apply text-graphite;
+}
+[data-scope="file-upload"][data-part="helper"] {
+    @apply font-mono text-[0.72rem] tracking-[0.04em] text-graphite;
+}
+[data-scope="file-upload"][data-part="browse"] {
+    @apply ml-1 inline-flex items-center rounded-base border-[1.5px] border-ink px-[1em] py-[0.5em] text-ink transition duration-150 ease-out;
+}
+[data-scope="file-upload"][data-part="list"] {
+    @apply m-0 flex list-none flex-col gap-1 p-0 font-mono text-[0.72rem];
+}
+[data-scope="file-upload"][data-part="file"] {
+    @apply flex items-baseline justify-between gap-4 border-b border-line pb-1 last:border-b-0;
+}
+[data-scope="file-upload"][data-part="name"] {
+    @apply truncate text-ink;
+}
+[data-scope="file-upload"][data-part="size"] {
+    @apply shrink-0 text-graphite tabular-nums;
+}
