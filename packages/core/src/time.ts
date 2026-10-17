@@ -66,7 +66,6 @@ export function parseTime(text: string | null | undefined): string | '' | null {
     const m = Number(match[2]);
     const meridiem = match[3]?.toLowerCase();
     if (meridiem) {
-        if (h < 1 || h > 12) return null;
         if (h === 12) h = 0;
         if (meridiem === 'pm') h += 12;
     }
