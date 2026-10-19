@@ -8,6 +8,7 @@
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
+import Mention from '@tiptap/extension-mention';
 import { Markdown } from '@tiptap/markdown';
 import { Placeholder } from '@tiptap/extensions';
 
@@ -16,6 +17,10 @@ import { Placeholder } from '@tiptap/extensions';
 // objects fail their own identity checks ("Applying a mismatched transaction").
 // A method call is the one access the reactive proxy cannot wrap.
 const instances = new WeakMap();
+
+// The open mention suggestion by component root, for the same reason: its
+// command and its positioning hold the editor, so they stay out of Alpine's data.
+const suggestions = new WeakMap();
 
 // The pasted text when it is exactly one absolute http(s) address on the page's
 // own origin, or null. Only the host app's own addresses can be given a title.
@@ -48,6 +53,8 @@ function register() {
         linkUrl: '',
         format: 'html',
         uploading: 0,
+        mentionItems: [],
+        mentionActive: 0,
 
         instance() {
             return instances.get(this.$root) ?? null;
@@ -59,6 +66,7 @@ function register() {
             const markdown = this.format === 'markdown';
             const uploadUrl = this.$el.dataset.uploadUrl || null;
             const resolveUrl = this.$el.dataset.resolveUrl || null;
+            const mentionUrl = this.$el.dataset.mentionUrl || null;
             const extensions = [
                 StarterKit.configure({
                     // A plain click places the caret; Cmd/Ctrl+click or the link tool
@@ -75,6 +83,10 @@ function register() {
                 // Text written before markdown existed has bare newlines; treating them as
                 // line breaks keeps its shape instead of collapsing it into one paragraph.
                 extensions.push(Markdown.configure({ markedOptions: { gfm: true, breaks: true } }));
+            }
+
+            if (mentionUrl) {
+                extensions.push(this.mentions(mentionUrl));
             }
 
             instances.set(this.$root, new Editor({
@@ -121,6 +133,7 @@ function register() {
             }));
         },
         destroy() {
+            this.hideMentions();
             this.instance()?.destroy();
             instances.delete(this.$root);
         },
@@ -270,6 +283,114 @@ function register() {
                 transaction = transaction.replaceWith(from, to, editor.schema.text(title, [retitled, ...others]));
             });
             editor.view.dispatch(transaction);
+        },
+
+        // Mentions: typing @ asks the host's endpoint what matches the words after
+        // it and lists the answers beside the caret. An answer with an address is
+        // inserted as a link titled with its label; any other is a mention node
+        // carrying its id, so the host can tell who was named however they are
+        // called later. Names and titles have spaces, so the query runs across
+        // them, and the list stays out of the way while nothing matches.
+        mentions(mentionUrl) {
+            return Mention.configure({
+                HTMLAttributes: { class: 'sigta-mention' },
+                suggestion: {
+                    char: '@',
+                    allowSpaces: true,
+                    debounce: 120,
+                    offset: { mainAxis: 6 },
+                    // Fixed, so the list escapes a scrolling or clipping box around the editor.
+                    floatingUi: { strategy: 'fixed' },
+                    items: ({ query, signal }) => this.findMentions(mentionUrl, query, signal),
+                    command: ({ editor, range, props }) => this.insertMention(editor, range, props),
+                    render: () => ({
+                        onStart: (props) => this.showMentions(props),
+                        onUpdate: (props) => this.showMentions(props),
+                        onKeyDown: ({ event }) => this.mentionKey(event),
+                        onExit: () => this.hideMentions(),
+                    }),
+                },
+            });
+        },
+        async findMentions(mentionUrl, query, signal) {
+            const held = suggestions.get(this.$root);
+
+            // Words added after a query that matched nothing cannot match either, so
+            // a sentence typed on after a stray @ asks the host nothing more.
+            if (held?.emptyQuery !== undefined && query.startsWith(held.emptyQuery)) return [];
+
+            const separator = mentionUrl.includes('?') ? '&' : '?';
+            const response = await fetch(`${mentionUrl}${separator}q=${encodeURIComponent(query)}`, {
+                credentials: 'same-origin',
+                signal,
+                headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            if (!response.ok) return [];
+            const answer = await response.json();
+            const items = (Array.isArray(answer) ? answer : []).filter(
+                (item) => item && typeof item.label === 'string' && item.label.trim() !== '' && (item.url || (item.id !== undefined && item.id !== null)),
+            );
+
+            if (items.length === 0 && held) held.emptyQuery = query;
+
+            return items;
+        },
+        showMentions(props) {
+            const held = suggestions.get(this.$root) ?? {};
+            held.command = props.command;
+            if (!held.unmount && this.$refs.mentionPanel) held.unmount = props.mount(this.$refs.mentionPanel);
+            suggestions.set(this.$root, held);
+
+            // While the next answer loads the last one stays up, so the list never blinks.
+            if (props.loading) return;
+            this.mentionItems = props.items;
+            this.mentionActive = 0;
+        },
+        hideMentions() {
+            suggestions.get(this.$root)?.unmount?.();
+            suggestions.delete(this.$root);
+            this.mentionItems = [];
+            this.mentionActive = 0;
+        },
+        mentionKey(event) {
+            const count = this.mentionItems.length;
+            if (count === 0) return false;
+
+            switch (event.key) {
+                case 'ArrowDown':
+                    this.mentionActive = (this.mentionActive + 1) % count;
+                    this.$nextTick(() => this.$refs.mentionPanel?.querySelector('[data-active]')?.scrollIntoView({ block: 'nearest' }));
+                    return true;
+                case 'ArrowUp':
+                    this.mentionActive = (this.mentionActive - 1 + count) % count;
+                    this.$nextTick(() => this.$refs.mentionPanel?.querySelector('[data-active]')?.scrollIntoView({ block: 'nearest' }));
+                    return true;
+                case 'Enter':
+                case 'Tab':
+                    this.chooseMention(this.mentionActive);
+                    return true;
+                default:
+                    return false;
+            }
+        },
+        chooseMention(index) {
+            const item = this.mentionItems[index];
+            const command = suggestions.get(this.$root)?.command;
+            if (!item || !command) return;
+            command({ id: item.id, label: item.label, url: item.url });
+        },
+        insertMention(editor, range, item) {
+            // A space already after the caret is reused, so choosing never leaves two.
+            if (editor.view.state.selection.$to.nodeAfter?.text?.startsWith(' ')) range.to += 1;
+
+            const label = item.label.trim();
+            const content = item.url
+                ? { type: 'text', text: label, marks: [{ type: 'link', attrs: { href: item.url } }] }
+                // The label is written into the markdown shortcode, which has no escape for these.
+                : { type: 'mention', attrs: { id: String(item.id), label: label.replace(/["\]]/g, '') } };
+
+            editor.chain().focus().insertContentAt(range, [content, { type: 'text', text: ' ' }]).run();
+            editor.view.dom.ownerDocument.defaultView?.getSelection()?.collapseToEnd();
         },
 
         // Cmd/Ctrl+click on a link inside the editable area follows it in a new tab.

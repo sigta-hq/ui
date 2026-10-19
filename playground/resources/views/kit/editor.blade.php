@@ -45,6 +45,18 @@
     />
     </x-kit-example>
 
+    <x-kit-example label="Mentions (host endpoint)">
+    «sigta:editor
+        name="comment"
+        format="markdown"
+        label="Comment"
+        description="Type @ and a few letters: mention-url answers with people and pages. A person becomes a mention, a page a link titled with its name."
+        mention-url="/kit-api/mentions"
+        rows="3"
+        :value="'Thanks [@ id=\'4\' label=\'Søren Frisk\'], the notes are on the [Editor](/kit/editor) page.'"
+    />
+    </x-kit-example>
+
     <x-kit-example label="Empty + error state">
     «sigta:editor name="empty" label="Notes" error="Notes can't be empty." />
     </x-kit-example>

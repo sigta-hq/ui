@@ -141,3 +141,20 @@ it('carries the link resolver endpoint only when one is given', function () {
     expect(Blade::render('<x-sigta::editor />'))
         ->not->toContain('data-resolve-url');
 });
+
+it('carries the mention endpoint and its suggestion list only when one is given', function () {
+    $html = Blade::render('<x-sigta::editor id="body" mention-url="/mentions" />');
+
+    expect($html)
+        ->toContain('data-mention-url="/mentions"')
+        ->toContain('data-sigta="editor-mentions"')
+        ->toContain('x-ref="mentionPanel"')
+        ->toContain('id="body-mentions"')
+        ->toContain('role="listbox"')
+        ->toContain('x-show="mentionItems.length > 0"')
+        ->toContain('x-on:click="chooseMention(index)"');
+
+    expect(Blade::render('<x-sigta::editor />'))
+        ->not->toContain('data-mention-url')
+        ->not->toContain('data-sigta="editor-mentions"');
+});

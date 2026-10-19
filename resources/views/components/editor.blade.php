@@ -17,12 +17,20 @@
      own origin is linked at once, then the resolver is asked GET resolve-url?url=…
      for JSON {title, url?}; the link's text becomes the title when it answers,
      and stays the address when it does not.
+     Mentions: pass mention-url and typing @ asks GET mention-url?q=… (the words
+     after the @) for a JSON list of [{label, id?, url?, group?, description?}],
+     shown beside the caret. An answer with a url is inserted as a link titled
+     with its label; one with an id becomes a mention node (`<span data-type=
+     "mention" data-id>` in HTML, `[@ id="…" label="…"]` in markdown), so the
+     host reads who was named by id. Consecutive answers sharing a group are
+     listed under it.
      Usage:
        <x-sigta::editor name="body" wire:model="body" :value="$post->body" label="Body" />
        <x-sigta::editor format="markdown" variant="inline" placeholder="Add a description"
            rows="3" wire:model="description" :value="$description" />
        <x-sigta::editor format="markdown" wire:model="body" :value="$body"
-           :upload-url="route('images.store')" :resolve-url="route('links.resolve')" /> --}}
+           :upload-url="route('images.store')" :resolve-url="route('links.resolve')"
+           :mention-url="route('mentions.index')" /> --}}
 @props([
     'label' => null,
     'description' => null,
@@ -35,6 +43,7 @@
     'rows' => null,
     'uploadUrl' => null,
     'resolveUrl' => null,
+    'mentionUrl' => null,
 ])
 
 @php
@@ -96,6 +105,7 @@ $minHeight = 'min-height: calc('.$rows.' * 1.65em + '.($inline ? '1.24em' : '1.5
         data-placeholder="{{ $placeholder }}"
         @if ($uploadUrl) data-upload-url="{{ $uploadUrl }}" data-upload-token="{{ csrf_token() }}" @endif
         @if ($resolveUrl) data-resolve-url="{{ $resolveUrl }}" @endif
+        @if ($mentionUrl) data-mention-url="{{ $mentionUrl }}" @endif
         {{-- The runtime reads its initial content and options from the DOM. Interpolating
              them into x-data would change that attribute on every Livewire morph, and
              Alpine re-runs x-data when it changes, which would rebuild the editor mid-typing. --}}
@@ -160,6 +170,45 @@ $minHeight = 'min-height: calc('.$rows.' * 1.65em + '.($inline ? '1.24em' : '1.5
 
         {{-- TipTap mounts here and owns this subtree, so Livewire must never morph it. --}}
         <div id="{{ $id }}" x-ref="element" wire:ignore class="flex cursor-text flex-col" data-content-class="{{ $contentClass }}" style="{{ $minHeight }}"></div>
+
+        @if ($mentionUrl)
+            {{-- What the @ before the caret could name. The runtime floats it beside the caret
+                 and drives it from the keyboard while the caret stays in the text. --}}
+            <div
+                x-ref="mentionPanel"
+                x-show="mentionItems.length > 0"
+                x-cloak
+                id="{{ $id }}-mentions"
+                role="listbox"
+                aria-label="Mention"
+                class="z-50 max-h-72 min-w-56 max-w-80 overflow-y-auto rounded-panel border border-line bg-surface-raised py-1.5 shadow-paper"
+                data-sigta="editor-mentions"
+            >
+                <template x-for="(item, index) in mentionItems" x-bind:key="index">
+                    <div>
+                        <div
+                            x-show="item.group && (index === 0 || mentionItems[index - 1].group !== item.group)"
+                            x-text="item.group"
+                            class="px-3.5 pb-1 pt-2 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-graphite"
+                        ></div>
+                        <div
+                            role="option"
+                            x-bind:id="'{{ $id }}-mention-' + index"
+                            x-bind:aria-selected="index === mentionActive ? 'true' : 'false'"
+                            x-bind:data-active="index === mentionActive ? 'true' : null"
+                            {{-- mousedown is prevented so the editor keeps its caret while an answer is clicked. --}}
+                            x-on:mousedown.prevent
+                            x-on:mousemove="mentionActive = index"
+                            x-on:click="chooseMention(index)"
+                            class="flex cursor-pointer items-baseline justify-between gap-4 px-3.5 py-1.5 text-ink data-active:bg-ink data-active:text-surface"
+                        >
+                            <span class="truncate font-body text-[0.95rem]" x-text="item.label"></span>
+                            <span x-show="item.description" x-text="item.description" class="max-w-[45%] shrink-0 truncate font-mono text-[0.66rem] uppercase tracking-[0.06em] opacity-70"></span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        @endif
 
         @if ($uploadUrl)
             {{-- The picker behind the toolbar's picture tool; drop and paste reach the runtime directly. --}}

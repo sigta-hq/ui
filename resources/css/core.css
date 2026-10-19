@@ -159,6 +159,16 @@
     transition: text-decoration-color var(--sigta-ease-fast);
 }
 .sigta-prose a:hover { text-decoration-color: var(--sigta-fg); }
+/* A mention names someone in the text. It reads as a name set in weight and a
+   faint ink tint, never the accent, and never breaks across a line. Host pages
+   rendering stored text give the same `data-type="mention"` span to match. */
+.sigta-prose [data-type="mention"] {
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 0 0.2em;
+    border-radius: var(--sigta-radius);
+    background: color-mix(in srgb, var(--sigta-fg) 7%, transparent);
+}
 /* The editable element fills the editor's box (its min-height comes from the
    rows prop on the mount), so a click anywhere in the box lands in the editor. */
 [data-sigta="editor"] .sigta-prose {
