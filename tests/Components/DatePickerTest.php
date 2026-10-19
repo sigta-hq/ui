@@ -57,3 +57,22 @@ it('shows the error state on the input', function () {
         ->toContain('aria-describedby="dp-error"')
         ->toContain('Pick a date.');
 });
+
+it('renders an inline variant whose calendar button waits for hover or focus', function () {
+    $html = Blade::render('<x-sigta::date-picker variant="inline" placeholder="No due date" wire:model="due" />');
+
+    expect($html)
+        ->toContain('data-variant="inline"')
+        ->toContain('-mx-[0.8em]')
+        ->toContain('group/date')
+        ->toContain('border-transparent')
+        ->toContain('group-hover/date:opacity-100')
+        ->toContain('placeholder="No due date"')
+        ->toMatch('/<input type="hidden"[^>]*wire:model="due"/');
+});
+
+it('keeps the boxed date picker as the default variant', function () {
+    $html = Blade::render('<x-sigta::date-picker />');
+
+    expect($html)->toContain('border-line')->not->toContain('group/date');
+});

@@ -2,6 +2,7 @@
     'label' => null,
     'value' => null,
     'placeholder' => null,
+    'variant' => 'default',
 ])
 
 {{--
@@ -34,12 +35,21 @@ if ($initial) {
     $initialLabel = $placeholderText;
 }
 
-$controlClasses = 'w-28 text-left font-body text-[0.98rem] bg-surface border-[1.5px] border-line rounded-[5px] px-[0.8em] py-[0.62em] transition duration-150 ease-out focus:outline-none focus:border-ink focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--sigta-fg)_8%,transparent)]';
+$inline = $variant === 'inline';
+
+// Inline is a value in a detail view: as wide as its column, no box until it is
+// hovered or focused, and its frame in the margin so the text lines up.
+$controlClasses = match (true) {
+    $inline => '-mx-[0.8em] w-[calc(100%+1.6em)] text-left font-body text-[0.98rem] bg-transparent border-[1.5px] border-transparent rounded-[5px] px-[0.8em] py-[0.3em] transition duration-150 ease-out focus:outline-none focus:border-ink',
+    default => 'w-28 text-left font-body text-[0.98rem] bg-surface border-[1.5px] border-line rounded-[5px] px-[0.8em] py-[0.62em] transition duration-150 ease-out focus:outline-none focus:border-ink focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--sigta-fg)_8%,transparent)]',
+};
+$displayHover = $inline ? 'hover:border-line' : 'hover:border-ink';
 @endphp
 
 <x-sigta::field :label="$label" {{ $attributes->whereDoesntStartWith('wire:model') }}>
     <div
         data-sigta="duration-input"
+        data-variant="{{ $variant }}"
         x-data="{
             minutes: {{ $initial ?? 'null' }},
             editing: false,
@@ -96,7 +106,7 @@ $controlClasses = 'w-28 text-left font-body text-[0.98rem] bg-surface border-[1.
             x-on:click="edit()"
             x-text="label"
             :class="hasValue ? 'text-ink' : 'text-graphite'"
-            class="{{ $controlClasses }} cursor-text hover:border-ink"
+            class="{{ $controlClasses }} cursor-text {{ $displayHover }}"
             data-test="duration-display"
         >{{ $initialLabel }}</button>
 

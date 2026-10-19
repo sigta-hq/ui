@@ -43,4 +43,13 @@
         «sigta:input placeholder="Quick note…" aria-label="Quick note" />
     «/div>
     </x-kit-example>
+
+    <x-kit-example label="Inline (a value in a detail view)">
+    «div class="grid max-w-md grid-cols-[7rem_1fr] items-center gap-x-4 gap-y-1">
+        «span class="font-mono text-[0.68rem] uppercase tracking-[0.08em] text-graphite">Title«/span>
+        «sigta:input variant="inline" aria-label="Title" placeholder="Untitled" value="Launch the site" />
+        «span class="font-mono text-[0.68rem] uppercase tracking-[0.08em] text-graphite">Owner«/span>
+        «span class="font-body text-[0.98rem] text-ink">Line Bak«/span>
+    «/div>
+    </x-kit-example>
 </x-kit-shell>

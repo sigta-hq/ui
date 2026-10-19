@@ -12,6 +12,7 @@
     'min' => null,         // Y-m-d
     'max' => null,         // Y-m-d
     'placeholder' => 'Select a date',
+    'variant' => 'default',
 ])
 
 @php
@@ -23,8 +24,17 @@ $displayValue = $value ? Carbon::parse($value)->format('j M Y') : '';
 $describedBy = trim(($description ? $id.'-description ' : '').($error ? $id.'-error' : ''));
 $disabled = $attributes->has('disabled');
 
-$inputClasses = 'w-full font-body text-[0.98rem] text-ink bg-surface placeholder:text-graphite/70 border-[1.5px] rounded-[5px] px-[0.8em] py-[0.62em] pr-[2.6em] transition duration-150 ease-out focus:outline-none focus:border-ink focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--sigta-fg)_8%,transparent)] disabled:opacity-40 disabled:pointer-events-none';
-$inputClasses .= $error ? ' border-danger' : ' border-line';
+$inline = $variant === 'inline';
+
+// Inline reads as a value until it is hovered or focused, so the calendar button
+// waits too; its frame sits in the margin so the date lines up with plain values.
+$inputClasses = match (true) {
+    $inline => 'peer w-full font-body text-[0.98rem] text-ink bg-transparent placeholder:text-graphite/70 border-[1.5px] rounded-[5px] px-[0.8em] py-[0.3em] pr-[2.6em] transition duration-150 ease-out hover:border-line focus:outline-none focus:border-ink disabled:opacity-40 disabled:pointer-events-none',
+    default => 'w-full font-body text-[0.98rem] text-ink bg-surface placeholder:text-graphite/70 border-[1.5px] rounded-[5px] px-[0.8em] py-[0.62em] pr-[2.6em] transition duration-150 ease-out focus:outline-none focus:border-ink focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--sigta-fg)_8%,transparent)] disabled:opacity-40 disabled:pointer-events-none',
+};
+$inputClasses .= $error ? ' border-danger' : ($inline ? ' border-transparent' : ' border-line');
+$buttonClasses = 'absolute inset-y-0 right-0 flex items-center px-[0.75em] text-graphite hover:text-ink transition duration-150 ease-out disabled:opacity-40 disabled:pointer-events-none'
+    .($inline ? ' opacity-0 group-hover/date:opacity-100 peer-focus:opacity-100 focus-visible:opacity-100' : '');
 @endphp
 
 <x-sigta::field :label="$label" :description="$description" :error="$error" :for="$id">
@@ -45,7 +55,8 @@ $inputClasses .= $error ? ' border-danger' : ' border-line';
                 return dt.getFullYear() + '-' + p(dt.getMonth() + 1) + '-' + p(dt.getDate());
             },
         }"
-        {{ $attributes->only('class')->merge(['class' => 'relative']) }}
+        data-variant="{{ $variant }}"
+        {{ $attributes->only('class')->merge(['class' => $inline ? 'relative -mx-[0.8em]' : 'relative']) }}
     >
         <div
             x-data="sigtaDropdown"
@@ -54,7 +65,7 @@ $inputClasses .= $error ? ' border-danger' : ' border-line';
             x-on:calendar-change="value = $event.detail.value; display = $event.detail.label; $refs.hidden.value = value ?? ''; $refs.hidden.dispatchEvent(new Event('input', { bubbles: true })); $refs.hidden.dispatchEvent(new Event('change', { bubbles: true })); close(true)"
             class="relative"
         >
-            <div x-ref="trigger" class="relative">
+            <div x-ref="trigger" class="{{ $inline ? 'group/date relative' : 'relative' }}">
                 <input
                     type="text"
                     id="{{ $id }}"
@@ -73,7 +84,7 @@ $inputClasses .= $error ? ' border-danger' : ' border-line';
                     @if ($error) aria-invalid="true" @endif
                     @if ($describedBy) aria-describedby="{{ $describedBy }}" @endif
                 />
-                <button type="button" tabindex="-1" x-on:click="toggle()" aria-label="Open calendar" @if ($disabled) disabled @endif class="absolute inset-y-0 right-0 flex items-center px-[0.75em] text-graphite hover:text-ink transition duration-150 ease-out disabled:opacity-40 disabled:pointer-events-none">
+                <button type="button" tabindex="-1" x-on:click="toggle()" aria-label="Open calendar" @if ($disabled) disabled @endif class="{{ $buttonClasses }}">
                     <x-sigta::icon name="calendar-days" size="sm" />
                 </button>
             </div>

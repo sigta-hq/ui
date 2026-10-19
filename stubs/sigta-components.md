@@ -135,8 +135,9 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 ```
 
 ### `input`
-- **Props:** `label`, `description`, `error`, `icon`, `type` (default `text`), plus native `<input>` attrs (`wire:model`, `name`, etc.)
-- Text input with optional leading icon, wrapped in `<sigta:field>`.
+- **Props:** `label`, `description`, `error`, `icon`, `type` (default `text`), `variant` (default `default`), plus native `<input>` attrs (`wire:model`, `name`, etc.)
+- **Variants:** `default`, `inline`
+- Text input with optional leading icon, wrapped in `<sigta:field>`. `variant="inline"` is the value form for detail views (a property list): no box until hovered or focused, compact padding, and its frame sits in the margin so the text lines up with plain values beside it. The same `inline` variant exists on `select`, `date-picker`, `duration-input`, `money-input` and `editor`.
 ```blade
 <sigta:input label="Email" type="email" icon="mail" wire:model="email" placeholder="you@studio.co" description="We only use this for the invoice." />
 ```
@@ -145,7 +146,8 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 - **Props:** `label`, `description`, `error`, `rows` (default `4`), plus native attrs
 
 ### `select`
-- **Props:** `label`, `description`, `error`, plus native `<select>` attrs
+- **Props:** `label`, `description`, `error`, `variant` (default `default`), plus native `<select>` attrs
+- **Variants:** `default`, `inline` (borderless until hover; the chevron shows on hover or focus)
 - Native select with chevron overlay, wrapped in `<sigta:field>`.
 
 ### `checkbox`
@@ -222,7 +224,8 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 ```
 
 ### `money-input`
-- **Props:** `label`, `value` (initial MINOR units), `placeholder`, `currency` (default `DKK`), `currencies` (code⇒label map), `currencyName`, `currencyModel`, plus native attrs
+- **Props:** `label`, `value` (initial MINOR units), `placeholder`, `currency` (default `DKK`), `currencies` (code⇒label map), `currencyName`, `currencyModel`, `variant` (default `default`), plus native attrs
+- **Variants:** `default`, `inline` (borderless until hover; the currency divider shows on hover or focus)
 - Amount field (entered in major units) with an inline currency switcher: a small dropdown button (code + chevron) sits inside the same field, not a separate toggle. Emits MINOR units onto the forwarded `wire:model` via a hidden input; the currency binds separately via `currencyModel` through a hidden input. App logic (the currency enum) stays in your app.
 ```blade
 <sigta:money-input label="Hourly rate" :value="$rate->amount_minor" wire:model="amountMinor" :currency="$currency" currency-model="currency" />
@@ -516,7 +519,8 @@ Command palette (⌘K / Ctrl-K).
 - Standalone Mon-first month grid. Reactive Alpine nav, full keyboard support. Emits `calendar-change`.
 
 ### `date-picker`
-- **Props:** `label`, `description`, `error`, `name`, `value` (Y-m-d), `min`, `max`, `placeholder` (default `Select a date`)
+- **Props:** `label`, `description`, `error`, `name`, `value` (Y-m-d), `min`, `max`, `placeholder` (default `Select a date`), `variant` (default `default`)
+- **Variants:** `default`, `inline` (borderless until hover; the calendar button shows on hover or focus)
 - Text input + calendar-icon button opening a calendar popover.
 
 ### `time-picker`
@@ -524,7 +528,8 @@ Command palette (⌘K / Ctrl-K).
 - **Formats:** `24`, `12`. Model stays 24h HH:MM regardless of display format.
 
 ### `duration-input`
-- **Props:** `label`, `value` (initial whole minutes), `placeholder`, plus native attrs
+- **Props:** `label`, `value` (initial whole minutes), `placeholder`, `variant` (default `default`), plus native attrs
+- **Variants:** `default` (a fixed `w-28` box), `inline` (as wide as its column, borderless until hover)
 - Compact `1h59m` field that swaps to an editable `HH:MM` on click; on blur/Enter it parses (forgiving: `H:MM`, `HH:MM`, or bare minutes) to whole minutes and emits them on the forwarded `wire:model` via a hidden input. Escape cancels. Pass a value-keyed `wire:key` so a reset gives fresh Alpine state.
 ```blade
 <sigta:duration-input label="Estimate" :value="$task->estimate_minutes" wire:model="estimate" wire:key="est-{{ $task->estimate_minutes }}" />
