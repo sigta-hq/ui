@@ -55,3 +55,23 @@ it('accepts a custom currency map', function () {
         ->toContain('GBP')
         ->not->toContain('USD');
 });
+
+it('renders an inline variant whose currency divider waits for hover or focus', function () {
+    $html = Blade::render('<x-sigta::money-input variant="inline" wire:model="price" />');
+
+    expect($html)
+        ->toContain('data-variant="inline"')
+        ->toContain('group/money')
+        ->toContain('-mx-[0.8em]')
+        ->toContain('border-transparent')
+        ->toContain('group-hover/money:border-line')
+        ->toContain('py-[0.3em]')
+        ->toMatch('/<input type="hidden"[^>]*wire:model="price"/')
+        ->not->toMatch('/data-sigta="field"[^>]*\svariant=/');
+});
+
+it('keeps the boxed money field as the default variant', function () {
+    $html = Blade::render('<x-sigta::money-input />');
+
+    expect($html)->toContain('bg-surface')->not->toContain('group/money');
+});

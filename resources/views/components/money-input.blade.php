@@ -6,6 +6,7 @@
     'currencies' => null,     // code => label map for the switcher
     'currencyName' => null,   // <input name> for the currency value
     'currencyModel' => null,  // wire:model for the currency (optional)
+    'variant' => 'default',   // default | inline (borderless until hover, for detail views)
 ])
 
 {{--
@@ -30,12 +31,22 @@ $placeholderText = $placeholder ?? '0';
 $currencyOptions = $currencies ?: ['DKK' => 'DKK', 'EUR' => 'EUR', 'USD' => 'USD'];
 $currencyName ??= ($currencyModel ?? 'currency');
 
-$fieldClasses = 'flex items-stretch bg-surface border-[1.5px] border-line rounded-[5px] transition duration-150 ease-out focus-within:border-ink focus-within:shadow-[0_0_0_3px_color-mix(in_srgb,var(--sigta-fg)_8%,transparent)]';
+$inline = $variant === 'inline';
+
+// Inline is a value in a detail view: no box until it is hovered or focused, its
+// frame in the margin so the amount lines up, and the currency divider waits too.
+$fieldClasses = match (true) {
+    $inline => 'group/money -mx-[0.8em] flex items-stretch bg-transparent border-[1.5px] border-transparent rounded-[5px] transition duration-150 ease-out hover:border-line focus-within:border-ink',
+    default => 'flex items-stretch bg-surface border-[1.5px] border-line rounded-[5px] transition duration-150 ease-out focus-within:border-ink focus-within:shadow-[0_0_0_3px_color-mix(in_srgb,var(--sigta-fg)_8%,transparent)]',
+};
+$amountPadding = $inline ? 'py-[0.3em]' : 'py-[0.62em]';
+$dividerClasses = $inline ? 'border-transparent group-hover/money:border-line group-focus-within/money:border-line' : 'border-line';
 @endphp
 
 <x-sigta::field :label="$label" {{ $attributes->whereDoesntStartWith('wire:model') }}>
     <div
         data-sigta="money-input"
+        data-variant="{{ $variant }}"
         class="{{ $fieldClasses }}"
         x-data="{
             major: @js($initialMajor),
@@ -73,7 +84,7 @@ $fieldClasses = 'flex items-stretch bg-surface border-[1.5px] border-line rounde
             x-model="major"
             x-on:input="sync()"
             placeholder="{{ $placeholderText }}"
-            class="min-w-0 flex-1 border-0 bg-transparent px-[0.8em] py-[0.62em] font-body text-[0.98rem] text-ink outline-none placeholder:text-graphite/70"
+            class="min-w-0 flex-1 border-0 bg-transparent px-[0.8em] {{ $amountPadding }} font-body text-[0.98rem] text-ink outline-none placeholder:text-graphite/70"
             aria-label="{{ trim(($label ? $label.' ' : '').__('amount')) }}"
             data-test="money-amount"
         />
@@ -85,7 +96,7 @@ $fieldClasses = 'flex items-stretch bg-surface border-[1.5px] border-line rounde
                 :aria-expanded="open"
                 aria-haspopup="listbox"
                 aria-label="{{ __('Currency') }}"
-                class="flex h-full items-center gap-1 border-l border-line px-2.5 font-mono text-[0.72rem] tracking-[0.08em] text-graphite transition-colors hover:text-ink"
+                class="flex h-full items-center gap-1 border-l {{ $dividerClasses }} px-2.5 font-mono text-[0.72rem] tracking-[0.08em] text-graphite transition-colors hover:text-ink"
                 data-test="money-currency"
             >
                 <span x-text="currency"></span>

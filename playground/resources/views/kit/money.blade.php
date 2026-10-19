@@ -28,4 +28,13 @@
         «code class="text-[0.85em]">wire:model«/code>. Bind the toggle with «code class="text-[0.85em]">currency-model«/code>.
     «/p>
     </x-kit-example>
+
+    <x-kit-example label="Inline (a value in a detail view)">
+    «div class="grid max-w-md grid-cols-[7rem_1fr] items-center gap-x-4 gap-y-1">
+        «span class="font-mono text-[0.68rem] uppercase tracking-[0.08em] text-graphite">Fixed price«/span>
+        «sigta:money-input variant="inline" placeholder="By the hour" :value="1200000" currency="DKK" :currencies="['DKK' => 'DKK']" />
+        «span class="font-mono text-[0.68rem] uppercase tracking-[0.08em] text-graphite">Owner«/span>
+        «span class="font-body text-[0.98rem] text-ink">Line Bak«/span>
+    «/div>
+    </x-kit-example>
 </x-kit-shell>

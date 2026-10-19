@@ -96,3 +96,32 @@ it('forwards wire:model and rows to the native textarea', function () {
         ->toContain('border-danger')
         ->toContain('Too short.');
 });
+
+it('renders an inline variant with no box until hovered or focused', function () {
+    $html = Blade::render('<x-sigta::input variant="inline" placeholder="Add a task" wire:model="search" />');
+
+    expect($html)
+        ->toContain('data-variant="inline"')
+        ->toContain('border-transparent')
+        ->toContain('hover:border-line')
+        ->toContain('-mx-[0.8em]')
+        ->toContain('py-[0.3em]')
+        ->not->toContain('bg-surface')
+        ->toMatch('/<input[^>]*wire:model="search"/');
+});
+
+it('keeps the boxed form as the default variant', function () {
+    $html = Blade::render('<x-sigta::input />');
+
+    expect($html)
+        ->toContain('data-variant="default"')
+        ->toContain('border-line')
+        ->toContain('bg-surface')
+        ->not->toContain('-mx-[0.8em]');
+});
+
+it('shows the error state on an inline input', function () {
+    $html = Blade::render('<x-sigta::input variant="inline" error="Required." />');
+
+    expect($html)->toContain('border-danger')->not->toContain('border-transparent');
+});

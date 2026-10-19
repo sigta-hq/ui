@@ -57,3 +57,23 @@ it('forwards a value-keyed wire:key onto the field', function () {
 
     expect($html)->toContain('wire:key="est-60"');
 });
+
+it('renders an inline variant as wide as its column with no box until hovered', function () {
+    $html = Blade::render('<x-sigta::duration-input variant="inline" placeholder="No estimate" wire:model="estimate" />');
+
+    expect($html)
+        ->toContain('data-variant="inline"')
+        ->toContain('w-[calc(100%+1.6em)]')
+        ->toContain('-mx-[0.8em]')
+        ->toContain('border-transparent')
+        ->toContain('hover:border-line')
+        ->toContain('No estimate')
+        ->not->toContain('w-28')
+        ->not->toMatch('/data-sigta="field"[^>]*\svariant=/');
+});
+
+it('keeps the boxed duration field as the default variant', function () {
+    $html = Blade::render('<x-sigta::duration-input />');
+
+    expect($html)->toContain('w-28')->toContain('hover:border-ink')->not->toContain('-mx-[0.8em]');
+});
