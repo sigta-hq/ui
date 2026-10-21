@@ -704,7 +704,7 @@ All render complete with defaults; override what you need. Tag form:
 | `section.pricing` | `heading`, `lede`, `tiers`, aside slot (fills the second column beside a single tier, e.g. a call to book) |
 | `section.faq` | `heading`, `lede`, `name`, `items` |
 | `section.cta` | `heading`, `lede`, `primaryLabel`, `primaryHref`, `target`, `secondaryLabel`, `secondaryHref`, `secondaryTarget`, `annotation` |
-| `section.footer` | `tagline`, `signoff`, `columns` |
+| `section.footer` | `tagline`, `signoff`, `columns` (one to three sit in a row beside the brand) |
 
 ```blade
 <sigta:section.hero heading="We build software that ships." />
