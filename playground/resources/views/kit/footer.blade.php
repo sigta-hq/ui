@@ -17,4 +17,21 @@
             ]],
         ]" />
     </x-kit-example>
+
+    <x-kit-example label="Three columns (one row from lg)">
+    «sigta:section.footer
+        :columns="[
+            ['heading' => 'Navigation', 'links' => [
+                ['label' => 'Sådan hjælper vi', 'href' => '#hjaelp'],
+                ['label' => 'Priser', 'href' => '#priser'],
+            ]],
+            ['heading' => 'Ydelser', 'links' => [
+                ['label' => 'Teknisk vurdering', 'href' => '#teknisk-vurdering'],
+                ['label' => 'Ekstra udvikler', 'href' => '#ekstra-udvikler'],
+            ]],
+            ['heading' => 'Kontakt', 'links' => [
+                ['label' => 'sf@sigta.dk', 'href' => 'mailto:sf@sigta.dk'],
+            ]],
+        ]" />
+    </x-kit-example>
 </x-kit-shell>

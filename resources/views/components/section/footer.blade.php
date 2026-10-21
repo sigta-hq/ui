@@ -25,9 +25,19 @@
     ],
 ])
 
+@php
+// One track per column beside the brand, or a third column wraps under the
+// brand. Three columns wait for lg: four tracks squeeze their links at md.
+$gridClasses = match (count($columns)) {
+    1 => 'sm:grid-cols-2 md:grid-cols-[1.5fr_1fr]',
+    3 => 'sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]',
+    default => 'sm:grid-cols-2 md:grid-cols-[1.5fr_1fr_1fr]',
+};
+@endphp
+
 <footer data-sigta="section.footer" {{ $attributes->merge(['class' => 'mt-[clamp(50px,7vw,90px)] border-t border-line pt-[clamp(40px,5vw,64px)] pb-8']) }}>
     <div class="mx-auto max-w-(--sigta-maxw) px-(--sigta-gutter)">
-        <div class="grid gap-8 sm:grid-cols-2 md:grid-cols-[1.5fr_1fr_1fr]">
+        <div class="grid gap-8 {{ $gridClasses }}">
             <div>
                 <x-sigta::brand />
                 @if ($tagline)
