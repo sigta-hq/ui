@@ -23,7 +23,7 @@
     «/div>
     «p class="mt-4 max-w-[62ch] font-mono text-[0.7rem] text-graphite">
         Default mode teleports the panel to «code class="text-[0.85em]">body«/code> (escapes card / overflow clipping);
-        «code class="text-[0.85em]">:inline«/code> renders it absolutely so it survives inside «code class="text-[0.85em]">&lt;dialog&gt;«/code>.
+        «code class="text-[0.85em]">:inline«/code> keeps it in place as a top-layer popover, so inside a «code class="text-[0.85em]">&lt;dialog&gt;«/code> it floats over the modal instead of being clipped by its scroll.
     «/p>
     </x-kit-example>
 </x-kit-shell>

@@ -6,7 +6,7 @@
     'size' => 'xs',        // avatar size
     'showName' => false,   // render the name beside the avatar
     'label' => null,       // accessible label for the trigger
-    'inline' => false,     // render the panel inline (absolute) instead of teleporting to <body>
+    'inline' => false,     // keep the panel in place as a top-layer popover instead of teleporting to <body>
 ])
 
 {{--
@@ -20,12 +20,15 @@
     Each consuming method should re-check org membership server-side, e.g.
     abort_unless($members->contains('id', $userId), 422).
 
-    Positioning has two modes:
-      - default: the panel is teleported to <body> and fixed-positioned so it
-        escapes a draggable card and the board's overflow-x-auto clipping.
-      - :inline: the panel renders absolutely inside the trigger. Use it inside a
-        native <dialog> (top layer), where teleported nodes paint behind the
-        dialog and Livewire's morph would strip them on re-render.
+    Positioning has two modes, both fixed to the trigger (flipping above it when
+    there is no room below, and following it on scroll and resize):
+      - default: the panel is teleported to <body> so it escapes a draggable card
+        and the board's overflow-x-auto clipping.
+      - :inline: the panel stays in place in the DOM and opens as a manual
+        popover in the top layer. Use it inside a native <dialog>, where teleported
+        nodes paint behind the dialog and Livewire's morph would strip them, and
+        where an absolute panel would be clipped by the dialog's overflow and
+        scroll it sideways instead of floating over it.
 
     Pass a value-keyed wire:key (by assignee id) so a reassign cleanly replaces
     the picker instead of leaving stale Alpine state. --}}
@@ -36,7 +39,7 @@ $memberData = collect($members)
     ->values();
 
 $triggerBase = 'inline-flex max-w-full items-center gap-1.5 rounded-base text-left outline-none focus-visible:ring-2 focus-visible:ring-ink/20';
-$panelBase = 'z-50 w-64 rounded-panel border border-line bg-surface-raised p-2 shadow-paper';
+$panelBase = 'z-50 w-64 rounded-panel border border-line bg-surface-raised p-2 text-ink shadow-paper';
 @endphp
 
 <div
@@ -57,16 +60,31 @@ $panelBase = 'z-50 w-64 rounded-panel border border-line bg-surface-raised p-2 s
         initials(name) {
             return (name || '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
         },
+        init() {
+            {{-- The popover's open state lives outside Alpine, so it follows `open`
+                 from every place that closes the picker (select, escape, outside). --}}
+            this.$watch('open', (open) => {
+                const panel = this.$refs.panel;
+                if (! this.inline || ! panel?.showPopover) return;
+                if (open && ! panel.matches(':popover-open')) panel.showPopover();
+                if (! open && panel.matches(':popover-open')) panel.hidePopover();
+            });
+        },
+        place() {
+            const r = this.$refs.trigger.getBoundingClientRect();
+            const height = this.$refs.panel?.offsetHeight ?? 0;
+            const below = window.innerHeight - r.bottom;
+            const flip = below < height + 12 && r.top > below;
+            this.top = Math.round(flip ? Math.max(12, r.top - height - 6) : r.bottom + 6);
+            this.left = Math.round(Math.max(12, Math.min(r.left, window.innerWidth - 256 - 12)));
+        },
         toggle() {
             if (this.open) { this.open = false; return; }
-            if (! this.inline) {
-                const r = this.$refs.trigger.getBoundingClientRect();
-                this.top = Math.round(r.bottom + 6);
-                this.left = Math.round(Math.max(12, Math.min(r.left, window.innerWidth - 256 - 12)));
-            }
+            this.place();
             this.q = '';
             this.open = true;
-            this.$nextTick(() => this.$refs.search?.focus());
+            {{-- Placed again once the list has rendered, so a flip uses its real height. --}}
+            this.$nextTick(() => { this.place(); this.$refs.search?.focus(); });
         },
         select(id) {
             @if ($method) $wire.{{ $method }}(...@js($args), id); @endif
@@ -74,6 +92,8 @@ $panelBase = 'z-50 w-64 rounded-panel border border-line bg-surface-raised p-2 s
         },
     }"
     x-on:keydown.escape.window="open = false"
+    x-on:scroll.window.capture.passive="open && place()"
+    x-on:resize.window="open && place()"
 >
     <button
         type="button"
@@ -98,14 +118,16 @@ $panelBase = 'z-50 w-64 rounded-panel border border-line bg-surface-raised p-2 s
 
     @if (! $inline)<template x-teleport="body">@endif
         <div
+            x-ref="panel"
             x-show="open"
             x-cloak
             x-transition.opacity.duration.100ms
             x-on:click.outside="open = false"
             x-on:dragstart.stop
             draggable="false"
-            @if (! $inline) :style="`position: fixed; top: ${top}px; left: ${left}px;`" @endif
-            class="{{ $panelBase }} {{ $inline ? 'absolute left-0 top-full mt-1' : '' }}"
+            @if ($inline) popover="manual" @endif
+            :style="`position: fixed; inset: auto; margin: 0; top: ${top}px; left: ${left}px;`"
+            class="{{ $panelBase }}"
             data-test="assignee-dropdown"
         >
             {{-- x-if keeps the search + member list out of the DOM until opened, so N closed pickers stay cheap. --}}
