@@ -24,6 +24,7 @@ return [
         'items' => [
             'installation', // production install: private VCS repo, auth, fonts, deploy
             'motion',       // motion language: press, complete, count, celebrate, settle
+            'scrollbar',    // the foundation's bar on every scroll area
         ],
     ],
 

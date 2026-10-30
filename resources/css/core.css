@@ -90,6 +90,52 @@
         outline-offset: var(--sigta-focus-offset);
     }
 
+    /* Scrollbars — a pencil stroke on the paper. The thumb is drawn in the
+       colour of the text it scrolls, so one rule reads on paper and on an
+       inverse band alike; the track is the paper itself. Faint at rest, it
+       darkens while the pointer is over its area and thickens once taken.
+       The root carries the ink too, since the page's own bar is styled there. */
+    :root {
+        color: var(--sigta-fg);
+    }
+    ::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+    }
+    ::-webkit-scrollbar-track,
+    ::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        min-width: 2.5rem;
+        min-height: 2.5rem;
+        border: 4px solid transparent;
+        border-radius: 999px;
+        background: color-mix(in srgb, currentColor 20%, transparent) padding-box;
+    }
+    :hover::-webkit-scrollbar-thumb {
+        background-color: color-mix(in srgb, currentColor 32%, transparent);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        border-width: 3px;
+        background-color: color-mix(in srgb, currentColor 48%, transparent);
+    }
+    ::-webkit-scrollbar-thumb:active {
+        border-width: 3px;
+        background-color: color-mix(in srgb, currentColor 68%, transparent);
+    }
+    /* Chromium drops every rule above for an element that sets the standard
+       properties, so only a browser without the pseudo-elements gets them. */
+    @supports not selector(::-webkit-scrollbar) {
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: color-mix(in srgb, currentColor 28%, transparent) transparent;
+        }
+        :hover {
+            scrollbar-color: color-mix(in srgb, currentColor 45%, transparent) transparent;
+        }
+    }
+
     @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {
             animation: none !important;

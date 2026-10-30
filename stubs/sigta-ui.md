@@ -173,6 +173,19 @@ the UI feel unfinished. Work out every state before you place one:
 - Card elevation: `shadow-paper`. Hover lift on actionable cards:
   `hover:-translate-y-[2px]` + the shadow.
 
+### Scrollbars
+
+- Every scroll area already wears the Sigta scrollbar from the foundation: a
+  faint rounded stroke in the colour of the text it scrolls, darker while the
+  pointer is over the area. Just write `overflow-*-auto`; on a dark band, the
+  band's `text-inverse-fg` gives it a light bar.
+- **Never style scrollbars yourself** (`::-webkit-scrollbar`,
+  `scrollbar-color`, `scrollbar-width: thin`). Chromium drops the Sigta bar
+  wherever the standard properties apply, and `scrollbar-color` is inherited
+  by everything inside, so one stray rule brings back the browser's grey bars.
+- The one exception is hiding a bar on a strip that has its own controls (a
+  carousel): `[scrollbar-width:none] [&::-webkit-scrollbar]:hidden`.
+
 ### Brand voice
 
 - Accent (highlighter yellow) is **scarce**: one mark per view, status
