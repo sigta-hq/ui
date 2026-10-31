@@ -121,7 +121,7 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 
 ### `assignee-picker`
 - **Props:** `user` (current assignee object/array with id+name, or null), `members` (iterable of id+name), `method` (Livewire method), `args` (leading args), `size` (default `xs`), `showName` (bool, default `false`), `label`, `inline` (bool, default `false`)
-- Avatar (or dashed "unassigned" affordance) opening a client-side searchable people list. On select it calls `method(...args, userId)` on the nearest Livewire component (so one component serves board cards, subtasks, the task modal). Default teleports the panel to `<body>`; `:inline` renders it absolutely for a native `<dialog>`. Pass a value-keyed `wire:key`. Re-check membership server-side in the called method.
+- Avatar (or dashed "unassigned" affordance) opening a client-side searchable people list. On select it calls `method(...args, userId)` on the nearest Livewire component (so one component serves board cards, subtasks, the task modal). The panel is fixed to the trigger and flips above it near the bottom of the screen. Default teleports it to `<body>`; inside a native `<dialog>` pass `:inline`, which keeps it in place and opens it as a top-layer popover, so it floats over the dialog instead of being clipped by its scroll. Pass a value-keyed `wire:key`. Re-check membership server-side in the called method.
 ```blade
 <sigta:assignee-picker :user="$task->assignee" :members="$members" method="assignTask" :args="[$task->id]" wire:key="assignee-{{ $task->assignee?->id }}" />
 ```
