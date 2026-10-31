@@ -24,6 +24,16 @@ class KitPageTest extends TestCase
         $response->assertSee('Save draft');
     }
 
+    public function test_kit_scrollbar_page_renders_scroll_areas(): void
+    {
+        $response = $this->get('/kit/scrollbar');
+
+        $response->assertStatus(200);
+        $response->assertSee('overflow-y-auto', false);
+        $response->assertSee('overflow-x-auto', false);
+        $response->assertSee('data-variant="inverse"', false);
+    }
+
     public function test_unknown_kit_page_is_404(): void
     {
         $this->get('/kit/nope')->assertStatus(404);
