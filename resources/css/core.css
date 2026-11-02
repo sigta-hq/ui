@@ -151,6 +151,10 @@
     color: var(--sigta-fg);
 }
 .sigta-prose > * + * { margin-top: 0.75em; }
+/* Enter starts a new paragraph, so a gap between paragraphs read as a double
+   line break. Running text and lists flow line by line, as in any writing tool;
+   a blank line is an empty paragraph the writer typed, which the markdown keeps. */
+.sigta-prose > :is(p, ul, ol) + :is(p, ul, ol) { margin-top: 0; }
 .sigta-prose h1, .sigta-prose h2, .sigta-prose h3 {
     font-family: var(--sigta-font-head);
     font-weight: 500;
@@ -161,7 +165,6 @@
 .sigta-prose h3 { font-size: 1.15em; }
 .sigta-prose ul { list-style: disc; padding-inline-start: 1.5em; }
 .sigta-prose ol { list-style: decimal; padding-inline-start: 1.5em; }
-.sigta-prose li + li { margin-top: 0.25em; }
 .sigta-prose blockquote {
     border-inline-start: 3px solid var(--sigta-line);
     padding-inline-start: 1em;

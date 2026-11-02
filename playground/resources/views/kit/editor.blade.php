@@ -18,7 +18,7 @@
         format="markdown"
         label="Release notes"
         description="The hidden input carries markdown. Type # for a heading, - for a list, **bold**, or paste a URL. Cmd/Ctrl+K links the selection."
-        :value="'## What changed' . PHP_EOL . PHP_EOL . '- Autosave for **every** field' . PHP_EOL . '- Links such as [the docs](https://sigta.dk)' . PHP_EOL . PHP_EOL . 'Line one' . PHP_EOL . 'Line two keeps its break.'"
+        :value="'## What changed' . PHP_EOL . PHP_EOL . '- Autosave for **every** field' . PHP_EOL . '- Links such as [the docs](https://sigta.dk)' . PHP_EOL . PHP_EOL . 'Line one' . PHP_EOL . 'Line two keeps its break.' . PHP_EOL . PHP_EOL . 'Enter moves one line down, like this.' . PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL . 'Enter twice leaves a blank line.'"
     />
     </x-kit-example>
 

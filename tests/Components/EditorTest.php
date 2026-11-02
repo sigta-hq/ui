@@ -83,6 +83,16 @@ it('sizes the empty editor by rows, like a textarea', function () {
         ->toContain('style="min-height: calc(8 * 1.65em + 1.24em);"');
 });
 
+it('runs paragraphs and lists line by line so Enter moves one line down', function () {
+    // A gap between paragraphs made every Enter read as a double line break.
+    $css = file_get_contents(__DIR__.'/../../resources/css/core.css');
+
+    expect($css)
+        ->toContain('.sigta-prose > * + * { margin-top: 0.75em; }')
+        ->toContain('.sigta-prose > :is(p, ul, ol) + :is(p, ul, ol) { margin-top: 0; }')
+        ->not->toContain('.sigta-prose li + li');
+});
+
 it('keeps the editable region out of Livewire morphs and accepts deliberate content replacement', function () {
     $html = Blade::render('<x-sigta::editor />');
 
