@@ -110,3 +110,28 @@ npm run dev & php artisan serve         # kit pages at /kit
   values only for now, a dark theme is a future values file, not a refactor.
 - Alpine.js is the behavior layer. Headless engines only for editor-class
   problems. Styled component libraries never.
+
+## Releasing
+
+Packagist reads versions from git tags. To ship a release, tag `main` with a
+semver tag (`git tag v1.2.0 && git push origin v1.2.0`) or publish a GitHub
+release. Packagist picks it up within a minute. Rebuild `dist/` with
+`npm run build` before tagging if `resources/js/` changed, because consuming
+apps get the committed bundle and never run npm.
+
+## License
+
+Sigta UI is open-source software licensed under the [MIT license](LICENSE).
+
+Two parts of the package come with their own terms:
+
+- **Fonts** in `resources/fonts/` (Fraunces, Newsreader, Caveat, JetBrains
+  Mono) are licensed under the [SIL Open Font License 1.1](resources/fonts/OFL.txt).
+- **Bundled editor dependencies** in `dist/sigta-editor.js` (TipTap,
+  ProseMirror and others) keep their own MIT licenses, listed in
+  [`dist/sigta-editor.js.LICENSE.txt`](dist/sigta-editor.js.LICENSE.txt).
+
+The MIT license covers the code, not the brand. The Sigta name and logo
+(`resources/images/sigta-logo.svg`, `resources/images/sigta-mark.svg`) are not
+licensed for use in your own products. To ship under your own brand, import
+`core.css` with your own theme as described in [Re-branding](#re-branding).

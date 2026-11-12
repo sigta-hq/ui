@@ -6,7 +6,7 @@
     "scripts": {
         "build": "npm run build:core && npm run build:editor",
         "build:core": "cp resources/js/sigta.js dist/sigta.js",
-        "build:editor": "esbuild resources/js/editor.js --bundle --minify --format=iife --outfile=dist/sigta-editor.js"
+        "build:editor": "esbuild resources/js/editor.js --bundle --minify --format=iife --banner:js=\"/*! Sigta UI editor. Bundled third-party licenses: sigta-editor.js.LICENSE.txt */\" --metafile=node_modules/.cache/sigta-editor.meta.json --outfile=dist/sigta-editor.js && node scripts/third-party-notices.mjs node_modules/.cache/sigta-editor.meta.json dist/sigta-editor.js.LICENSE.txt"
     },
     "devDependencies": {
         "@tiptap/core": "~3.31.0",

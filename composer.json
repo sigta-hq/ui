@@ -2,13 +2,28 @@
     "name": "sigta/ui",
     "description": "Sigta UI — Livewire/Blade component library carrying the Sigta brand. Paper, ink, and hand-drawn accents as a foundation for landing pages and SaaS platforms.",
     "type": "library",
-    "license": "proprietary",
+    "keywords": [
+        "laravel",
+        "livewire",
+        "blade",
+        "components",
+        "ui",
+        "tailwindcss",
+        "alpinejs",
+        "design-system"
+    ],
+    "homepage": "https://github.com/sigta-hq/ui",
+    "license": "MIT",
     "authors": [
         {
             "name": "Søren Risbøll Frisk",
             "email": "sf@sigta.dk"
         }
     ],
+    "support": {
+        "issues": "https://github.com/sigta-hq/ui/issues",
+        "source": "https://github.com/sigta-hq/ui"
+    },
     "require": {
         "php": "^8.4",
         "illuminate/support": "^12.0|^13.0",

@@ -22,7 +22,7 @@ return [
         'label' => 'Docs',
         'description' => 'Installation, theming, and usage guidance.',
         'items' => [
-            'installation', // production install: private VCS repo, auth, fonts, deploy
+            'installation', // production install: Packagist, fonts, build, deploy
             'motion',       // motion language: press, complete, count, celebrate, settle
             'scrollbar',    // the foundation's bar on every scroll area
         ],

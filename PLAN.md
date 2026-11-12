@@ -60,7 +60,7 @@ sigta-ui/                      (monorepo, package at root)
 ```
 
 - **Install story:** `composer require sigta/ui`, add `@import "sigta/ui"` (tokens + theme) to app CSS, `@sigtaAppearance` / auto-injected assets in layout. No npm step for consumers.
-- **Distribution:** private GitHub VCS repo first; move to Packagist/private Packagist when friction appears. Semver + CHANGELOG from day one.
+- **Distribution:** public on Packagist as `sigta/ui`, MIT licensed (fonts OFL, Sigta name and logo excluded). Git tags are the releases. Semver + CHANGELOG from day one.
 - **Livewire integration model:** Blade + Alpine components; form controls forward `wire:model` (with `.live`/`.blur` modifiers) via attribute forwarding; Toast listens for Livewire `dispatch()` events; File upload wraps Livewire's `WithFileUploads`.
 
 ### 2. API conventions
@@ -167,5 +167,4 @@ Plus: type tokens (`--font-head` Fraunces, `--font-body` Newsreader, `--font-mon
 - **Compiled `<sigta:button>` tag prefix** — ergonomics-only; decide after Tier 1 when the API has settled.
 - **Dark palette** — door held open by semantic tokens; needs a real design pass (warm dark, not slate) whenever a SaaS product demands it.
 - **Hand-drawn custom icon set** — replace wrapped Lucide per-icon when brand value justifies it.
-- **Open-source vs private** — currently private; worth revisiting once Tier 2 stabilizes (marketing value for the studio vs. support burden).
 - **Color picker** — only if a product needs one.

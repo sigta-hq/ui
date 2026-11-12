@@ -1,9 +1,8 @@
 {{-- Sigta UI — production installation guide.
 
      A kit page (so it sits in the kit sidebar under the "Docs" tier) covering
-     the path that `composer require sigta/ui` alone cannot: this package is
-     proprietary and not on Packagist, so you must wire a private VCS
-     repository, authenticate Composer, publish fonts, and build.
+     the full production path: require from Packagist, wire CSS and layout,
+     publish fonts, build, and deploy.
 
      Code snippets live in a PHP heredoc block (no component tags inside → the
      sigta: prefix precompiler leaves them alone, no « sentinel needed). Mirrors
@@ -11,74 +10,22 @@
 @php
     // ── Code snippets ────────────────────────────────────────────────────────
     $codeRequirements = <<<'TEXT'
-    PHP ^8.2
+    PHP ^8.4
     Laravel ^12.0 | ^13.0
     Livewire ^4.0
     Tailwind CSS v4  (your app's build, via @tailwindcss/vite)
     TEXT;
 
-    $codeRepoSsh = <<<'JSON'
-    {
-        "repositories": [{
-            "type": "vcs",
-            "url": "git@github.com:sigta-hq/ui.git"
-        }]
-    }
-    JSON;
-
-    $codeRepoHttps = <<<'JSON'
-    {
-        "repositories": [{
-            "type": "vcs",
-            "url": "https://github.com/sigta-hq/ui.git"
-        }]
-    }
-    JSON;
-
-    // The repository block goes inside your composer.json, alongside
-    // "require". Shown in context so the reader sees where it sits.
-    $codeRepoInContext = <<<'JSON'
-    {
-        "require": {
-            "sigta/ui": "dev-main"
-        },
-        "repositories": [{
-            "type": "vcs",
-            "url": "git@github.com:sigta-hq/ui.git"
-        }]
-    }
-    JSON;
-
-    $codeAuthCli = <<<'SH'
-    # HTTPS + token (CI-friendly, no SSH key needed):
-    composer config --global github-oauth.github.com ghp_xxxxxxxxxxxxxxxxxxxx
-
-    # …or, per-project (writes auth.json next to composer.json — keep it out of git):
-    composer config github-oauth.github.com ghp_xxxxxxxxxxxxxxxxxxxx
-    SH;
-
-    $codeAuthJson = <<<'JSON'
-    {
-        "github-oauth": {
-            "github.com": "ghp_xxxxxxxxxxxxxxxxxxxx"
-        }
-    }
-    JSON;
-
-    $codeCiEnv = <<<'SH'
-    # CI / deploy runner — provide the same auth without committing auth.json.
-    # Composer reads this JSON at install time. URL-encode the JSON value.
-    export COMPOSER_AUTH='{"github-oauth":{"github.com":"ghp_xxx"}}'
-    SH;
-
     $codeRequire = <<<'SH'
-    composer require sigta/ui:dev-main
+    composer require sigta/ui
     SH;
 
-    $codeStability = <<<'SH'
-    # Only if your app's minimum-stability is not already "dev" or lower.
-    composer config minimum-stability dev
-    composer config prefer-stable true
+    // Apps that installed sigta/ui from the private GitHub repository before
+    // it went public: drop the repository entry and token, then re-require.
+    $codeMigrate = <<<'SH'
+    # 1. Delete the sigta/ui "vcs" entry from "repositories" in composer.json
+    # 2. Drop the GitHub token (auth.json / COMPOSER_AUTH) if nothing else needs it
+    composer require sigta/ui   # replaces dev-main with a tagged constraint
     SH;
 
     $codeAppCss = <<<'CSS'
@@ -148,9 +95,9 @@
 
 <x-kit-shell title="Installation">
     <x-sigta::text variant="lede" class="max-w-[58ch] -mt-4">
-        How to install Sigta UI in a <b class="text-ink">production</b> Laravel app. The package
-        is proprietary and not published to Packagist, so <code class="font-mono text-ink">composer require sigta/ui</code>
-        alone will fail — you must point Composer at a private VCS repository first. This page covers that path end to end.
+        How to install Sigta UI in a <b class="text-ink">production</b> Laravel app. The package is published on
+        Packagist, so <code class="font-mono text-ink">composer require sigta/ui</code> is all Composer needs. This page
+        covers the rest of the path end to end.
         For the local-dev quickstart, see <a href="/docs#install" class="text-ink underline underline-offset-[3px]">/docs</a>.
     </x-sigta::text>
 
@@ -162,91 +109,38 @@
 
     <x-sigta::rule variant="1" class="text-ink/60" />
 
-    {{-- ===================== 1 · VCS REPOSITORY ===================== --}}
+    {{-- ===================== 1 · REQUIRE ===================== --}}
     <section>
-        <x-sigta::eyebrow class="mb-3">01 · Private VCS repository</x-sigta::eyebrow>
+        <x-sigta::eyebrow class="mb-3">01 · Require &amp; install</x-sigta::eyebrow>
         <x-sigta::text variant="muted" class="mt-2 max-w-[60ch]">
-            Add a <code class="font-mono text-ink">repositories</code> entry pointing at the private Git remote.
-            Without this, Composer has no way to find the package and <code class="font-mono text-ink">composer require</code>
-            exits with “could not be found in any version”.
-        </x-sigta::text>
-
-        <div class="mt-5 grid gap-5 lg:grid-cols-2">
-            <div>
-                <p class="{{ $stepLabel }}">SSH (recommended for dev machines)</p>
-                <pre class="{{ $preClasses }}"><code>{{ $codeRepoSsh }}</code></pre>
-            </div>
-            <div>
-                <p class="{{ $stepLabel }}">HTTPS (CI / deploy runners)</p>
-                <pre class="{{ $preClasses }}"><code>{{ $codeRepoHttps }}</code></pre>
-            </div>
-        </div>
-
-        <p class="{{ $stepLabel }} mt-6">In context — sits alongside <code class="font-mono text-ink">require</code></p>
-        <pre class="{{ $preClasses }}"><code>{{ $codeRepoInContext }}</code></pre>
-    </section>
-
-    {{-- ===================== 2 · AUTH ===================== --}}
-    <section>
-        <x-sigta::eyebrow class="mb-3">02 · Composer authentication</x-sigta::eyebrow>
-        <x-sigta::text variant="muted" class="mt-2 max-w-[60ch]">
-            Composer must authenticate to read the private repository. Use a GitHub personal access token
-            (with <code class="font-mono text-ink">repo</code> scope) for both HTTPS and CI; SSH keys work on
-            machines that already have them.
-        </x-sigta::text>
-
-        <div class="mt-5 grid gap-5 lg:grid-cols-2">
-            <div>
-                <p class="{{ $stepLabel }}">Via the CLI</p>
-                <pre class="{{ $preClasses }}"><code>{{ $codeAuthCli }}</code></pre>
-            </div>
-            <div>
-                <p class="{{ $stepLabel }}">Or commit-free auth.json (gitignored)</p>
-                <pre class="{{ $preClasses }}"><code>{{ $codeAuthJson }}</code></pre>
-            </div>
-        </div>
-
-        <div class="mt-5">
-            <x-sigta::callout variant="info" heading="CI &amp; deploy runners.">
-                Never commit the token. Inject it via the <code class="font-mono">COMPOSER_AUTH</code> environment
-                variable — Composer reads it at install time.
-            </x-sigta::callout>
-            <pre class="{{ $preClasses }} mt-3"><code>{{ $codeCiEnv }}</code></pre>
-        </div>
-    </section>
-
-    {{-- ===================== 3 · REQUIRE ===================== --}}
-    <section>
-        <x-sigta::eyebrow class="mb-3">03 · Require &amp; install</x-sigta::eyebrow>
-        <x-sigta::text variant="muted" class="mt-2 max-w-[60ch]">
-            Pin to <code class="font-mono text-ink">dev-main</code> — the repository has no tagged releases yet, so a
-            version constraint like <code class="font-mono text-ink">^1.0</code> resolves to nothing. Once the package
-            is tagged, switch to a stable constraint.
+            Composer resolves the latest tagged release from Packagist and writes a caret constraint
+            to your <code class="font-mono text-ink">composer.json</code>. No repository entry or token needed.
         </x-sigta::text>
 
         <p class="{{ $stepLabel }} mt-5">Install</p>
         <pre class="{{ $preClasses }}"><code>{{ $codeRequire }}</code></pre>
-
-        <div class="mt-5">
-            <x-sigta::callout heading="Only if minimum-stability blocks dev-main.">
-                <code class="font-mono">dev-main</code> requires a permissive stability setting. Run this only if the
-                install above errors on stability.
-            </x-sigta::callout>
-            <pre class="{{ $preClasses }} mt-3"><code>{{ $codeStability }}</code></pre>
-        </div>
 
         <x-sigta::text variant="muted" class="mt-5 text-[0.9rem] max-w-[60ch]">
             The service provider (<code class="font-mono text-ink">SigtaServiceProvider</code>) is auto-discovered via
             <code class="font-mono text-ink">extra.laravel.providers</code> — no manual registration in
             <code class="font-mono text-ink">bootstrap/providers.php</code>.
         </x-sigta::text>
+
+        <div class="mt-5">
+            <x-sigta::callout variant="info" heading="Installed from the private repository before?">
+                Apps that pulled <code class="font-mono">sigta/ui</code> from the GitHub repository on
+                <code class="font-mono">dev-main</code> can drop the <code class="font-mono">vcs</code> repository entry and the
+                GitHub token, then re-require to move onto tagged releases.
+            </x-sigta::callout>
+            <pre class="{{ $preClasses }} mt-3"><code>{{ $codeMigrate }}</code></pre>
+        </div>
     </section>
 
     <x-sigta::rule variant="2" class="text-ink/60" />
 
-    {{-- ===================== 4 · CSS ENTRY ===================== --}}
+    {{-- ===================== 2 · CSS ENTRY ===================== --}}
     <section>
-        <x-sigta::eyebrow class="mb-3">04 · CSS entry</x-sigta::eyebrow>
+        <x-sigta::eyebrow class="mb-3">02 · CSS entry</x-sigta::eyebrow>
         <x-sigta::text variant="muted" class="mt-2 max-w-[60ch]">
             Import the Sigta stylesheet into your app's CSS entry, and add <code class="font-mono text-ink">@source</code>
             so Tailwind v4 scans the package's views for class names to keep.
@@ -270,9 +164,9 @@
         </x-sigta::text>
     </section>
 
-    {{-- ===================== 5 · LAYOUT WIRING ===================== --}}
+    {{-- ===================== 3 · LAYOUT WIRING ===================== --}}
     <section>
-        <x-sigta::eyebrow class="mb-3">05 · Layout wiring</x-sigta::eyebrow>
+        <x-sigta::eyebrow class="mb-3">03 · Layout wiring</x-sigta::eyebrow>
         <x-sigta::text variant="muted" class="mt-2 max-w-[60ch]">
             Add <code class="font-mono text-ink">@sigtaScripts</code> in <code class="font-mono text-ink">&lt;head&gt;</code>
             (after Livewire styles). It emits a <code class="font-mono text-ink">&lt;script&gt;</code> tag pointing at the
@@ -289,9 +183,9 @@
         </x-sigta::text>
     </section>
 
-    {{-- ===================== 6 · FONTS ===================== --}}
+    {{-- ===================== 4 · FONTS ===================== --}}
     <section>
-        <x-sigta::eyebrow class="mb-3">06 · Publish fonts</x-sigta::eyebrow>
+        <x-sigta::eyebrow class="mb-3">04 · Publish fonts</x-sigta::eyebrow>
         <x-sigta::text variant="muted" class="mt-2 max-w-[60ch]">
             <code class="font-mono text-ink">@font-face</code> URLs must resolve under <code class="font-mono text-ink">public/</code>,
             so fonts are published rather than route-served. Run this once per deploy.
@@ -301,9 +195,9 @@
         <pre class="{{ $preClasses }}"><code>{{ $codeFonts }}</code></pre>
     </section>
 
-    {{-- ===================== 7 · BUILD ===================== --}}
+    {{-- ===================== 5 · BUILD ===================== --}}
     <section>
-        <x-sigta::eyebrow class="mb-3">07 · Build assets</x-sigta::eyebrow>
+        <x-sigta::eyebrow class="mb-3">05 · Build assets</x-sigta::eyebrow>
         <x-sigta::text variant="muted" class="mt-2 max-w-[60ch]">
             Vite compiles your app's CSS (Tailwind scans the package views via
             <code class="font-mono text-ink">@source</code>). The package's own JavaScript ships pre-built in
@@ -326,11 +220,11 @@
 
     <x-sigta::rule variant="3" class="text-ink/60" />
 
-    {{-- ===================== 8 · DEPLOY ===================== --}}
+    {{-- ===================== 6 · DEPLOY ===================== --}}
     <section>
-        <x-sigta::eyebrow class="mb-3">08 · Production deploy sequence</x-sigta::eyebrow>
+        <x-sigta::eyebrow class="mb-3">06 · Production deploy sequence</x-sigta::eyebrow>
         <x-sigta::text variant="muted" class="mt-2 max-w-[60ch]">
-            A typical release runbook. The private VCS repo + auth must be reachable from wherever this runs.
+            A typical release runbook.
         </x-sigta::text>
 
         <p class="{{ $stepLabel }} mt-5">Release commands</p>
@@ -342,11 +236,6 @@
                 asset URL. <code class="font-mono">php artisan route:cache</code> is recommended in production — and the
                 Sigta asset routes are registered by the service provider, so they're included.
             </x-sigta::callout>
-            <x-sigta::callout variant="danger" heading="Don't forget auth on the server.">
-                <code class="font-mono">composer install</code> on the deploy runner must reach the private VCS
-                repository. If <code class="font-mono">COMPOSER_AUTH</code> isn't set, the install fails at the
-                <code class="font-mono">sigta/ui</code> requirement.
-            </x-sigta::callout>
         </div>
     </section>
 
@@ -356,9 +245,9 @@
         <a href="/kit" class="text-ink underline underline-offset-[3px]">component kit</a>.
     </x-sigta::text>
 
-    {{-- ===================== 9 · LLM AGENT CONTEXT ===================== --}}
+    {{-- ===================== 7 · LLM AGENT CONTEXT ===================== --}}
     <section>
-        <x-sigta::eyebrow class="mb-3">09 · LLM agent context</x-sigta::eyebrow>
+        <x-sigta::eyebrow class="mb-3">07 · LLM agent context</x-sigta::eyebrow>
         <x-sigta::text variant="muted" class="mt-2 max-w-[60ch]">
             If this app will be built or edited by an LLM coding agent (ZCode, Claude Code, Cursor, etc.),
             publish the Sigta context files so the agent reads the rules instead of guessing. The same

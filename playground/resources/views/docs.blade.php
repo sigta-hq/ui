@@ -185,7 +185,7 @@
 
         <div class="mt-5">
             <x-sigta::callout variant="info" heading="Installing in production?">
-                <code class="font-mono">composer require sigta/ui</code> works for this local-dev playground because the path repository is already wired. A production app needs a private VCS repository, Composer auth, and a deploy sequence — see the <a href="/kit/installation" class="text-ink underline underline-offset-[3px]">production installation guide</a>.
+                <code class="font-mono">composer require sigta/ui</code> pulls the package from Packagist. For fonts, the build, and the deploy sequence, see the <a href="/kit/installation" class="text-ink underline underline-offset-[3px]">production installation guide</a>.
             </x-sigta::callout>
         </div>
 
