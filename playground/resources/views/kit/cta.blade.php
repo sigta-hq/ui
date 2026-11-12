@@ -1,17 +1,12 @@
 <x-kit-shell title="Section · CTA">
-    <x-kit-example label="Ink CTA band — zero-config (inverse + ghost-inverse buttons)">
-    «sigta:section.cta />
-    </x-kit-example>
-
-    <x-kit-example label="Custom copy + links">
+    <x-kit-example label="Ink CTA band (inverse + ghost-inverse buttons, accent hand-note)">
     «sigta:section.cta
-        heading="Klar til at komme videre?"
-        lede="Vi svarer inden for en arbejdsdag."
-        primary-label="Book et møde"
-        primary-href="https://calendly.com/sf-sigta/30min"
-        target="_blank"
-        secondary-label="Skriv en mail"
-        secondary-href="mailto:sf@sigta.dk"
-        annotation="lige her ↘" />
+        heading="Shall we talk before you sign anything?"
+        lede="An intro call costs nothing and commits you to nothing."
+        primary-label="Book a call"
+        primary-href="#"
+        secondary-label="Send an email"
+        secondary-href="mailto:hello@example.com"
+        annotation="let’s sketch it out ↘" />
     </x-kit-example>
 </x-kit-shell>

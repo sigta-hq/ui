@@ -42,7 +42,7 @@ $wide = in_array($slug, array_merge($catalog['sections']['items'] ?? [], $catalo
 
     <div class="relative z-10 flex min-h-screen">
         <aside class="w-60 shrink-0 border-r border-line px-5 py-8 hidden md:block overflow-y-auto max-h-screen sticky top-0">
-            <a href="/kit" class="no-underline"><x-sigta::brand size="sm" /></a>
+            <a href="/kit" class="no-underline"><x-sigta::brand name="SIGTA" size="sm"><x-slot:logo><x-logo /></x-slot:logo></x-sigta::brand></a>
 
             <nav class="mt-6 flex flex-col gap-6" aria-label="Kit pages">
                 @foreach ($grouped as $tier)

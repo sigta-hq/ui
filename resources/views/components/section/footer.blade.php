@@ -1,28 +1,11 @@
-{{-- Site footer: brand + tagline, nav columns, dashed signoff line. Uses a
-     <footer> landmark as its root but carries the section contract's
-     data-sigta hook. --}}
+{{-- Site footer: your brand + tagline, nav columns, dashed signoff line. Uses
+     a <footer> landmark as its root but carries the section contract's
+     data-sigta hook. Pass the brand through the `brand` slot, typically a
+     <sigta:brand> with your logo. Ships no copy or links. --}}
 @props([
-    'tagline' => 'Sigta er tech-partneren for virksomheder uden egen teknisk ledelse: hjælp, rådgivning og udvikling.',
-    'signoff' => '© 2026 Sigta · CVR 45530760',
-    'columns' => [
-        [
-            'heading' => 'Navigation',
-            'links' => [
-                ['label' => 'Kan du genkende det?', 'href' => '#genkend'],
-                ['label' => 'Sådan hjælper vi', 'href' => '#hjaelp'],
-                ['label' => 'Priser', 'href' => '#priser'],
-                ['label' => 'Om Sigta', 'href' => '#om'],
-            ],
-        ],
-        [
-            'heading' => 'Kontakt',
-            'links' => [
-                ['label' => 'Book en intro-samtale', 'href' => 'https://calendly.com/sf-sigta/30min'],
-                ['label' => 'sf@sigta.dk', 'href' => 'mailto:sf@sigta.dk'],
-                ['label' => 'LinkedIn', 'href' => 'https://www.linkedin.com/in/soeren-frisk/'],
-            ],
-        ],
-    ],
+    'tagline' => null,
+    'signoff' => null,
+    'columns' => [],
 ])
 
 @php
@@ -39,9 +22,9 @@ $gridClasses = match (count($columns)) {
     <div class="mx-auto max-w-(--sigta-maxw) px-(--sigta-gutter)">
         <div class="grid gap-8 {{ $gridClasses }}">
             <div>
-                <x-sigta::brand />
+                {{ $brand ?? '' }}
                 @if ($tagline)
-                    <p class="mt-4 max-w-[32ch] text-[0.92rem] text-graphite">{{ $tagline }}</p>
+                    <p @class(['max-w-[32ch] text-[0.92rem] text-graphite', 'mt-4' => isset($brand)])>{{ $tagline }}</p>
                 @endif
             </div>
             @foreach ($columns as $column)

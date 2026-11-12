@@ -1,44 +1,21 @@
-{{-- Section: recognition — the "Kan du genkende det?" block. section-header +
-     a two-column tile-grid of scene/answer cards (italic Fraunces scene line,
-     an answer prefixed with →), then a closing line + CTA below the grid.
-     Brand-default Danish copy, all overridable. --}}
+{{-- Section: recognition — "does this sound familiar?". section-header + a
+     two-column tile-grid of scene/answer cards (italic Fraunces scene line, an
+     answer prefixed with →), then a closing line + CTA below the grid. Ships
+     no copy: pass your own heading and items. --}}
 @props([
-    'heading' => 'Kan du genkende det?',
-    'lede' => 'Fire situationer, hvor det hjælper at have en teknisk stemme på sin egen side af bordet.',
-    'items' => null,
-    'closingText' => 'Hvis bare ét af dem rammer, så lad os tage en kop kaffe.',
-    'ctaLabel' => 'Book en intro-samtale',
-    'ctaHref' => 'https://calendly.com/sf-sigta/30min',
-    'target' => '_blank',
+    'heading' => null,
+    'lede' => null,
+    'items' => [],
+    'closingText' => null,
+    'ctaLabel' => null,
+    'ctaHref' => null,
+    'target' => null,
 ])
 
-@php
-$items ??= [
-    [
-        'num' => '01 · Tilbuddet i indbakken',
-        'scene' => '"Vi har fået et tilbud på 750.000 kr. fra et bureau. Er det rimeligt?"',
-        'answer' => 'Svært at vide, når man ikke taler sproget. Vi læser det med dig, linje for linje.',
-    ],
-    [
-        'num' => '02 · Projektet skrider',
-        'scene' => '"Udviklingen er bagud, budgettet er brugt, og ingen kan rigtig forklare hvorfor."',
-        'answer' => 'Vi finder ud af, hvor det knirker, og hvad der skal til for at komme i mål.',
-    ],
-    [
-        'num' => '03 · Klar til at bygge',
-        'scene' => '"Idéen er på plads. Men arkitektur, teknologivalg, og hvem skal bygge det?"',
-        'answer' => 'Vi lægger planen sammen med dig, før du bruger den første krone.',
-    ],
-    [
-        'num' => '04 · Vokset fra gaffatapen',
-        'scene' => '"Virksomheden er vokset. Systemerne er fulgt med, men kun på gaffatape."',
-        'answer' => 'Vi rydder op og sætter en teknisk retning, der holder til næste vækstspring.',
-    ],
-];
-@endphp
-
 <section data-sigta="section.recognition" {{ $attributes->merge(['class' => 'max-w-(--sigta-maxw) mx-auto px-(--sigta-gutter) py-[clamp(40px,6vw,72px)]']) }}>
-    <x-sigta::section-header class="mb-[clamp(28px,4vw,52px)]" :heading="$heading" :lede="$lede" />
+    @if ($heading || $lede)
+        <x-sigta::section-header class="mb-[clamp(28px,4vw,52px)]" :heading="$heading" :lede="$lede" />
+    @endif
 
     <x-sigta::tile-grid cols="2">
         @foreach ($items as $item)

@@ -110,6 +110,11 @@ npm run dev & php artisan serve         # kit pages at /kit
   values only for now, a dark theme is a future values file, not a refactor.
 - Alpine.js is the behavior layer. Headless engines only for editor-class
   problems. Styled component libraries never.
+- The package ships no content and no logo. Sections render only the copy
+  you pass, and `<sigta:brand>` takes your logo through its `logo` slot or
+  prop. Sigta's own landing copy lives in
+  `playground/resources/content/sigta-landing.php`, and
+  `tests/NoBrandContentTest.php` fails if Sigta content creeps back in.
 
 ## Releasing
 
@@ -131,7 +136,7 @@ Two parts of the package come with their own terms:
   ProseMirror and others) keep their own MIT licenses, listed in
   [`dist/sigta-editor.js.LICENSE.txt`](dist/sigta-editor.js.LICENSE.txt).
 
-The MIT license covers the code, not the brand. The Sigta name and logo
-(`resources/images/sigta-logo.svg`, `resources/images/sigta-mark.svg`) are not
-licensed for use in your own products. To ship under your own brand, import
-`core.css` with your own theme as described in [Re-branding](#re-branding).
+The MIT license covers the code, not the brand. The package ships no Sigta
+logo or content, and the Sigta name and logo, which appear in the
+`playground/` docs site, are trademarks of Sigta ApS and are not licensed for
+use in your own products.

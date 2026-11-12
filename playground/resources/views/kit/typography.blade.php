@@ -39,11 +39,11 @@
 
     <x-kit-example label="Brand lockup">
     «div class="flex items-end gap-8">
-        «sigta:brand size="sm" />
-        «sigta:brand />
-        «sigta:brand size="lg" />
-        «sigta:brand glyph-only />
-        «span class="bg-inverse text-inverse-fg p-3 rounded-base inline-flex">«sigta:brand class="text-inverse-fg" />«/span>
+        «sigta:brand name="Acme" size="sm">«x-slot:logo>«sigta:icon name="hexagon" />«/x-slot:logo>«/sigta:brand>
+        «sigta:brand name="Acme">«x-slot:logo>«sigta:icon name="hexagon" />«/x-slot:logo>«/sigta:brand>
+        «sigta:brand name="Acme" size="lg">«x-slot:logo>«sigta:icon name="hexagon" />«/x-slot:logo>«/sigta:brand>
+        «sigta:brand name="Acme" glyph-only>«x-slot:logo>«sigta:icon name="hexagon" />«/x-slot:logo>«/sigta:brand>
+        «span class="bg-inverse text-inverse-fg p-3 rounded-base inline-flex">«sigta:brand name="Acme" class="text-inverse-fg">«x-slot:logo>«sigta:icon name="hexagon" />«/x-slot:logo>«/sigta:brand>«/span>
     «/div>
     </x-kit-example>
 </x-kit-shell>

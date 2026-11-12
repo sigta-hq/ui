@@ -111,7 +111,7 @@ return [
 
     'sections' => [
         'label' => 'Sections',
-        'description' => 'Content-shaped page regions, built from components. Tag as <sigta:section.NAME>; each renders complete with default copy and takes prop/slot overrides.',
+        'description' => 'Content-shaped page regions, built from components. Tag as <sigta:section.NAME>; each ships without copy and renders only the props and slots you pass.',
         'items' => [
             'hero',
             'features',

@@ -1,44 +1,18 @@
 {{-- Section: pricing — section-header + two non-clipping panels side by side
      (stacks on mobile). Each panel: mono label, title, a big figure (mark on
      the price), body paragraphs; a tier may carry an overhanging annot
-     hand-note — which is WHY <sigta:panel> is non-clipping. Brand-default
-     Danish copy, all overridable via :tiers. --}}
+     hand-note — which is WHY <sigta:panel> is non-clipping. Ships no copy:
+     pass your own heading and :tiers. --}}
 @props([
-    'heading' => 'To måder at samarbejde på.',
-    'lede' => 'Én filosofi bag begge: du skal altid vide, hvad du betaler for.',
-    'tiers' => null,
+    'heading' => null,
+    'lede' => null,
+    'tiers' => [],
 ])
 
-@php
-$tiers ??= [
-    [
-        'label' => 'Spor 1 · Timepris',
-        'title' => 'Klassisk: én lav, fast timepris',
-        'figure' => '800 kr.',
-        'figureSuffix' => '/ time, ekskl. moms',
-        'mark' => true,
-        'body' => [
-            'Én timepris. Ingen tillæg, ingen seniorrater, ingen overraskelser. Prisen er bevidst lavere end hos de store konsulenthuse, fordi et partnerskab fungerer bedst, når fokus er på at bygge og ikke på at diskutere, hvem der betaler for hvad.',
-            'Nogle gange går tingene godt, andre gange skal noget laves om. Den lave timepris gør, at vi kan begge dele uden dårlig stemning.',
-        ],
-    ],
-    [
-        'label' => 'Spor 2 · Fast månedspris',
-        'title' => 'Skræddersyet software som abonnement',
-        'figure' => 'Fast pris',
-        'figureSuffix' => '/ måned, aftalt på forhånd',
-        'mark' => false,
-        'annot' => 'som SaaS, bare jeres eget',
-        'body' => [
-            'Den nye måde at få software på: Vi bygger et værktøj eller en platform tilpasset jer, og I betaler en fast månedlig pris, som var det et SaaS-abonnement.',
-            'Startinvesteringen er en brøkdel af et klassisk udviklingsprojekt, og drift og vedligehold er regnet med. Softwaren bliver ved med at virke, og I ved præcis, hvad den koster.',
-        ],
-    ],
-];
-@endphp
-
 <section data-sigta="section.pricing" {{ $attributes->merge(['class' => 'max-w-(--sigta-maxw) mx-auto px-(--sigta-gutter) py-[clamp(40px,6vw,72px)]']) }}>
-    <x-sigta::section-header class="mb-[clamp(28px,4vw,52px)]" :heading="$heading" :lede="$lede" />
+    @if ($heading || $lede)
+        <x-sigta::section-header class="mb-[clamp(28px,4vw,52px)]" :heading="$heading" :lede="$lede" />
+    @endif
 
     <div class="grid gap-[clamp(18px,2.2vw,28px)] md:grid-cols-2">
         @foreach ($tiers as $tier)

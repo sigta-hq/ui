@@ -1,11 +1,7 @@
 <x-kit-shell title="Section · Quote">
-    <x-kit-example label="Pull-quote — zero-config">
-    «sigta:section.quote />
-    </x-kit-example>
-
-    <x-kit-example label="Custom quote + cite">
+    <x-kit-example label="Pull-quote + cite">
     «sigta:section.quote
-        quote="Godt håndværk taler for sig selv."
-        cite="Sigtas arbejdsfilosofi" />
+        quote="You don’t need to read the code to make good decisions. You just need someone who does."
+        cite="How we work" />
     </x-kit-example>
 </x-kit-shell>

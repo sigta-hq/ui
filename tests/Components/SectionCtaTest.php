@@ -2,22 +2,33 @@
 
 use Illuminate\Support\Facades\Blade;
 
-it('renders the default ink band copy and both buttons', function () {
+it('renders with zero props: the ink band and no copy or buttons', function () {
     $html = Blade::render('<x-sigta::section.cta />');
 
     expect($html)
         ->toContain('data-sigta="section.cta"')
-        ->toContain('Skal vi tage en snak, før du skriver under på noget?')
-        ->toContain('En intro-samtale koster ingenting og forpligter ikke.')
-        ->toContain('Book en intro-samtale')
-        ->toContain('Skriv en mail')
-        ->toContain('lad os tegne det op ↘')
         ->toContain('bg-inverse')
+        ->not->toContain('<h2')
+        ->not->toContain('data-sigta="annot"')
+        ->not->toContain('data-sigta="button"');
+});
+
+it('renders heading, lede, annotation and both buttons from props', function () {
+    $html = Blade::render('<x-sigta::section.cta heading="Ready to start?" lede="We reply within a day." primary-label="Call now" primary-href="tel:12345678" secondary-label="Read more" secondary-href="/more" annotation="right here" />');
+
+    expect($html)
+        ->toContain('Ready to start?')
+        ->toContain('We reply within a day.')
+        ->toContain('Call now')
+        ->toContain('tel:12345678')
+        ->toContain('Read more')
+        ->toContain('/more')
+        ->toContain('right here')
         ->toContain('text-inverse-fg');
 });
 
 it('styles the dark band via button variants, not !-overrides', function () {
-    $html = Blade::render('<x-sigta::section.cta />');
+    $html = Blade::render('<x-sigta::section.cta heading="Go" primary-label="Book" primary-href="/book" secondary-label="Mail" secondary-href="mailto:hi@example.com" />');
 
     // The primary button uses variant="inverse" (paper fill = bg-surface),
     // the secondary uses variant="ghost-inverse" (border-inverse-line).
@@ -27,20 +38,8 @@ it('styles the dark band via button variants, not !-overrides', function () {
         ->not->toContain('!');
 });
 
-it('lets the heading and label/href props win', function () {
-    $html = Blade::render('<x-sigta::section.cta heading="Egen overskrift" primary-label="Ring nu" primary-href="tel:12345678" secondary-label="Læs mere" secondary-href="/mere" />');
-
-    expect($html)
-        ->toContain('Egen overskrift')
-        ->toContain('Ring nu')
-        ->toContain('tel:12345678')
-        ->toContain('Læs mere')
-        ->toContain('/mere')
-        ->not->toContain('Skal vi tage en snak');
-});
-
 it('forwards target onto the primary button like a normal button', function () {
-    $html = Blade::render('<x-sigta::section.cta target="_blank" secondary-target="_blank" />');
+    $html = Blade::render('<x-sigta::section.cta primary-label="Book" primary-href="/book" target="_blank" secondary-label="Mail" secondary-href="/mail" secondary-target="_blank" />');
 
     expect($html)
         ->toContain('target="_blank"')
@@ -50,7 +49,7 @@ it('forwards target onto the primary button like a normal button', function () {
 });
 
 it('does not force a target when the prop is omitted', function () {
-    $html = Blade::render('<x-sigta::section.cta />');
+    $html = Blade::render('<x-sigta::section.cta primary-label="Book" primary-href="/book" />');
 
     expect($html)->not->toContain('target=');
 });

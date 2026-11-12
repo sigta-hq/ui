@@ -2,76 +2,53 @@
 
 use Illuminate\Support\Facades\Blade;
 
-it('renders with zero props: root marker + default Danish copy', function () {
+it('renders with zero props: root marker, an empty grid, no header or CTA', function () {
     $html = Blade::render('<x-sigta::section.recognition />');
 
     expect($html)
         ->toContain('data-sigta="section.recognition"')
-        // default heading + lede
-        ->toContain('Kan du genkende det?')
-        ->toContain('Fire situationer, hvor det hjælper at have en teknisk stemme')
-        // composes section-header + two-col tile-grid
-        ->toContain('data-sigta="section-header"')
         ->toContain('data-sigta="tile-grid"')
-        ->toContain('md:grid-cols-2')
-        // scene + answer copy from the default cards
-        ->toContain('Tilbuddet i indbakken')
-        ->toContain('Vi har fået et tilbud på 750.000 kr.')
-        ->toContain('linje for linje')
-        ->toContain('Vokset fra gaffatapen')
-        // closing line + default CTA
-        ->toContain('Hvis bare ét af dem rammer, så lad os tage en kop kaffe.')
-        ->toContain('Book en intro-samtale');
+        ->not->toContain('data-sigta="section-header"')
+        ->not->toContain('data-sigta="tile"')
+        ->not->toContain('data-sigta="button"');
 });
 
-it('lets an override prop win over the default heading', function () {
-    $html = Blade::render('<x-sigta::section.recognition heading="Lyder det bekendt?" />');
-
-    expect($html)
-        ->toContain('Lyder det bekendt?')
-        ->not->toContain('Kan du genkende det?');
-});
-
-it('overrides closing text and CTA', function () {
-    $html = Blade::render('<x-sigta::section.recognition closing-text="Ring til os" cta-label="Skriv en mail" />');
-
-    expect($html)
-        ->toContain('Ring til os')
-        ->toContain('Skriv en mail')
-        ->not->toContain('Hvis bare ét af dem rammer');
-});
-
-it('renders a custom card set via :items', function () {
+it('renders the header, cards, closing line and CTA from props', function () {
     $html = Blade::render(
-        '<x-sigta::section.recognition :items="$items" />',
+        '<x-sigta::section.recognition heading="Sound familiar?" lede="Four situations." :items="$items" closing-text="If one fits, let us talk." cta-label="Book a call" cta-href="/book" />',
         ['items' => [
-            ['num' => '01', 'scene' => 'Egen scene', 'answer' => 'Eget svar'],
+            ['num' => '01 · The quote', 'scene' => 'We got a quote. Is it fair?', 'answer' => 'We read it with you.'],
         ]],
     );
 
     expect($html)
-        ->toContain('Egen scene')
-        ->toContain('Eget svar')
-        ->not->toContain('Tilbuddet i indbakken');
+        ->toContain('data-sigta="section-header"')
+        ->toContain('Sound familiar?')
+        ->toContain('Four situations.')
+        ->toContain('md:grid-cols-2')
+        ->toContain('01 · The quote')
+        ->toContain('We got a quote. Is it fair?')
+        ->toContain('We read it with you.')
+        ->toContain('If one fits, let us talk.')
+        ->toContain('Book a call')
+        ->toContain('href="/book"');
 });
 
 it('forwards arbitrary attributes onto the section root', function () {
-    $html = Blade::render('<x-sigta::section.recognition id="genkend" data-test="recog" />');
+    $html = Blade::render('<x-sigta::section.recognition id="familiar" data-test="recog" />');
 
     expect($html)
-        ->toContain('id="genkend"')
+        ->toContain('id="familiar"')
         ->toContain('data-test="recog"');
 });
 
-it('opens the CTA in a new tab by default and lets target be overridden', function () {
-    $default = Blade::render('<x-sigta::section.recognition />');
-    $overridden = Blade::render('<x-sigta::section.recognition target="_self" />');
+it('opens the CTA in a new tab only when target asks for it', function () {
+    $default = Blade::render('<x-sigta::section.recognition cta-label="Book" cta-href="/book" />');
+    $blank = Blade::render('<x-sigta::section.recognition cta-label="Book" cta-href="/book" target="_blank" />');
 
-    expect($default)
+    expect($default)->not->toContain('target=');
+
+    expect($blank)
         ->toContain('target="_blank"')
         ->toContain('rel="noopener"');
-
-    expect($overridden)
-        ->toContain('target="_self"')
-        ->not->toContain('target="_blank"');
 });

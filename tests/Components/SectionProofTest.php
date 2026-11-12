@@ -2,37 +2,28 @@
 
 use Illuminate\Support\Facades\Blade;
 
-it('renders the default years stat and placeholder logos between hairlines', function () {
+it('renders with zero props: the hairline strip and no stat or logos', function () {
     $html = Blade::render('<x-sigta::section.proof />');
 
     expect($html)
         ->toContain('data-sigta="section.proof"')
-        ->toContain('14 år')
-        ->toContain('erfaring med software')
-        ->toContain('Park Styling')
-        ->toContain('Jelling Musikfestival')
-        ->toContain('data-sigta="stat"')
-        ->toContain('border-y');
+        ->toContain('border-y')
+        ->not->toContain('data-sigta="stat"')
+        ->not->toContain('aria-label');
 });
 
-it('lets the years props win', function () {
-    $html = Blade::render('<x-sigta::section.proof years-value="20 år" years-label="i marken" />');
-
-    expect($html)
-        ->toContain('20 år')
-        ->toContain('i marken')
-        ->not->toContain('erfaring med software');
-});
-
-it('renders custom logos from the :logos prop', function () {
-    $html = Blade::render('<x-sigta::section.proof :logos="$logos" />', [
-        'logos' => ['Acme A/S', 'Foobar ApS'],
+it('renders the stat and logos from props', function () {
+    $html = Blade::render('<x-sigta::section.proof years-value="20 years" years-label="in the field" :logos="$logos" aria-label="Experience and clients" />', [
+        'logos' => ['Acme Inc.', 'Foobar Ltd.'],
     ]);
 
     expect($html)
-        ->toContain('Acme A/S')
-        ->toContain('Foobar ApS')
-        ->not->toContain('Park Styling');
+        ->toContain('data-sigta="stat"')
+        ->toContain('20 years')
+        ->toContain('in the field')
+        ->toContain('Acme Inc.')
+        ->toContain('Foobar Ltd.')
+        ->toContain('aria-label="Experience and clients"');
 });
 
 it('forwards arbitrary attributes', function () {

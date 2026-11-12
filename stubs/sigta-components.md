@@ -75,11 +75,13 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 - Plain `<hr>`. Use inside content; use `<sigta:rule>` for decorative dividers.
 
 #### `brand`
-- **Props:** `name` (default `SIGTA`), `glyphOnly` (bool, default `false`), `size` (default `base`)
+- **Props:** `name` (default null), `logo` (image URL, default null), `glyphOnly` (bool, default `false`), `size` (default `base`)
+- **Slots:** `logo` (inline SVG; use `currentColor` so it recolors with text utilities)
 - **Sizes:** `sm`, `base`, `lg`
-- Wordmark + glyph lockup. `currentColor` throughout.
+- Your logo + wordmark, sized as one lockup. Ships no logo: pass the app's own through the `logo` slot or prop. `glyphOnly` hides the name.
 ```blade
-<sigta:brand size="lg" />
+<sigta:brand name="Acme" size="lg"><x-slot:logo><svg viewBox="0 0 40 40">…</svg></x-slot:logo></sigta:brand>
+<sigta:brand name="Acme" logo="/images/logo.svg" size="sm" />
 ```
 
 ### `button`
@@ -90,7 +92,7 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 - **Busy:** a button with `wire:click`/`wire:submit` (or `type="submit"`) carries the Sigta compass and takes no clicks while Livewire runs its action (Livewire sets `data-loading`, on the form for a submit). The label never gives way to the loader: a quick action shows nothing, and once one outlasts a beat (`--sigta-dur-busy`, 500ms) the runtime sets `data-sigta-busy` and the compass stands in for a leading icon, or is written in before a label that has none. A submitting form's button keeps its ink while Livewire disables it. `loading` = `true` shows the busy state now (you drive it), `false` never adds the loader. Never write "Saving…" into a button label yourself.
 ```blade
 <sigta:button variant="cta" href="/book">Book a project <sigta:icon name="arrow-right" size="sm" /></sigta:button>
-<sigta:button href="https://calendly.com/sf-sigta/30min" target="_blank">Book a call</sigta:button>
+<sigta:button href="https://example.com/book" target="_blank">Book a call</sigta:button>
 <sigta:button>Preview</sigta:button>
 <sigta:button variant="ghost">Cancel</sigta:button>
 <sigta:button variant="primary" wire:click="save">Save</sigta:button>   {{-- compass while it saves --}}
@@ -571,7 +573,7 @@ App shell grid: sidebar + main.
 <sigta:shell full>
     <x-slot:header>
         <sigta:shell.header>
-            <x-slot:brand><sigta:brand /></x-slot:brand>
+            <x-slot:brand><sigta:brand name="Acme" logo="/images/logo.svg" /></x-slot:brand>
             <x-slot:actions><sigta:avatar name="Ada Lovelace" size="sm" /></x-slot:actions>
         </sigta:shell.header>
     </x-slot:header>
@@ -689,27 +691,28 @@ Hand-drawn-feel charts; `currentColor`-driven.
 
 ## Sections (content-shaped page regions)
 
-Marketing sections with brand-default Danish copy. **Every prop is overridable.**
-All render complete with defaults; override what you need. Tag form:
-`<sigta:section.hero />`, `<sigta:section.features heading="…" />`, etc.
+Marketing sections. **They ship no copy, links or logo**: every part (eyebrow,
+heading, items, CTAs, slots) renders only when you pass it, so write the app's
+own content into the props. Tag form: `<sigta:section.hero heading="…" />`,
+`<sigta:section.features :items="$features" />`, etc.
 
 | Section | Key props (all optional) |
 |---|---|
-| `section.hero` | `eyebrow`, `heading`, `lede`, `primaryLabel`, `primaryHref`, `target`, `secondaryLabel`, `secondaryHref`, `secondaryTarget`, `stats`, visual slot |
-| `section.proof` | `yearsValue`, `yearsLabel`, `logos` |
+| `section.hero` | `eyebrow`, `heading` (or rich HTML in the default slot), `lede`, `primaryLabel`, `primaryHref`, `target`, `secondaryLabel`, `secondaryHref`, `secondaryTarget`, `stats`, visual slot (two columns when set) |
+| `section.proof` | `yearsValue`, `yearsLabel`, `logos`; pass `aria-label` to name the region |
 | `section.recognition` | `heading`, `lede`, `items`, `closingText`, `ctaLabel`, `ctaHref`, `target` |
 | `section.features` | `eyebrow`, `heading`, `lede`, `cols` (2/3/4), `items` |
-| `section.about` | `eyebrow`, `heading`, `paragraphs`, portrait slot |
+| `section.about` | `eyebrow`, `heading`, `paragraphs`, portrait slot (two columns when set) |
 | `section.quote` | `quote`, `cite` |
 | `section.pricing` | `heading`, `lede`, `tiers`, aside slot (fills the second column beside a single tier, e.g. a call to book) |
 | `section.faq` | `heading`, `lede`, `name`, `items` |
 | `section.cta` | `heading`, `lede`, `primaryLabel`, `primaryHref`, `target`, `secondaryLabel`, `secondaryHref`, `secondaryTarget`, `annotation` |
-| `section.footer` | `tagline`, `signoff`, `columns` (one to three sit in a row beside the brand) |
+| `section.footer` | `tagline`, `signoff`, `columns` (one to three sit in a row beside the brand), brand slot (e.g. a `<sigta:brand>`) |
 
 ```blade
-<sigta:section.hero heading="We build software that ships." />
-<sigta:section.cta target="_blank" />
-<sigta:navbar cta-label="Book a call" cta-href="https://calendly.com/sf-sigta/30min" target="_blank">
+<sigta:section.hero heading="We build software that ships." lede="…" primary-label="Book a call" primary-href="/book" />
+<sigta:section.cta heading="Ready when you are." primary-label="Get started" primary-href="/signup" />
+<sigta:navbar cta-label="Book a call" cta-href="https://example.com/book" target="_blank">
     <sigta:navlink href="#work">Work</sigta:navlink>
 </sigta:navbar>
 <sigta:section.faq :items="$faqs" />

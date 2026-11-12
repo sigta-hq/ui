@@ -153,7 +153,7 @@
 
     {{-- ===================== HEADER / NAV ===================== --}}
     <header class="flex flex-wrap items-center justify-between gap-4 py-6 border-b border-line">
-        <a href="/docs" class="no-underline"><x-sigta::brand /></a>
+        <a href="/docs" class="no-underline"><x-sigta::brand name="SIGTA"><x-slot:logo><x-logo /></x-slot:logo></x-sigta::brand></a>
         <nav class="flex flex-wrap items-center gap-1 font-mono text-[0.72rem] tracking-[0.04em]" aria-label="Docs sections">
             <a href="#install" class="no-underline px-2 py-1.5 rounded-base text-graphite hover:text-ink hover:bg-ink/5">Install</a>
             <a href="#usage" class="no-underline px-2 py-1.5 rounded-base text-graphite hover:text-ink hover:bg-ink/5">Usage</a>
@@ -166,7 +166,7 @@
     {{-- ===================== HERO ===================== --}}
     <section class="py-[clamp(48px,8vw,96px)]">
         <x-sigta::eyebrow class="mb-6">Sigta UI · Internal docs</x-sigta::eyebrow>
-        <x-sigta::brand size="lg" class="mb-6" />
+        <x-sigta::brand name="SIGTA" size="lg" class="mb-6"><x-slot:logo><x-logo /></x-slot:logo></x-sigta::brand>
         <x-sigta::heading level="1" size="display" class="max-w-[16ch]">The Sigta component system — one brand, <x-sigta::mark>every surface</x-sigta::mark>.</x-sigta::heading>
         <x-sigta::text variant="lede" class="mt-6 max-w-[52ch]">A Livewire/Blade library that carries the Sigta brand — paper, ink, and hand-drawn accents — as the shared foundation for landing pages and SaaS platforms. Semantic tokens mean the same markup re-skins for any brand.</x-sigta::text>
         <div class="mt-8 flex flex-wrap items-center gap-3">
