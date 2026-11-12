@@ -13,7 +13,7 @@ function shippedTextFiles(): Finder
 
     return Finder::create()
         ->files()
-        ->in([$root.'/src', $root.'/resources', $root.'/stubs'])
+        ->in([$root.'/src', $root.'/config', $root.'/resources', $root.'/stubs'])
         ->append([$root.'/dist/sigta.js'])
         ->notName(['*.woff2', 'OFL.txt']);
 }

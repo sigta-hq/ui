@@ -91,6 +91,38 @@ Copy `resources/css/theme.example.css` as a starting template — it documents
 every token. Scope a theme under `[data-sigta-theme="x"]` to run multiple
 brands in one app.
 
+### Your own loader
+
+`<sigta:loader>` draws the Sigta compass by default, and so does every busy
+button, save state and job. To draw your own, publish the config and name a
+Blade view:
+
+```bash
+php artisan vendor:publish --tag=sigta-config
+```
+
+```php
+// config/sigta.php
+'loader' => 'components.spinner',
+```
+
+The view is drawn inside the loader's box, which keeps the size, colour,
+`data-state`, progress and accessible name. It receives `$state`, `$value`
+(0–100 or null), `$size` and `$label`. State can change in the browser without
+a re-render, so key motion off the box rather than off `$state`:
+
+```blade
+{{-- resources/views/components/spinner.blade.php --}}
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"
+     class="group-data-[state=working]/loader:animate-spin">
+    <circle cx="12" cy="12" r="9" class="opacity-20" />
+    <path d="M21 12a9 9 0 0 0-9-9" />
+</svg>
+```
+
+`<sigta:loader variant="compass">` or `variant="sketch"` still draws the built-in
+loader wherever you ask for it by name.
+
 ## Development
 
 ```bash

@@ -18,6 +18,8 @@ class SigtaServiceProvider extends ServiceProvider
 
     public function register(): void
     {
+        $this->mergeConfigFrom(__DIR__.'/../config/sigta.php', 'sigta');
+
         $this->app->singleton(Sigta::class);
 
         // sigta:install — idempotent fonts + LLM agent context sync. Safe to
@@ -77,6 +79,10 @@ class SigtaServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../resources/fonts' => public_path('vendor/sigta/fonts'),
         ], 'sigta-fonts');
+
+        $this->publishes([
+            __DIR__.'/../config/sigta.php' => config_path('sigta.php'),
+        ], 'sigta-config');
     }
 
     public static function scriptTag(): string

@@ -48,6 +48,40 @@
     «/div>
     </x-kit-example>
 
+    {{-- Your own loader. config('sigta.loader') is app-wide, so the live side
+         sets it for this block only and puts it back; the code side shows the
+         config line and the real view file. --}}
+    @php
+        $codeLoaderConfig = <<<'TXT'
+        // config/sigta.php   (php artisan vendor:publish --tag=sigta-config)
+        'loader' => 'components.spinner',
+        TXT;
+        $codeSpinner = file_get_contents(resource_path('views/components/spinner.blade.php'));
+    @endphp
+    <x-kit-demo label="Your own loader — every loader, busy button, save state and job draws it">
+        <x-sigta::text variant="muted" class="max-w-[64ch] mb-5">Set <code class="font-mono text-ink">loader</code> in <code class="font-mono text-ink">config/sigta.php</code> to a Blade view and it is drawn inside the loader's box instead of the compass. The box keeps the size, colour, <code class="font-mono text-ink">data-state</code>, progress and accessible name, and hands the view <code class="font-mono text-ink">$state</code>, <code class="font-mono text-ink">$value</code>, <code class="font-mono text-ink">$size</code> and <code class="font-mono text-ink">$label</code>. State can change in the browser without a re-render, so key motion off the box: <code class="font-mono text-ink">group-data-[state=working]/loader:animate-spin</code>. <code class="font-mono text-ink">variant="compass"</code> or <code class="font-mono text-ink">"sketch"</code> still draws the built-in one.</x-sigta::text>
+        <x-doc-example label="Live, with 'loader' => 'components.spinner'">
+            @php config(['sigta.loader' => 'components.spinner']); @endphp
+            <div class="flex flex-wrap items-center gap-6" x-data="{ state: 'working' }">
+                <x-sigta::loader size="xl" x-bind:data-state="state" />
+                <div class="flex gap-2">
+                    <x-sigta::button size="sm" x-on:click="state = 'working'">Work</x-sigta::button>
+                    <x-sigta::button size="sm" variant="primary" x-on:click="state = 'done'">Done</x-sigta::button>
+                    <x-sigta::button size="sm" variant="ghost" x-on:click="state = 'failed'">Fail</x-sigta::button>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-4">
+                <x-sigta::button variant="primary" loading>Save changes</x-sigta::button>
+                <x-sigta::save-state state="saving" />
+            </div>
+            @php config(['sigta.loader' => null]); @endphp
+            <x-slot:code>{{ $codeLoaderConfig }}
+
+{{-- resources/views/components/spinner.blade.php --}}
+{{ $codeSpinner }}</x-slot:code>
+        </x-doc-example>
+    </x-kit-demo>
+
     <x-kit-example label="In a busy button, once its action outlasts a beat (the label stays)">
     «div class="flex flex-wrap items-center gap-3">
         «sigta:button variant="primary" loading>Save changes«/sigta:button>
