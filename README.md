@@ -1,9 +1,16 @@
 # Sigta UI
 
-Livewire/Blade component library carrying the Sigta brand — paper, ink, and
-hand-drawn accents — as the shared foundation for Sigta landing pages and SaaS
-platforms. Comprehensive component coverage, fully owned. See [PLAN.md](PLAN.md)
-for architecture decisions and the component roadmap.
+[![Latest version](https://img.shields.io/packagist/v/sigta/ui.svg)](https://packagist.org/packages/sigta/ui)
+[![CI](https://github.com/sigta-hq/ui/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/sigta-hq/ui/actions/workflows/ci.yml)
+[![Downloads](https://img.shields.io/packagist/dt/sigta/ui.svg)](https://packagist.org/packages/sigta/ui)
+[![License](https://img.shields.io/packagist/l/sigta/ui.svg)](LICENSE)
+
+A Livewire/Blade component library with a paper-and-ink look: hand-drawn
+accents, form controls, overlays, an app shell, a rich-text editor and
+marketing sections, all themed through design tokens. See
+[PLAN.md](PLAN.md) for architecture decisions and the component roadmap.
+
+**Requirements:** PHP 8.4+, Laravel 12 or 13, Livewire 4, Tailwind CSS 4.
 
 ## Repo layout
 
@@ -127,17 +134,20 @@ loader wherever you ask for it by name.
 
 ```bash
 composer install && ./vendor/bin/pest   # package tests
-./scripts/check-tokens.sh               # token guard (no raw hex outside tokens.css)
+./scripts/check-tokens.sh               # token guard (no raw hex outside theme.css)
 
 cd playground
 composer install && npm install
 npm run dev & php artisan serve         # kit pages at /kit
 ```
 
+[CONTRIBUTING.md](CONTRIBUTING.md) has the full setup, the rules CI enforces
+and what a finished change includes.
+
 ## Rules of the system
 
-- Components reference design tokens only — raw hex outside
-  `resources/css/tokens.css` fails CI.
+- Components reference design tokens only — raw hex outside the theme files
+  (`resources/css/theme.css`, `theme.example.css`) fails CI.
 - Token names are semantic roles (`--sigta-surface`, `--sigta-fg`); light
   values only for now, a dark theme is a future values file, not a refactor.
 - Alpine.js is the behavior layer. Headless engines only for editor-class
@@ -148,13 +158,18 @@ npm run dev & php artisan serve         # kit pages at /kit
   `playground/resources/content/sigta-landing.php`, and
   `tests/NoBrandContentTest.php` fails if Sigta content creeps back in.
 
-## Releasing
+## Contributing, support and security
 
-Packagist reads versions from git tags. To ship a release, tag `main` with a
-semver tag (`git tag v1.2.0 && git push origin v1.2.0`) or publish a GitHub
-release. Packagist picks it up within a minute. Rebuild `dist/` with
-`npm run build` before tagging if `resources/js/` changed, because consuming
-apps get the committed bundle and never run npm.
+- **Questions:** [Discussions](https://github.com/sigta-hq/ui/discussions). See
+  [SUPPORT.md](SUPPORT.md).
+- **Bugs and feature requests:** [issues](https://github.com/sigta-hq/ui/issues/new/choose).
+- **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md). Everyone taking part
+  follows the [code of conduct](CODE_OF_CONDUCT.md).
+- **Security problems:** report privately, as described in
+  [SECURITY.md](SECURITY.md).
+- **Changes per version:** [releases](https://github.com/sigta-hq/ui/releases)
+  and [CHANGELOG.md](CHANGELOG.md). Pushing a `v*` tag publishes the release;
+  see the release steps in [CONTRIBUTING.md](CONTRIBUTING.md#releases-maintainers).
 
 ## License
 
