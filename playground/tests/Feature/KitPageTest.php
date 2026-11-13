@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class KitPageTest extends TestCase
@@ -37,5 +38,28 @@ class KitPageTest extends TestCase
     public function test_unknown_kit_page_is_404(): void
     {
         $this->get('/kit/nope')->assertStatus(404);
+    }
+
+    /**
+     * A broken snippet 500s its whole page, so every kit page must render.
+     *
+     * @return array<string, array{string}>
+     */
+    public static function kitPages(): array
+    {
+        $pages = [];
+
+        foreach (glob(dirname(__DIR__, 2).'/resources/views/kit/*.blade.php') as $file) {
+            $page = basename($file, '.blade.php');
+            $pages[$page] = [$page];
+        }
+
+        return $pages;
+    }
+
+    #[DataProvider('kitPages')]
+    public function test_every_kit_page_renders(string $page): void
+    {
+        $this->get('/kit/'.$page)->assertStatus(200);
     }
 }
