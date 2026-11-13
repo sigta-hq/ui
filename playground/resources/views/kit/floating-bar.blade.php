@@ -9,6 +9,6 @@
             «sigta:button size="sm" variant="secondary">Stop«/sigta:button>
         «/sigta:floating-bar>
     «/div>
-    «sigta:text variant="caption" class="mt-4">From Livewire, bind show to state: the morph updates data-show and the bar animates. Wrap it in @persist in a wire:navigate layout.«/sigta:text>
+    «sigta:text variant="caption" class="mt-4">From Livewire, bind show to state: the morph updates data-show and the bar animates. Wrap it in «code class="font-mono">&#64;persist«/code> in a wire:navigate layout.«/sigta:text>
     </x-kit-example>
 </x-kit-shell>

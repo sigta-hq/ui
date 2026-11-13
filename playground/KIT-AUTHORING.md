@@ -47,6 +47,10 @@ in a page can't be shown as text. `«` dodges it.
 - Keep any layout wrappers as `«div class="max-w-md">…«/div>` where the old demo
   had them.
 - Tokens/utilities only — no raw hex.
+- Write a Blade directive you mean as text (`@persist`, `@livewire`) as
+  `&#64;persist`. The snippet is compiled twice, once with the page and again
+  for the live render, so a bare `@persist` runs as the directive and 500s the
+  page, and even `@@persist` only survives the first pass.
 
 ## Verify each page
 
