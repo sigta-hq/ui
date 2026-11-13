@@ -4,7 +4,7 @@
         «x-slot:sidebar>
             «sigta:shell.sidebar>
                 «x-slot:brand>
-                    «sigta:brand size="sm" glyph-only />
+                    «sigta:brand name="Acme" size="sm" glyph-only>«x-slot:logo>«sigta:icon name="hexagon" />«/x-slot:logo>«/sigta:brand>
                     Plumb
                 «/x-slot:brand>
                 «sigta:shell.link href="#" icon="layout-grid" current>Overview«/sigta:shell.link>
@@ -40,7 +40,7 @@
         «x-slot:sidebar>
             «sigta:shell.sidebar>
                 «x-slot:brand>
-                    «sigta:brand size="sm" glyph-only />
+                    «sigta:brand name="Acme" size="sm" glyph-only>«x-slot:logo>«sigta:icon name="hexagon" />«/x-slot:logo>«/sigta:brand>
                     Plumb
                 «/x-slot:brand>
                 «x-slot:actions>
@@ -62,7 +62,7 @@
         «x-slot:header>
             «sigta:shell.header>
                 «x-slot:brand>
-                    «sigta:brand size="sm" glyph-only />
+                    «sigta:brand name="Acme" size="sm" glyph-only>«x-slot:logo>«sigta:icon name="hexagon" />«/x-slot:logo>«/sigta:brand>
                     Plumb
                 «/x-slot:brand>
                 «x-slot:actions>

@@ -78,7 +78,7 @@
         <x-slot:sidebar>
             <aside class="flex h-screen flex-col bg-surface border-r border-line px-3 py-4" aria-label="Conversations">
                 <div class="flex items-center justify-between px-1">
-                    <x-sigta::brand name="Sigta" size="sm" />
+                    <x-sigta::brand name="Sigta" size="sm"><x-slot:logo><x-logo /></x-slot:logo></x-sigta::brand>
                     <x-sigta::button variant="ghost" size="sm" aria-label="New chat" x-on:click="newChat()">
                         <x-sigta::icon name="square-pen" size="sm" />
                     </x-sigta::button>
@@ -160,7 +160,7 @@
             <div x-ref="thread" class="flex-1 overflow-y-auto">
                 {{-- empty state --}}
                 <div x-show="messages.length === 0" class="flex h-full flex-col items-center justify-center px-6 text-center">
-                    <x-sigta::brand glyph-only size="lg" class="mb-5 opacity-90" />
+                    <x-sigta::brand glyph-only size="lg" class="mb-5 opacity-90"><x-slot:logo><x-logo /></x-slot:logo></x-sigta::brand>
                     <h1 class="font-head text-[clamp(1.8rem,4vw,2.6rem)] font-normal tracking-[-0.012em]">
                         How can I help, <span x-text="greetName"></span>?
                     </h1>
@@ -189,7 +189,7 @@
                         <div>
                             {{-- assistant --}}
                             <div x-show="m.role === 'assistant'" class="flex gap-3.5">
-                                <span class="mt-0.5 shrink-0 text-ink"><x-sigta::brand glyph-only size="sm" /></span>
+                                <span class="mt-0.5 shrink-0 text-ink"><x-sigta::brand glyph-only size="sm"><x-slot:logo><x-logo /></x-slot:logo></x-sigta::brand></span>
                                 <div class="sigta-prose min-w-0 flex-1 whitespace-pre-wrap" x-text="m.content"></div>
                             </div>
                             {{-- user --}}
@@ -201,7 +201,7 @@
 
                     {{-- thinking indicator --}}
                     <div x-show="pending" class="flex gap-3.5" x-cloak>
-                        <span class="mt-0.5 shrink-0 text-ink"><x-sigta::brand glyph-only size="sm" /></span>
+                        <span class="mt-0.5 shrink-0 text-ink"><x-sigta::brand glyph-only size="sm"><x-slot:logo><x-logo /></x-slot:logo></x-sigta::brand></span>
                         <div class="flex items-center gap-1 py-2" aria-label="Thinking">
                             <span class="size-1.5 rounded-full bg-graphite animate-bounce [animation-delay:-0.3s]"></span>
                             <span class="size-1.5 rounded-full bg-graphite animate-bounce [animation-delay:-0.15s]"></span>

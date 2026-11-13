@@ -2,68 +2,56 @@
 
 use Illuminate\Support\Facades\Blade;
 
-it('renders with zero props: root marker + default Danish copy', function () {
+it('renders with zero props: root marker and no copy, buttons, stats or visual', function () {
     $html = Blade::render('<x-sigta::section.hero />');
 
     expect($html)
         ->toContain('data-sigta="section.hero"')
-        // default eyebrow + heading (with mark) + lede
-        ->toContain('Tech-partner · Hjælp, rådgivning og udvikling')
-        ->toContain('forretning')
-        ->toContain('data-sigta="mark"')
-        ->toContain('Vi taler begge sprog, forretning og teknik.')
-        // default CTAs
-        ->toContain('Book en intro-samtale')
-        ->toContain('Se hvordan vi arbejder')
-        // default inline stats
-        ->toContain('data-sigta="stat"')
-        ->toContain('14 år')
-        ->toContain('bag tastaturet')
-        // default visual (søkort)
-        ->toContain('sikker havn');
+        ->not->toContain('data-sigta="eyebrow"')
+        ->not->toContain('<h1')
+        ->not->toContain('data-sigta="button"')
+        ->not->toContain('data-sigta="stat"')
+        ->not->toContain('lg:grid-cols-[1.15fr_0.85fr]');
 });
 
-it('lets an override prop win over the default heading', function () {
-    $html = Blade::render('<x-sigta::section.hero heading="Vi bygger fremtiden" />');
-
-    expect($html)
-        ->toContain('Vi bygger fremtiden')
-        ->not->toContain('Teknologi,');
-});
-
-it('overrides lede and CTA labels', function () {
-    $html = Blade::render('<x-sigta::section.hero lede="Kort lede" primary-label="Kontakt os" secondary-label="Læs mere" />');
-
-    expect($html)
-        ->toContain('Kort lede')
-        ->toContain('Kontakt os')
-        ->toContain('Læs mere')
-        ->not->toContain('Se hvordan vi arbejder') // default secondary label swapped out
-        ->toContain('data-sigta="stat"'); // stats still default
-});
-
-it('renders a custom stat row via :stats', function () {
+it('renders eyebrow, heading, lede, both CTAs and the stat row from props', function () {
     $html = Blade::render(
-        '<x-sigta::section.hero :stats="$stats" />',
-        ['stats' => [['value' => '99', 'label' => 'projekter']]],
+        '<x-sigta::section.hero eyebrow="Studio" heading="We build software" lede="Short lede" primary-label="Book a call" primary-href="/book" secondary-label="Our work" secondary-href="#work" :stats="$stats" />',
+        ['stats' => [['value' => '99', 'label' => 'projects']]],
     );
 
     expect($html)
-        ->toContain('99')
-        ->toContain('projekter')
-        ->not->toContain('bag tastaturet');
+        ->toContain('Studio')
+        ->toContain('<h1')
+        ->toContain('We build software')
+        ->toContain('Short lede')
+        ->toContain('Book a call')
+        ->toContain('href="/book"')
+        ->toContain('Our work')
+        ->toContain('href="#work"')
+        ->toContain('data-sigta="stat"')
+        ->toContain('projects');
 });
 
-it('renders a custom visual slot instead of the default søkort', function () {
+it('takes rich heading HTML from the default slot', function () {
+    $html = Blade::render('<x-sigta::section.hero>Ship <x-sigta::mark>faster</x-sigta::mark>.</x-sigta::section.hero>');
+
+    expect($html)
+        ->toContain('<h1')
+        ->toContain('data-sigta="mark"')
+        ->toContain('faster');
+});
+
+it('sets the visual slot beside the copy in a two-column grid', function () {
     $html = Blade::render(<<<'BLADE'
-        <x-sigta::section.hero>
+        <x-sigta::section.hero heading="Hello">
             <x-slot:visual><img src="/hero.png" alt="Custom"></x-slot:visual>
         </x-sigta::section.hero>
     BLADE);
 
     expect($html)
         ->toContain('/hero.png')
-        ->not->toContain('sikker havn');
+        ->toContain('lg:grid-cols-[1.15fr_0.85fr]');
 });
 
 it('forwards arbitrary attributes onto the section root', function () {
@@ -74,15 +62,13 @@ it('forwards arbitrary attributes onto the section root', function () {
         ->toContain('data-test="hero"');
 });
 
-it('opens the primary CTA in a new tab by default and lets target be overridden', function () {
-    $default = Blade::render('<x-sigta::section.hero />');
-    $overridden = Blade::render('<x-sigta::section.hero target="_self" />');
+it('opens the primary CTA in a new tab only when target asks for it', function () {
+    $default = Blade::render('<x-sigta::section.hero primary-label="Book" primary-href="/book" />');
+    $blank = Blade::render('<x-sigta::section.hero primary-label="Book" primary-href="/book" target="_blank" />');
 
-    expect($default)
+    expect($default)->not->toContain('target=');
+
+    expect($blank)
         ->toContain('target="_blank"')
         ->toContain('rel="noopener"');
-
-    expect($overridden)
-        ->toContain('target="_self"')
-        ->not->toContain('target="_blank"');
 });

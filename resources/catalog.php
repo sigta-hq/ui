@@ -22,7 +22,7 @@ return [
         'label' => 'Docs',
         'description' => 'Installation, theming, and usage guidance.',
         'items' => [
-            'installation', // production install: private VCS repo, auth, fonts, deploy
+            'installation', // production install: Packagist, fonts, build, deploy
             'motion',       // motion language: press, complete, count, celebrate, settle
             'scrollbar',    // the foundation's bar on every scroll area
         ],
@@ -111,7 +111,7 @@ return [
 
     'sections' => [
         'label' => 'Sections',
-        'description' => 'Content-shaped page regions, built from components. Tag as <sigta:section.NAME>; each renders complete with default copy and takes prop/slot overrides.',
+        'description' => 'Content-shaped page regions, built from components. Tag as <sigta:section.NAME>; each ships without copy and renders only the props and slots you pass.',
         'items' => [
             'hero',
             'features',

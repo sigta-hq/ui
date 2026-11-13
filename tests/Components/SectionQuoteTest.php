@@ -2,25 +2,24 @@
 
 use Illuminate\Support\Facades\Blade;
 
-it('renders the default pull-quote and cite', function () {
+it('renders with zero props: root marker and no quote or cite', function () {
     $html = Blade::render('<x-sigta::section.quote />');
 
     expect($html)
         ->toContain('data-sigta="section.quote"')
-        ->toContain('Du behøver ikke forstå koden for at træffe gode beslutninger. Du skal bare kende én, der gør.')
-        ->toContain('Sådan arbejder Sigta')
-        ->toContain('<blockquote')
-        ->toContain('font-head')
-        ->toContain('italic');
+        ->not->toContain('<blockquote')
+        ->not->toContain('uppercase');
 });
 
-it('lets the quote and cite props win', function () {
-    $html = Blade::render('<x-sigta::section.quote quote="Et eget citat." cite="Egen kilde" />');
+it('renders the quote and cite from props', function () {
+    $html = Blade::render('<x-sigta::section.quote quote="Good craft speaks for itself." cite="Our philosophy" />');
 
     expect($html)
-        ->toContain('Et eget citat.')
-        ->toContain('Egen kilde')
-        ->not->toContain('Du behøver ikke forstå koden');
+        ->toContain('<blockquote')
+        ->toContain('font-head')
+        ->toContain('italic')
+        ->toContain('Good craft speaks for itself.')
+        ->toContain('Our philosophy');
 });
 
 it('forwards arbitrary attributes', function () {

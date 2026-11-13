@@ -1,6 +1,12 @@
-{{-- SIGTA lockup: glyph + wordmark. currentColor throughout — recolors with text utilities. --}}
+{{-- Brand lockup: your logo + wordmark, sized as one unit. Pass the logo as
+     the `logo` slot (inline SVG using currentColor recolors with text
+     utilities) or as an image URL via the `logo` prop. Ships no logo.
+
+       <sigta:brand name="Acme"><x-slot:logo><svg viewBox="0 0 40 40">…</svg></x-slot:logo></sigta:brand>
+       <sigta:brand name="Acme" logo="/images/logo.svg" size="sm" /> --}}
 @props([
-    'name' => 'SIGTA',
+    'name' => null,
+    'logo' => null,
     'glyphOnly' => false,
     'size' => 'base',
 ])
@@ -19,13 +25,12 @@ $nameSize = match ($size) {
 @endphp
 
 <span {{ $attributes->merge(['class' => 'inline-flex items-center gap-[0.6em] text-ink']) }} data-sigta="brand">
-    <svg class="{{ $glyphSize }} shrink-0" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-        <rect x="3" y="3" width="34" height="34" rx="6" stroke="currentColor" stroke-width="2.2"/>
-        <path d="M20 12 L11 29 M20 12 L29 29" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-        <path d="M13.5 26 A 13 13 0 0 0 26.5 26" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-        <circle cx="20" cy="12" r="2.6" fill="currentColor"/>
-    </svg>
-    @unless ($glyphOnly)
+    @if ($logo instanceof \Illuminate\View\ComponentSlot)
+        <span class="{{ $glyphSize }} shrink-0 [&>svg]:size-full" aria-hidden="true">{{ $logo }}</span>
+    @elseif ($logo)
+        <img src="{{ $logo }}" alt="" class="{{ $glyphSize }} shrink-0 object-contain">
+    @endif
+    @if ($name && ! $glyphOnly)
         <span class="font-head font-semibold {{ $nameSize }} tracking-[0.02em]">{{ $name }}</span>
-    @endunless
+    @endif
 </span>

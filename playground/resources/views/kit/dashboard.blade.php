@@ -17,7 +17,7 @@
             <x-slot:sidebar>
                 <x-sigta::shell.sidebar>
                     <x-slot:brand>
-                        <x-sigta::brand name="Plumb" size="sm" />
+                        <x-sigta::brand name="Plumb" size="sm"><x-slot:logo><x-sigta::icon name="droplet" /></x-slot:logo></x-sigta::brand>
                     </x-slot:brand>
                     <x-sigta::shell.link icon="layout-grid" current>Overview</x-sigta::shell.link>
                     <x-sigta::shell.link icon="trending-up">Trends</x-sigta::shell.link>

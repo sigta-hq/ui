@@ -91,6 +91,38 @@ Copy `resources/css/theme.example.css` as a starting template — it documents
 every token. Scope a theme under `[data-sigta-theme="x"]` to run multiple
 brands in one app.
 
+### Your own loader
+
+`<sigta:loader>` draws the Sigta compass by default, and so does every busy
+button, save state and job. To draw your own, publish the config and name a
+Blade view:
+
+```bash
+php artisan vendor:publish --tag=sigta-config
+```
+
+```php
+// config/sigta.php
+'loader' => 'components.spinner',
+```
+
+The view is drawn inside the loader's box, which keeps the size, colour,
+`data-state`, progress and accessible name. It receives `$state`, `$value`
+(0–100 or null), `$size` and `$label`. State can change in the browser without
+a re-render, so key motion off the box rather than off `$state`:
+
+```blade
+{{-- resources/views/components/spinner.blade.php --}}
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"
+     class="group-data-[state=working]/loader:animate-spin">
+    <circle cx="12" cy="12" r="9" class="opacity-20" />
+    <path d="M21 12a9 9 0 0 0-9-9" />
+</svg>
+```
+
+`<sigta:loader variant="compass">` or `variant="sketch"` still draws the built-in
+loader wherever you ask for it by name.
+
 ## Development
 
 ```bash
@@ -110,3 +142,33 @@ npm run dev & php artisan serve         # kit pages at /kit
   values only for now, a dark theme is a future values file, not a refactor.
 - Alpine.js is the behavior layer. Headless engines only for editor-class
   problems. Styled component libraries never.
+- The package ships no content and no logo. Sections render only the copy
+  you pass, and `<sigta:brand>` takes your logo through its `logo` slot or
+  prop. Sigta's own landing copy lives in
+  `playground/resources/content/sigta-landing.php`, and
+  `tests/NoBrandContentTest.php` fails if Sigta content creeps back in.
+
+## Releasing
+
+Packagist reads versions from git tags. To ship a release, tag `main` with a
+semver tag (`git tag v1.2.0 && git push origin v1.2.0`) or publish a GitHub
+release. Packagist picks it up within a minute. Rebuild `dist/` with
+`npm run build` before tagging if `resources/js/` changed, because consuming
+apps get the committed bundle and never run npm.
+
+## License
+
+Sigta UI is open-source software licensed under the [MIT license](LICENSE).
+
+Two parts of the package come with their own terms:
+
+- **Fonts** in `resources/fonts/` (Fraunces, Newsreader, Caveat, JetBrains
+  Mono) are licensed under the [SIL Open Font License 1.1](resources/fonts/OFL.txt).
+- **Bundled editor dependencies** in `dist/sigta-editor.js` (TipTap,
+  ProseMirror and others) keep their own MIT licenses, listed in
+  [`dist/sigta-editor.js.LICENSE.txt`](dist/sigta-editor.js.LICENSE.txt).
+
+The MIT license covers the code, not the brand. The package ships no Sigta
+logo or content, and the Sigta name and logo, which appear in the
+`playground/` docs site, are trademarks of Sigta ApS and are not licensed for
+use in your own products.

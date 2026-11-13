@@ -20,7 +20,7 @@ Route::get('/kit/{page?}', function (?string $page = null) {
 // Stand-ins for the endpoints a host app gives the editor, so the kit page can
 // show pictures and titled links working end to end without a real store.
 Route::get('/kit-api/sample-image', function () {
-    return response()->file(dirname(__DIR__, 2).'/resources/images/sigta-mark.svg', ['Content-Type' => 'image/svg+xml']);
+    return response()->file(resource_path('images/sigta-mark.svg'), ['Content-Type' => 'image/svg+xml']);
 });
 
 Route::post('/kit-api/upload', function () {

@@ -51,14 +51,31 @@ it('renders the eyebrow kicker', function () {
         ->toContain('uppercase');
 });
 
-it('renders the brand lockup with currentColor only', function () {
+it('renders an empty brand lockup with no built-in logo or name', function () {
     $html = Blade::render('<x-sigta::brand />');
 
     expect($html)
         ->toContain('data-sigta="brand"')
-        ->toContain('SIGTA')
+        ->not->toContain('<svg')
+        ->not->toContain('<img');
+});
+
+it('renders the brand lockup from a logo slot and a name', function () {
+    $html = Blade::render('<x-sigta::brand name="Acme" size="lg"><x-slot:logo><svg viewBox="0 0 40 40"><circle stroke="currentColor" /></svg></x-slot:logo></x-sigta::brand>');
+
+    expect($html)
+        ->toContain('Acme')
+        ->toContain('size-[38px] shrink-0 [&>svg]:size-full')
         ->toContain('currentColor')
         ->not->toMatch('/#[0-9a-fA-F]{3,8}/');
+});
+
+it('renders the brand logo from an image URL and hides the name when glyph-only', function () {
+    $html = Blade::render('<x-sigta::brand name="Acme" logo="/logo.svg" glyph-only />');
+
+    expect($html)
+        ->toContain('<img src="/logo.svg" alt=""')
+        ->not->toContain('Acme');
 });
 
 it('renders the paper overlay', function () {

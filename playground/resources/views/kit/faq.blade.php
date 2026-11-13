@@ -1,15 +1,12 @@
 <x-kit-shell title="Section · FAQ">
-    <x-kit-example label="Spørgsmål — zero-config (7 default entries, single-open)">
-    «sigta:section.faq />
-    </x-kit-example>
-
-    <x-kit-example label="Custom heading + your own entries">
+    <x-kit-example label="Header + entries (single-open)">
     «sigta:section.faq
-        heading="Ofte stillede spørgsmål"
-        lede="Kan du ikke finde dit svar? Skriv til os."
+        heading="Questions we often get."
+        lede="And the honest answers. Missing yours? Ask us."
         :items="[
-            ['q' => 'Hvordan kommer vi i gang?', 'a' => 'Book en intro-samtale, så tager vi den derfra.'],
-            ['q' => 'Hvad koster det?', 'a' => 'Én fast, lav timepris. Ingen overraskelser.'],
+            ['q' => 'How do we get started?', 'a' => 'Book an intro call and we take it from there.'],
+            ['q' => 'What does it cost?', 'a' => 'One flat hourly rate. No surprises.'],
+            ['q' => 'Are we tied in?', 'a' => 'No. You can stop at any time.'],
         ]" />
     </x-kit-example>
 </x-kit-shell>

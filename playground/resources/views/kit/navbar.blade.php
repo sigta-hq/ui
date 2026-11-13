@@ -3,7 +3,7 @@
     «div class="-m-6 overflow-hidden rounded-panel">
         «sigta:navbar>
             «x-slot:brand>
-                «a href="#top" class="no-underline">«sigta:brand size="sm" />«/a>
+                «a href="#top" class="no-underline">«sigta:brand name="Acme" size="sm">«x-slot:logo>«sigta:icon name="hexagon" />«/x-slot:logo>«/sigta:brand>«/a>
             «/x-slot:brand>
 
             «sigta:navlink href="#work" current>Work«/sigta:navlink>
@@ -12,7 +12,7 @@
             «sigta:navlink href="#contact">Contact«/sigta:navlink>
 
             «x-slot:actions>
-                «sigta:button variant="cta" size="sm" href="https://calendly.com/sf-sigta/30min" target="_blank">Book a project«/sigta:button>
+                «sigta:button variant="cta" size="sm" href="#book" target="_blank">Book a project«/sigta:button>
             «/x-slot:actions>
         «/sigta:navbar>
         «div class="h-24 bg-surface">«/div>
@@ -21,9 +21,9 @@
 
     <x-kit-example label="CTA via props — target like a button">
     «div class="-m-6 overflow-hidden rounded-panel">
-        «sigta:navbar cta-label="Book a project" cta-href="https://calendly.com/sf-sigta/30min" target="_blank">
+        «sigta:navbar cta-label="Book a project" cta-href="#book" target="_blank">
             «x-slot:brand>
-                «a href="#top" class="no-underline">«sigta:brand size="sm" />«/a>
+                «a href="#top" class="no-underline">«sigta:brand name="Acme" size="sm">«x-slot:logo>«sigta:icon name="hexagon" />«/x-slot:logo>«/sigta:brand>«/a>
             «/x-slot:brand>
 
             «sigta:navlink href="#work">Work«/sigta:navlink>
@@ -35,9 +35,9 @@
 
     <x-kit-example label="collapse=&quot;lg&quot;: longer links fold behind the burger up to lg">
     «div class="-m-6 overflow-hidden rounded-panel">
-        «sigta:navbar collapse="lg" cta-label="Book en intro-samtale" cta-href="https://calendly.com/sf-sigta/30min" target="_blank">
+        «sigta:navbar collapse="lg" cta-label="Book a call" cta-href="#book" target="_blank">
             «x-slot:brand>
-                «a href="#top" class="no-underline">«sigta:brand size="sm" />«/a>
+                «a href="#top" class="no-underline">«sigta:brand name="Acme" size="sm">«x-slot:logo>«sigta:icon name="hexagon" />«/x-slot:logo>«/sigta:brand>«/a>
             «/x-slot:brand>
 
             «sigta:navlink href="#raadgivning" current>Rådgivning«/sigta:navlink>

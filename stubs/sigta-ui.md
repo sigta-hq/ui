@@ -198,7 +198,8 @@ the UI feel unfinished. Work out every state before you place one:
 ### Motion — finishing things should feel finished
 
 - **Never show "Loading…" / "Saving…" text or a generic spinner.** Use
-  `<sigta:loader>` (the Sigta compass), `<sigta:save-state target="…">` for
+  `<sigta:loader>` (the compass, or the app's own loader from
+  `config/sigta.php`), `<sigta:save-state target="…">` for
   saves, `<sigta:job>` for long-running work. A `<sigta:button wire:click="…">`
   already shows the compass beside its label when its action runs long, and
   nothing for a quick one: don't add `wire:loading` text or a loader to it.

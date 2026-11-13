@@ -1,37 +1,37 @@
 <x-kit-shell title="Section · Footer">
-    <x-kit-example label="Site footer — zero-config (brand, nav columns, signoff)">
-    «sigta:section.footer />
-    </x-kit-example>
-
-    <x-kit-example label="Custom tagline + columns">
+    <x-kit-example label="Site footer: your brand, tagline, nav columns and signoff">
     «sigta:section.footer
-        tagline="Et lille studie, der bygger holdbar software."
-        signoff="© 2026 Dit Firma · CVR 00000000"
+        tagline="A small studio building durable software."
+        signoff="© 2026 Acme Inc."
         :columns="[
-            ['heading' => 'Produkt', 'links' => [
-                ['label' => 'Funktioner', 'href' => '#funktioner'],
-                ['label' => 'Priser', 'href' => '#priser'],
+            ['heading' => 'Product', 'links' => [
+                ['label' => 'Features', 'href' => '#features'],
+                ['label' => 'Pricing', 'href' => '#pricing'],
             ]],
-            ['heading' => 'Kontakt', 'links' => [
-                ['label' => 'Skriv til os', 'href' => 'mailto:hej@eksempel.dk'],
+            ['heading' => 'Contact', 'links' => [
+                ['label' => 'Write to us', 'href' => 'mailto:hello@example.com'],
             ]],
-        ]" />
+        ]">
+        «x-slot:brand>«sigta:brand name="Acme">«x-slot:logo>«sigta:icon name="hexagon" />«/x-slot:logo>«/sigta:brand>«/x-slot:brand>
+    «/sigta:section.footer>
     </x-kit-example>
 
     <x-kit-example label="Three columns (one row from lg)">
     «sigta:section.footer
         :columns="[
             ['heading' => 'Navigation', 'links' => [
-                ['label' => 'Sådan hjælper vi', 'href' => '#hjaelp'],
-                ['label' => 'Priser', 'href' => '#priser'],
+                ['label' => 'How we help', 'href' => '#help'],
+                ['label' => 'Pricing', 'href' => '#pricing'],
             ]],
-            ['heading' => 'Ydelser', 'links' => [
-                ['label' => 'Teknisk vurdering', 'href' => '#teknisk-vurdering'],
-                ['label' => 'Ekstra udvikler', 'href' => '#ekstra-udvikler'],
+            ['heading' => 'Services', 'links' => [
+                ['label' => 'Technical review', 'href' => '#review'],
+                ['label' => 'Extra developer', 'href' => '#developer'],
             ]],
-            ['heading' => 'Kontakt', 'links' => [
-                ['label' => 'sf@sigta.dk', 'href' => 'mailto:sf@sigta.dk'],
+            ['heading' => 'Contact', 'links' => [
+                ['label' => 'hello@example.com', 'href' => 'mailto:hello@example.com'],
             ]],
-        ]" />
+        ]">
+        «x-slot:brand>«sigta:brand name="Acme">«x-slot:logo>«sigta:icon name="hexagon" />«/x-slot:logo>«/sigta:brand>«/x-slot:brand>
+    «/sigta:section.footer>
     </x-kit-example>
 </x-kit-shell>
