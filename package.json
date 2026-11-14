@@ -9,13 +9,13 @@
         "build:editor": "esbuild resources/js/editor.js --bundle --minify --format=iife --banner:js=\"/*! Sigta UI editor. Bundled third-party licenses: sigta-editor.js.LICENSE.txt */\" --metafile=node_modules/.cache/sigta-editor.meta.json --outfile=dist/sigta-editor.js && node scripts/third-party-notices.mjs node_modules/.cache/sigta-editor.meta.json dist/sigta-editor.js.LICENSE.txt"
     },
     "devDependencies": {
-        "@tiptap/core": "~3.31.0",
-        "@tiptap/extension-image": "~3.31.0",
-        "@tiptap/extension-mention": "~3.31.0",
+        "@tiptap/core": "~3.33.1",
+        "@tiptap/extension-image": "~3.33.1",
+        "@tiptap/extension-mention": "~3.33.1",
         "@tiptap/extensions": "~3.31.0",
-        "@tiptap/markdown": "~3.31.0",
-        "@tiptap/starter-kit": "~3.31.0",
-        "@tiptap/suggestion": "~3.31.0",
+        "@tiptap/markdown": "~3.33.1",
+        "@tiptap/starter-kit": "~3.33.1",
+        "@tiptap/suggestion": "~3.33.1",
         "esbuild": "^0.28.0"
     }
 }
