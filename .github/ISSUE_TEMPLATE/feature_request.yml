@@ -1,0 +1,33 @@
+name: Feature request
+description: A component, variant or prop that's missing.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For open-ended ideas, start a thread in [Discussions](https://github.com/sigta-hq/ui/discussions) first. Use this form when you know what you need.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to build?
+      description: The screen or interaction, and what stops you today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like to write?
+      description: The Blade you wish worked, e.g. a new prop or component.
+      render: blade
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What do you do instead today?
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contributing
+      options:
+        - label: I'd like to open a pull request for this.

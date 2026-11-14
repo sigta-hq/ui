@@ -1,0 +1,57 @@
+name: Bug report
+description: A component renders or behaves wrongly.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Questions belong in [Discussions](https://github.com/sigta-hq/ui/discussions), and security problems must be reported privately (see [SECURITY.md](https://github.com/sigta-hq/ui/blob/main/SECURITY.md)).
+  - type: input
+    id: component
+    attributes:
+      label: Component
+      description: Which component is affected?
+      placeholder: "<sigta:modal>"
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened, and what did you expect?
+      placeholder: The modal closes when I click inside it. I expected it to stay open.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Smallest snippet that shows it
+      description: The Blade (and Livewire component, if any) that reproduces the bug in a fresh app.
+      render: blade
+    validations:
+      required: true
+  - type: input
+    id: sigta-version
+    attributes:
+      label: sigta/ui version
+      description: "`composer show sigta/ui | grep versions`"
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: stack
+    attributes:
+      label: Laravel, Livewire, PHP and Tailwind versions
+      placeholder: "Laravel 13.4, Livewire 4.4, PHP 8.4, Tailwind 4.1"
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and OS
+      description: For rendering or interaction bugs.
+      placeholder: "Safari 26 on macOS"
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Console errors, screenshots, a link to a repository that reproduces it.

@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # The editor's npm packages are bundled into dist/sigta-editor.js. CI fails
+  # these PRs until someone runs `npm run build` and commits the new bundle.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      tiptap:
+        patterns:
+          - "@tiptap/*"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

@@ -2,7 +2,8 @@
 * text=auto
 
 # Keep the Composer dist archive to what an app needs at runtime:
-# src/, resources/, dist/, stubs/, composer.json, LICENSE, README.md.
+# src/, config/, resources/, dist/, stubs/, composer.json, LICENSE, README.md
+# and CHANGELOG.md.
 /.claude                export-ignore
 /.github                export-ignore
 /.zcode                 export-ignore
@@ -14,6 +15,10 @@
 /CONVENTIONS.md         export-ignore
 /PLAN.md                export-ignore
 /SECTION-CONVENTIONS.md export-ignore
+/CONTRIBUTING.md        export-ignore
+/CODE_OF_CONDUCT.md     export-ignore
+/SECURITY.md            export-ignore
+/SUPPORT.md             export-ignore
 /package.json           export-ignore
 /package-lock.json      export-ignore
 /phpunit.xml            export-ignore
