@@ -17,6 +17,12 @@
    several brands in one app —
        [data-sigta-theme="acme"] { --sigta-surface: …; … }
    then set <html data-sigta-theme="acme"> (or on any subtree).
+
+   Beyond tokens: a theme may also skin components inside its own scope. Each
+   root carries data-sigta="<name>" and its variant in data-variant /
+   data-size / data-tone, e.g.
+       [data-sigta-theme="acme"] [data-sigta="button"][data-variant="cta"] { … }
+   Target those hooks, not the utility classes inside a component.
 --------------------------------------------------------------------------- */
 :root {
     /* --- surfaces & text ---------------------------------------------------

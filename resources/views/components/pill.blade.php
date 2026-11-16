@@ -12,6 +12,6 @@ $classes .= ' '.match ($variant) {
 };
 @endphp
 
-<span data-sigta="pill" {{ $attributes->merge(['class' => $classes]) }}>
+<span data-sigta="pill" data-variant="{{ $variant }}" {{ $attributes->merge(['class' => $classes]) }}>
     <span class="size-[7px] rounded-full bg-current shrink-0" aria-hidden="true"></span>{{ $slot }}
 </span>

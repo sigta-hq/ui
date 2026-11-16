@@ -12,4 +12,4 @@ $classes .= ' '.match ($variant) {
 };
 @endphp
 
-<span data-sigta="badge" {{ $attributes->merge(['class' => $classes]) }}>{{ $slot }}</span>
+<span data-sigta="badge" data-variant="{{ $variant }}" {{ $attributes->merge(['class' => $classes]) }}>{{ $slot }}</span>

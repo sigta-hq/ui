@@ -37,7 +37,7 @@ $rootClasses = $inline
     : 'flex flex-col rounded-panel p-[18px] '.$surface;
 @endphp
 
-<div data-sigta="stat" data-tone="{{ $tone }}" {{ $attributes->merge(['class' => $rootClasses]) }}>
+<div data-sigta="stat" data-variant="{{ $variant }}" data-tone="{{ $tone }}" {{ $attributes->merge(['class' => $rootClasses]) }}>
     @if ($inline)
         @if ($value !== null)
             <span class="font-head font-medium text-[1.5rem] leading-[1.1] {{ $valueText }} tabular-nums">{{ $value }}</span>

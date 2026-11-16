@@ -22,4 +22,4 @@ $classes = 'font-head text-balance '.match ($size) {
 $tag = 'h'.min(max((int) $level, 1), 6);
 @endphp
 
-<{{ $tag }} {{ $attributes->merge(['class' => $classes]) }}>{{ $slot }}</{{ $tag }}>
+<{{ $tag }} data-sigta="heading" data-size="{{ $size }}" {{ $attributes->merge(['class' => $classes]) }}>{{ $slot }}</{{ $tag }}>

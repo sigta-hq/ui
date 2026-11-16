@@ -70,6 +70,14 @@ When a utility doesn't exist, use the raw CSS var inline:
 arbitrary value. The rule is absolute: **no literal colors outside the theme
 layer.**
 
+A brand that needs more than new token values (other shapes, outlines, a
+different loader) restyles components in its theme file, scoped to its
+`[data-sigta-theme="…"]` and targeting the hooks every component renders:
+`data-sigta="<name>"` plus `data-variant`, `data-size` or `data-tone`, e.g.
+`[data-sigta-theme="acme"] [data-sigta="button"][data-variant="cta"]`. Never
+target a component's internal utility classes, and never put these overrides
+in app markup.
+
 ### 3. Never import another icon library
 
 Use `<sigta:icon name="…">` (Lucide under the hood). Do not add Heroicons,

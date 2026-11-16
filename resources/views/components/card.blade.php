@@ -16,7 +16,7 @@ if ($hover) {
 }
 @endphp
 
-<div data-sigta="card" {{ $attributes->merge(['class' => $classes]) }}>
+<div data-sigta="card" @if ($hover) data-hover @endif {{ $attributes->merge(['class' => $classes]) }}>
     @isset($thumb)
         <div {{ $thumb->attributes->merge(['class' => 'relative aspect-video bg-surface border-b border-line overflow-hidden']) }}>{{ $thumb }}</div>
     @endisset

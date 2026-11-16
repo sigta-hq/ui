@@ -12,4 +12,4 @@ $classes = match ($variant) {
 };
 @endphp
 
-<p {{ $attributes->merge(['class' => trim($classes)]) }}>{{ $slot }}</p>
+<p data-sigta="text" data-variant="{{ $variant }}" {{ $attributes->merge(['class' => trim($classes)]) }}>{{ $slot }}</p>
