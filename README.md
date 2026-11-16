@@ -98,6 +98,14 @@ Copy `resources/css/theme.example.css` as a starting template — it documents
 every token. Scope a theme under `[data-sigta-theme="x"]` to run multiple
 brands in one app.
 
+Tokens carry colour, type, shape and motion. When a brand needs more than new
+values (pill buttons, chunkier outlines, a different loader) a theme can skin
+components too: every root carries `data-sigta="<name>"`, and variants say
+what they are in `data-variant` / `data-size` / `data-tone`, so a theme
+targets `[data-sigta-theme="x"] [data-sigta="button"][data-variant="cta"]`
+rather than the utility classes inside a component. Keep those rules in the
+theme file, never in app markup.
+
 ### Your own loader
 
 `<sigta:loader>` draws the Sigta compass by default, and so does every busy

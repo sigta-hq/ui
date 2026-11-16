@@ -14,7 +14,7 @@ $classes = 'flex items-start gap-[0.8rem] bg-surface border-[1.5px] border-l-4 r
 };
 @endphp
 
-<div data-sigta="callout" {{ $attributes->merge(['role' => $role, 'class' => $classes.' '.$variantClasses]) }}>
+<div data-sigta="callout" data-variant="{{ $variant }}" {{ $attributes->merge(['role' => $role, 'class' => $classes.' '.$variantClasses]) }}>
     <x-sigta::icon :name="$icon ?? $defaultIcon" class="shrink-0 mt-[2px] {{ $iconClasses }}" />
     <div class="min-w-0">
         @if ($heading)<b class="font-head font-semibold">{{ $heading }}</b> @endif{{ $slot }}

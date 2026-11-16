@@ -55,9 +55,9 @@ if ($loading === true) {
 @endphp
 
 @if ($attributes->has('href'))
-    <a data-sigta="button" {{ $attributes->merge($linkAttributes) }}>{{ $slot }}</a>
+    <a data-sigta="button" data-variant="{{ $variant }}" data-size="{{ $size }}" {{ $attributes->merge($linkAttributes) }}>{{ $slot }}</a>
 @else
-    <button data-sigta="button" {{ $attributes->merge($buttonAttributes) }}>
+    <button data-sigta="button" data-variant="{{ $variant }}" data-size="{{ $size }}" {{ $attributes->merge($buttonAttributes) }}>
         @if ($busy)
             <span class="sigta-button-busy" aria-hidden="true"><x-sigta::loader size="xs" decorative /></span>
             <span class="sigta-button-label contents">{{ $slot }}</span>
