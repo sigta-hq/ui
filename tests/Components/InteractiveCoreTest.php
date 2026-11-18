@@ -27,6 +27,16 @@ it('renders dropdown items as links when href given', function () {
     expect($html)->toContain('<a role="menuitem"')->toContain('href="/settings"');
 });
 
+it('lets a dropdown item submit its form', function () {
+    $item = fn (string $attributes) => Blade::render("<x-sigta::dropdown><x-slot:trigger>t</x-slot:trigger><form><x-sigta::dropdown.item {$attributes}>Log out</x-sigta::dropdown.item></form></x-sigta::dropdown>");
+
+    expect($item('type="submit"'))
+        ->toContain('<button type="submit" role="menuitem"')
+        ->not->toContain('type="button"');
+
+    expect($item(''))->toContain('<button type="button" role="menuitem"');
+});
+
 it('renders a modal built on native dialog', function () {
     $html = Blade::render('<x-sigta::modal name="confirm" heading="Sure?">Body</x-sigta::modal>');
 

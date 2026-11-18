@@ -44,8 +44,11 @@ class InstallCommand extends Command
             return $only === null || $only === $phase;
         };
 
-        $firstRun = ! $files->isDirectory(public_path('vendor/sigta/fonts'))
-            || ! $files->exists(base_path('sigta-ui.md'));
+        // The one-time wiring hints are for an app that has not imported Sigta's
+        // CSS yet; sigta:starter-kit, for one, has already done that wiring.
+        $firstRun = (! $files->isDirectory(public_path('vendor/sigta/fonts'))
+            || ! $files->exists(base_path('sigta-ui.md')))
+            && ! $this->cssWired($files);
 
         if ($run(self::PHASE_FONTS)) {
             $this->publishFonts($files);
@@ -169,6 +172,16 @@ class InstallCommand extends Command
         $existing = rtrim($files->get($path))."\n\n".self::AGENTS_LINE."\n";
         $files->put($path, $existing);
         $this->components->twoColumnDetail('AGENTS.md', 'added Sigta reference');
+    }
+
+    /**
+     * Whether the app's CSS entry already imports Sigta's stylesheet.
+     */
+    protected function cssWired(Filesystem $files): bool
+    {
+        $css = resource_path('css/app.css');
+
+        return $files->exists($css) && str_contains($files->get($css), 'sigta/ui/resources/css/');
     }
 
     /**

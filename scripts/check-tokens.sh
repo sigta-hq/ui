@@ -6,7 +6,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 matches=$(grep -rInE '#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?\b|#[0-9a-fA-F]{3}\b' \
-    resources/views resources/js resources/css src \
+    resources/views resources/js resources/css src stubs \
     --include='*.blade.php' --include='*.php' --include='*.js' --include='*.css' \
     | grep -vE '^resources/css/(theme\.css|theme\.example\.css):' || true)
 

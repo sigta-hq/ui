@@ -280,7 +280,7 @@ Menu container + items. `sigtaDropdown` Alpine handles open/escape/click-outside
 #### `dropdown.item`
 - **Props:** `icon`, `variant` (default `default`), `kbd`, plus `href`
 - **Variants:** `danger`, `default`
-- Renders `<a>` when `href` given, else `<button role="menuitem">`. Closes menu on click.
+- Renders `<a>` when `href` given, else `<button role="menuitem">`. Closes menu on click. Pass `type="submit"` to submit the form around it (a log-out form in an account menu).
 
 #### `dropdown.separator`
 - **Props:** none. `<hr role="separator">` between items.
@@ -290,7 +290,10 @@ Menu container + items. `sigtaDropdown` Alpine handles open/escape/click-outside
     <x-slot:trigger><sigta:button>Open</sigta:button></x-slot:trigger>
     <sigta:dropdown.item href="/profile" icon="user">Profile</sigta:dropdown.item>
     <sigta:dropdown.separator />
-    <sigta:dropdown.item variant="danger" icon="log-out">Sign out</sigta:dropdown.item>
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <sigta:dropdown.item type="submit" variant="danger" icon="log-out">Sign out</sigta:dropdown.item>
+    </form>
 </sigta:dropdown>
 ```
 

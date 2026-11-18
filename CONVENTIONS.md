@@ -37,6 +37,22 @@ single source of truth the LLM sees. They MUST stay accurate:
 The stubs reference `catalog.php` for grouping — keep tier membership consistent
 across both files.
 
+## Starter kit stubs
+
+`stubs/starter-kit/` holds the Sigta versions of the Laravel Livewire starter
+kit's views, which `php artisan sigta:starter-kit` writes into a fresh app. Its
+paths mirror the app's (`resources/views/...`); a file under `pages/` that the
+kit ships as a single-file component holds only the markup, and the command
+keeps the kit's PHP above it. Wrap markup that belongs to an optional kit
+feature in `{{-- @feature:<name> --}}` … `{{-- @endfeature:<name> --}}` lines
+(`registration`, `email-verification`, `2fa`, `passkeys`), the same sections
+the kit itself marks.
+
+These are consumer-facing code too: when a component's tag, props or slots
+change, update any stub that uses it. `tests/StarterKitCommandTest.php` fails
+on a `<sigta:…>` tag that no longer exists, an unclosed feature section, or a
+stub that does not compile.
+
 ## Where things go
 
 - Component view: `resources/views/components/<name>.blade.php` (anonymous Blade component → `<x-sigta::<name>>`)
