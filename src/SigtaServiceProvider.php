@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Sigta\Ui\Console\InstallCommand;
+use Sigta\Ui\Console\StarterKitCommand;
 
 class SigtaServiceProvider extends ServiceProvider
 {
@@ -24,8 +25,11 @@ class SigtaServiceProvider extends ServiceProvider
 
         // sigta:install — idempotent fonts + LLM agent context sync. Safe to
         // re-run and to wire into a composer post-autoload-dump hook.
+        // sigta:starter-kit — one-off swap of a fresh Laravel Livewire starter
+        // kit's views onto Sigta components.
         $this->commands([
             InstallCommand::class,
+            StarterKitCommand::class,
         ]);
     }
 

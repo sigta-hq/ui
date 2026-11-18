@@ -36,6 +36,37 @@ Layout: add `@sigtaScripts` before `</head>` (and `@sigtaEditorScripts` too if
 you use `<sigta:editor>`). Components are then available as `<sigta:button>` /
 `<x-sigta::button>` — both forms compile identically.
 
+## Starting from the Laravel starter kit
+
+A new app made with `laravel new` and the Livewire starter kit (Laravel's own
+authentication) can switch its scaffolded pages to Sigta in one step:
+
+```bash
+composer require sigta/ui
+php artisan sigta:starter-kit
+npm run build
+```
+
+`sigta:starter-kit` replaces the kit's layouts, auth pages (login, register,
+password reset and confirmation, email verification, two-factor challenge),
+settings pages, dashboard and welcome page with versions built from Sigta
+components, and points `resources/css/app.css` at Sigta's CSS. The Livewire PHP
+at the top of each settings page stays as the kit wrote it, so the kit's own
+tests keep passing. It follows the features the kit was installed with: a page
+for a feature you turned off stays gone.
+
+It also removes what the kit only needed for its previous UI package: the
+Appearance (dark mode) settings page and its route, that package's view
+overrides, and the Composer package itself, once nothing else in the app uses
+it (`--keep-package` leaves it installed; files that still use it are listed). Last,
+it runs `sigta:install`. It asks before overwriting; `--force` skips the
+question.
+
+Run it on a fresh install: it overwrites the kit's views, so changes you made to
+them are lost. It covers the default edition of the kit (single-file Livewire
+components); the class-component, teams and WorkOS editions are refused with
+nothing changed.
+
 ## LLM agent support
 
 If your app is built or edited by an LLM coding agent (ZCode, Claude Code,

@@ -12,7 +12,7 @@ $classes = 'w-full text-left flex items-center gap-2.5 px-3.5 py-2 font-mono tex
 @if ($attributes->has('href'))
     <a role="menuitem" tabindex="-1" data-sigta="dropdown.item" {{ $attributes->merge(['class' => $classes]) }}>
 @else
-    <button type="button" role="menuitem" tabindex="-1" data-sigta="dropdown.item" x-on:click="close(true)" {{ $attributes->merge(['class' => $classes]) }}>
+    <button type="{{ $attributes->get('type', 'button') }}" role="menuitem" tabindex="-1" data-sigta="dropdown.item" x-on:click="close(true)" {{ $attributes->except('type')->merge(['class' => $classes]) }}>
 @endif
         @if ($icon)<x-sigta::icon :name="$icon" size="sm" class="shrink-0" />@endif
         <span class="grow">{{ $slot }}</span>

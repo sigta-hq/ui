@@ -20,6 +20,12 @@
     composer require sigta/ui
     SH;
 
+    $codeStarterKit = <<<'SH'
+    composer require sigta/ui
+    php artisan sigta:starter-kit
+    npm run build
+    SH;
+
     // Apps that installed sigta/ui from the private GitHub repository before
     // it went public: drop the repository entry and token, then re-require.
     $codeMigrate = <<<'SH'
@@ -125,6 +131,16 @@
             <code class="font-mono text-ink">extra.laravel.providers</code> — no manual registration in
             <code class="font-mono text-ink">bootstrap/providers.php</code>.
         </x-sigta::text>
+
+        <div class="mt-5">
+            <x-sigta::callout variant="info" heading="Starting from the Laravel starter kit?">
+                In a fresh app made with the Livewire starter kit, <code class="font-mono">sigta:starter-kit</code>
+                swaps its layouts, auth, settings, dashboard and welcome pages for Sigta versions, points the CSS at
+                Sigta and runs <code class="font-mono">sigta:install</code>, so steps 02 to 04 are done for you. The
+                kit's Livewire PHP and tests stay as they are.
+            </x-sigta::callout>
+            <pre class="{{ $preClasses }} mt-3"><code>{{ $codeStarterKit }}</code></pre>
+        </div>
 
         <div class="mt-5">
             <x-sigta::callout variant="info" heading="Installed from the private repository before?">
