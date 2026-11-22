@@ -94,7 +94,7 @@ class SigtaServiceProvider extends ServiceProvider
         $hash = substr(md5_file(__DIR__.'/../dist/sigta.js') ?: 'dev', 0, 8);
         $url = route('sigta.assets.js', ['v' => $hash], false);
 
-        return '<script src="'.$url.'" defer></script>';
+        return trim(view('sigta::scripts', ['url' => $url])->render());
     }
 
     public static function editorScriptTag(): string

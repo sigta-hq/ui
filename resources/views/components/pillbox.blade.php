@@ -4,7 +4,7 @@
     'label' => null,
     'description' => null,
     'error' => null,
-    'placeholder' => 'Add…',
+    'placeholder' => __('Add…'),
     'name' => null,
 ])
 
@@ -28,7 +28,7 @@ $listboxId = $id.'-listbox';
         <template x-for="v in value" :key="v">
             <span class="inline-flex items-center gap-1.5 font-mono text-[0.68rem] tracking-[0.05em] px-2.5 py-1 rounded-full border-[1.5px] border-ink text-ink">
                 <span x-text="labelFor(v)"></span>
-                <button type="button" x-on:click="deselect(v)" x-bind:aria-label="'Remove ' + labelFor(v)" class="cursor-pointer opacity-60 hover:opacity-100">
+                <button type="button" x-on:click="deselect(v)" x-bind:aria-label="@js(__('Remove :item')).replace(':item', labelFor(v))" class="cursor-pointer opacity-60 hover:opacity-100">
                     <x-sigta::icon name="x" size="xs" />
                 </button>
             </span>
@@ -66,7 +66,7 @@ $listboxId = $id.'-listbox';
         class="fixed z-50 max-h-64 overflow-y-auto bg-surface-raised border border-line rounded-panel shadow-paper py-1.5"
     >
         {{ $slot }}
-        <div x-show="visible().length === 0" class="px-3.5 py-2 font-mono text-[0.72rem] text-graphite">No matches.</div>
+        <div x-show="visible().length === 0" class="px-3.5 py-2 font-mono text-[0.72rem] text-graphite">{{ __('No matches.') }}</div>
     </div>
 
     @if ($description && ! $error)

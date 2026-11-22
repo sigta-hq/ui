@@ -7,7 +7,7 @@
 
      Attributes (name, wire:model, id, aria-*) forward onto the native textarea. --}}
 @props([
-    'placeholder' => 'Write a message…',
+    'placeholder' => __('Write a message…'),
     'name' => null,
 ])
 
@@ -50,7 +50,7 @@ $textareaClasses = 'flex-1 min-w-0 resize-none bg-transparent font-body text-[0.
         @isset($leading)
             {{ $leading }}
         @else
-            <x-sigta::button variant="ghost" aria-label="Attach file">
+            <x-sigta::button variant="ghost" aria-label="{{ __('Attach file') }}">
                 <x-sigta::icon name="paperclip" size="sm" />
             </x-sigta::button>
         @endisset
@@ -64,14 +64,14 @@ $textareaClasses = 'flex-1 min-w-0 resize-none bg-transparent font-body text-[0.
         rows="1"
         placeholder="{{ $placeholder }}"
         @if ($name) name="{{ $name }}" @endif
-        {{ $attributes->merge(['id' => $id, 'aria-label' => 'Message', 'class' => $textareaClasses]) }}
+        {{ $attributes->merge(['id' => $id, 'aria-label' => __('Message'), 'class' => $textareaClasses]) }}
     ></textarea>
 
     <div class="shrink-0">
         <x-sigta::button
             variant="primary"
             size="sm"
-            aria-label="Send"
+            aria-label="{{ __('Send') }}"
             x-on:click="submit()"
             x-bind:disabled="! text.trim()"
         >

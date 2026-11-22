@@ -56,20 +56,20 @@ $format = $format === 'markdown' ? 'markdown' : 'html';
 $inline = $variant === 'inline';
 
 $tools = [
-    ['bold', 'bold', 'Bold'],
-    ['italic', 'italic', 'Italic'],
-    ['strike', 'strikethrough', 'Strikethrough'],
-    ['link', 'link', 'Link'],
+    ['bold', 'bold', __('Bold')],
+    ['italic', 'italic', __('Italic')],
+    ['strike', 'strikethrough', __('Strikethrough')],
+    ['link', 'link', __('Link')],
     ['__sep'],
-    ['heading', 'heading-2', 'Heading', ['level' => 2]],
-    ['bulletList', 'list', 'Bullet list'],
-    ['orderedList', 'list-ordered', 'Numbered list'],
-    ['blockquote', 'quote', 'Quote'],
-    ['codeBlock', 'code', 'Code block'],
+    ['heading', 'heading-2', __('Heading'), ['level' => 2]],
+    ['bulletList', 'list', __('Bullet list')],
+    ['orderedList', 'list-ordered', __('Numbered list')],
+    ['blockquote', 'quote', __('Quote')],
+    ['codeBlock', 'code', __('Code block')],
 ];
 
 if ($uploadUrl) {
-    $tools[] = ['image', 'image', 'Picture'];
+    $tools[] = ['image', 'image', __('Picture')];
 }
 
 $btn = 'flex size-8 items-center justify-center rounded-base text-ink cursor-pointer transition-colors duration-150 hover:bg-ink/5';
@@ -103,7 +103,7 @@ $minHeight = 'min-height: calc('.$rows.' * 1.65em + '.($inline ? '1.24em' : '1.5
         data-format="{{ $format }}"
         data-variant="{{ $variant }}"
         data-placeholder="{{ $placeholder }}"
-        @if ($uploadUrl) data-upload-url="{{ $uploadUrl }}" data-upload-token="{{ csrf_token() }}" @endif
+        @if ($uploadUrl) data-upload-url="{{ $uploadUrl }}" data-upload-token="{{ csrf_token() }}" data-upload-error="{{ __('The picture could not be uploaded.') }}" @endif
         @if ($resolveUrl) data-resolve-url="{{ $resolveUrl }}" @endif
         @if ($mentionUrl) data-mention-url="{{ $mentionUrl }}" @endif
         {{-- The runtime reads its initial content and options from the DOM. Interpolating
@@ -118,7 +118,7 @@ $minHeight = 'min-height: calc('.$rows.' * 1.65em + '.($inline ? '1.24em' : '1.5
     >
         <div
             role="toolbar"
-            aria-label="Formatting"
+            aria-label="{{ __('Formatting') }}"
             aria-controls="{{ $id }}"
             class="flex flex-wrap items-center gap-0.5 {{ $toolbarFrame }}"
             @if ($inline) x-show="focused || linkOpen" x-cloak @endif
@@ -144,10 +144,10 @@ $minHeight = 'min-height: calc('.$rows.' * 1.65em + '.($inline ? '1.24em' : '1.5
 
             <span class="ml-auto flex items-center gap-0.5">
                 @if ($uploadUrl)
-                    <span x-show="uploading > 0" x-cloak class="flex size-8 items-center justify-center text-graphite" role="status" aria-label="Uploading"><x-sigta::icon name="loader-circle" size="sm" class="animate-spin" /></span>
+                    <span x-show="uploading > 0" x-cloak class="flex size-8 items-center justify-center text-graphite" role="status" aria-label="{{ __('Uploading') }}"><x-sigta::icon name="loader-circle" size="sm" class="animate-spin" /></span>
                 @endif
-                <button type="button" class="{{ $btn }}" aria-label="Undo" x-on:mousedown.prevent x-on:click="run('undo')"><x-sigta::icon name="undo-2" size="sm" /></button>
-                <button type="button" class="{{ $btn }}" aria-label="Redo" x-on:mousedown.prevent x-on:click="run('redo')"><x-sigta::icon name="redo-2" size="sm" /></button>
+                <button type="button" class="{{ $btn }}" aria-label="{{ __('Undo') }}" x-on:mousedown.prevent x-on:click="run('undo')"><x-sigta::icon name="undo-2" size="sm" /></button>
+                <button type="button" class="{{ $btn }}" aria-label="{{ __('Redo') }}" x-on:mousedown.prevent x-on:click="run('redo')"><x-sigta::icon name="redo-2" size="sm" /></button>
             </span>
 
             <div x-show="linkOpen" x-cloak class="flex w-full items-center gap-1.5 py-1" data-sigta="editor-link">
@@ -157,14 +157,14 @@ $minHeight = 'min-height: calc('.$rows.' * 1.65em + '.($inline ? '1.24em' : '1.5
                     type="url"
                     inputmode="url"
                     placeholder="https://"
-                    aria-label="Link address"
+                    aria-label="{{ __('Link address') }}"
                     class="min-w-0 flex-1 rounded-base border-[1.5px] border-line bg-surface px-2 py-1 font-mono text-[0.78rem] text-ink placeholder:text-graphite/70 focus:border-ink focus:outline-none"
                     x-on:keydown.enter.prevent.stop="applyLink()"
                     x-on:keydown.escape.prevent.stop="closeLink()"
                 />
-                <button type="button" class="{{ $btn }}" aria-label="Apply link" x-on:mousedown.prevent x-on:click="applyLink()"><x-sigta::icon name="check" size="sm" /></button>
-                <button type="button" class="{{ $btn }}" aria-label="Open link" x-on:mousedown.prevent x-on:click="visitLink()" x-bind:disabled="linkUrl.trim() === ''"><x-sigta::icon name="external-link" size="sm" /></button>
-                <button type="button" class="{{ $btn }}" aria-label="Remove link" x-on:mousedown.prevent x-on:click="removeLink()"><x-sigta::icon name="unlink" size="sm" /></button>
+                <button type="button" class="{{ $btn }}" aria-label="{{ __('Apply link') }}" x-on:mousedown.prevent x-on:click="applyLink()"><x-sigta::icon name="check" size="sm" /></button>
+                <button type="button" class="{{ $btn }}" aria-label="{{ __('Open link') }}" x-on:mousedown.prevent x-on:click="visitLink()" x-bind:disabled="linkUrl.trim() === ''"><x-sigta::icon name="external-link" size="sm" /></button>
+                <button type="button" class="{{ $btn }}" aria-label="{{ __('Remove link') }}" x-on:mousedown.prevent x-on:click="removeLink()"><x-sigta::icon name="unlink" size="sm" /></button>
             </div>
         </div>
 
@@ -180,7 +180,7 @@ $minHeight = 'min-height: calc('.$rows.' * 1.65em + '.($inline ? '1.24em' : '1.5
                 x-cloak
                 id="{{ $id }}-mentions"
                 role="listbox"
-                aria-label="Mention"
+                aria-label="{{ __('Mention') }}"
                 class="z-50 max-h-72 min-w-56 max-w-80 overflow-y-auto rounded-panel border border-line bg-surface-raised py-1.5 shadow-paper"
                 data-sigta="editor-mentions"
             >

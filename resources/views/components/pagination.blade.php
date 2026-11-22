@@ -57,15 +57,15 @@ $pageCurrent = $pageBase.' bg-ink text-surface';
 $arrow = 'flex size-7 items-center justify-center rounded-base text-ink no-underline transition-colors duration-150 ease-out hover:bg-ink/5 disabled:opacity-40 disabled:pointer-events-none aria-disabled:opacity-40 aria-disabled:pointer-events-none';
 @endphp
 
-<nav data-sigta="pagination" {{ $attributes->merge(['aria-label' => 'Pagination']) }}>
+<nav data-sigta="pagination" {{ $attributes->merge(['aria-label' => __('Pagination Navigation')]) }}>
     <ul class="m-0 flex list-none items-center gap-1 p-0 font-mono text-[0.72rem] tracking-[0.04em]">
         <li>
             @if ($atStart)
                 <span class="{{ $arrow }}" aria-disabled="true" aria-hidden="true"><x-sigta::icon name="chevron-left" size="sm" /></span>
             @elseif ($prevHref !== null)
-                <a href="{{ $prevHref }}" class="{{ $arrow }}" aria-label="Previous page" rel="prev"><x-sigta::icon name="chevron-left" size="sm" /></a>
+                <a href="{{ $prevHref }}" class="{{ $arrow }}" aria-label="{{ __('Previous page') }}" rel="prev"><x-sigta::icon name="chevron-left" size="sm" /></a>
             @else
-                <button type="button" class="{{ $arrow }}" aria-label="Previous page"><x-sigta::icon name="chevron-left" size="sm" /></button>
+                <button type="button" class="{{ $arrow }}" aria-label="{{ __('Previous page') }}"><x-sigta::icon name="chevron-left" size="sm" /></button>
             @endif
         </li>
 
@@ -76,9 +76,9 @@ $arrow = 'flex size-7 items-center justify-center rounded-base text-ink no-under
                 @elseif ($item === $current)
                     <span class="{{ $pageCurrent }}" aria-current="page">{{ $item }}</span>
                 @elseif ($hrefFor !== null)
-                    <a href="{{ $hrefFor($item) }}" class="{{ $pageIdle }}" aria-label="Page {{ $item }}">{{ $item }}</a>
+                    <a href="{{ $hrefFor($item) }}" class="{{ $pageIdle }}" aria-label="{{ __('Page :number', ['number' => $item]) }}">{{ $item }}</a>
                 @else
-                    <button type="button" class="{{ $pageIdle }}" aria-label="Page {{ $item }}">{{ $item }}</button>
+                    <button type="button" class="{{ $pageIdle }}" aria-label="{{ __('Page :number', ['number' => $item]) }}">{{ $item }}</button>
                 @endif
             </li>
         @endforeach
@@ -87,9 +87,9 @@ $arrow = 'flex size-7 items-center justify-center rounded-base text-ink no-under
             @if ($atEnd)
                 <span class="{{ $arrow }}" aria-disabled="true" aria-hidden="true"><x-sigta::icon name="chevron-right" size="sm" /></span>
             @elseif ($nextHref !== null)
-                <a href="{{ $nextHref }}" class="{{ $arrow }}" aria-label="Next page" rel="next"><x-sigta::icon name="chevron-right" size="sm" /></a>
+                <a href="{{ $nextHref }}" class="{{ $arrow }}" aria-label="{{ __('Next page') }}" rel="next"><x-sigta::icon name="chevron-right" size="sm" /></a>
             @else
-                <button type="button" class="{{ $arrow }}" aria-label="Next page"><x-sigta::icon name="chevron-right" size="sm" /></button>
+                <button type="button" class="{{ $arrow }}" aria-label="{{ __('Next page') }}"><x-sigta::icon name="chevron-right" size="sm" /></button>
             @endif
         </li>
     </ul>

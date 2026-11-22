@@ -350,6 +350,17 @@ document.addEventListener('alpine:init', () => {
 
     const elementOf = (target) => (typeof target === 'string' ? document.querySelector(target) : target) ?? null;
 
+    // This file is served as is and cannot call __(), so @sigtaScripts puts the
+    // app's translations of the runtime's own words on its script tag.
+    const words = (() => {
+        try {
+            return JSON.parse(document.querySelector('script[data-sigta-lang]')?.dataset.sigtaLang ?? '{}');
+        } catch (e) {
+            return {};
+        }
+    })();
+    const trans = (text) => words[text] ?? text;
+
     // Flourishes draw on one fixed layer above the page, outside every Livewire
     // component so no morph touches them; inside an open dialog when the
     // target is in one, since a modal sits in the top layer above the page.
@@ -482,7 +493,7 @@ document.addEventListener('alpine:init', () => {
     /* Note — a handwritten word in the margin ("done!", "saved") written in
        beside an element; it floats up and fades. Decorative, so say the same
        thing in text or ARIA somewhere the page keeps. */
-    const note = (target, text = 'nice!', options = {}) => {
+    const note = (target, text = trans('nice!'), options = {}) => {
         const el = elementOf(target);
         if (reduced() || !el?.isConnected || !text) return;
         const rect = el.getBoundingClientRect();
@@ -610,10 +621,10 @@ document.addEventListener('alpine:init', () => {
         const el = elementOf(target);
         if (level === 'big') {
             confetti(el, options);
-            if (el && options.text !== false) note(el, options.text ?? 'well done!', options);
+            if (el && options.text !== false) note(el, options.text ?? trans('well done!'), options);
         } else if (level === 'medium') {
             ring(el, options);
-            if (options.text !== false) note(el, options.text ?? 'nice!', options);
+            if (options.text !== false) note(el, options.text ?? trans('nice!'), options);
         } else {
             burst(el, options);
         }
@@ -746,7 +757,7 @@ document.addEventListener('alpine:init', () => {
                 stamp = document.createElement('span');
                 stamp.className = 'sigta-stamp';
                 stamp.setAttribute('aria-hidden', 'true');
-                stamp.textContent = options.stamp === true ? 'Done' : options.stamp;
+                stamp.textContent = options.stamp === true ? trans('Done') : options.stamp;
                 if (getComputedStyle(row).position === 'static') row.style.position = 'relative';
                 row.appendChild(stamp);
             }

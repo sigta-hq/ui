@@ -7,7 +7,7 @@
      burger instead, so this row is dropped and the sidebar is nav alone. --}}
 @php
 $panelId = 'sigta-shell-sidebar-'.\Illuminate\Support\Str::random(8);
-$navLabel = $attributes->get('aria-label') ?? 'App navigation';
+$navLabel = $attributes->get('aria-label') ?? __('App navigation');
 @endphp
 
 <aside
@@ -18,7 +18,7 @@ $navLabel = $attributes->get('aria-label') ?? 'App navigation';
     x-on:sigta-shell-toggle.window="toggle()"
     {{ $attributes->merge([
         'class' => 'bg-surface border-line px-3.5 py-[18px] flex flex-col border-b md:border-b-0 md:border-r max-md:group-data-[header]/shell:p-0 max-md:group-data-[header]/shell:border-b-0 md:group-data-[header]/shell:min-h-0 md:group-data-[header]/shell:overflow-y-auto',
-        'aria-label' => 'App navigation',
+        'aria-label' => $navLabel,
     ]) }}
 >
     {{-- Header row: brand, then the actions + burger cluster. The burger only shows

@@ -15,7 +15,7 @@
 $id = $attributes->get('id') ?? 'sigta-'.\Illuminate\Support\Str::random(8);
 $disabled = $attributes->has('disabled');
 
-$helper ??= $multiple ? 'Drag files here, or' : 'Drag a file here, or';
+$helper ??= $multiple ? __('Drag files here, or') : __('Drag a file here, or');
 
 $zone = 'flex w-full cursor-pointer flex-col items-center gap-3 rounded-panel border-[1.5px] border-dashed px-6 py-9 text-center transition duration-200 ease-out hover:border-ink hover:bg-ink/5 data-[dragging]:border-ink data-[dragging]:bg-ink/5 has-[:focus-visible]:outline-[2.5px] has-[:focus-visible]:outline-ink has-[:focus-visible]:outline-offset-[3px]';
 $zone .= $disabled ? ' opacity-40 pointer-events-none' : '';
@@ -76,7 +76,7 @@ if ($describedBy = trim(($description ? $id.'-description ' : '').($error ? $id.
 
             <span class="font-mono text-[0.72rem] tracking-[0.04em] text-graphite">
                 {{ $helper }}
-                <span class="ml-1 inline-flex items-center rounded-base border-[1.5px] border-ink px-[1em] py-[0.5em] text-ink transition duration-150 ease-out">browse</span>
+                <span class="ml-1 inline-flex items-center rounded-base border-[1.5px] border-ink px-[1em] py-[0.5em] text-ink transition duration-150 ease-out">{{ __('browse') }}</span>
             </span>
         </label>
 

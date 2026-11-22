@@ -234,6 +234,16 @@ Props follow conventional Livewire naming. Common ones across many components:
 `x-*`, `id`, `aria-*`) **always forward onto the native element** — never
 swallow them. Don't add `wire:ignore` unless truly necessary.
 
+## Translating the kit's own words
+
+Every word a component writes by itself (aria labels, empty states such as
+"No matches.", default placeholders, month and day names, the runtime's
+"Done" stamp) goes through Laravel's `__()` with the English text as the key.
+The package ships no translation files: translate those keys in your app's
+`lang/<locale>.json`, and scan `vendor/sigta/ui/resources/views` when you look
+for missing keys. Text you pass in through props and slots is yours to
+translate where you write it (`label="{{ __('Name') }}"`).
+
 ## Cross-component events
 
 Some components communicate via window/Livewire events. Listen for / dispatch

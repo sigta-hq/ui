@@ -10,7 +10,7 @@ it('renders manual pagination with a windowed page list', function () {
 
     expect($html)
         ->toContain('data-sigta="pagination"')
-        ->toContain('aria-label="Pagination"')
+        ->toContain('aria-label="Pagination Navigation"')
         ->toContain('aria-current="page"')
         ->toContain('href="?page=4"')  // prev
         ->toContain('href="?page=6"')  // next

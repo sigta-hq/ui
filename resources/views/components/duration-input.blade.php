@@ -23,14 +23,18 @@
 --}}
 @php
 $initial = is_numeric($value) ? max(0, (int) $value) : null;
-$placeholderText = $placeholder ?? '0m';
+$placeholderText = $placeholder ?? __(':minutesm', ['minutes' => 0]);
+$hoursUnit = __(':hoursh');
+$minutesUnit = __(':minutesm');
 
 // Compact "1h15m" label for the initial (server-rendered) state — mirrors the
 // Alpine `label` getter below so there's no flash on hydrate. No app helper.
 if ($initial) {
     $h = intdiv($initial, 60);
     $m = $initial % 60;
-    $initialLabel = $h === 0 ? $m.'m' : ($m === 0 ? $h.'h' : $h.'h'.$m.'m');
+    $hours = str_replace(':hours', $h, $hoursUnit);
+    $mins = str_replace(':minutes', $m, $minutesUnit);
+    $initialLabel = $h === 0 ? $mins : ($m === 0 ? $hours : $hours.$mins);
 } else {
     $initialLabel = $placeholderText;
 }
@@ -55,15 +59,19 @@ $displayHover = $inline ? 'hover:border-line' : 'hover:border-ink';
             editing: false,
             draft: '',
             placeholder: @js($placeholderText),
+            hoursUnit: @js($hoursUnit),
+            minutesUnit: @js($minutesUnit),
             get hasValue() { return this.minutes !== null && this.minutes > 0; },
             get label() {
                 if (! this.hasValue) { return this.placeholder; }
                 const mins = Math.max(0, this.minutes || 0);
                 const h = Math.floor(mins / 60);
                 const m = mins % 60;
-                if (h === 0) { return m + 'm'; }
-                if (m === 0) { return h + 'h'; }
-                return h + 'h' + m + 'm';
+                const hours = this.hoursUnit.replace(':hours', h);
+                const minutes = this.minutesUnit.replace(':minutes', m);
+                if (h === 0) { return minutes; }
+                if (m === 0) { return hours; }
+                return hours + minutes;
             },
             edit() {
                 const mins = Math.max(0, this.minutes || 0);

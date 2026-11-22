@@ -22,10 +22,10 @@
 $state = in_array($state, ['queued', 'working', 'done', 'failed'], true) ? $state : 'working';
 
 $status = match ($state) {
-    'queued' => 'Queued',
-    'done' => 'Done',
-    'failed' => 'Failed',
-    default => 'Running',
+    'queued' => __('Queued'),
+    'done' => __('Done'),
+    'failed' => __('Failed'),
+    default => __('Running'),
 };
 
 $statusClass = match ($state) {

@@ -9,7 +9,7 @@
 <section
     data-sigta="carousel"
     role="region"
-    aria-roledescription="carousel"
+    aria-roledescription="{{ __('carousel') }}"
     @if ($label) aria-label="{{ $label }}" @endif
     x-data="{
         active: 0,
@@ -60,20 +60,20 @@
     <div class="mt-4 flex items-center justify-center gap-4">
         <x-sigta::button
             variant="ghost"
-            aria-label="Previous slide"
+            aria-label="{{ __('Previous slide') }}"
             x-on:click="prev()"
             x-bind:disabled="atStart()"
         >
             <x-sigta::icon name="chevron-left" />
         </x-sigta::button>
 
-        <div class="flex items-center gap-2" aria-label="Slides" role="group">
+        <div class="flex items-center gap-2" aria-label="{{ __('Slides') }}" role="group">
             <template x-for="i in count" :key="i">
                 <button
                     type="button"
                     x-on:click="go(i - 1)"
                     x-bind:aria-current="active === (i - 1) ? 'true' : 'false'"
-                    x-bind:aria-label="'Go to slide ' + i"
+                    x-bind:aria-label="@js(__('Go to slide :number')).replace(':number', i)"
                     class="size-2.5 rounded-full border-[1.5px] border-ink transition-colors duration-150 ease-out cursor-pointer"
                     x-bind:class="active === (i - 1) ? 'bg-ink' : 'bg-transparent hover:bg-ink/20'"
                 ></button>
@@ -82,7 +82,7 @@
 
         <x-sigta::button
             variant="ghost"
-            aria-label="Next slide"
+            aria-label="{{ __('Next slide') }}"
             x-on:click="next()"
             x-bind:disabled="atEnd()"
         >

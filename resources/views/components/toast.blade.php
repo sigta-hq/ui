@@ -62,7 +62,7 @@ $placement = match ($position) {
                         x-bind:rel="toast.link.rel || null"
                         x-bind:download="toast.link.download || null"
                         x-bind="toast.link.navigate ? { 'wire:navigate': true } : {}"
-                        x-text="toast.link.text || 'View'"
+                        x-text="toast.link.text || @js(__('View'))"
                         class="block mt-1.5 font-mono text-[0.72rem] uppercase tracking-[0.12em] text-ink underline underline-offset-2 hover:no-underline"
                     ></a>
                 </template>
@@ -75,7 +75,7 @@ $placement = match ($position) {
                     ></button>
                 </template>
             </span>
-            <button type="button" x-on:click="remove(toast.id)" aria-label="Dismiss"
+            <button type="button" x-on:click="remove(toast.id)" aria-label="{{ __('Dismiss') }}"
                     class="ml-auto -mr-1 p-1 rounded-base text-graphite hover:text-ink cursor-pointer">
                 <x-sigta::icon name="x" size="xs" />
             </button>

@@ -20,10 +20,10 @@
     'state' => 'idle',
     'align' => 'start',
     'idle' => null,
-    'dirty' => 'Unsaved changes',
-    'saving' => 'Saving…',
-    'saved' => 'Saved',
-    'failed' => 'Not saved',
+    'dirty' => __('Unsaved changes'),
+    'saving' => __('Saving…'),
+    'saved' => __('Saved'),
+    'failed' => __('Not saved'),
 ])
 
 @php

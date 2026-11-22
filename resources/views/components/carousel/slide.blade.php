@@ -7,7 +7,7 @@
 <div
     data-sigta="carousel.slide"
     role="group"
-    aria-roledescription="slide"
+    aria-roledescription="{{ __('slide') }}"
     {{ $attributes->merge(['class' => 'snap-start shrink-0 '.$basis]) }}
 >
     {{ $slot }}

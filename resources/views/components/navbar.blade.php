@@ -30,7 +30,7 @@ $panelId = 'sigta-navbar-panel-'.\Illuminate\Support\Str::random(8);
             <div {{ $brand->attributes->merge(['class' => 'flex items-center shrink-0']) }}>{{ $brand }}</div>
         @endisset
 
-        <nav class="{{ $barLinks }} items-center gap-8" aria-label="Primary">
+        <nav class="{{ $barLinks }} items-center gap-8" aria-label="{{ __('Primary') }}">
             {{ $slot }}
         </nav>
 
@@ -47,7 +47,7 @@ $panelId = 'sigta-navbar-panel-'.\Illuminate\Support\Str::random(8);
                 aria-expanded="false"
                 :aria-expanded="open ? 'true' : 'false'"
                 aria-controls="{{ $panelId }}"
-                aria-label="Menu"
+                aria-label="{{ __('Menu') }}"
                 @click="open = !open"
             >
                 <span x-show="!open"><x-sigta::icon name="menu" /></span>
@@ -62,7 +62,7 @@ $panelId = 'sigta-navbar-panel-'.\Illuminate\Support\Str::random(8);
         x-cloak
         @keydown.escape.window="open = false"
         class="{{ $belowOnly }} border-t border-line px-(--sigta-gutter) py-4 flex flex-col gap-3"
-        aria-label="Primary"
+        aria-label="{{ __('Primary') }}"
     >
         {{ $slot }}
     </nav>
