@@ -79,7 +79,7 @@ $describedBy = trim(($description ? $id.'-description ' : '').($error ? $id.'-er
                 type="text"
                 inputmode="numeric"
                 autocomplete="one-time-code"
-                aria-label="Digit {{ $i + 1 }} of {{ $length }}"
+                aria-label="{{ __('Digit :position of :length', ['position' => $i + 1, 'length' => $length]) }}"
                 class="{{ $boxClasses }}"
                 x-ref="box{{ $i }}"
                 @focus="$event.target.select()"

@@ -2,7 +2,7 @@
      dialog with a filtering combobox of <x-sigta::command.item>s. --}}
 @props([
     'name' => 'command',
-    'placeholder' => 'Type a command…',
+    'placeholder' => __('Type a command…'),
     'shortcut' => true,
 ])
 
@@ -43,12 +43,12 @@
                     autocomplete="off"
                     class="w-full font-mono text-[0.85rem] text-ink bg-transparent py-3.5 focus:outline-none placeholder:text-graphite"
                 >
-                <kbd class="font-mono text-[0.62rem] text-graphite border border-line rounded-base px-1.5 py-0.5">esc</kbd>
+                <kbd class="font-mono text-[0.62rem] text-graphite border border-line rounded-base px-1.5 py-0.5">{{ __('esc') }}</kbd>
             </div>
 
             <div id="sigta-command-list" role="listbox" class="max-h-80 overflow-y-auto py-2">
                 {{ $slot }}
-                <div x-show="visible().length === 0" class="px-4 py-3 font-mono text-[0.74rem] text-graphite">Nothing found — try different ink.</div>
+                <div x-show="visible().length === 0" class="px-4 py-3 font-mono text-[0.74rem] text-graphite">{{ __('Nothing found — try different ink.') }}</div>
             </div>
         </div>
     </dialog>

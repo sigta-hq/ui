@@ -13,7 +13,7 @@
     'max' => null,         // HH:MM
     'step' => 30,          // minutes
     'format' => '24',      // '24' | '12'
-    'placeholder' => 'Select a time',
+    'placeholder' => __('Select a time'),
 ])
 
 @php
@@ -129,7 +129,7 @@ $inputClasses .= $error ? ' border-danger' : ' border-line';
                 @if ($error) aria-invalid="true" @endif
                 @if ($describedBy) aria-describedby="{{ $describedBy }}" @endif
             />
-            <button type="button" tabindex="-1" x-on:click="toggle()" aria-label="Open time list" @if ($disabled) disabled @endif class="absolute inset-y-0 right-0 flex items-center px-[0.75em] text-graphite hover:text-ink transition duration-150 ease-out disabled:opacity-40 disabled:pointer-events-none">
+            <button type="button" tabindex="-1" x-on:click="toggle()" aria-label="{{ __('Open time list') }}" @if ($disabled) disabled @endif class="absolute inset-y-0 right-0 flex items-center px-[0.75em] text-graphite hover:text-ink transition duration-150 ease-out disabled:opacity-40 disabled:pointer-events-none">
                 <x-sigta::icon name="clock" size="sm" />
             </button>
         </div>
@@ -142,7 +142,7 @@ $inputClasses .= $error ? ' border-danger' : ' border-line';
             x-ref="list"
             id="{{ $listId }}"
             role="listbox"
-            aria-label="{{ $label ?? 'Times' }}"
+            aria-label="{{ $label ?? __('Times') }}"
             x-transition:enter="transition ease-out duration-150"
             x-transition:enter-start="opacity-0 -translate-y-1"
             x-transition:enter-end="opacity-100 translate-y-0"

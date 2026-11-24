@@ -37,6 +37,9 @@ class SigtaServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'sigta');
 
+        // Loaded before the app's lang/<locale>.json, so an app's own entry for a key wins.
+        $this->loadJsonTranslationsFrom(__DIR__.'/../resources/lang');
+
         // Anonymous components: <x-sigta::button>, <x-sigta::input>, ...
         Blade::anonymousComponentPath(__DIR__.'/../resources/views/components', 'sigta');
 
@@ -94,7 +97,7 @@ class SigtaServiceProvider extends ServiceProvider
         $hash = substr(md5_file(__DIR__.'/../dist/sigta.js') ?: 'dev', 0, 8);
         $url = route('sigta.assets.js', ['v' => $hash], false);
 
-        return '<script src="'.$url.'" defer></script>';
+        return trim(view('sigta::scripts', ['url' => $url])->render());
     }
 
     public static function editorScriptTag(): string

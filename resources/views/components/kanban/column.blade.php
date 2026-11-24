@@ -43,7 +43,7 @@ $aria ??= $label;
                 draggable="true"
                 x-on:dragstart="columnStart('{{ $id }}', $event)"
                 class="shrink-0 cursor-grab text-graphite transition-colors hover:text-ink active:cursor-grabbing"
-                aria-label="{{ $aria ? 'Reorder '.$aria : 'Reorder column' }}"
+                aria-label="{{ $aria ? __('Reorder :column', ['column' => $aria]) : __('Reorder column') }}"
                 data-sigta="kanban.column-handle"
             >
                 <x-sigta::icon name="grip-vertical" size="xs" />

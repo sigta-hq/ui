@@ -55,7 +55,7 @@ $listboxId = $id.'-listbox';
         class="fixed z-50 max-h-64 overflow-y-auto bg-surface-raised border border-line rounded-panel shadow-paper py-1.5"
     >
         {{ $slot }}
-        <div x-show="visible().length === 0" class="px-3.5 py-2 font-mono text-[0.72rem] text-graphite">No matches.</div>
+        <div x-show="visible().length === 0" class="px-3.5 py-2 font-mono text-[0.72rem] text-graphite">{{ __('No matches.') }}</div>
     </div>
 
     @if ($description && ! $error)

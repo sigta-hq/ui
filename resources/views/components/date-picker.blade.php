@@ -11,7 +11,7 @@
     'value' => null,       // Y-m-d
     'min' => null,         // Y-m-d
     'max' => null,         // Y-m-d
-    'placeholder' => 'Select a date',
+    'placeholder' => __('Select a date'),
     'variant' => 'default',
 ])
 
@@ -20,7 +20,8 @@ use Illuminate\Support\Carbon;
 
 $id = $attributes->get('id') ?? 'sigta-'.\Illuminate\Support\Str::random(8);
 $panelId = $id.'-panel';
-$displayValue = $value ? Carbon::parse($value)->format('j M Y') : '';
+$shortMonths = [__('Jan'), __('Feb'), __('Mar'), __('Apr'), __('May'), __('Jun'), __('Jul'), __('Aug'), __('Sep'), __('Oct'), __('Nov'), __('Dec')];
+$displayValue = $value ? (fn (Carbon $date) => $date->day.' '.$shortMonths[$date->month - 1].' '.$date->year)(Carbon::parse($value)) : '';
 $describedBy = trim(($description ? $id.'-description ' : '').($error ? $id.'-error' : ''));
 $disabled = $attributes->has('disabled');
 
@@ -40,17 +41,20 @@ $buttonClasses = 'absolute inset-y-0 right-0 flex items-center px-[0.75em] text-
 <x-sigta::field :label="$label" :description="$description" :error="$error" :for="$id">
     <div
         data-sigta="date-picker"
+        {{-- parse() tries the shown "day month year" first: the month name is translated,
+             and Date.parse only reads English ones. --}}
         x-data="{
             display: @js($displayValue),
             value: @js($value),
-            shortMonths: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+            shortMonths: @js($shortMonths),
             format(iso) { if (! iso) return ''; const [y, m, d] = iso.split('-').map(Number); return d + ' ' + this.shortMonths[m - 1] + ' ' + y; },
             parse(text) {
                 const t = String(text).trim();
                 if (! t) return '';
-                const ts = Date.parse(t);
-                if (isNaN(ts)) return null;
-                const dt = new Date(ts);
+                const shown = t.match(/^(\d{1,2})\.?\s+(\S+?)\.?\s+(\d{4})$/);
+                const month = shown ? this.shortMonths.findIndex((name) => name.replace(/\.$/, '').toLowerCase() === shown[2].toLowerCase()) : -1;
+                const dt = month >= 0 ? new Date(Number(shown[3]), month, Number(shown[1])) : new Date(Date.parse(t));
+                if (isNaN(dt)) return null;
                 const p = (n) => String(n).padStart(2, '0');
                 return dt.getFullYear() + '-' + p(dt.getMonth() + 1) + '-' + p(dt.getDate());
             },
@@ -84,7 +88,7 @@ $buttonClasses = 'absolute inset-y-0 right-0 flex items-center px-[0.75em] text-
                     @if ($error) aria-invalid="true" @endif
                     @if ($describedBy) aria-describedby="{{ $describedBy }}" @endif
                 />
-                <button type="button" tabindex="-1" x-on:click="toggle()" aria-label="Open calendar" @if ($disabled) disabled @endif class="{{ $buttonClasses }}">
+                <button type="button" tabindex="-1" x-on:click="toggle()" aria-label="{{ __('Open calendar') }}" @if ($disabled) disabled @endif class="{{ $buttonClasses }}">
                     <x-sigta::icon name="calendar-days" size="sm" />
                 </button>
             </div>
@@ -97,7 +101,7 @@ $buttonClasses = 'absolute inset-y-0 right-0 flex items-center px-[0.75em] text-
                 x-on:click.outside="close()"
                 id="{{ $panelId }}"
                 role="dialog"
-                aria-label="Choose date"
+                aria-label="{{ __('Choose date') }}"
                 x-transition:enter="transition ease-out duration-150"
                 x-transition:enter-start="opacity-0 -translate-y-1"
                 x-transition:enter-end="opacity-100 translate-y-0"

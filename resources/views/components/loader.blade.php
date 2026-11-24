@@ -51,11 +51,11 @@ if ($percent !== null && $state === 'done') {
 }
 
 $label ??= match ($state) {
-    'queued' => 'Queued',
-    'done' => 'Done',
-    'failed' => 'Failed',
-    'idle' => 'Ready',
-    default => 'Working',
+    'queued' => __('Queued'),
+    'done' => __('Done'),
+    'failed' => __('Failed'),
+    'idle' => __('Ready'),
+    default => __('Working'),
 };
 
 $rootAttributes = [

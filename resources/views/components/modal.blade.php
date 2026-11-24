@@ -49,7 +49,7 @@ $body = $fullscreen ? ' max-md:flex max-md:min-h-full max-md:flex-col' : '';
                 <div class="flex items-start justify-between gap-4 mb-4">
                     <x-sigta::heading level="2" size="lg">{{ $heading }}</x-sigta::heading>
                     @if ($dismissible)
-                        <button type="button" x-on:click="hide()" aria-label="Close"
+                        <button type="button" x-on:click="hide()" aria-label="{{ __('Close') }}"
                                 class="ml-auto -mr-1 -mt-1 p-1.5 rounded-base text-graphite hover:text-ink hover:bg-ink/5 cursor-pointer">
                             <x-sigta::icon name="x" size="sm" />
                         </button>
@@ -60,7 +60,7 @@ $body = $fullscreen ? ' max-md:flex max-md:min-h-full max-md:flex-col' : '';
                      reserving an empty header row, so the content starts at the top of
                      the panel with no wasted band. z-10 keeps it clickable above the
                      content; leave the top-right of the content clear for it. --}}
-                <button type="button" x-on:click="hide()" aria-label="Close"
+                <button type="button" x-on:click="hide()" aria-label="{{ __('Close') }}"
                         class="absolute right-5 top-5 z-10 p-1.5 rounded-base text-graphite hover:text-ink hover:bg-ink/5 cursor-pointer">
                     <x-sigta::icon name="x" size="sm" />
                 </button>

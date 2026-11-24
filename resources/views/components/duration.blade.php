@@ -18,7 +18,9 @@ $m = $total % 60;
 
 $text = match ($format) {
     'clock' => sprintf('%02d:%02d', $h, $m),
-    default => $h === 0 ? $m.'m' : ($m === 0 ? $h.'h' : $h.'h '.$m.'m'),
+    default => $h === 0
+        ? __(':minutesm', ['minutes' => $m])
+        : ($m === 0 ? __(':hoursh', ['hours' => $h]) : __(':hoursh', ['hours' => $h]).' '.__(':minutesm', ['minutes' => $m])),
 };
 @endphp
 

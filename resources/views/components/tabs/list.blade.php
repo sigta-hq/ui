@@ -1,5 +1,5 @@
 @props([
-    'label' => 'Tabs',
+    'label' => __('Tabs'),
 ])
 
 <div

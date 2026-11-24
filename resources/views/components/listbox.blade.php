@@ -9,7 +9,7 @@
     'label' => null,
     'description' => null,
     'error' => null,
-    'placeholder' => 'Select…',
+    'placeholder' => __('Select…'),
     'name' => null,
     'value' => null,
 ])

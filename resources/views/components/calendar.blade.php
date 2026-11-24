@@ -14,8 +14,10 @@ use Illuminate\Support\Carbon;
 
 $id = $attributes->get('id') ?? 'sigta-'.\Illuminate\Support\Str::random(8);
 
-$monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-$weekdays = ['Mo' => 'Monday', 'Tu' => 'Tuesday', 'We' => 'Wednesday', 'Th' => 'Thursday', 'Fr' => 'Friday', 'Sa' => 'Saturday', 'Su' => 'Sunday'];
+$monthNames = [__('January'), __('February'), __('March'), __('April'), __('May'), __('June'), __('July'), __('August'), __('September'), __('October'), __('November'), __('December')];
+$shortMonths = [__('Jan'), __('Feb'), __('Mar'), __('Apr'), __('May'), __('Jun'), __('Jul'), __('Aug'), __('Sep'), __('Oct'), __('Nov'), __('Dec')];
+// Pairs, not abbreviation keys: two days may share an abbreviation in another language.
+$weekdays = [[__('Mo'), __('Monday')], [__('Tu'), __('Tuesday')], [__('We'), __('Wednesday')], [__('Th'), __('Thursday')], [__('Fr'), __('Friday')], [__('Sa'), __('Saturday')], [__('Su'), __('Sunday')]];
 
 $today    = Carbon::today();
 $selected = $value ? Carbon::parse($value)->startOfDay() : null;
@@ -43,7 +45,7 @@ for ($i = 0; $i < 42; $i++) {
         'disabled' => $isOut($d),
         'selected' => $selected && $d->isSameDay($selected),
         'today'    => $d->isSameDay($today),
-        'label'    => $d->format('j F Y'),
+        'label'    => $d->day.' '.$monthNames[$d->month - 1].' '.$d->year,
     ];
 }
 
@@ -87,8 +89,8 @@ $navBtn = 'inline-flex items-center justify-center size-8 rounded-base border bo
         focused: @js($focusedIso),
         min: @js($minDate?->format('Y-m-d')),
         max: @js($maxDate?->format('Y-m-d')),
-        monthNames: ['January','February','March','April','May','June','July','August','September','October','November','December'],
-        shortMonths: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+        monthNames: @js($monthNames),
+        shortMonths: @js($shortMonths),
         pad(n) { return String(n).padStart(2, '0'); },
         iso(y, m, d) { return y + '-' + this.pad(m) + '-' + this.pad(d); },
         todayIso() { const t = new Date(); return this.iso(t.getFullYear(), t.getMonth() + 1, t.getDate()); },
@@ -188,11 +190,11 @@ $navBtn = 'inline-flex items-center justify-center size-8 rounded-base border bo
     {{ $attributes->only('class')->merge(['class' => 'inline-flex flex-col gap-2 bg-surface-raised border border-line rounded-panel shadow-paper p-3 w-[17.5rem] select-none']) }}
 >
     <div class="flex items-center justify-between">
-        <button type="button" x-on:click="prevMonth()" :disabled="! canPrev" aria-label="Previous month" class="{{ $navBtn }}" @if (! $canPrev) disabled @endif>
+        <button type="button" x-on:click="prevMonth()" :disabled="! canPrev" aria-label="{{ __('Previous month') }}" class="{{ $navBtn }}" @if (! $canPrev) disabled @endif>
             <x-sigta::icon name="chevron-left" size="sm" />
         </button>
         <div id="{{ $id }}-title" aria-live="polite" class="font-mono text-[0.72rem] tracking-[0.14em] uppercase text-ink" x-text="title">{{ $monthTitle }}</div>
-        <button type="button" x-on:click="nextMonth()" :disabled="! canNext" aria-label="Next month" class="{{ $navBtn }}" @if (! $canNext) disabled @endif>
+        <button type="button" x-on:click="nextMonth()" :disabled="! canNext" aria-label="{{ __('Next month') }}" class="{{ $navBtn }}" @if (! $canNext) disabled @endif>
             <x-sigta::icon name="chevron-right" size="sm" />
         </button>
     </div>
@@ -211,7 +213,7 @@ $navBtn = 'inline-flex items-center justify-center size-8 rounded-base border bo
         x-on:keydown.page-down.prevent="moveMonth(1)"
     >
         <div role="row" class="grid grid-cols-7">
-            @foreach ($weekdays as $abbr => $full)
+            @foreach ($weekdays as [$abbr, $full])
                 <span role="columnheader" aria-label="{{ $full }}" class="flex items-center justify-center py-1 font-mono text-[0.6rem] tracking-[0.1em] uppercase text-graphite">{{ $abbr }}</span>
             @endforeach
         </div>
