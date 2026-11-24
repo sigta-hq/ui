@@ -90,6 +90,14 @@
         outline-offset: var(--sigta-focus-offset);
     }
 
+    /* Tailwind's preflight leaves buttons on the arrow cursor, so the kit's
+       own plain controls (calendar arrows, pagination, picker toggles) and an
+       app's buttons would not read as clickable unless every app remembered
+       a rule of its own. In the base layer, any cursor-* utility still wins. */
+    :is(button, [role="button"]):not(:disabled, [aria-disabled="true"]) {
+        cursor: pointer;
+    }
+
     /* Scrollbars — a pencil stroke on the paper. The thumb is drawn in the
        colour of the text it scrolls, so one rule reads on paper and on an
        inverse band alike; the track is the paper itself. Faint at rest, it

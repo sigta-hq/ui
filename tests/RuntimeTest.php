@@ -103,6 +103,13 @@ it('marks a button busy only once its action outlasts a beat', function () {
         ->not->toContain('> .sigta-button-label {');
 });
 
+it('gives every enabled button a pointer cursor', function () {
+    // Tailwind's preflight leaves buttons on the arrow, and the kit's calendar
+    // arrows, pagination and picker toggles set no cursor of their own.
+    expect(file_get_contents(__DIR__.'/../resources/css/core.css'))
+        ->toMatch('/:is\(button, \[role="button"\]\):not\(:disabled, \[aria-disabled="true"\]\) \{\s+cursor: pointer;/');
+});
+
 it('crosses out every line a struck title wraps onto, over its words', function () {
     // A positioned line covers one box spanning a wrapped title's lines, so it
     // landed under the first line and read as an underline.

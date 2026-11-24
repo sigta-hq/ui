@@ -208,9 +208,11 @@ the UI feel unfinished. Work out every state before you place one:
 - **Never show "Loading…" / "Saving…" text or a generic spinner.** Use
   `<sigta:loader>` (the compass, or the app's own loader from
   `config/sigta.php`), `<sigta:save-state target="…">` for
-  saves, `<sigta:job>` for long-running work. A `<sigta:button wire:click="…">`
-  already shows the compass beside its label when its action runs long, and
-  nothing for a quick one: don't add `wire:loading` text or a loader to it.
+  saves, `<sigta:job>` for long-running work. A `<sigta:button>` with
+  `wire:click`, `wire:submit` or `type="submit"` keeps its label while its
+  action runs: nothing shows for a quick one, and the compass joins the label
+  for a long one. Never add `wire:loading` text, a loader or a label swap to
+  it; to mark one busy from your own code, bind `x-bind:data-loading`.
   Wherever a loader goes, it holds still (MUST 5).
 - **Completing an item must not just make it vanish.** Put list rows in a
   `data-sigta-motion` container with `wire:key` on each row, wrap the title's
@@ -231,8 +233,9 @@ the UI feel unfinished. Work out every state before you place one:
 Props follow conventional Livewire naming. Common ones across many components:
 `variant`, `size`, `icon`, `label`, `description`, `error`, `placeholder`,
 `heading`, `name`, `href`. Attributes you don't recognize (e.g. `wire:model`,
-`x-*`, `id`, `aria-*`) **always forward onto the native element** — never
-swallow them. Don't add `wire:ignore` unless truly necessary.
+`x-*`, `id`, `aria-*`) **always forward onto the native element**; never
+swallow them. Add `wire:ignore` only in the two cases under Traps: an element
+whose attributes the browser sets, and a subtree a library draws.
 
 ## Translating the kit's own words
 
@@ -270,6 +273,57 @@ window events.
 Trigger a toast with `Sigta::toast('msg')` (Livewire), `$sigta.toast('msg')` (Alpine), or `window.Sigta.toast(...)` (JS). Variants include `warning` and `info` (`info` is Sigta-specific).
 
 Include `<sigta:toast />` once in your layout. With `wire:navigate`, wrap it in `@persist('toast')`.
+
+## Traps
+
+Each of these renders without an error and then fails in use. Component tests
+catch none of them, so check them in the browser.
+
+- **Make clickable things look clickable.** The foundation gives every enabled
+  `button` and `[role="button"]` a pointer cursor, and Sigta controls bring
+  their own hover state. So make anything clickable a `<sigta:button>` or a
+  native `<button>` or `<a>`: a `div` or card with `x-on:click` gets neither
+  the pointer nor keyboard access. Where one can't be avoided, give it
+  `role="button"`, `tabindex="0"`, `x-on:keydown.enter` and
+  `x-on:keydown.space.prevent` handlers and a hover style. Never let content
+  overlap a control: a section pulled up over a modal's corner close button
+  leaves it dead.
+- **`<sigta:panel>` stacks its children in a flex column.** `items-*` and
+  `justify-*` act on that column, so `class="items-center justify-between"`
+  centres a stack instead of making a row. For a row, pass a display class
+  (`flex`, `grid`) or `flex-row`, or lay the row out in an element inside the
+  panel.
+- **No `x-data` on a `<sigta:kanban.column>` or on an element around one.**
+  The board finds the dragged card through Alpine's `$root`, which is the
+  nearest `x-data`, so with a scope between the board and a column it looks
+  only inside that scope, and cards dragged in from other columns silently
+  fail to drop. Keep per-column state outside the board (in the Livewire
+  component, or in an `x-data` around the whole board), keyed by column id.
+- **A morph strips attributes the browser set.** Livewire resets an element's
+  attributes to what the server rendered, so one that script or the browser
+  added (the `open` that `showModal()` or a clicked `<details>` sets, anything
+  written with `setAttribute`) is gone after the component's next request. Put
+  `wire:ignore.self` on that element: its own attributes are left alone while
+  its children still update. `<sigta:modal>` already renders it on its dialog,
+  so never add it there. A subtree a library draws (a chart, a map) needs
+  `wire:ignore` and a stable `id` instead.
+- **`<sigta:save-state target="…">` reports any validation error as a failed
+  save.** It reads the whole component's errors, including another form's. On
+  a page with more than one form, give each save state its own `name` and
+  drive it from the save code with `$sigta.save(promise, name)` or
+  `$sigta.saveState(state, name)`. A `$wire` call resolves even when
+  validation fails, so have the action return `true` and throw when it
+  doesn't. Name it per record and key the markup around it per record too: it
+  reads its name once, when it starts, and a slow save must never report on
+  the record now open.
+
+```blade
+<div wire:key="order-{{ $order->id }}">
+    <sigta:save-state name="order-{{ $order->id }}" />
+    {{-- save() returns true; after a validation error the call resolves with null --}}
+    <sigta:button x-on:click="$sigta.save($wire.save({{ $order->id }}).then((saved) => { if (! saved) throw new Error('Not saved') }), 'order-{{ $order->id }}')">Save</sigta:button>
+</div>
+```
 
 ## When to extend vs. when to ask
 

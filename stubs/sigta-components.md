@@ -363,7 +363,7 @@ Sigta::toast(
 - **States:** `idle`, `dirty`, `saving`, `saved`, `failed`
 - The compass stands in for "Saving…": it draws while a save is in flight (the words stay for assistive tech, and show under reduced motion), lands with a handwritten "Saved" as the mark completes, then settles back to `idle` (showing the `idle` text, if any); a failed save — validation errors included — shakes it red. **Use it instead of any hand-written "Saving…" / "Saved" text.**
 - **Never moves:** all its labels share one cell, so it is as wide as its longest label whatever it is saying and the compass stays put. `align="end"` puts the compass on the right and right-aligns the words — use it at the right end of a bar (a `justify-between` header, the end of a toolbar); the default `start` suits a left edge. The room is reserved for the longest label, so keep your own words close in length.
-- **Livewire:** `target` names actions and/or properties (comma-separated, dot paths match children) on the closest component; it follows their requests by itself, and typing into a watched `wire:model` shows `dirty` until it syncs.
+- **Livewire:** `target` names actions and/or properties (comma-separated, dot paths match children) on the closest component; it follows their requests by itself, and typing into a watched `wire:model` shows `dirty` until it syncs. Any validation error on the component counts as a failed save, so on a page with more than one form, drive each by `name` instead (see Traps in `sigta-ui.md`).
 - **Anywhere else:** give it a `name` and drive it with `$sigta.save(promise, name)` (saving → saved/failed) or `$sigta.saveState('dirty', name)`.
 ```blade
 <sigta:save-state target="title, body" idle="All changes saved" />
@@ -664,6 +664,7 @@ Native HTML5 drag-and-drop board.
 #### `kanban.column`
 - **Props:** `label`, `id` (auto if null), `count` (counted from slot if null), `aria` (body accessible name; defaults to `label`)
 - **Slots:** `heading` replaces the visible label with your own control (e.g. an inline-rename input) while the count and `actions` stay put; `actions` adds header controls (a menu, a delete button) to the left of the count, which stays pinned to the right. The body's `aria-label` comes from the string `label`/`aria`, so slotted header markup never leaks into it.
+- Never put `x-data` on a column or on an element around one: drops into that column then silently fail (see Traps in `sigta-ui.md`).
 
 #### `kanban.card`
 - **Props:** `id` (auto if null). `draggable="true"`.
