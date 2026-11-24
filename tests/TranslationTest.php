@@ -94,7 +94,8 @@ it('translates labels that carry a number', function () {
     expect($pagination)
         ->toContain('aria-label="Sidenavigation"')
         ->toContain('aria-label="Side 2"')
-        ->and($carousel)->toContain("'Gå til dias :number'.replace(':number', i)");
+        // Only the ASCII tail: Laravel 12's @js escapes "å", Laravel 13's does not.
+        ->and($carousel)->toContain(" til dias :number'.replace(':number', i)");
 });
 
 it('translates duration units on the server and in the runtime', function () {
