@@ -239,10 +239,12 @@ swallow them. Don't add `wire:ignore` unless truly necessary.
 Every word a component writes by itself (aria labels, empty states such as
 "No matches.", default placeholders, month and day names, the runtime's
 "Done" stamp) goes through Laravel's `__()` with the English text as the key.
-The package ships no translation files: translate those keys in your app's
-`lang/<locale>.json`, and scan `vendor/sigta/ui/resources/views` when you look
-for missing keys. Text you pass in through props and slots is yours to
-translate where you write it (`label="{{ __('Name') }}"`).
+The kit ships Danish in `vendor/sigta/ui/resources/lang/da.json`, so a Danish
+app needs nothing. To change one of those words, put the same key in your
+app's `lang/da.json`: it wins over the kit's. For another language, translate
+the keys listed in the kit's `da.json` in your `lang/<locale>.json`. Text you
+pass in through props and slots is yours to translate where you write it
+(`label="{{ __('Name') }}"`).
 
 ## Cross-component events
 

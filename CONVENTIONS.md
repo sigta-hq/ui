@@ -96,7 +96,7 @@ Tailwind utilities mapped to tokens (use these):
 - Form controls: attributes (incl. `wire:model`) forward onto the **native element** (`input`, `select`, `textarea`, `button`). Native elements first, always, unless impossible.
 - Variants via `match` expressions in `@php` blocks — see `button.blade.php` for the house style.
 - Slots for composition; named slots where a component has distinct regions.
-- Words a component writes by itself (aria labels, empty states, default placeholders, month names) go through `__('English text')` so apps translate them in their `lang/<locale>.json`; the package ships no translation files. Hand them to Alpine with `@js(__('…'))`. The runtime in `resources/js/sigta.js` reads its words with `trans('…')`, and each key also goes in `resources/views/scripts.blade.php`. Never use a one-word key that matches a lang file name (`Pagination`, `Validation`): on a case-insensitive disk it returns that file's array. `tests/TranslationTest.php` flags literal words in text attributes.
+- Words a component writes by itself (aria labels, empty states, default placeholders, month names) go through `__('English text')`, and every key gets its Danish in `resources/lang/da.json` (apps override a key or add a language in their own `lang/<locale>.json`). Hand them to Alpine with `@js(__('…'))`. The runtime in `resources/js/sigta.js` reads its words with `trans('…')`, and each key also goes in `resources/views/scripts.blade.php`. Never use a one-word key that matches a lang file name (`Pagination`, `Validation`): on a case-insensitive disk it returns that file's array. `tests/TranslationTest.php` flags literal words in text attributes and keys missing from `da.json`.
 
 ## Accessibility (non-negotiable)
 

@@ -37,6 +37,9 @@ class SigtaServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'sigta');
 
+        // Loaded before the app's lang/<locale>.json, so an app's own entry for a key wins.
+        $this->loadJsonTranslationsFrom(__DIR__.'/../resources/lang');
+
         // Anonymous components: <x-sigta::button>, <x-sigta::input>, ...
         Blade::anonymousComponentPath(__DIR__.'/../resources/views/components', 'sigta');
 

@@ -4,34 +4,66 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Finder\Finder;
 
-// Apps translate the package's own words in their lang/<locale>.json. The
-// package ships none, so each test writes a throwaway one.
 beforeEach(function () {
-    $this->langPath = sys_get_temp_dir().'/sigta-lang-'.bin2hex(random_bytes(4));
-    File::ensureDirectoryExists($this->langPath);
-    File::put($this->langPath.'/da.json', json_encode([
-        'Previous month' => 'Forrige måned',
-        'May' => 'maj',
-        'Mo' => 'Ma',
-        'Monday' => 'mandag',
-        'Select a date' => 'Vælg en dato',
-        'Page :number' => 'Side :number',
-        'Pagination Navigation' => 'Sidenavigation',
-        'Go to slide :number' => 'Vis slide :number',
-        'No matches.' => 'Ingen resultater.',
-        'View' => 'Se',
-        ':hoursh' => ':hourst',
-        ':minutesm' => ':minutesmin',
-        'Done' => 'Færdig',
-        'nice!' => 'flot!',
-    ]));
-
-    app('translator')->addJsonPath($this->langPath);
     app()->setLocale('da');
 });
 
-afterEach(function () {
-    File::deleteDirectory($this->langPath);
+/** Every __('…') key in the package views, usage comments left out. */
+function packageTranslationKeys(): array
+{
+    $keys = [];
+
+    foreach (Finder::create()->files()->in(dirname(__DIR__).'/resources/views')->name('*.blade.php') as $file) {
+        $source = preg_replace('/\{\{--.*?--\}\}/s', '', $file->getContents());
+
+        preg_match_all("/__\\('((?:[^'\\\\]|\\\\.)*)'/", $source, $matches);
+
+        foreach ($matches[1] as $key) {
+            $keys[stripslashes($key)] = true;
+        }
+    }
+
+    return array_keys($keys);
+}
+
+it('ships Danish for every word the components write, and nothing else', function () {
+    $danish = json_decode(File::get(dirname(__DIR__).'/resources/lang/da.json'), true, flags: JSON_THROW_ON_ERROR);
+    $keys = packageTranslationKeys();
+
+    expect(array_values(array_diff($keys, array_keys($danish))))->toBe([], 'Missing from resources/lang/da.json')
+        ->and(array_values(array_diff(array_keys($danish), $keys)))->toBe([], 'No longer used by any view');
+});
+
+it('keeps every placeholder in the Danish text', function () {
+    $danish = json_decode(File::get(dirname(__DIR__).'/resources/lang/da.json'), true, flags: JSON_THROW_ON_ERROR);
+    $placeholders = fn (string $text) => preg_match_all('/:([a-z]+)/', $text, $m) ? $m[1] : [];
+    // A unit key glues its letter to the placeholder (":hoursh"), so compare by prefix.
+    $covers = fn (array $from, array $to) => collect($from)->every(fn ($a) => collect($to)->contains(fn ($b) => str_starts_with($a, $b) || str_starts_with($b, $a)));
+
+    foreach ($danish as $key => $text) {
+        expect($text)->not->toBe('', "Empty Danish for \"{$key}\"")
+            ->and($covers($placeholders($key), $placeholders($text)) && $covers($placeholders($text), $placeholders($key)))
+            ->toBeTrue("\"{$text}\" does not keep the placeholders of \"{$key}\"");
+    }
+});
+
+it('lets an app override a word in its own lang file', function () {
+    $lang = sys_get_temp_dir().'/sigta-app-lang-'.bin2hex(random_bytes(4));
+    File::ensureDirectoryExists($lang);
+    File::put($lang.'/da.json', json_encode(['Previous month' => 'Sidste måned']));
+
+    app()->useLangPath($lang);
+    app()->forgetInstance('translation.loader');
+    app()->forgetInstance('translator');
+    app()->setLocale('da');
+
+    try {
+        expect(Blade::render('<x-sigta::calendar value="2026-05-04" />'))
+            ->toContain('aria-label="Sidste måned"')
+            ->toContain('aria-label="Næste måned"');
+    } finally {
+        File::deleteDirectory($lang);
+    }
 });
 
 it('translates the calendar chrome, month and day names', function () {
@@ -62,20 +94,20 @@ it('translates labels that carry a number', function () {
     expect($pagination)
         ->toContain('aria-label="Sidenavigation"')
         ->toContain('aria-label="Side 2"')
-        ->and($carousel)->toContain("'Vis slide :number'.replace(':number', i)");
+        ->and($carousel)->toContain("'Gå til dias :number'.replace(':number', i)");
 });
 
 it('translates duration units on the server and in the runtime', function () {
     $duration = Blade::render('<x-sigta::duration :minutes="75" />');
     $input = Blade::render('<x-sigta::duration-input :value="120" />');
 
-    expect($duration)->toContain('>1t 15min</span>')
-        ->and($input)->toContain('>2t</button>')
-        ->and($input)->toContain("hoursUnit: ':hourst'");
+    expect($duration)->toContain('>1 t 15 min</span>')
+        ->and($input)->toContain('>2 t</button>')
+        ->and($input)->toContain("hoursUnit: ':hours t'");
 });
 
 it('translates text the Alpine templates fall back to', function () {
-    expect(Blade::render('<x-sigta::toast />'))->toContain("toast.link.text || 'Se'")
+    expect(Blade::render('<x-sigta::toast />'))->toContain("toast.link.text || 'Vis'")
         ->and(Blade::render('<x-sigta::autocomplete />'))->toContain('Ingen resultater.');
 });
 
@@ -85,7 +117,7 @@ it('hands the runtime its translated words through @sigtaScripts', function () {
     preg_match('/data-sigta-lang="([^"]*)"/', $html, $match);
     $words = json_decode(html_entity_decode($match[1] ?? '', ENT_QUOTES), true);
 
-    expect($words)->toMatchArray(['Done' => 'Færdig', 'nice!' => 'flot!', 'well done!' => 'well done!']);
+    expect($words)->toMatchArray(['Done' => 'Færdig', 'nice!' => 'flot!', 'well done!' => 'godt gået!']);
 });
 
 it('keeps the runtime words and the script tag in step', function () {
