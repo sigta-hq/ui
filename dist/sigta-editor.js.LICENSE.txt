@@ -77,7 +77,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/core@3.33.1 (MIT)
+@tiptap/core@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -103,7 +103,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-blockquote@3.33.1 (MIT)
+@tiptap/extension-blockquote@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -129,7 +129,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-bold@3.33.1 (MIT)
+@tiptap/extension-bold@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -155,7 +155,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-code@3.33.1 (MIT)
+@tiptap/extension-code@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -181,7 +181,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-code-block@3.33.1 (MIT)
+@tiptap/extension-code-block@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -207,7 +207,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-document@3.33.1 (MIT)
+@tiptap/extension-document@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -233,7 +233,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-hard-break@3.33.1 (MIT)
+@tiptap/extension-hard-break@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -259,7 +259,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-heading@3.33.1 (MIT)
+@tiptap/extension-heading@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -285,7 +285,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-horizontal-rule@3.33.1 (MIT)
+@tiptap/extension-horizontal-rule@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -311,7 +311,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-image@3.33.1 (MIT)
+@tiptap/extension-image@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -337,7 +337,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-italic@3.33.1 (MIT)
+@tiptap/extension-italic@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -363,7 +363,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-link@3.33.1 (MIT)
+@tiptap/extension-link@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -389,7 +389,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-list@3.33.1 (MIT)
+@tiptap/extension-list@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -415,7 +415,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-mention@3.33.1 (MIT)
+@tiptap/extension-mention@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -441,7 +441,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-paragraph@3.33.1 (MIT)
+@tiptap/extension-paragraph@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -467,7 +467,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-strike@3.33.1 (MIT)
+@tiptap/extension-strike@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -493,7 +493,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-text@3.33.1 (MIT)
+@tiptap/extension-text@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -519,7 +519,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extension-underline@3.33.1 (MIT)
+@tiptap/extension-underline@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -545,7 +545,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/extensions@3.33.1 (MIT)
+@tiptap/extensions@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -571,7 +571,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/markdown@3.33.1 (MIT)
+@tiptap/markdown@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -597,7 +597,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/pm@3.33.1 (MIT)
+@tiptap/pm@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -623,7 +623,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/starter-kit@3.33.1 (MIT)
+@tiptap/starter-kit@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
@@ -649,7 +649,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ------------------------------------------------------------------------------
-@tiptap/suggestion@3.33.1 (MIT)
+@tiptap/suggestion@3.34.0 (MIT)
 ------------------------------------------------------------------------------
 
 MIT License
