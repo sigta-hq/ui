@@ -123,12 +123,13 @@ if ($describedBy = trim(($description ? $id.'-description ' : '').($error ? $id.
             aria-controls="{{ $id }}-countries"
             x-bind:aria-label="@js(__('Calling code')).concat(': ', countryName(), ' ', callingCode)"
             aria-label="{{ __('Calling code') }}: {{ $countries[$selected]['name'] }} {{ $selectedCallingCode }}"
-            class="flex shrink-0 items-center gap-1.5 border-r {{ $dividerClasses }} pl-[0.8em] pr-2.5 font-mono text-[0.72rem] tracking-[0.08em] text-graphite transition-colors hover:text-ink"
+            class="block shrink-0 whitespace-nowrap border-r {{ $dividerClasses }} pl-[0.8em] pr-2.5 {{ $numberPadding }} text-left font-body text-[0.98rem] text-graphite transition-colors hover:text-ink"
             data-test="phone-country"
         >
-            <span x-text="country">{{ $selected }}</span>
-            <span class="text-ink" x-text="callingCode">{{ $selectedCallingCode }}</span>
-            <x-sigta::icon name="chevron-down" size="xs" :class="$chevronClasses" />
+            {{-- The button sets its line in the number's font and padding, so the small code sits on the number's baseline. --}}
+            <span class="font-mono text-[0.72rem] tracking-[0.08em]" x-text="country">{{ $selected }}</span>
+            <span class="ml-1 font-mono text-[0.72rem] tracking-[0.08em] text-ink" x-text="callingCode">{{ $selectedCallingCode }}</span>
+            <x-sigta::icon name="chevron-down" size="xs" :class="'ml-1 inline-block align-middle '.$chevronClasses" />
         </button>
 
         <input
@@ -187,7 +188,7 @@ if ($describedBy = trim(($description ? $id.'-description ' : '').($error ? $id.
                         x-on:mousedown.prevent=""
                         x-on:click="choose(option)"
                         x-on:mousemove="active = index"
-                        class="flex cursor-pointer items-center gap-3 rounded-base px-2.5 py-1.5 data-active:bg-ink/5 aria-selected:font-medium"
+                        class="flex cursor-pointer items-baseline gap-3 rounded-base px-2.5 py-1.5 data-active:bg-ink/5 aria-selected:font-medium"
                     >
                         <span class="w-6 shrink-0 font-mono text-[0.68rem] tracking-[0.08em] text-graphite" x-text="option.code"></span>
                         <span class="min-w-0 flex-1 truncate text-[0.92rem]" x-text="option.name"></span>
