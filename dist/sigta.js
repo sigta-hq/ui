@@ -269,6 +269,201 @@ document.addEventListener('alpine:init', () => {
         },
     }));
 
+    /* Phone input — a calling code picker inside the number field. The
+       country list is read once from the panel's data-countries; a number
+       typed or pasted with its calling code ("+46 …", "0046 …") picks the
+       country by itself. The forwarded wire:model binds `value` through
+       x-modelable; the root gets `blur` when the number is left, which is
+       what wire:model.live.blur waits for, and a value the server sends back
+       in another format is shown as sent. */
+    Alpine.data('sigtaPhoneInput', () => ({
+        countries: [],
+        country: '',
+        callingCode: '',
+        value: '',
+        emitted: '',
+        open: false,
+        query: '',
+        active: 0,
+
+        init() {
+            this.countries = JSON.parse(this.$refs.panel.dataset.countries || '[]');
+            this.country = this.$root.dataset.country;
+            this.callingCode = this.$root.dataset.callingCode;
+            this.value = this.$refs.value.value;
+            this.emitted = this.value;
+            this.$watch('value', (value) => {
+                if (value !== this.emitted) this.load(value ?? '');
+            });
+        },
+
+        // Show a value set from outside: "+46 70 412 38 95" picks Sweden and shows "70 412 38 95".
+        load(value) {
+            this.emitted = value;
+            const number = this.$refs.number;
+            const match = value.match(/^\s*(\+|00)(.*)$/s);
+
+            if (match) {
+                const digits = match[2].replace(/\D/g, '');
+                for (const length of [1, 2, 3]) {
+                    if (digits.length < length) break;
+                    const found = this.countryFor(`+${digits.slice(0, length)}`);
+                    if (found) {
+                        this.select(found);
+                        number.value = this.withoutCallingCode(match[2], length);
+                        return;
+                    }
+                }
+            }
+
+            number.value = value;
+        },
+
+        get shown() {
+            const q = this.query.trim().toLowerCase();
+            if (q === '') return this.countries;
+            return this.countries.filter((c) => `${c.code} ${c.name} ${c.callingCode}`.toLowerCase().includes(q));
+        },
+
+        countryName() {
+            return this.countries.find((c) => c.code === this.country)?.name ?? this.country;
+        },
+
+        optionId(index) {
+            const option = this.shown[index];
+            return option ? `${this.$root.dataset.id}-${option.code}` : null;
+        },
+
+        toggle() {
+            if (this.open) {
+                this.close(true);
+            } else {
+                this.show();
+            }
+        },
+
+        show() {
+            this.query = '';
+            this.active = Math.max(0, this.countries.findIndex((c) => c.code === this.country));
+            this.open = true;
+            this.$nextTick(() => {
+                const panel = this.$refs.panel;
+                if (panel.showPopover && !panel.matches(':popover-open')) panel.showPopover();
+                this.place();
+                this.$refs.search.focus();
+                this.reveal();
+            });
+        },
+
+        close(focusButton = false) {
+            if (!this.open) return;
+            this.open = false;
+            const panel = this.$refs.panel;
+            if (panel.hidePopover && panel.matches(':popover-open')) panel.hidePopover();
+            if (focusButton) this.$refs.button.focus();
+        },
+
+        // Fixed to the field, and flipped above it when there is no room below.
+        place() {
+            const frame = this.$refs.frame.getBoundingClientRect();
+            const panel = this.$refs.panel;
+            const gap = 6;
+            const width = Math.min(Math.max(frame.width, 288), window.innerWidth - 16);
+            const left = Math.max(8, Math.min(frame.left, window.innerWidth - width - 8));
+            const below = window.innerHeight - frame.bottom;
+            const flip = below < panel.offsetHeight + gap && frame.top > below;
+
+            Object.assign(panel.style, {
+                position: 'fixed',
+                inset: 'auto',
+                left: `${Math.round(left)}px`,
+                width: `${Math.round(width)}px`,
+                top: flip ? 'auto' : `${Math.round(frame.bottom + gap)}px`,
+                bottom: flip ? `${Math.round(window.innerHeight - frame.top + gap)}px` : 'auto',
+            });
+        },
+
+        move(delta) {
+            const count = this.shown.length;
+            if (!count) return;
+            this.active = (this.active + delta + count) % count;
+            this.reveal();
+        },
+
+        reveal() {
+            this.$nextTick(() => {
+                const id = this.optionId(this.active);
+                if (id) document.getElementById(id)?.scrollIntoView({ block: 'nearest' });
+            });
+        },
+
+        chooseActive() {
+            const option = this.shown[this.active];
+            if (option) this.choose(option);
+        },
+
+        choose(option) {
+            this.select(option);
+            this.close();
+            this.$refs.number.focus();
+            this.sync(true);
+        },
+
+        select(option) {
+            this.country = option.code;
+            this.callingCode = option.callingCode;
+        },
+
+        typed() {
+            const input = this.$refs.number;
+            const match = input.value.match(/^\s*(\+|00)(.*)$/s);
+
+            if (match) {
+                const digits = match[2].replace(/\D/g, '');
+
+                // Calling codes are prefix-free, so the first one found is the one.
+                for (const length of [1, 2, 3]) {
+                    if (digits.length < length) break;
+                    const found = this.countryFor(`+${digits.slice(0, length)}`);
+                    if (found) {
+                        this.select(found);
+                        input.value = this.withoutCallingCode(match[2], length);
+                        break;
+                    }
+                }
+            }
+
+            this.sync(false);
+        },
+
+        // Where countries share a code, keep the one picked, else the one the code is shown as.
+        countryFor(callingCode) {
+            const sharing = this.countries.filter((c) => c.callingCode === callingCode);
+            return sharing.find((c) => c.code === this.country) ?? sharing.find((c) => c.main) ?? sharing[0] ?? null;
+        },
+
+        withoutCallingCode(text, digitCount) {
+            let seen = 0;
+            let i = 0;
+            while (i < text.length && seen < digitCount) {
+                if (/\d/.test(text[i])) seen++;
+                i++;
+            }
+            return text.slice(i).replace(/^[\s\-./()]+/, '');
+        },
+
+        sync(committed) {
+            const number = this.$refs.number.value.trim();
+            this.emitted = number === '' ? '' : `${this.callingCode} ${number}`;
+            this.value = this.emitted;
+            if (committed) {
+                // With the value as detail, a listener that reads the event gets the number, not a div's empty value.
+                this.$root.dispatchEvent(new CustomEvent('change', { detail: this.value }));
+                this.$root.dispatchEvent(new CustomEvent('blur', { detail: this.value }));
+            }
+        },
+    }));
+
     /* Toast stack — driven by `sigta-toast` window events. From Livewire:
        Sigta::toast('…') or $this->dispatch('sigta-toast', heading: '…', variant: 'success');
        An `action` ({ text, event, detail } or { text, onClick }) adds a button —

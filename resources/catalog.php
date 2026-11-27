@@ -91,6 +91,7 @@ return [
             'date-picker',
             'time-picker',
             'duration-input',
+            'phone-input',
             'carousel',
             'kanban',
             'composer',

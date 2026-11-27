@@ -139,7 +139,7 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 ### `input`
 - **Props:** `label`, `description`, `error`, `icon`, `type` (default `text`), `variant` (default `default`), plus native `<input>` attrs (`wire:model`, `name`, etc.)
 - **Variants:** `default`, `inline`
-- Text input with optional leading icon, wrapped in `<sigta:field>`. `variant="inline"` is the value form for detail views (a property list): no box until hovered or focused, compact padding, and its frame sits in the margin so the text lines up with plain values beside it. The same `inline` variant exists on `select`, `date-picker`, `duration-input`, `money-input` and `editor`.
+- Text input with optional leading icon, wrapped in `<sigta:field>`. `variant="inline"` is the value form for detail views (a property list): no box until hovered or focused, compact padding, and its frame sits in the margin so the text lines up with plain values beside it. The same `inline` variant exists on `select`, `date-picker`, `duration-input`, `money-input`, `phone-input` and `editor`.
 ```blade
 <sigta:input label="Email" type="email" icon="mail" wire:model="email" placeholder="you@studio.co" description="We only use this for the invoice." />
 ```
@@ -232,6 +232,14 @@ A family covering text roles. Use these instead of styling `<h1>`/`<p>` by hand.
 - Amount field (entered in major units) with an inline currency switcher: a small dropdown button (code + chevron) sits inside the same field, not a separate toggle. Emits MINOR units onto the forwarded `wire:model` via a hidden input; the currency binds separately via `currencyModel` through a hidden input. App logic (the currency enum) stays in your app.
 ```blade
 <sigta:money-input label="Hourly rate" :value="$rate->amount_minor" wire:model="amountMinor" :currency="$currency" currency-model="currency" />
+```
+
+### `phone-input`
+- **Props:** `label`, `description`, `error`, `value` (the number, best with its calling code: `+45 25 04 88 63`), `country` (ISO code picked when the value has no calling code), `preferred` (ISO codes listed first), `countries` (ISO code⇒`['calling_code' => '+45', 'name' => 'Danmark']`; default every country, named in the app's locale), `placeholder`, `variant` (default `default`), plus native `<input>` attrs
+- **Variants:** `default`, `inline` (borderless until hover; the divider and chevron show on hover or focus)
+- Phone number field with its calling code picker inside it: a button showing the country and code (`DK +45`) opens a searchable list of countries, the `preferred` ones first. A number typed or pasted with its calling code (`+46 70 …`, `0046 70 …`) picks the country by itself and keeps only the number in the field. The forwarded `wire:model` binds the field's value (through `x-modelable`): the calling code and the number as typed, `+46 70 412 38 95`. Parsing, validating and storing it stays in your app, and a number your app saves in its own format comes back into the field. Leaving the number sends `blur`, so `wire:model.live.blur` saves then. `name` posts the same value in a plain form. The `label` belongs to the number, so a test finds the field by it. The country list floats in the top layer, so a card or modal around the field never clips it.
+```blade
+<sigta:phone-input label="Mobile number" :value="$mobile" country="DK" :preferred="['DK', 'SE', 'NO', 'DE']" wire:model.live.blur="mobile" />
 ```
 
 ### `callout`

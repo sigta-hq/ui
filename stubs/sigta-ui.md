@@ -27,6 +27,7 @@ raw HTML tag with Tailwind utility classes.
 |---|---|---|
 | Button / link | `<sigta:button>` | `<button class="bg-… text-… rounded-…">` |
 | Text input | `<sigta:input>` | `<input class="border …">` |
+| Phone number | `<sigta:phone-input>` | `<input type="tel">` with a hand-built country select |
 | Textarea | `<sigta:textarea>` | `<textarea class="…">` |
 | Select | `<sigta:select>` | `<select class="…">` |
 | Checkbox | `<sigta:checkbox>` | `<input type="checkbox" class="…">` |
